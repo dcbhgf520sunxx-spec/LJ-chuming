@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.factory.MesBuildingProductionLineMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingProductionLine">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="sort" property="sort"/>
+        <result column="bool_enabled_enum" property="boolEnabledEnum"/>
+        <result column="remark" property="remark"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, short_name, sort, bool_enabled_enum, remark, factory_id, workshop_id, user_id
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.DistributionDO">
+        SELECT
+        a.factory_id 'factory.id',
+        a.id 'production_line.id',
+        a.workshop_id 'workshop.id',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        a.`name` 'production_line.name'
+        FROM
+        mes_building_production_line a
+        LEFT JOIN mes_building_factory mbf ON mbf.id=a.factory_id
+        LEFT JOIN mes_building_workshop mbw ON mbw.id=a.workshop_id
+        <where>
+            <if test="factory!=null">
+                a.factory_id=#{factory}
+            </if>
+            <if test="workshopId!=null">
+                a.workshop_id=#{workshopId}
+            </if>
+        </where>
+    </select>
+    <select id="listProductionLineUser" resultType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+        select id, name
+        from mes_building_production_line
+        where id in (select distinct t.factory_id
+        from mes_building_team t
+        inner join mes_building_team_user_link tu on tu.team_id = t.id
+        where t.bool_delete_enum = 0
+        and tu.bool_delete_enum = 0
+        and tu.user_id = #{currentUserId}) and bool_delete_enum = 0
+        <if test="workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+    </select>
+    <select id="productionLineList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.factory.ProductionLineDO">
+        SELECT
+        mbpl.id 'productionLine.id',
+        mbpl.`name` 'productionLine.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbf.id 'factory.id',
+        mbf.`name` 'factory.name'
+        FROM
+        (
+        SELECT DISTINCT
+        production_line_id id
+        FROM
+        mes_building_team team
+        LEFT JOIN mes_building_process process ON team.process_id = process.id
+        <where>
+            team.bool_delete_enum = FALSE
+            <if test="factoryId!=null">
+                AND team.factory_id=#{factoryId}
+            </if>
+            <if test="workshopId!=null">
+                AND team.workshop_id=#{factoryId}
+            </if>
+            <if test="productType!=null">
+                AND process.product_type=#{productType}
+            </if>
+            <if test="productionLineId!=null">
+                AND team.id=#{productionLineId}
+            </if>
+        </where>
+        ) a
+        LEFT JOIN mes_building_production_line mbpl ON mbpl.id =a.id
+        LEFT JOIN mes_building_workshop mbw ON mbpl.workshop_id = mbw.id
+        LEFT JOIN mes_building_factory mbf ON mbpl.factory_id = mbf.id
+        WHERE mbpl.bool_delete_enum=FALSE
+        ORDER BY mbpl.factory_id
+    </select>
+
+    <select id="selectProductLine"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingProductionLineSumDO">
+        SELECT
+        line.*,
+        factory.name factoryName,
+        workshop.name workshopName
+        FROM
+        mes_building_production_line line
+        LEFT JOIN mes_building_factory factory ON line.factory_id = factory.id
+        AND factory.bool_delete_enum = 0 AND factory.bool_enabled_enum=1
+        LEFT JOIN mes_building_workshop workshop ON line.workshop_id = workshop.id
+        AND workshop.bool_delete_enum = 0 AND workshop.bool_enabled_enum=1
+        WHERE
+        line.bool_delete_enum = 0
+        AND line.bool_enabled_enum=1
+        <if test="factoryId!=null">
+            AND line.factory_id = #{factoryId}
+        </if>
+        <if test="workshopId!=null">
+            AND line.workshop_id = #{workshopId}
+        </if>
+        <if test="productionLineId!=null">
+            AND line.id = #{productionLineId}
+        </if>
+        <if test="productType!=null">
+            AND line.product_type= #{productType}
+        </if>
+        ORDER BY workshop.`id` ASC ,line.`id` ASC
+    </select>
+    <select id="selectProductLineByids"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingProductionLineSumDO">
+        SELECT
+        line.*,
+        factory.name factoryName,
+        workshop.name workshopName
+        FROM
+        mes_building_production_line line
+        LEFT JOIN mes_building_factory factory ON line.factory_id = factory.id
+        AND factory.bool_delete_enum = 0 AND factory.bool_enabled_enum=1
+        LEFT JOIN mes_building_workshop workshop ON line.workshop_id = workshop.id
+        AND workshop.bool_delete_enum = 0 AND workshop.bool_enabled_enum=1
+        WHERE
+        line.bool_delete_enum = 0
+        AND line.bool_enabled_enum=1
+        <if test="lineIds!=null">
+            and line.id in
+            <foreach collection="lineIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <resultMap id="MesBuildingFactoryDTO" type="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingFactoryDTO">
+        <id column="factory_id" property="id" />
+        <result column="factory_name" property="name" />
+        <result column="factory_sort" property="sort" />
+        <result column="factory_bool_enabled_enum" property="boolEnabledEnum" />
+        <collection property="workshopList" resultMap="MesBuildingWorkshopDO"/>
+    </resultMap>
+
+    <resultMap id="MesBuildingWorkshopDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingWorkshopDO">
+        <id column="workshop_id" property="id" />
+        <result column="workshop_name" property="name" />
+        <result column="workshop_sort" property="sort" />
+        <result column="workshop_bool_enabled_enum" property="boolEnabledEnum" />
+        <collection property="productionLineList" resultMap="MesBuildingProductionLineDO"/>
+    </resultMap>
+
+    <resultMap id="MesBuildingProductionLineDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingProductionLineDO">
+        <id column="production_line_id" property="id" />
+        <result column="production_line_name" property="name" />
+        <result column="production_line_sort" property="sort" />
+        <result column="production_line_bool_enabled_enum" property="boolEnabledEnum" />
+        <result column="production_line_product_type" property="productType" />
+    </resultMap>
+
+    <select id="getSchedulingLineTree" resultMap="MesBuildingFactoryDTO">
+        SELECT
+        factory.id factory_id,
+        factory.`name` factory_name,
+        workshop.id workshop_id,
+        workshop.`name`  workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name
+        FROM
+        mes_building_factory factory
+        LEFT JOIN mes_building_workshop workshop ON factory.id = workshop.factory_id and workshop.type=#{type} and workshop.bool_delete_enum = 0
+        LEFT JOIN mes_building_production_line production_line ON workshop.id = production_line.workshop_id and production_line.bool_delete_enum = 0
+        WHERE  factory.bool_delete_enum = 0
+        <if test="doParam.factoryId!=null">
+            AND factory.id = #{doParam.factoryId}
+        </if>
+        <if test="doParam.workshopId!=null">
+            AND workshop.id = #{doParam.workshopId}
+        </if>
+        <if test="doParam.productionLineId!=null">
+            AND production_line.id = #{doParam.productionLineId}
+        </if>
+        <if test="doParam.productType!=null">
+            AND production_line.product_type = #{doParam.productType}
+        </if>
+        AND factory.bool_enabled_enum= 1
+        AND workshop.bool_enabled_enum = 1
+        AND production_line.bool_enabled_enum = 1
+        ORDER BY
+        factory.id,
+        workshop.id,
+        production_line.id
+    </select>
+
+    <select id="getEnclosureSchedulingLineTree" resultMap="MesBuildingFactoryDTO">
+        SELECT
+        factory.id factory_id,
+        factory.`name` factory_name,
+        workshop.id workshop_id,
+        workshop.`name`  workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name
+        FROM
+        mes_building_factory factory
+        LEFT JOIN mes_building_workshop workshop ON factory.id = workshop.factory_id and workshop.type=#{type} and workshop.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_production_line production_line ON workshop.id = production_line.workshop_id and production_line.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_line_team_link line_team_link ON production_line.id = line_team_link.line_id and line_team_link.bool_delete_enum = 0
+        WHERE  factory.bool_delete_enum = 0 and line_team_link.line_id is not null
+        <if test="doParam.factoryId!=null">
+            AND factory.id = #{doParam.factoryId}
+        </if>
+        <if test="doParam.workshopId!=null">
+            AND workshop.id = #{doParam.workshopId}
+        </if>
+        <if test="doParam.productionLineId!=null">
+            AND production_line.id = #{doParam.productionLineId}
+        </if>
+        AND factory.bool_enabled_enum= 1
+        AND workshop.bool_enabled_enum = 1
+        AND production_line.bool_enabled_enum = 1
+        ORDER BY
+        factory.id,
+        workshop.id,
+        production_line.id
+    </select>
+    <select id="getLinesRecordSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingArtifactSchedulingLineSummaryDTO">
+            SELECT
+            workshop_id 'workshop.id',
+            workshop_name 'workshop.name',
+            workshop_type 'workshop.type',
+            production_line_id 'production_line.id',
+            production_line_name 'production_line.name',
+            IFNULL( sum( quantity ), 0 ) 'mete.quantity',
+            IFNULL( sum( total_net_weight ), 0 ) 'mete.net_weight'
+            FROM
+            (
+            SELECT
+            workshop.id workshop_id,
+            workshop.`name` workshop_name,
+            workshop.`type` workshop_type,
+            production_line.id production_line_id,
+            production_line.`name` production_line_name,
+            scheduling.quantity - scheduling.task_quantity quantity,
+            (scheduling.quantity - scheduling.task_quantity )* artifact.net_weight total_net_weight
+            FROM
+            mes_building_artifact_scheduling scheduling
+            LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+            LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+            LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id=workshop.id
+            WHERE
+            scheduling.bool_delete_enum = 0 and scheduling.quantity - scheduling.task_quantity > 0
+            AND scheduling.area_batch_id IN
+            <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+            <if test="structureClassId!=null">
+                AND artifact.structure_class_id = #{structureClassId}
+            </if>
+            <if test="issueStatus!=null">
+                AND scheduling.issue_status=0
+            </if>
+            <if test="serialNumber!=null">
+                AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+            </if>
+            ) AS a
+            GROUP BY
+            workshop_id,
+            workshop_name,
+            production_line_id,
+            production_line_name,
+            workshop_type
+    </select>
+    <select id="getLinesRecordSummary2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingArtifactSchedulingLineSummaryDTO">
+        SELECT
+        workshop_id 'workshop.id',
+        workshop_name 'workshop.name',
+        production_line_id 'production_line.id',
+        production_line_name 'production_line.name',
+        IFNULL( sum( quantity ), 0 ) 'mete.quantity',
+        IFNULL( sum( total_net_weight ), 0 ) 'mete.net_weight'
+        FROM
+        (
+        SELECT
+        workshop.id workshop_id,
+        workshop.`name` workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        scheduling.quantity - scheduling.task_quantity quantity,
+        (scheduling.quantity - scheduling.task_quantity )* artifact.net_weight total_net_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id=workshop.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity - scheduling.task_quantity > 0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        ) AS a
+        GROUP BY
+        workshop_id,
+        workshop_name,
+        production_line_id,
+        production_line_name
+    </select>
+
+    <select id="getTreeByLineIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.ProductLineDetailDTO">
+        SELECT
+        line.id     'productionLineId',
+        line.`name` 'productionLineName',
+        ws.id       'workshopId',
+        ws.`name`   'workshopName',
+        fac.id      'factoryId',
+        fac.`name`  'factoryName'
+        FROM
+        mes_building_production_line line
+        LEFT JOIN mes_building_workshop ws ON line.workshop_id = ws.id and ws.bool_delete_enum = 0
+        LEFT JOIN mes_building_factory fac ON fac.id = line.factory_id and fac.bool_delete_enum = 0
+        WHERE  line.bool_delete_enum = 0
+        <if test="lineIds != null and lineIds.size() != 0">
+           and line.id in
+            <foreach collection="lineIds" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+    <select id="getTreeByLineId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.ProductLineDetailDTO">
+        SELECT
+        line.id     'productionLineId',
+        line.`name` 'productionLineName',
+        ws.id       'workshopId',
+        ws.`name`   'workshopName',
+        fac.id      'factoryId',
+        fac.`name`  'factoryName'
+        FROM
+        mes_building_production_line line
+        LEFT JOIN mes_building_workshop ws ON line.workshop_id = ws.id and ws.bool_delete_enum = 0
+        LEFT JOIN mes_building_factory fac ON fac.id = line.factory_id and fac.bool_delete_enum = 0
+        WHERE  line.bool_delete_enum = 0
+         and  line.id = #{lineId}
+    </select>
+
+    <select id="getWorkShopAndProductionLineList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.GroupDetailDTO">
+        SELECT
+        shop.id workshop_id,
+        shop.name workshopName,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name
+        FROM
+        mes_building_workshop shop
+        LEFT JOIN mes_building_production_line production_line ON shop.id = production_line.workshop_id
+        LEFT JOIN mes_building_product_process pro on pro.production_line_id = production_line.id
+        WHERE
+        shop.bool_delete_enum = 0
+        and production_line.bool_delete_enum = 0
+        and pro.bool_delete_enum = 0
+        and pro.type_id =  #{structureClassId}
+        <if test="productType != null">
+            AND production_line.product_type &amp; #{productType}
+        </if>
+        <if test="mesProductEnum != null">
+            And production_line.mes_product_enum = #{mesProductEnum}
+        </if>
+        AND production_line.bool_enabled_enum = 1
+        ORDER BY
+        shop.sort,
+        production_line.sort
+    </select>
+
+    <select id="productionLineSchedulingInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.ProductionLineSchedulingInfoDTO">
+        SELECT
+            workshop.id workshop_id,
+            workshop.`name` workshop_name,
+            line.id production_line_id,
+            line.`name` production_line_name,
+            line.product_type product_type,
+            line.mes_product_enum mes_product_enum,
+            line.bool_enabled_enum bool_enabled_enum,
+            tu.team_id team_id,
+            tu.`user_name` lineLeaderName
+        FROM
+            mes_building_production_line line
+            LEFT JOIN mes_building_workshop workshop ON line.workshop_id = workshop.id AND workshop.bool_delete_enum = 0
+            LEFT JOIN mes_building_product_process pp ON line.id = pp.production_line_id AND pp.bool_delete_enum = 0 and pp.product_type = 2
+            and pp.type_id = #{typeId} and pp.workshop_id = #{workshopId}
+            LEFT JOIN mes_building_product_process_link ppl ON pp.id = ppl.product_process_id AND ppl.bool_delete_enum = 0 and ppl.sequence = 1
+            LEFT JOIN mes_building_team_user_link tu ON ppl.team_id = tu.team_id AND tu.bool_delete_enum = 0 and tu.bool_leader_enum = 1
+        WHERE line.bool_delete_enum = 0
+            <if test="workshopId != null">
+                and line.workshop_id = #{workshopId}
+            </if>
+            and workshop.type=#{type}
+            and line.product_type = #{productType}
+            and line.mes_product_enum = 1
+            and line.bool_enabled_enum = 1 and pp.production_line_id is not NULL
+            AND workshop.bool_enabled_enum = 1
+        ORDER BY
+            workshop.sort,
+            line.sort
+    </select>
+    <select id="findLineSchedulingInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.SchedulingInfoDTO">
+        SELECT line.id lineId,
+        line.`name` lineName,
+        tul.`user_name` lineLeaderName,
+        ifnull(round(a.completedCount / a.monthCount,0), 0) avgScheduleCount,
+        ifnull(round(a.completedTon / a.monthCount / 1000,0), 0) avgScheduleTon,
+        ifnull(b.uncompletedCount , 0) uncompletedCount,
+        ifnull(round(b.uncompletedTon / 1000,0), 0) uncompletedTon,
+        ifnull(c.thisProjectCompletedCount, 0) thisProjectCompletedCount,
+        ifnull(round(c.thisProjectCompletedTon / 1000,0), 0) thisProjectCompletedTon,
+        ifnull(d.totalScheduleCount , 0) totalScheduleCount,
+        ifnull(round(d.totalScheduleTon / 1000,0), 0) totalScheduleTon
+        FROM mes_building_production_line line
+                 left join(
+            /* 平均能力 */
+            select rep.production_line_id,
+                   IFNULL(sum(rep.quantity), 0)                          as completedCount,
+                   IFNULL(sum(rep.quantity * art.net_weight), 0)         as completedTon,
+                   COUNT(DISTINCT DATE_FORMAT(rep.create_time, '%Y-%m')) AS monthCount
+            from mes_building_produce_team_report rep
+                     left join mes_building_task task
+                               on rep.task_id = task.id and task.bool_delete_enum = 0 and task.task_type_enum = 2
+                     LEFT JOIN tech_artifact art ON rep.product_id = art.id AND art.bool_delete_enum = 0
+            where rep.bool_delete_enum = 0
+              and rep.task_type_enum = 2
+              <if test="typeId != null">
+                  and task.classification_id = #{typeId}
+              </if>
+            group by rep.production_line_id) a on line.id = a.production_line_id
+                 left join (
+            /* 未完成数量 */
+            select task.production_line_id,
+                   IFNULL(sum(task.task_quantity - task.complete_quantity), 0)                    as uncompletedCount,
+                   IFNULL(sum((task.task_quantity - task.complete_quantity) * art.net_weight), 0) as uncompletedTon
+            from mes_building_task task
+                     LEFT JOIN tech_artifact art ON task.product_id = art.id AND art.bool_delete_enum = 0
+            where task.bool_delete_enum = 0
+              and task.task_type_enum = 2
+              <if test="typeId != null">
+                  and task.classification_id = #{typeId}
+              </if>
+            group by task.production_line_id) b on line.id = b.production_line_id
+                 left join (
+            /* 此项目已排产 */
+            select task.production_line_id,
+                   IFNULL(sum(task.task_quantity), 0)                  as thisProjectCompletedCount,
+                   IFNULL(sum(task.task_quantity * art.net_weight), 0) as thisProjectCompletedTon
+            from mes_building_task task
+                     LEFT JOIN tech_artifact art ON task.product_id = art.id AND art.bool_delete_enum = 0
+            where task.bool_delete_enum = 0
+              and task.task_type_enum = 2
+              <if test="projectId != null">
+                  and task.project_id = #{projectId}
+              </if>
+              <if test="typeId != null">
+                  and task.classification_id = #{typeId}
+              </if>
+            group by task.production_line_id) c on line.id = c.production_line_id
+                 left join (
+            /* 总排产数量 */
+            select task.production_line_id,
+                   IFNULL(sum(task.task_quantity), 0)                  as totalScheduleCount,
+                   IFNULL(sum(task.task_quantity * art.net_weight), 0) as totalScheduleTon
+            from mes_building_task task
+                     LEFT JOIN tech_artifact art ON task.product_id = art.id AND art.bool_delete_enum = 0
+            where task.bool_delete_enum = 0
+              and task.task_type_enum = 2
+              <if test="typeId != null">
+                  and task.classification_id = #{typeId}
+              </if>
+            group by task.production_line_id) d on line.id = d.production_line_id
+        left join mes_building_product_process pp on line.id = pp.production_line_id and pp.bool_delete_enum = 0
+        and pp.product_type = 2 and type_id = #{typeId}
+        left join mes_building_product_process_link ppl on pp.id = ppl.product_process_id and ppl.bool_delete_enum = 0 and ppl.sequence = 0
+        left join mes_building_team_user_link tul on ppl.team_id = tul.team_id and tul.bool_delete_enum = 0 and tul.bool_leader_enum = 1
+        WHERE line.bool_delete_enum = 0
+          AND line.product_type = 2 and (a.completedCount > 0 or b.uncompletedCount > 0 or c.thisProjectCompletedCount > 0 or d.totalScheduleCount > 0)
+    </select>
+    <select id="getArtifactSchedulingLineInfoSummaryV8"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.ArtifactSchedulingLineInfoDTO">
+        select sche.workshop_id workshopId,
+               ws.name workshopName,
+               sche.production_line_id productionLineId,
+               pl.name productionLineName
+        from mes_building_artifact_scheduling sche
+                 left join mes_building_workshop ws on sche.workshop_id = ws.id and ws.bool_delete_enum = 0
+                 left join mes_building_production_line pl on sche.production_line_id = pl.id and pl.bool_delete_enum = 0
+        where sche.bool_delete_enum = 0
+          and sche.area_id = #{areaId}
+        group by sche.workshop_id, sche.production_line_id
+    </select>
+</mapper>

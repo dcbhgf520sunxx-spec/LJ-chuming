@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.ScrapMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Scrap">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="warehouse_type" property="warehouseType"/>
+        <result column="project_id" property="projectId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="accounting_precision" property="accountingPrecision"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="weight_measurement_mode" property="weightMeasurementMode"/>
+        <result column="remark" property="remark"/>
+        <result column="inventory_start_time" property="inventoryStartTime"/>
+        <result column="inventory_end_time" property="inventoryEndTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, basic_class, classify_id, specification, warehouse_type, type, project_id, quantity, length, width, thickness, theory_thickness, brand, heat_no_and_batch_no, color, measure_unit, accounting_precision, accounting_unit, mete, unit_net, warehouse_id, workshop_id, weight_measurement_mode, remark, inventory_start_time, inventory_end_time
+    </sql>
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Scrap">
+        select
+       *
+        from wms_scrap
+        where bool_delete_enum = 0
+        <if test=" workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType == 1">
+            and project_id is null
+        </if>
+        <if test=" projectWarehouseType == 2">
+            and project_id is not null
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+    </select>
+</mapper>

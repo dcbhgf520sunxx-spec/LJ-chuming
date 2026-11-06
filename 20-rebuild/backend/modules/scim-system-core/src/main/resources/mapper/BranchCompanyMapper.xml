@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.BranchCompanyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.BranchCompany">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="enabled" property="enabled"/>
+        <result column="is_parent" property="isParent"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="social_code" property="socialCode"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        version,
+        bool_delete_enum,
+        id, enabled, is_parent, name, remark, social_code, sort
+    </sql>
+
+    <select id="listByCondition" resultType="com.hzchum.scim.system.core.api.pojo.dto.BranchCompanyDTO">
+        SELECT *
+        FROM sys_branch_company
+        <where>
+            bool_delete_enum = 0
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%',#{name},'%')
+            </if>
+            <if test="socialCode != null and socialCode != ''">
+                AND social_code LIKE CONCAT('%',#{socialCode},'%')
+            </if>
+            <if test="enabled != null">
+                AND enabled = #{enabled}
+            </if>
+            <if test="level != null">
+                AND level = #{level}
+            </if>
+
+        </where>
+        ORDER BY is_parent DESC,sort,id
+    </select>
+
+    <select id="listBlankAccount" resultType="com.hzchum.scim.system.core.api.pojo.dto.BankAccountDTO">
+
+        SELECT ba.id,
+               ba.deposit_bank,
+               ba.account,
+               bc.id as company_id,
+               bc.name     as      company_name
+        FROM sys_bank_account as ba
+                 LEFT JOIN sys_branch_company as bc
+                           ON bc.id = ba.branch_company_id
+        where ba.bool_delete_enum = 0
+          and bc.bool_delete_enum = 0
+          and bc.enabled = 1
+    </select>
+</mapper>

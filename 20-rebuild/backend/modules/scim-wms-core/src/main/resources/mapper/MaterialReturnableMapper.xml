@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MaterialReturnableMapper">
+
+    <select id="returnableList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialReturnable">
+        select
+        wmr.*
+        FROM wms_material_returnable wmr
+        left join wms_outbound wo on wmr.outbound_id = wo.id
+        where
+        wmr.bool_delete_enum = 0
+        and  wmr.bool_return = 1
+        <if test="outboundTypeSelection != null">
+            and wo.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="materialIsWhole != null ">
+            and wmr.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="basicClass != null ">
+            and wmr.basic_class = #{basicClass}
+        </if>
+        <if test="classifyId != null ">
+            and wmr.classify_id = #{classifyId}
+        </if>
+        <if test="workshopId != null ">
+            and wmr.workshop_id = #{workshopId}
+        </if>
+        <if test="warehouseId != null ">
+            and wmr.warehouse_id = #{warehouseId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND wmr.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="minLength != null ">
+            AND wmr.quantity &gt; #{minLength}
+        </if>
+        <if test="maxLength != null ">
+            AND wmr.quantity &lt; #{maxLength}
+        </if>
+        <if test="length != null ">
+            AND wmr.length = #{length}
+        </if>
+        <if test="width != null ">
+            AND wmr.width = #{width}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wmr.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wmr.quantity &lt;= #{maxLength}
+        </if>
+
+        <if test="theoryThickness != null ">
+            AND wmr.theory_thickness = #{theoryThickness}
+        </if>
+        <if test="thickness != null ">
+            AND wmr.thickness = #{thickness}
+        </if>
+        <if test="projectId != null ">
+            AND wmr.project_id = #{projectId}
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND wmr.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="color != null and color != ''">
+            AND wmr.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wmr.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test="workshopId!=null">
+            and wmr.workshop_id=#{workshopId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmr.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyId != null">
+            and wmr.classify_id = #{classifyId}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                -- 开始时间: 数据 大于 条件
+                and wmr.outbound_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                -- 结束时间: 数据 小于 条件
+                and wmr.outbound_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="mete != null">
+            and wmr.single_returnable_mete >#{mete}
+        </if>
+        <if test="boolPartyA != null">
+            and wmr.bool_party_a =#{boolPartyA}
+        </if>
+        <if test="serialNumber !=null">
+            AND wo.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+          -- app拍照退库查询时 不查有审核中退库单的 pc端是前端限制的
+        <if test="boolReviewPending !=null">
+            AND wmr.bool_review_pending =#{boolReviewPending}
+        </if>
+        <if test="areaBatchId != null">
+            and wmr.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="recipientId != null">
+            and wmr.recipient_id = #{recipientId}
+        </if>
+    </select>
+
+    <update id="updateReviewById">
+        update  wms_material_returnable set bool_review_pending = #{bool}
+        where id in (select material_returnable_id from wms_return_detail where return_id = #{id})
+    </update>
+
+    <select id="returnableListV2" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialReturnable">
+        select
+        *
+        FROM wms_material_returnable
+        where
+        bool_delete_enum = 0
+        and  bool_return = 1
+        <if test="materialIsWhole != null ">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="basicClass != null ">
+            and basic_class = #{basicClass}
+        </if>
+        <if test="classifyId != null ">
+            and classify_id = #{classifyId}
+        </if>
+        <if test="workshopId != null ">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test="warehouseId != null ">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="minLength != null ">
+            AND quantity &gt; #{minLength}
+        </if>
+        <if test="maxLength != null ">
+            AND quantity &lt; #{maxLength}
+        </if>
+        <if test="length != null ">
+            AND length = #{length}
+        </if>
+        <if test="width != null ">
+            AND width = #{width}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test="theoryThickness != null ">
+            AND theory_thickness = #{theoryThickness}
+        </if>
+        <if test="thickness != null ">
+            AND thickness = #{thickness}
+        </if>
+        <if test="projectId != null ">
+            AND project_id = #{projectId}
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="color != null and color != ''">
+            AND color like CONCAT('%', #{color},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test="workshopId!=null">
+            and workshop_id=#{workshopId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                -- 开始时间: 数据 大于 条件
+                and outbound_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                -- 结束时间: 数据 小于 条件
+                and outbound_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        --可退库出库单类型
+        <if test="outboundTypeSelection !=null">
+            and outbound_type_selection = #{outboundTypeSelection}
+        </if>
+    </select>
+</mapper>

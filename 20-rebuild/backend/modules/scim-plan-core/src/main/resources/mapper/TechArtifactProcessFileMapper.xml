@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactProcessFileMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactProcessFile">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="process_type" property="processType" />
+        <result column="bool_single_project" property="boolSingleProject" />
+        <result column="project_id" property="projectId" />
+        <result column="file_name" property="fileName" />
+        <result column="file_version" property="fileVersion" />
+        <result column="attachment__id" property="attachmentId" />
+        <result column="user_id" property="userId" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, process_type, bool_single_project, project_id, file_name, file_version, attachment__id, user_id, remark
+    </sql>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactProcessFileDTO">
+        SELECT
+        file.*,
+        u.`name` user_name
+        FROM `tech_artifact_process_file` AS file
+        LEFT JOIN sys_user u ON u.id = file.user_id AND u.bool_delete_enum = 0
+        LEFT JOIN tech_artifact_process_file_link link ON file.id = link.process_file_id AND link.bool_delete_enum = 0
+        WHERE file.bool_delete_enum = 0
+        <if test="processType != null">
+            AND file.process_type = #{processType}
+        </if>
+        <if test="boolSingleProject != null">
+            AND file.bool_single_project = #{boolSingleProject}
+        </if>
+        <if test="projectId != null">
+            AND (file.project_id = #{projectId} or link.project_id = #{projectId})
+        </if>
+        <if test="fileName != null and fileName != ''">
+            AND file.file_name LIKE concat('%',#{fileName},'%')
+        </if>
+        <if test="structureClassId != null">
+            AND link.structure_class_id = #{structureClassId}
+        </if>
+        <if test="name != null and name != ''">
+            AND link.`name` LIKE concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND link.serial_number LIKE concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND link.specification LIKE concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND link.material LIKE concat('%',#{material},'%')
+        </if>
+        GROUP BY file.id
+        ORDER BY file.id DESC
+    </select>
+
+</mapper>

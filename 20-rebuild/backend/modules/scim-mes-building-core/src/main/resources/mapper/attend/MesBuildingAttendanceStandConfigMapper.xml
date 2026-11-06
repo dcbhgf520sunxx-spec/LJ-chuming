@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.attend.MesBuildingAttendanceStandConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.attend.MesBuildingAttendanceStandConfig">
+        <id column="id" property="id" />
+        <result column="is_base_config" property="isBaseConfig" />
+        <result column="attendance_date" property="attendanceDate" />
+        <result column="clock_type" property="clockType" />
+        <result column="week_scope" property="weekScope" />
+        <result column="punch_times" property="punchTimes" />
+        <result column="morning_working_time" property="morningWorkingTime" />
+        <result column="morning_closing_time" property="morningClosingTime" />
+        <result column="afternoon_working_time" property="afternoonWorkingTime" />
+        <result column="afternoon_closing_time" property="afternoonClosingTime" />
+        <result column="is_set_advance" property="isSetAdvance" />
+        <result column="is_set_delay" property="isSetDelay" />
+        <result column="advance_time" property="advanceTime" />
+        <result column="delay_time" property="delayTime" />
+        <result column="fence_json" property="fenceJson" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, is_base_config, attendance_date, clock_type, week_scope, punch_times, morning_working_time, morning_closing_time, afternoon_working_time, afternoon_closing_time, is_set_advance, is_set_delay, advance_time, delay_time, fence_json
+    </sql>
+
+</mapper>

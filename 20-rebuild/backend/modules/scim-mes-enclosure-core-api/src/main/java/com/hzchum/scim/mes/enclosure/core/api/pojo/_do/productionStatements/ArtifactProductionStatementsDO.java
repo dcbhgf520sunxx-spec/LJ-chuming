@@ -1,0 +1,765 @@
+package com.hzchum.scim.mes.enclosure.core.api.pojo._do.productionStatements;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.AreaDetailDO;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.FactoryDetailDO;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.MonomerDetailDO;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.ProductionLineDetailDO;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.ProjectDetailDO;
+import com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.WorkshopDetailDO;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.math.BigDecimal;
+import javax.persistence.Column;
+
+@ApiModel(value = "ArtifactProductionStatementsDO", description = "构件生产报表")
+public class ArtifactProductionStatementsDO {
+   @ApiModelProperty(name = "project", notes = "项目单体区域")
+   @JsonProperty("project")
+   @JSONField(name = "project")
+   private ProjectDetailDO project;
+   @ApiModelProperty(name = "monomer", notes = "单体")
+   @JsonProperty("monomer")
+   @JSONField(name = "monomer")
+   private MonomerDetailDO monomer;
+   @ApiModelProperty(name = "district", notes = "区域")
+   @JsonProperty("district")
+   @JSONField(name = "district")
+   private AreaDetailDO areaDetail;
+   @ApiModelProperty(name = "productionline", notes = "生产线")
+   @JsonProperty("productionline")
+   @JSONField(name = "productionline")
+   private ProductionLineDetailDO productionLine;
+   @ApiModelProperty(name = "workshop", notes = "车间")
+   @JsonProperty("workshop")
+   @JSONField(name = "workshop")
+   private WorkshopDetailDO workshop;
+   @ApiModelProperty(name = "factory", value = "工厂")
+   @JsonProperty("factory")
+   @JSONField(name = "factory")
+   private FactoryDetailDO factory;
+   @ApiModelProperty(name = "name", notes = "名称")
+   @JsonProperty("name")
+   @JSONField(name = "name")
+   private String name;
+   @ApiModelProperty(name = "serialNumber", notes = "编号")
+   @JsonProperty("serialNumber")
+   @JSONField(name = "serialNumber")
+   private String serialNumber;
+   @ApiModelProperty(name = "specification", notes = "规格")
+   @JsonProperty("specification")
+   @JSONField(name = "specification")
+   private String specification;
+   @ApiModelProperty(name = "length", notes = "长度（mm）")
+   @JsonProperty("length")
+   @JSONField(name = "length")
+   private BigDecimal length;
+   @ApiModelProperty(name = "material", notes = "材质")
+   @JsonProperty("material")
+   @JSONField(name = "material")
+   private String material;
+   @ApiModelProperty(name = "quantity", notes = "数量")
+   @JsonProperty("quantity")
+   @JSONField(name = "quantity")
+   private Integer quantity;
+   @ApiModelProperty(name = "netWeight", notes = "单净重（kg）")
+   @JsonProperty("netWeight")
+   @JSONField(name = "netWeight")
+   private BigDecimal netWeight;
+   @ApiModelProperty(name = "totalNetWeight", notes = "总净重（kg）")
+   @JsonProperty("totalNetWeight")
+   @JSONField(name = "totalNetWeight")
+   private BigDecimal totalNetWeight;
+   @ApiModelProperty(name = "grossWeight", notes = "单毛重（kg）")
+   @JsonProperty("grossWeight")
+   @JSONField(name = "grossWeight")
+   private BigDecimal grossWeight;
+   @ApiModelProperty(name = "totalGrossWeight", notes = "总毛重（kg）")
+   @JsonProperty("totalGrossWeight")
+   @JSONField(name = "totalGrossWeight")
+   private BigDecimal totalGrossWeight;
+   @ApiModelProperty(name = "area", notes = "面积（㎡）")
+   @JsonProperty("area")
+   @JSONField(name = "area")
+   @TableField("area")
+   @Column(name = "area")
+   private BigDecimal area;
+   @ApiModelProperty(name = "drawingNumber", notes = "图号")
+   @JsonProperty("drawingNumber")
+   @JSONField(name = "drawingNumber")
+   private String drawingNumber;
+   @ApiModelProperty(name = "date", value = "生产日期")
+   @JsonProperty("date")
+   @JSONField(name = "date")
+   private String date;
+
+   public static ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder builder() {
+      return new ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder();
+   }
+
+   public ArtifactProductionStatementsDO() {
+   }
+
+   public ArtifactProductionStatementsDO(
+      final ProjectDetailDO project,
+      final MonomerDetailDO monomer,
+      final AreaDetailDO areaDetail,
+      final ProductionLineDetailDO productionLine,
+      final WorkshopDetailDO workshop,
+      final FactoryDetailDO factory,
+      final String name,
+      final String serialNumber,
+      final String specification,
+      final BigDecimal length,
+      final String material,
+      final Integer quantity,
+      final BigDecimal netWeight,
+      final BigDecimal totalNetWeight,
+      final BigDecimal grossWeight,
+      final BigDecimal totalGrossWeight,
+      final BigDecimal area,
+      final String drawingNumber,
+      final String date
+   ) {
+      this.project = project;
+      this.monomer = monomer;
+      this.areaDetail = areaDetail;
+      this.productionLine = productionLine;
+      this.workshop = workshop;
+      this.factory = factory;
+      this.name = name;
+      this.serialNumber = serialNumber;
+      this.specification = specification;
+      this.length = length;
+      this.material = material;
+      this.quantity = quantity;
+      this.netWeight = netWeight;
+      this.totalNetWeight = totalNetWeight;
+      this.grossWeight = grossWeight;
+      this.totalGrossWeight = totalGrossWeight;
+      this.area = area;
+      this.drawingNumber = drawingNumber;
+      this.date = date;
+   }
+
+   public ProjectDetailDO getProject() {
+      return this.project;
+   }
+
+   public MonomerDetailDO getMonomer() {
+      return this.monomer;
+   }
+
+   public AreaDetailDO getAreaDetail() {
+      return this.areaDetail;
+   }
+
+   public ProductionLineDetailDO getProductionLine() {
+      return this.productionLine;
+   }
+
+   public WorkshopDetailDO getWorkshop() {
+      return this.workshop;
+   }
+
+   public FactoryDetailDO getFactory() {
+      return this.factory;
+   }
+
+   public String getName() {
+      return this.name;
+   }
+
+   public String getSerialNumber() {
+      return this.serialNumber;
+   }
+
+   public String getSpecification() {
+      return this.specification;
+   }
+
+   public BigDecimal getLength() {
+      return this.length;
+   }
+
+   public String getMaterial() {
+      return this.material;
+   }
+
+   public Integer getQuantity() {
+      return this.quantity;
+   }
+
+   public BigDecimal getNetWeight() {
+      return this.netWeight;
+   }
+
+   public BigDecimal getTotalNetWeight() {
+      return this.totalNetWeight;
+   }
+
+   public BigDecimal getGrossWeight() {
+      return this.grossWeight;
+   }
+
+   public BigDecimal getTotalGrossWeight() {
+      return this.totalGrossWeight;
+   }
+
+   public BigDecimal getArea() {
+      return this.area;
+   }
+
+   public String getDrawingNumber() {
+      return this.drawingNumber;
+   }
+
+   public String getDate() {
+      return this.date;
+   }
+
+   @JsonProperty("project")
+   public ArtifactProductionStatementsDO setProject(final ProjectDetailDO project) {
+      this.project = project;
+      return this;
+   }
+
+   @JsonProperty("monomer")
+   public ArtifactProductionStatementsDO setMonomer(final MonomerDetailDO monomer) {
+      this.monomer = monomer;
+      return this;
+   }
+
+   @JsonProperty("district")
+   public ArtifactProductionStatementsDO setAreaDetail(final AreaDetailDO areaDetail) {
+      this.areaDetail = areaDetail;
+      return this;
+   }
+
+   @JsonProperty("productionline")
+   public ArtifactProductionStatementsDO setProductionLine(final ProductionLineDetailDO productionLine) {
+      this.productionLine = productionLine;
+      return this;
+   }
+
+   @JsonProperty("workshop")
+   public ArtifactProductionStatementsDO setWorkshop(final WorkshopDetailDO workshop) {
+      this.workshop = workshop;
+      return this;
+   }
+
+   @JsonProperty("factory")
+   public ArtifactProductionStatementsDO setFactory(final FactoryDetailDO factory) {
+      this.factory = factory;
+      return this;
+   }
+
+   @JsonProperty("name")
+   public ArtifactProductionStatementsDO setName(final String name) {
+      this.name = name;
+      return this;
+   }
+
+   @JsonProperty("serialNumber")
+   public ArtifactProductionStatementsDO setSerialNumber(final String serialNumber) {
+      this.serialNumber = serialNumber;
+      return this;
+   }
+
+   @JsonProperty("specification")
+   public ArtifactProductionStatementsDO setSpecification(final String specification) {
+      this.specification = specification;
+      return this;
+   }
+
+   @JsonProperty("length")
+   public ArtifactProductionStatementsDO setLength(final BigDecimal length) {
+      this.length = length;
+      return this;
+   }
+
+   @JsonProperty("material")
+   public ArtifactProductionStatementsDO setMaterial(final String material) {
+      this.material = material;
+      return this;
+   }
+
+   @JsonProperty("quantity")
+   public ArtifactProductionStatementsDO setQuantity(final Integer quantity) {
+      this.quantity = quantity;
+      return this;
+   }
+
+   @JsonProperty("netWeight")
+   public ArtifactProductionStatementsDO setNetWeight(final BigDecimal netWeight) {
+      this.netWeight = netWeight;
+      return this;
+   }
+
+   @JsonProperty("totalNetWeight")
+   public ArtifactProductionStatementsDO setTotalNetWeight(final BigDecimal totalNetWeight) {
+      this.totalNetWeight = totalNetWeight;
+      return this;
+   }
+
+   @JsonProperty("grossWeight")
+   public ArtifactProductionStatementsDO setGrossWeight(final BigDecimal grossWeight) {
+      this.grossWeight = grossWeight;
+      return this;
+   }
+
+   @JsonProperty("totalGrossWeight")
+   public ArtifactProductionStatementsDO setTotalGrossWeight(final BigDecimal totalGrossWeight) {
+      this.totalGrossWeight = totalGrossWeight;
+      return this;
+   }
+
+   @JsonProperty("area")
+   public ArtifactProductionStatementsDO setArea(final BigDecimal area) {
+      this.area = area;
+      return this;
+   }
+
+   @JsonProperty("drawingNumber")
+   public ArtifactProductionStatementsDO setDrawingNumber(final String drawingNumber) {
+      this.drawingNumber = drawingNumber;
+      return this;
+   }
+
+   @JsonProperty("date")
+   public ArtifactProductionStatementsDO setDate(final String date) {
+      this.date = date;
+      return this;
+   }
+
+   @Override
+   public String toString() {
+      return "ArtifactProductionStatementsDO(project="
+         + this.getProject()
+         + ", monomer="
+         + this.getMonomer()
+         + ", areaDetail="
+         + this.getAreaDetail()
+         + ", productionLine="
+         + this.getProductionLine()
+         + ", workshop="
+         + this.getWorkshop()
+         + ", factory="
+         + this.getFactory()
+         + ", name="
+         + this.getName()
+         + ", serialNumber="
+         + this.getSerialNumber()
+         + ", specification="
+         + this.getSpecification()
+         + ", length="
+         + this.getLength()
+         + ", material="
+         + this.getMaterial()
+         + ", quantity="
+         + this.getQuantity()
+         + ", netWeight="
+         + this.getNetWeight()
+         + ", totalNetWeight="
+         + this.getTotalNetWeight()
+         + ", grossWeight="
+         + this.getGrossWeight()
+         + ", totalGrossWeight="
+         + this.getTotalGrossWeight()
+         + ", area="
+         + this.getArea()
+         + ", drawingNumber="
+         + this.getDrawingNumber()
+         + ", date="
+         + this.getDate()
+         + ")";
+   }
+
+   @Override
+   public boolean equals(final Object o) {
+      if (o == this) {
+         return true;
+      }
+
+      if (!(o instanceof ArtifactProductionStatementsDO)) {
+         return false;
+      }
+
+      ArtifactProductionStatementsDO other = (ArtifactProductionStatementsDO)o;
+      if (!other.canEqual(this)) {
+         return false;
+      }
+
+      Object this$quantity = this.getQuantity();
+      Object other$quantity = other.getQuantity();
+      if (this$quantity == null ? other$quantity == null : this$quantity.equals(other$quantity)) {
+         Object this$project = this.getProject();
+         Object other$project = other.getProject();
+         if (this$project == null ? other$project == null : this$project.equals(other$project)) {
+            Object this$monomer = this.getMonomer();
+            Object other$monomer = other.getMonomer();
+            if (this$monomer == null ? other$monomer == null : this$monomer.equals(other$monomer)) {
+               Object this$areaDetail = this.getAreaDetail();
+               Object other$areaDetail = other.getAreaDetail();
+               if (this$areaDetail == null ? other$areaDetail == null : this$areaDetail.equals(other$areaDetail)) {
+                  Object this$productionLine = this.getProductionLine();
+                  Object other$productionLine = other.getProductionLine();
+                  if (this$productionLine == null ? other$productionLine == null : this$productionLine.equals(other$productionLine)) {
+                     Object this$workshop = this.getWorkshop();
+                     Object other$workshop = other.getWorkshop();
+                     if (this$workshop == null ? other$workshop == null : this$workshop.equals(other$workshop)) {
+                        Object this$factory = this.getFactory();
+                        Object other$factory = other.getFactory();
+                        if (this$factory == null ? other$factory == null : this$factory.equals(other$factory)) {
+                           Object this$name = this.getName();
+                           Object other$name = other.getName();
+                           if (this$name == null ? other$name == null : this$name.equals(other$name)) {
+                              Object this$serialNumber = this.getSerialNumber();
+                              Object other$serialNumber = other.getSerialNumber();
+                              if (this$serialNumber == null ? other$serialNumber == null : this$serialNumber.equals(other$serialNumber)) {
+                                 Object this$specification = this.getSpecification();
+                                 Object other$specification = other.getSpecification();
+                                 if (this$specification == null ? other$specification == null : this$specification.equals(other$specification)) {
+                                    Object this$length = this.getLength();
+                                    Object other$length = other.getLength();
+                                    if (this$length == null ? other$length == null : this$length.equals(other$length)) {
+                                       Object this$material = this.getMaterial();
+                                       Object other$material = other.getMaterial();
+                                       if (this$material == null ? other$material == null : this$material.equals(other$material)) {
+                                          Object this$netWeight = this.getNetWeight();
+                                          Object other$netWeight = other.getNetWeight();
+                                          if (this$netWeight == null ? other$netWeight == null : this$netWeight.equals(other$netWeight)) {
+                                             Object this$totalNetWeight = this.getTotalNetWeight();
+                                             Object other$totalNetWeight = other.getTotalNetWeight();
+                                             if (this$totalNetWeight == null ? other$totalNetWeight == null : this$totalNetWeight.equals(other$totalNetWeight)) {
+                                                Object this$grossWeight = this.getGrossWeight();
+                                                Object other$grossWeight = other.getGrossWeight();
+                                                if (this$grossWeight == null ? other$grossWeight == null : this$grossWeight.equals(other$grossWeight)) {
+                                                   Object this$totalGrossWeight = this.getTotalGrossWeight();
+                                                   Object other$totalGrossWeight = other.getTotalGrossWeight();
+                                                   if (this$totalGrossWeight == null
+                                                      ? other$totalGrossWeight == null
+                                                      : this$totalGrossWeight.equals(other$totalGrossWeight)) {
+                                                      Object this$area = this.getArea();
+                                                      Object other$area = other.getArea();
+                                                      if (this$area == null ? other$area == null : this$area.equals(other$area)) {
+                                                         Object this$drawingNumber = this.getDrawingNumber();
+                                                         Object other$drawingNumber = other.getDrawingNumber();
+                                                         if (this$drawingNumber == null
+                                                            ? other$drawingNumber == null
+                                                            : this$drawingNumber.equals(other$drawingNumber)) {
+                                                            Object this$date = this.getDate();
+                                                            Object other$date = other.getDate();
+                                                            return this$date == null ? other$date == null : this$date.equals(other$date);
+                                                         } else {
+                                                            return false;
+                                                         }
+                                                      } else {
+                                                         return false;
+                                                      }
+                                                   } else {
+                                                      return false;
+                                                   }
+                                                } else {
+                                                   return false;
+                                                }
+                                             } else {
+                                                return false;
+                                             }
+                                          } else {
+                                             return false;
+                                          }
+                                       } else {
+                                          return false;
+                                       }
+                                    } else {
+                                       return false;
+                                    }
+                                 } else {
+                                    return false;
+                                 }
+                              } else {
+                                 return false;
+                              }
+                           } else {
+                              return false;
+                           }
+                        } else {
+                           return false;
+                        }
+                     } else {
+                        return false;
+                     }
+                  } else {
+                     return false;
+                  }
+               } else {
+                  return false;
+               }
+            } else {
+               return false;
+            }
+         } else {
+            return false;
+         }
+      } else {
+         return false;
+      }
+   }
+
+   protected boolean canEqual(final Object other) {
+      return other instanceof ArtifactProductionStatementsDO;
+   }
+
+   @Override
+   public int hashCode() {
+      int PRIME = 59;
+      int result = 1;
+      Object $quantity = this.getQuantity();
+      result = result * 59 + ($quantity == null ? 43 : $quantity.hashCode());
+      Object $project = this.getProject();
+      result = result * 59 + ($project == null ? 43 : $project.hashCode());
+      Object $monomer = this.getMonomer();
+      result = result * 59 + ($monomer == null ? 43 : $monomer.hashCode());
+      Object $areaDetail = this.getAreaDetail();
+      result = result * 59 + ($areaDetail == null ? 43 : $areaDetail.hashCode());
+      Object $productionLine = this.getProductionLine();
+      result = result * 59 + ($productionLine == null ? 43 : $productionLine.hashCode());
+      Object $workshop = this.getWorkshop();
+      result = result * 59 + ($workshop == null ? 43 : $workshop.hashCode());
+      Object $factory = this.getFactory();
+      result = result * 59 + ($factory == null ? 43 : $factory.hashCode());
+      Object $name = this.getName();
+      result = result * 59 + ($name == null ? 43 : $name.hashCode());
+      Object $serialNumber = this.getSerialNumber();
+      result = result * 59 + ($serialNumber == null ? 43 : $serialNumber.hashCode());
+      Object $specification = this.getSpecification();
+      result = result * 59 + ($specification == null ? 43 : $specification.hashCode());
+      Object $length = this.getLength();
+      result = result * 59 + ($length == null ? 43 : $length.hashCode());
+      Object $material = this.getMaterial();
+      result = result * 59 + ($material == null ? 43 : $material.hashCode());
+      Object $netWeight = this.getNetWeight();
+      result = result * 59 + ($netWeight == null ? 43 : $netWeight.hashCode());
+      Object $totalNetWeight = this.getTotalNetWeight();
+      result = result * 59 + ($totalNetWeight == null ? 43 : $totalNetWeight.hashCode());
+      Object $grossWeight = this.getGrossWeight();
+      result = result * 59 + ($grossWeight == null ? 43 : $grossWeight.hashCode());
+      Object $totalGrossWeight = this.getTotalGrossWeight();
+      result = result * 59 + ($totalGrossWeight == null ? 43 : $totalGrossWeight.hashCode());
+      Object $area = this.getArea();
+      result = result * 59 + ($area == null ? 43 : $area.hashCode());
+      Object $drawingNumber = this.getDrawingNumber();
+      result = result * 59 + ($drawingNumber == null ? 43 : $drawingNumber.hashCode());
+      Object $date = this.getDate();
+      return result * 59 + ($date == null ? 43 : $date.hashCode());
+   }
+
+   public static class ArtifactProductionStatementsDOBuilder {
+      private ProjectDetailDO project;
+      private MonomerDetailDO monomer;
+      private AreaDetailDO areaDetail;
+      private ProductionLineDetailDO productionLine;
+      private WorkshopDetailDO workshop;
+      private FactoryDetailDO factory;
+      private String name;
+      private String serialNumber;
+      private String specification;
+      private BigDecimal length;
+      private String material;
+      private Integer quantity;
+      private BigDecimal netWeight;
+      private BigDecimal totalNetWeight;
+      private BigDecimal grossWeight;
+      private BigDecimal totalGrossWeight;
+      private BigDecimal area;
+      private String drawingNumber;
+      private String date;
+
+      ArtifactProductionStatementsDOBuilder() {
+      }
+
+      @JsonProperty("project")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder project(final ProjectDetailDO project) {
+         this.project = project;
+         return this;
+      }
+
+      @JsonProperty("monomer")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder monomer(final MonomerDetailDO monomer) {
+         this.monomer = monomer;
+         return this;
+      }
+
+      @JsonProperty("district")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder areaDetail(final AreaDetailDO areaDetail) {
+         this.areaDetail = areaDetail;
+         return this;
+      }
+
+      @JsonProperty("productionline")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder productionLine(final ProductionLineDetailDO productionLine) {
+         this.productionLine = productionLine;
+         return this;
+      }
+
+      @JsonProperty("workshop")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder workshop(final WorkshopDetailDO workshop) {
+         this.workshop = workshop;
+         return this;
+      }
+
+      @JsonProperty("factory")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder factory(final FactoryDetailDO factory) {
+         this.factory = factory;
+         return this;
+      }
+
+      @JsonProperty("name")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder name(final String name) {
+         this.name = name;
+         return this;
+      }
+
+      @JsonProperty("serialNumber")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder serialNumber(final String serialNumber) {
+         this.serialNumber = serialNumber;
+         return this;
+      }
+
+      @JsonProperty("specification")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder specification(final String specification) {
+         this.specification = specification;
+         return this;
+      }
+
+      @JsonProperty("length")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder length(final BigDecimal length) {
+         this.length = length;
+         return this;
+      }
+
+      @JsonProperty("material")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder material(final String material) {
+         this.material = material;
+         return this;
+      }
+
+      @JsonProperty("quantity")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder quantity(final Integer quantity) {
+         this.quantity = quantity;
+         return this;
+      }
+
+      @JsonProperty("netWeight")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder netWeight(final BigDecimal netWeight) {
+         this.netWeight = netWeight;
+         return this;
+      }
+
+      @JsonProperty("totalNetWeight")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder totalNetWeight(final BigDecimal totalNetWeight) {
+         this.totalNetWeight = totalNetWeight;
+         return this;
+      }
+
+      @JsonProperty("grossWeight")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder grossWeight(final BigDecimal grossWeight) {
+         this.grossWeight = grossWeight;
+         return this;
+      }
+
+      @JsonProperty("totalGrossWeight")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder totalGrossWeight(final BigDecimal totalGrossWeight) {
+         this.totalGrossWeight = totalGrossWeight;
+         return this;
+      }
+
+      @JsonProperty("area")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder area(final BigDecimal area) {
+         this.area = area;
+         return this;
+      }
+
+      @JsonProperty("drawingNumber")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder drawingNumber(final String drawingNumber) {
+         this.drawingNumber = drawingNumber;
+         return this;
+      }
+
+      @JsonProperty("date")
+      public ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder date(final String date) {
+         this.date = date;
+         return this;
+      }
+
+      public ArtifactProductionStatementsDO build() {
+         return new ArtifactProductionStatementsDO(
+            this.project,
+            this.monomer,
+            this.areaDetail,
+            this.productionLine,
+            this.workshop,
+            this.factory,
+            this.name,
+            this.serialNumber,
+            this.specification,
+            this.length,
+            this.material,
+            this.quantity,
+            this.netWeight,
+            this.totalNetWeight,
+            this.grossWeight,
+            this.totalGrossWeight,
+            this.area,
+            this.drawingNumber,
+            this.date
+         );
+      }
+
+      @Override
+      public String toString() {
+         return "ArtifactProductionStatementsDO.ArtifactProductionStatementsDOBuilder(project="
+            + this.project
+            + ", monomer="
+            + this.monomer
+            + ", areaDetail="
+            + this.areaDetail
+            + ", productionLine="
+            + this.productionLine
+            + ", workshop="
+            + this.workshop
+            + ", factory="
+            + this.factory
+            + ", name="
+            + this.name
+            + ", serialNumber="
+            + this.serialNumber
+            + ", specification="
+            + this.specification
+            + ", length="
+            + this.length
+            + ", material="
+            + this.material
+            + ", quantity="
+            + this.quantity
+            + ", netWeight="
+            + this.netWeight
+            + ", totalNetWeight="
+            + this.totalNetWeight
+            + ", grossWeight="
+            + this.grossWeight
+            + ", totalGrossWeight="
+            + this.totalGrossWeight
+            + ", area="
+            + this.area
+            + ", drawingNumber="
+            + this.drawingNumber
+            + ", date="
+            + this.date
+            + ")";
+      }
+   }
+}

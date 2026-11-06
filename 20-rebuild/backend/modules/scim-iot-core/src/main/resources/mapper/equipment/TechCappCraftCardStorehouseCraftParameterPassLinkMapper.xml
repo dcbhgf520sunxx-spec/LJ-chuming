@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.iot.core.mapper.equipment.CorporationStructrureMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.iot.core.api.pojo._doModel.equipment.CorporationStructrure">
+        <id column="id" property="id" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="version" property="version" />
+        <result column="pid" property="pid" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum,
+        create_time,
+        update_time,
+        version,
+        id, pid, name, type, create_by, update_by
+    </sql>
+    <delete id="deletetUnBoolen">
+        truncate table corporation_structrure;
+    </delete>
+
+</mapper>

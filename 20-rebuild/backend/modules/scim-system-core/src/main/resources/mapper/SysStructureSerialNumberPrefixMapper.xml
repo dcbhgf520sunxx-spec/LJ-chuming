@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysStructureSerialNumberPrefixMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysStructureSerialNumberPrefix">
+        <id column="id" property="id"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="serial_number_prefix" property="serialNumberPrefix"/>
+        <result column="structure_classification_id" property="structureClassificationId"/>
+        <result column="structure_spec_id" property="structureSpecId"/>
+        <result column="spec_prefix" property="specPrefix"/>
+        <result column="production_line_type_enum" property="productionLineTypeEnum"/>
+        <result column="artifact_type" property="artifactType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum
+        ,
+        create_time,
+        update_time,
+        version,
+        id, serial_number_prefix, structure_classification_id, structure_spec_id, spec_prefix, production_line_type_enum, artifact_type
+    </sql>
+
+    <select id="selectBySpecPrefixSnPrefix"
+            resultType="com.hzchum.scim.system.core.api.pojo._do.SysStructureSerialNumberPrefix">
+        SELECT snp.*
+        FROM sys_structure_spec AS sss
+                 INNER JOIN sys_structure_serial_number_prefix AS snp
+                            ON sss.id = snp.structure_spec_id AND snp.bool_delete_enum = 0
+        WHERE sss.bool_delete_enum = 0
+          AND sss.spec_prefix = #{specPrefix}
+          AND serial_number_prefix = #{serialNumberPrefix}
+    </select>
+
+</mapper>

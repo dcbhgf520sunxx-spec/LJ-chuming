@@ -1,0 +1,65 @@
+package ${package.Entity};
+
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+import com.hzchum.pangu.mybatisplus.pojo.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
+import javax.persistence.*;
+
+
+/**
+ * 杭州初鸣建筑科技有限公司 版权所有 © Copyright 2021<br>
+ *  <p>
+ * $!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+@ApiModel(description = "$!{table.comment}")
+@Entity
+@Table(name = "${table.name}")
+public class ${entity}  extends BaseEntity<Long>{
+
+    private static final long serialVersionUID = 1L;
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if("$!field.comment" != "")
+    @ApiModelProperty(value = "${field.comment}")
+    #else
+    @ApiModelProperty
+    #end
+    #if(${field.keyFlag})
+        #set($keyPropertyName=${field.propertyName})
+    #end
+    #if(${field.keyFlag})
+## 主键
+    @TableId(type = IdType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+## 普通字段
+    #else
+    @Column(name = "${field.name}", columnDefinition = "${field.type} #if("$!field.defaultValue" !="")default ${field.defaultValue}#end COMMENT '${field.comment}'",nullable =${field.canNull} )
+    #end
+## 乐观锁注解
+    #if(${versionFieldName}==${field.name})
+    @Version
+    #end
+## 逻辑删除注解
+    #if(${logicDeleteFieldName}==${field.name})
+    @TableLogic
+    #end
+    private ${field.propertyType} ${field.propertyName};
+
+#end
+## ----------  END 字段循环遍历  ----------
+}

@@ -1,0 +1,1296 @@
+{
+  "schema_version": 1,
+  "prepared_on": "2026-11-06",
+  "status": "source_prepared_not_built_or_tested",
+  "scope": [
+    "I03",
+    "I04"
+  ],
+  "boundaries": {
+    "network_calls": false,
+    "tests_or_builds_executed": false,
+    "database_or_secrets_readback": false,
+    "runtime_changed": false,
+    "prior_acceptance_evidence_read_or_modified": false,
+    "real_integration_passed": false
+  },
+  "files": {
+    "bean": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+    "config": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/config/BimFaceConfig.java",
+    "bim": "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+    "bochu": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+    "scheduling": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+    "wms": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+    "utils": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+    "properties": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/config/ConfigProperties.java",
+    "bimController": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bim/BimModelController.java",
+    "wsRunner": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/NestWebSocketRunner.java",
+    "wsClient": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/client/WmsWebSocketClient.java",
+    "wsController": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/scheduling/MesBuildingMachinePartNestingController.java",
+    "loader": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+    "viewer": "frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+  },
+  "I03": {
+    "facts": [
+      {
+        "evidence_type": "static_source",
+        "conclusion": "BusinessConfiguration excludes BimFaceConfig and registers the active SDK bean using offline credentials and fixed legacy endpoints; engine credentials alone do not enable the active bean.",
+        "sources": [
+          {
+            "path": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+            "symbol": "Excluded#match; bimfaceClient",
+            "lines_before_edit": [
+              36,
+              40,
+              43
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "The excluded historical config reads engine.appKey and engine.appSecret and sets fixed legacy endpoints; SDK network timeouts were one hour.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/config/BimFaceConfig.java",
+            "symbol": "getBimfaceClient",
+            "lines_before_edit": [
+              15,
+              31
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "The service reads engine.projectId. Upload sends projectId as both parent/project ID and streams the attachment URL; translate and integrate call the SDK.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+            "symbol": "newUploadModel; modelIntegration",
+            "lines_before_edit": [
+              133,
+              134,
+              522,
+              614,
+              775,
+              824
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Translation callback is GET /api/model/3DModel/translate/status/callback?modelId&token. Integration callback is GET /api/model/3DModel/integrate/status/callback?modelId&areaIds&userId&token. URLs concatenate chum.config.url, so the configured base must provide the required separator. Callback handlers compare the Redis token and requery SDK status.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+            "symbol": "modelIntegration; newUploadModel; setTranslateStatusCallback; setIntegrateStatusCallback",
+            "lines_before_edit": [
+              267,
+              300,
+              587,
+              600,
+              803,
+              824,
+              839,
+              898
+            ]
+          },
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bim/BimModelController.java",
+            "symbol": "setTranslateStatusCallback; setIntegrateStatusCallback",
+            "lines_before_edit": [
+              42,
+              92,
+              95,
+              325,
+              328
+            ]
+          },
+          {
+            "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/config/ConfigProperties.java",
+            "symbol": "ConfigProperties",
+            "lines_before_edit": [
+              7,
+              12,
+              50
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Migration has a separate fixed legacy file-copy endpoint plus fixed project/parent identifiers; it is a destructive identity-changing path and is not part of preparation or a test.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+            "symbol": "migration",
+            "lines_before_edit": [
+              958,
+              1003
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "BIM conversion quota reads DB config code BIM_MODEL_CONVERT_RESTRICT_ENCIPHER and TOTAL_QUANTITY/FILE_SIZE statistics. A hardcoded AES key literal exists in checkBimModel; its value is deliberately omitted.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+            "symbol": "checkBimModel; updateModelDataStatistics",
+            "lines_before_edit": [
+              1025,
+              1078
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Browser loader has fixed historical external API/resource/static hosts, dev host, and portal loader URL; SDK version is 3.6.295. These are historical private deployment targets and are not reproduced here.",
+        "sources": [
+          {
+            "path": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+            "symbol": "window.hostConfig; p; u",
+            "lines_before_edit": [
+              1,
+              50,
+              57
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Actual viewer imports initBimfaceApp from the loader module. CSP and opt-in host policy must cover SDK script, model resources and connections; backend-only preparation cannot establish browser readiness.",
+        "sources": [
+          {
+            "path": "frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+            "symbol": "bimfaceAPI imports",
+            "lines_before_edit": [
+              48
+            ]
+          },
+          {
+            "path": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+            "symbol": "u; BimfaceSDKLoader.load",
+            "lines_before_edit": [
+              50,
+              57
+            ]
+          },
+          {
+            "path": "frontend-recovered/index.html",
+            "symbol": "Content-Security-Policy",
+            "lines_before_edit": [
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "approved_minimum_preparation": {
+      "enabled_property": "ljaps.integrations.bim.enabled",
+      "default": false,
+      "credential_properties": [
+        "engine.appKey",
+        "engine.appSecret"
+      ],
+      "optional_endpoint_properties": [
+        "engine.apiHost",
+        "engine.fileHost",
+        "engine.bdfsHost"
+      ],
+      "endpoint_policy": "Use SDK defaults unless an explicit endpoint override is supplied. Disabled mode retains the current offline bean. Enabled mode refuses missing credential values. No credentials in reports."
+    },
+    "required_materials": [
+      {
+        "status": "unknown",
+        "item": "Confirmed BIM deployment type and matching API/file/BDFS endpoints; engine app credentials and target project/parent ownership, SDK 3.3.4 compatibility."
+      },
+      {
+        "status": "unknown",
+        "item": "Vendor callback method contract, routable callback base URL, gateway/auth exemptions for the two token-protected routes, TLS/allowlist/proxy requirements and Redis persistence across asynchronous callbacks."
+      },
+      {
+        "status": "unknown",
+        "item": "Accessible sample model and mapped business project/monomer/area/import mode, attachment URL reachable by the backend, quota authorization."
+      },
+      {
+        "status": "unknown",
+        "item": "Approved exact browser SDK/API/resource/static/connect host list matching the confirmed BIM deployment; current historical URLs do not prove permission to use that deployment."
+      }
+    ],
+    "browser_external_references": [
+      {
+        "path": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+        "line": 1,
+        "symbols": [
+          "APIHost",
+          "resourceHost",
+          "staticHost"
+        ],
+        "host_values": "historical private deployment and dev host literals present; deliberately omitted; consult source locally",
+        "evidence_type": "static_source"
+      },
+      {
+        "path": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+        "line": 50,
+        "symbols": [
+          "staticHost",
+          "SDKLoaderPath"
+        ],
+        "host_values": "historical private deployment and dev host literals present; deliberately omitted; consult source locally",
+        "evidence_type": "static_source"
+      },
+      {
+        "path": "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+        "line": 57,
+        "symbols": [
+          "APIHost",
+          "staticHost",
+          "BimfaceSDKLoader.load"
+        ],
+        "host_values": "historical private deployment and dev host literals present; deliberately omitted; consult source locally",
+        "evidence_type": "static_source"
+      },
+      {
+        "path": "frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+        "line": 48,
+        "symbols": [
+          "bimfaceAPI-c2661893"
+        ],
+        "host_values": "historical private deployment and dev host literals present; deliberately omitted; consult source locally",
+        "evidence_type": "static_source"
+      }
+    ],
+    "browser_csp_source": {
+      "path": "frontend-recovered/index.html",
+      "line": 1,
+      "symbol": "Content-Security-Policy",
+      "evidence_type": "static_source"
+    }
+  },
+  "I04": {
+    "vendor_hosts": [
+      "cloudnest.fscut.com",
+      "pulsar-ws.fscut.com"
+    ],
+    "facts": [
+      {
+        "evidence_type": "static_source",
+        "conclusion": "BoChuNesting already reads LJAPS_BOCHU_APP_ID and LJAPS_BOCHU_SECRET; HTTP signature is lowercase MD5(appId + newline + secret + newline + local yyyyMMddHHmmss timestamp). Headers are X-FS-Appid, X-FS-Time, X-FS-Token, X-FS-Orgcode and X-FS-Encode.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+            "symbol": "headers",
+            "lines_before_edit": [
+              39,
+              52
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Actual scheduling and WMS business methods duplicate signing and hardcode X-FS-Appid literals despite using the environment AppId in the signature. This can produce mismatched signatures for a different authorized app.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+            "symbol": "signing callsites in signing_inventory",
+            "lines_before_edit": [
+              542,
+              5624
+            ]
+          },
+          {
+            "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+            "symbol": "getHeadedr",
+            "lines_before_edit": [
+              1672,
+              1686
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "Some legacy scheduling methods contain fixed Orgcode account literals; no safe new tenant mapping can be inferred. Preserve their exact original expressions and block those paths until on-site confirmation.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+            "symbol": "getNestingReportData; getNestPartDetail",
+            "lines_before_edit": [
+              635,
+              653,
+              3261,
+              3274
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "NestingUtils contains two private duplicate HTTP methods; a full main-source reference scan found no external reference to the class or its private methods. It is not evidence of an enabled entry point.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+            "symbol": "getNestPartDetailSaveMessage; getNestingReportData",
+            "lines_before_edit": [
+              22,
+              82
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "WMS material/plate APIs use ConfigProperties.boChuUrl (chum.config.boChuUrl) while other methods hardcode cloudnest.fscut.com. A configurable WMS base URL therefore does not redirect all BoChu calls.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/config/ConfigProperties.java",
+            "symbol": "boChuUrl; getBoChuUrl",
+            "lines_before_edit": [
+              7,
+              11,
+              46
+            ]
+          },
+          {
+            "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+            "symbol": "material/plate HTTP callsites",
+            "lines_before_edit": [
+              209,
+              960,
+              1618
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "NestWebSocketRunner is excluded with all rest.runner classes by active BusinessConfiguration. It would read nesting teams with boolDrillHole=1 and open outgoing WS subscriptions using teamCode and a companyUrl hash. Do not enable it implicitly.",
+        "sources": [
+          {
+            "path": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+            "symbol": "Excluded#match",
+            "lines_before_edit": [
+              33
+            ]
+          },
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/NestWebSocketRunner.java",
+            "symbol": "getUrl; run",
+            "lines_before_edit": [
+              20,
+              47
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "WmsWebSocketClient decodes payload base64, acknowledges messageId and routes stock events to WmsNestMaterialService. This is an outgoing WS consumer, not an HTTP callback route. Historical transport is ws:// on the public vendor host.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/client/WmsWebSocketClient.java",
+            "symbol": "startConnection; onMessage",
+            "lines_before_edit": [
+              44,
+              101
+            ]
+          },
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/NestWebSocketRunner.java",
+            "symbol": "URL_TEMPLATE",
+            "lines_before_edit": [
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "evidence_type": "static_source",
+        "conclusion": "The active controller selects sendToNestingV3 or sendToNestingModeTwo from the existing nesting task config; protocol and database effects depend on that business mode.",
+        "sources": [
+          {
+            "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/scheduling/MesBuildingMachinePartNestingController.java",
+            "symbol": "sendToNesting",
+            "lines_before_edit": [
+              167,
+              178
+            ]
+          }
+        ]
+      }
+    ],
+    "environment_names": [
+      "LJAPS_BOCHU_APP_ID",
+      "LJAPS_BOCHU_SECRET"
+    ],
+    "database_preconditions": [
+      "MesBuildingNestingTeam.teamCode/workshopId/nestingChargePerson/boolDrillHole and existing business nesting-task mode; exact values were not queried."
+    ],
+    "signing_inventory": [
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static HttpHeaders headers(String teamCode)",
+        "line_before_edit": 47,
+        "appid_source": "environment_variable_expression"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "public static void main(String[] args) throws IOException",
+        "line_before_edit": 550,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+        "line_before_edit": 650,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "public String sendToNestingTwo(MesBuildingMachinePartNestingParam mesBuildingMachinePartNestingParam, HttpServletResponse response)",
+        "line_before_edit": 1349,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void machinePartSendToNestingSoftware(MesBuildingMachinePartNestingParam param, SecurityUser currentUser)",
+        "line_before_edit": 2140,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingGuidDetailDTO> getBoChuNestingMachinePartDetailByJobIdListAndGuidList(",
+        "line_before_edit": 2497,
+        "appid_source": "environment_variable_expression"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingGuidDetailDTO> getNestPartDetail(Integer jobId)",
+        "line_before_edit": 3271,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuSteelPlateByGuidDTO> boChuGetJobByGuidList(String teamCode, List<String> guidList)",
+        "line_before_edit": 4165,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuSteelPlateByJobIdDTO> boChuJobNspfListV2(String teamCode, List<Integer> jobIdList)",
+        "line_before_edit": 4197,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private Integer getJobId(BoChuJobAddParam boChuJobAddParam, String sysTemTeamCode)",
+        "line_before_edit": 4821,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJob(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 4857,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingJobDetailDTO> getNestingJobPart(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 4904,
+        "appid_source": "environment_variable_expression"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<NestCutFileTypeDTO> getNestCutFileType(String sysTemTeamCode)",
+        "line_before_edit": 4938,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileLXDS(",
+        "line_before_edit": 4973,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileLXDSV2(",
+        "line_before_edit": 5011,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileNC(",
+        "line_before_edit": 5041,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileNCV2(",
+        "line_before_edit": 5092,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJobPart(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5136,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuNestingJobByGuidDTO> getJobByGuid(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5159,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuNestingResultDTO> getNestingJobPlate(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 5196,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJobPlate(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5236,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private MachinePartNestingGuidDetailDTO getNestPartDetailSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+        "line_before_edit": 5533,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private JSONObject getNestPartDetailMessageList(Integer jobId, String systemTeamCode)",
+        "line_before_edit": 5591,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private MachinePartNestingPdfDTO getNestingReportDataSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+        "line_before_edit": 5620,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+        "symbol": "public static HttpHeaders getHeadedr(String teamCode)",
+        "line_before_edit": 1681,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+        "symbol": "private void getNestPartDetailSaveMessage(Integer jobId, String teamCode)",
+        "line_before_edit": 32,
+        "appid_source": "literal_account_present"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+        "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+        "line_before_edit": 62,
+        "appid_source": "literal_account_present"
+      }
+    ],
+    "original_endpoint_inventory": [
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static BoChuNestedPlateReportDTO getNestedPlateReport(String teamCode, Collection<String> guidList)",
+        "line_before_edit": 56,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/web_report/nest_result_data"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static byte[] getNestCutFileNC(String teamCode, Integer jobId, String guid, String type)",
+        "line_before_edit": 70,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/nc_export"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static byte[] getNestCutFileLXDS(String teamCode, Integer jobId, String guid)",
+        "line_before_edit": 82,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/lxds_export"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static List<BoChuCutFileConfigDTO> getNestCutFileConfig(String teamCode)",
+        "line_before_edit": 94,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/open_platform/nc_config"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static List<BoChuNestedPlateDetailDTO> getNestedPlateDetail(String teamCode, Collection<Integer> jobIdList, Collection<String> guidList)",
+        "line_before_edit": 109,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static void deleteNestedPlate(String teamCode, Collection<String> guidList)",
+        "line_before_edit": 129,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/update"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static void partUpdateQuantityOrDelete(String teamCode, Map<String, Integer> partParamMap)",
+        "line_before_edit": 144,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/part/update"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static Boolean deleteJob(String teamCode, Integer jobId)",
+        "line_before_edit": 166,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/update"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static List<BoChuPartDTO> getPartList(String teamCode, Collection<Integer> jobIdList)",
+        "line_before_edit": 179,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/part_list"
+      },
+      {
+        "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+        "symbol": "public static List<BoChuPartDetailDTO> getPartDetailList(String teamCode, Collection<Integer> jobIdList)",
+        "line_before_edit": 193,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/part_list/v2"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "public static void main(String[] args) throws IOException",
+        "line_before_edit": 542,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/nspf_list/v2"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+        "line_before_edit": 642,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/web_report/nest_result_data"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "public String sendToNestingTwo(MesBuildingMachinePartNestingParam mesBuildingMachinePartNestingParam, HttpServletResponse response)",
+        "line_before_edit": 1341,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/part/file2part"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "public String sendToNestingTwo(MesBuildingMachinePartNestingParam mesBuildingMachinePartNestingParam, HttpServletResponse response)",
+        "line_before_edit": 1386,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/part/file2part"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void machinePartSendToNestingSoftware(MesBuildingMachinePartNestingParam param, SecurityUser currentUser)",
+        "line_before_edit": 2258,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/part/file2part"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingGuidDetailDTO> getBoChuNestingMachinePartDetailByJobIdListAndGuidList(",
+        "line_before_edit": 2487,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingGuidDetailDTO> getNestPartDetail(Integer jobId)",
+        "line_before_edit": 3263,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuSteelPlateByGuidDTO> boChuGetJobByGuidList(String teamCode, List<String> guidList)",
+        "line_before_edit": 4157,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/result/get_job"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuSteelPlateByJobIdDTO> boChuJobNspfListV2(String teamCode, List<Integer> jobIdList)",
+        "line_before_edit": 4189,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/nspf_list/v2"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private Integer getJobId(BoChuJobAddParam boChuJobAddParam, String sysTemTeamCode)",
+        "line_before_edit": 4813,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/add"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJob(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 4849,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/update"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MachinePartNestingJobDetailDTO> getNestingJobPart(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 4892,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/part_list"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<NestCutFileTypeDTO> getNestCutFileType(String sysTemTeamCode)",
+        "line_before_edit": 4930,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/open_platform/nc_config"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileLXDS(",
+        "line_before_edit": 4965,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/lxds_export"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileLXDSV2(",
+        "line_before_edit": 5003,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/lxds_export"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileNC(",
+        "line_before_edit": 5033,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/nc_export"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private byte[] getNestCutFileNCV2(",
+        "line_before_edit": 5084,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/nc_export"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJobPart(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5128,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/part/update"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuNestingJobByGuidDTO> getJobByGuid(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5151,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/result/get_job"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private List<MesBuildingBoChuNestingResultDTO> getNestingJobPlate(Integer jobId, String sysTemTeamCode)",
+        "line_before_edit": 5188,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/nspf_list/v2"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private void deleteNestingJobPlate(JSONArray jsonArray, String sysTemTeamCode)",
+        "line_before_edit": 5228,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/nspf/update"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private MachinePartNestingGuidDetailDTO getNestPartDetailSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+        "line_before_edit": 5525,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private JSONObject getNestPartDetailMessageList(Integer jobId, String systemTeamCode)",
+        "line_before_edit": 5583,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+        "symbol": "private MachinePartNestingPdfDTO getNestingReportDataSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+        "line_before_edit": 5612,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/web_report/nest_result_data"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+        "symbol": "private void getNestPartDetailSaveMessage(Integer jobId, String teamCode)",
+        "line_before_edit": 24,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/job/result/part_detail"
+      },
+      {
+        "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+        "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+        "line_before_edit": 54,
+        "vendor_host": "cloudnest.fscut.com",
+        "path_literal": "/api/web_report/nest_result_data"
+      }
+    ],
+    "protocol_fields": {
+      "report": [
+        "result_guid_list"
+      ],
+      "part_detail": [
+        "job_id"
+      ],
+      "file_export": [
+        "job_id",
+        "type",
+        "name_filter_flag",
+        "result_list",
+        "auto_recognized"
+      ],
+      "updates": [
+        "guid",
+        "is_delete",
+        "amount"
+      ],
+      "job_update": [
+        "id",
+        "is_delete"
+      ],
+      "result_contract": "Existing JSON calls expect status == 0 and consume data. Binary NC/LXDS export paths return bytes. Preserve each caller payload verbatim."
+    },
+    "required_materials": [
+      {
+        "status": "unknown",
+        "item": "Authorized application credentials, organization/teamCode mapping per workshop, fixed legacy Orgcode ownership, exact API product/version and permissions for create/update/delete/export."
+      },
+      {
+        "status": "unknown",
+        "item": "Vendor signature clock/timezone/skew requirements, HTTPS/WS or WSS route and port/allowlist, outgoing proxy/DNS policy, Pulsar topic/subscription/ack/replay contract."
+      },
+      {
+        "status": "unknown",
+        "item": "Vendor request/response and event samples for job, DXF/part, material/plate, NC/LXDS and stock updates; non-production sample files, unit/precision ownership, rollback/cleanup plan."
+      }
+    ],
+    "outgoing_ws_calls": [
+      {
+        "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/scheduling/MesBuildingMachinePartNestingController.java",
+        "line": 343,
+        "symbol": "public void nestConnectToServer()",
+        "evidence_type": "static_source",
+        "note": "Existing explicit outgoing connection call; no connection opened during preparation."
+      },
+      {
+        "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/scheduling/MesBuildingMachinePartNestingController.java",
+        "line": 351,
+        "symbol": "public void nestConnectToServer()",
+        "evidence_type": "static_source",
+        "note": "Existing explicit outgoing connection call; no connection opened during preparation."
+      },
+      {
+        "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/scheduling/MesBuildingMachinePartNestingController.java",
+        "line": 453,
+        "symbol": "public void getHeartBeat()",
+        "evidence_type": "static_source",
+        "note": "Existing explicit outgoing connection call; no connection opened during preparation."
+      },
+      {
+        "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/NestWebSocketRunner.java",
+        "line": 47,
+        "symbol": "public void run(String... args) throws Exception",
+        "evidence_type": "static_source",
+        "note": "Existing explicit outgoing connection call; no connection opened during preparation."
+      }
+    ]
+  },
+  "preparation_files": [
+    {
+      "path": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+      "backup_path": "integrations/private/source-before-preparation/backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+      "before_sha256": "900db2ef1ee26c16482ed0c15a0a0ebc7ae3d686d78d1ab88b44a18aa68a459b",
+      "after_sha256": "d0bbf68b9c3837132b65b2456860b99f5b368583420ea6078118d0f7112ce876"
+    },
+    {
+      "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+      "backup_path": "integrations/private/source-before-preparation/backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+      "before_sha256": "f9f3aff20b2707ee734b7c572c484cd9db742048456e5cfa3d6284dc2e55db81",
+      "after_sha256": "5d6a11320f1533682a1c02aa31e016eaf3c7d232038c30f50afdfc6c38abc90d"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "backup_path": "integrations/private/source-before-preparation/backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "before_sha256": "48a8a1977f6e65bb823e3eea77497f4ae1c9bd641ee82a5cf8f3f432b1520a6c",
+      "after_sha256": "7b432e03b6d79553f60080b24ad2dd14668808d2261e8b98b0d8117369f1fb14"
+    },
+    {
+      "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+      "backup_path": "integrations/private/source-before-preparation/backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+      "before_sha256": "3c8e0f3e7d38feadc5842c2cc798efc6009c28bf820a8503a19a11864beadd44",
+      "after_sha256": "de0718647c9c765c29c20d3d20de414333a05327a64666fc2dbc0781b896a7e4"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "backup_path": "integrations/private/source-before-preparation/backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "before_sha256": "08a5f82a0a448333533d57e823e0b91fce5b9149b7a139445204e726880b64b8",
+      "after_sha256": "5c45141019ba67c683de38c532a7d45addd6667889e88eea3a3166ecc7875053"
+    }
+  ],
+  "method_protocol_preservation": [
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "public static void main(String[] args) throws IOException",
+      "signature_start_line_before": 545,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "561f791719d2dd76bc1a95b48596980995cfde953fb0e64dc643e1007970c653",
+      "non_signature_source_sha256_after": "561f791719d2dd76bc1a95b48596980995cfde953fb0e64dc643e1007970c653",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+      "signature_start_line_before": 645,
+      "organization_expression_policy": "exact original literal preserved; mapping requires on-site confirmation",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "7042a347b0476e7cc249b006846b3087aebe497e2a0f06f7147c21826206827b",
+      "non_signature_source_sha256_after": "7042a347b0476e7cc249b006846b3087aebe497e2a0f06f7147c21826206827b",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "public String sendToNestingTwo(MesBuildingMachinePartNestingParam mesBuildingMachinePartNestingParam, HttpServletResponse response)",
+      "signature_start_line_before": 1344,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "eac756cd5b5d11d40e37d11d3f0ab1acfb78979e63c52d0eaa88d39f85219adc",
+      "non_signature_source_sha256_after": "eac756cd5b5d11d40e37d11d3f0ab1acfb78979e63c52d0eaa88d39f85219adc",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private void machinePartSendToNestingSoftware(MesBuildingMachinePartNestingParam param, SecurityUser currentUser)",
+      "signature_start_line_before": 2135,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "f36fc53679376456285250a13c65c3330ba77ea70681046c6ce0ad039cc11487",
+      "non_signature_source_sha256_after": "f36fc53679376456285250a13c65c3330ba77ea70681046c6ce0ad039cc11487",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MachinePartNestingGuidDetailDTO> getBoChuNestingMachinePartDetailByJobIdListAndGuidList(",
+      "signature_start_line_before": 2488,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "3849e6cb01cff46fb9b0a1e30b7686249b2eca71896308256ba556bf4064c654",
+      "non_signature_source_sha256_after": "3849e6cb01cff46fb9b0a1e30b7686249b2eca71896308256ba556bf4064c654",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MachinePartNestingGuidDetailDTO> getNestPartDetail(Integer jobId)",
+      "signature_start_line_before": 3266,
+      "organization_expression_policy": "exact original literal preserved; mapping requires on-site confirmation",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "baf78a7080b895730904e65fc32c6d9775e0c221e29b3ce48a7103ae75ac343f",
+      "non_signature_source_sha256_after": "baf78a7080b895730904e65fc32c6d9775e0c221e29b3ce48a7103ae75ac343f",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MesBuildingBoChuSteelPlateByGuidDTO> boChuGetJobByGuidList(String teamCode, List<String> guidList)",
+      "signature_start_line_before": 4160,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "6905dfaf16c5b15a02bf9bd5bee6395665f4ee532de1fd9d6f278127c9dda6ec",
+      "non_signature_source_sha256_after": "6905dfaf16c5b15a02bf9bd5bee6395665f4ee532de1fd9d6f278127c9dda6ec",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MesBuildingBoChuSteelPlateByJobIdDTO> boChuJobNspfListV2(String teamCode, List<Integer> jobIdList)",
+      "signature_start_line_before": 4192,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "73ff64c3f45be310d260898e1c6d9706461d385d7343325b940b370543fd4e28",
+      "non_signature_source_sha256_after": "73ff64c3f45be310d260898e1c6d9706461d385d7343325b940b370543fd4e28",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private Integer getJobId(BoChuJobAddParam boChuJobAddParam, String sysTemTeamCode)",
+      "signature_start_line_before": 4816,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "53978c0162abb1e800fdce935aef77f0f35149b9b989befcdb416fa7d2346459",
+      "non_signature_source_sha256_after": "53978c0162abb1e800fdce935aef77f0f35149b9b989befcdb416fa7d2346459",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private void deleteNestingJob(Integer jobId, String sysTemTeamCode)",
+      "signature_start_line_before": 4852,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "e5cb14bcb0eac4bf8e251ffc2f5788dadfe0d0cf352f1a501694eede370669ba",
+      "non_signature_source_sha256_after": "e5cb14bcb0eac4bf8e251ffc2f5788dadfe0d0cf352f1a501694eede370669ba",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MachinePartNestingJobDetailDTO> getNestingJobPart(Integer jobId, String sysTemTeamCode)",
+      "signature_start_line_before": 4893,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "51a836612d3de105083d88817b5da36c19b0f2bf7adec69c7d0e078b0a0d2318",
+      "non_signature_source_sha256_after": "51a836612d3de105083d88817b5da36c19b0f2bf7adec69c7d0e078b0a0d2318",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<NestCutFileTypeDTO> getNestCutFileType(String sysTemTeamCode)",
+      "signature_start_line_before": 4933,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "4bd9ba78d82f67bc4a9b4d2bf97be92c8c30e67956a4820e64ebba4274117f79",
+      "non_signature_source_sha256_after": "4bd9ba78d82f67bc4a9b4d2bf97be92c8c30e67956a4820e64ebba4274117f79",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private byte[] getNestCutFileLXDS(",
+      "signature_start_line_before": 4968,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "32ebdae287bc8401e704f5b2c74b9dcbd610c89777b63cb112ffc9d26da489ed",
+      "non_signature_source_sha256_after": "32ebdae287bc8401e704f5b2c74b9dcbd610c89777b63cb112ffc9d26da489ed",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private byte[] getNestCutFileLXDSV2(",
+      "signature_start_line_before": 5006,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "d533112fe9b6ecd4d0da94e8068bc92e23fafc15e2bf27945bac679c085722f0",
+      "non_signature_source_sha256_after": "d533112fe9b6ecd4d0da94e8068bc92e23fafc15e2bf27945bac679c085722f0",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private byte[] getNestCutFileNC(",
+      "signature_start_line_before": 5036,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "36bcf47c905d75eea7098317f15b6cc3ebb50b06dce035621b1d0875cd6ee400",
+      "non_signature_source_sha256_after": "36bcf47c905d75eea7098317f15b6cc3ebb50b06dce035621b1d0875cd6ee400",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private byte[] getNestCutFileNCV2(",
+      "signature_start_line_before": 5087,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "c08af90cfcab758a71e6b1fd515ed0949e283d391587f6f2fc193f72e9625c67",
+      "non_signature_source_sha256_after": "c08af90cfcab758a71e6b1fd515ed0949e283d391587f6f2fc193f72e9625c67",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private void deleteNestingJobPart(JSONArray jsonArray, String sysTemTeamCode)",
+      "signature_start_line_before": 5131,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "7cec9c1022734feeb558be21d81325eb3018632e0ad1395b1d100f3da8c625f0",
+      "non_signature_source_sha256_after": "7cec9c1022734feeb558be21d81325eb3018632e0ad1395b1d100f3da8c625f0",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MesBuildingBoChuNestingJobByGuidDTO> getJobByGuid(JSONArray jsonArray, String sysTemTeamCode)",
+      "signature_start_line_before": 5154,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "f1c6387598ce9cf38fff8ed5ff5f851aa0862225c1a6d0d287c2eae5afd28068",
+      "non_signature_source_sha256_after": "f1c6387598ce9cf38fff8ed5ff5f851aa0862225c1a6d0d287c2eae5afd28068",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private List<MesBuildingBoChuNestingResultDTO> getNestingJobPlate(Integer jobId, String sysTemTeamCode)",
+      "signature_start_line_before": 5191,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "cd80c27474cff0267ea66e001573d94bb6a114bccc0c8274d56d018a658a713b",
+      "non_signature_source_sha256_after": "cd80c27474cff0267ea66e001573d94bb6a114bccc0c8274d56d018a658a713b",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private void deleteNestingJobPlate(JSONArray jsonArray, String sysTemTeamCode)",
+      "signature_start_line_before": 5231,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "fd8a4793f5c31198b217bdf4b1755617c7e97011af7e8625930e077f9ac7c7b6",
+      "non_signature_source_sha256_after": "fd8a4793f5c31198b217bdf4b1755617c7e97011af7e8625930e077f9ac7c7b6",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private MachinePartNestingGuidDetailDTO getNestPartDetailSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+      "signature_start_line_before": 5528,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "b522dfb6a2a7c56828d2a3577ce0d98e67851b6a90011e02b56965b023c85422",
+      "non_signature_source_sha256_after": "b522dfb6a2a7c56828d2a3577ce0d98e67851b6a90011e02b56965b023c85422",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private JSONObject getNestPartDetailMessageList(Integer jobId, String systemTeamCode)",
+      "signature_start_line_before": 5586,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "d9741db00c338ddccb46325472a0a48d6557f4117662fd878ee751647d3ae4e5",
+      "non_signature_source_sha256_after": "d9741db00c338ddccb46325472a0a48d6557f4117662fd878ee751647d3ae4e5",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "symbol": "private MachinePartNestingPdfDTO getNestingReportDataSaveMessage(Integer jobId, String guid, String systemTeamCode)",
+      "signature_start_line_before": 5615,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "b5256cfef3d320b24e70a9a617347ec8b247a35796425fb13d3a56f34f07b9a0",
+      "non_signature_source_sha256_after": "b5256cfef3d320b24e70a9a617347ec8b247a35796425fb13d3a56f34f07b9a0",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+      "symbol": "public static HttpHeaders getHeadedr(String teamCode)",
+      "signature_start_line_before": 1676,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "f2423b9c85359e59e5de46b3d14173338449a041834857c5180a87475979c8bf",
+      "non_signature_source_sha256_after": "f2423b9c85359e59e5de46b3d14173338449a041834857c5180a87475979c8bf",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "symbol": "private void getNestPartDetailSaveMessage(Integer jobId, String teamCode)",
+      "signature_start_line_before": 27,
+      "organization_expression_policy": "exact original business expression preserved",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "d3befc95c642e76e4d5fd769e7fbb30cd72ae9cffc630fb8282f21f98a12e2be",
+      "non_signature_source_sha256_after": "d3befc95c642e76e4d5fd769e7fbb30cd72ae9cffc630fb8282f21f98a12e2be",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "symbol": "private static MachinePartNestingPdfDTO getNestingReportData(String resultId)",
+      "signature_start_line_before": 57,
+      "organization_expression_policy": "no org header retained via no-argument signer",
+      "content_type_and_encoding": "original caller lines retained",
+      "signature_policy": "common BoChuNesting signer; same MD5/newline/local yyyyMMddHHmmss algorithm; X-FS-Appid now equals the environment app used in the signature",
+      "non_signature_source_sha256_before": "ae6f96fd46270f145279f34dca422f5319d463a0cc15e4ba163343bb2421c1dc",
+      "non_signature_source_sha256_after": "ae6f96fd46270f145279f34dca422f5319d463a0cc15e4ba163343bb2421c1dc",
+      "static_comparison": "identical after removing signature-only setup lines; payload, response handling and content-type lines are retained"
+    }
+  ],
+  "validation": {
+    "executed": false,
+    "reason": "User requested all preparation before testing; root will run coordinated offline compile/probe after preparation."
+  },
+  "source_changes": [
+    {
+      "path": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+      "change": "Explicit opt-in with original offline behavior by default; enabled credentials mandatory; optional Endpoint overrides use SDK defaults when absent."
+    },
+    {
+      "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+      "change": "Single environment/MD5/time signer, blank credentials rejected; no-org overload preserves legacy no-org caller."
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "signature_blocks_replaced": 23,
+      "fluent_chains_replaced": 2
+    },
+    {
+      "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+      "signature_blocks_replaced": 1,
+      "fluent_chains_replaced": 0
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "signature_blocks_replaced": 2,
+      "fluent_chains_replaced": 0
+    }
+  ],
+  "probe": {
+    "path": "integrations/probes/BimBochuPreparationProbe.java",
+    "status": "source_prepared_not_compiled_or_executed",
+    "runtime_operations": "SDK constructors and HTTP header construction only; local loopback endpoints for enabled constructor; no HTTP/SDK operation call",
+    "modes": [
+      "Supply disposable LJAPS_BOCHU_APP_ID/LJAPS_BOCHU_SECRET values to inspect signature without printing credentials.",
+      "--missing-bochu with absent or blank variables verifies clear rejection."
+    ],
+    "sha256": "a3809ee3682686d56601cc1e96443d8b882c4fd4f15881c4a4c8e1bf6aa64fe3"
+  },
+  "static_review": {
+    "methods_with_preserved_non_signature_source": 26,
+    "source_identity_recorded": true,
+    "before_backup_preserved": true,
+    "live_execution": false,
+    "build_or_test_execution": false
+  },
+  "unresolved": [
+    "Two fixed legacy organization literals remain in scheduling methods; exact ownership requires on-site confirmation before those paths can be exercised.",
+    "BIM callbacks, external SDK browser policy, SDK/resource reachability and actual account/project mappings are not verified.",
+    "BoChu WS runner remains excluded; explicit existing controller/service WS paths are unchanged.",
+    "No remote system was called and no runtime has been changed; source preparation is not integration acceptance."
+  ]
+}

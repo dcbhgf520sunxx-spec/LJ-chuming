@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.task.MesBuildingProduceInspectionTeamReportPaintThicknessLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._doModel.task.MesBuildingProduceInspectionTeamReportPaintThicknessLink">
+        <id column="id" property="id" />
+        <result column="inspection_id" property="inspectionId" />
+        <result column="name" property="name" />
+        <result column="detection_time" property="detectionTime" />
+        <result column="thickness" property="thickness" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, inspection_id, name, detection_time, thickness
+    </sql>
+    <select id="getPaintThicknessRecordPage" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report.PaintThicknessRecordDTO">
+        SELECT
+            a.id,
+            cp.id 'project.id',
+            cp.name 'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+            pm.`id` 'monomer.id',
+            pm.`name` 'monomer.name',
+            pd.`id` 'area.id',
+            pd.`name` 'area.name',
+            ta.serial_number serialNumber,
+            a.number,
+            a.avg_thickness,
+            a.bool_adopt_enum,
+            a.bool_paint_thickness_adopt_enum,
+            su2.name as reporterName,
+            su.name as inspectionName,
+            a.report_time reportTime2
+        FROM `mes_building_produce_inspection_team_report` a
+        LEFT JOIN tech_artifact ta on ta.id = a.product_id AND ta.bool_delete_enum = FALSE
+        LEFT JOIN contract_project cp ON ta.project_id = cp.id AND cp.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer pm ON ta.monomer_id = pm.id AND pm.bool_delete_enum = FALSE
+        LEFT JOIN plan_area pd ON ta.area_id = pd.id  AND pd.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_produce_team_report c
+        ON c.product_id = a.product_id
+        AND c.number = a.number
+        AND c.task_type_enum = a.task_type_enum
+        AND a.process_id = c.process_id
+        AND c.bool_delete_enum = FALSE
+        LEFT JOIN sys_user su on su.id = a.user_id
+        LEFT JOIN sys_user su2 on su2.id = c.user_id
+        where
+            a.bool_delete_enum = 0
+        AND a.bool_paint_thickness_adopt_enum is not NULL
+        AND avg_thickness is not null
+        AND a.task_type_enum = 2
+        <if test="projectId!=null">
+            AND ta.project_id=#{projectId}
+        </if>
+        <if test="boolAdoptEnum!=null">
+            AND a.bool_adopt_enum=#{boolAdoptEnum}
+        </if>
+        <if test="boolPaintThicknessAdoptEnum!=null">
+            AND a.bool_paint_thickness_adopt_enum=#{boolPaintThicknessAdoptEnum}
+        </if>
+        <if test="startDate != null">
+            AND date(a.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(a.create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="serialNumber != null and serialNumber!=''">
+            AND ta.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="inspectionName != null and inspectionName!=''">
+            AND su.name like CONCAT('%', #{inspectionName},'%')
+        </if>
+        <if test="reporterName != null and reporterName!=''">
+            AND su2.name like CONCAT('%', #{reporterName},'%')
+        </if>
+        <if test="isAvgThickness == 1">
+            <if test="minThickness != null">
+                AND a.avg_thickness >= #{minThickness}
+            </if>
+            <if test="maxThickness != null">
+                AND a.avg_thickness &lt;= #{maxThickness}
+            </if>
+        </if>
+        <if test="isAvgThickness!=null"  >
+            <if test="isAvgThickness == 0">
+                <if test="minThickness != null">
+                    AND NOT EXISTS(
+                    select 1 from mes_building_produce_inspection_team_report_paint_thickness_link b
+                    where b.bool_delete_enum = FALSE
+                    and b.inspection_id = a.id
+                    and b.thickness &lt; #{minThickness}
+                    )
+                </if>
+                <if test="maxThickness != null">
+                    AND NOT EXISTS(
+                    select 1 from mes_building_produce_inspection_team_report_paint_thickness_link b
+                    where b.bool_delete_enum = FALSE
+                    and b.inspection_id = a.id
+                    and b.thickness > #{maxThickness}
+                    )
+                </if>
+            </if>
+        </if>
+        order by a.id desc
+    </select>
+    <select id="getPaintThicknessDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report.PaintThicknessRecordDTO">
+        SELECT
+            a.id,
+            cp.id 'project.id',
+            cp.name 'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+            pm.`id` 'monomer.id',
+            pm.`name` 'monomer.name',
+            pd.`id` 'area.id',
+            pd.`name` 'area.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name',
+            ta.serial_number serialNumber,
+            production_line.id 'productionLine.id',
+            production_line.name 'productionLine.name',
+            a.number,
+            a.avg_thickness,
+            a.bool_adopt_enum,
+            a.bool_paint_thickness_adopt_enum,
+            a.min_thickness,
+            a.max_thickness,
+            su2.name as reporterName,
+            su.name as inspectionName,
+            tul.user_name as 'teamUserName',
+            c.report_time reportTime,
+            a.report_time reportTime2
+        FROM `mes_building_produce_inspection_team_report` a
+         LEFT JOIN tech_artifact ta on ta.id = a.product_id AND ta.bool_delete_enum = FALSE
+         LEFT JOIN contract_project cp ON ta.project_id = cp.id AND cp.bool_delete_enum = FALSE
+         LEFT JOIN plan_monomer pm ON ta.monomer_id = pm.id AND pm.bool_delete_enum = FALSE
+         LEFT JOIN plan_area pd ON ta.area_id = pd.id  AND pd.bool_delete_enum = FALSE
+         LEFT JOIN mes_building_production_line production_line ON a.production_line_id = production_line.id
+         LEFT JOIN mes_building_team_user_link tul ON a.team_id = tul.team_id AND tul.bool_leader_enum = 1 AND tul.bool_delete_enum = 0
+         LEFT JOIN mes_building_process process ON process.id = a.process_id AND process.bool_delete_enum = 0
+         LEFT JOIN mes_building_produce_team_report c
+         ON c.product_id = a.product_id
+         and c.number = a.number
+         and c.task_type_enum = a.task_type_enum
+         and a.process_id = c.process_id
+         AND c.bool_delete_enum = FALSE
+         LEFT JOIN sys_user su on su.id = a.user_id
+         LEFT JOIN sys_user su2 on su2.id = c.user_id
+        where
+              a.bool_delete_enum = 0
+          and a.bool_paint_thickness_adopt_enum is not NULL
+          and avg_thickness is not null
+          and a.task_type_enum = 2
+          and a.id = #{id}
+    </select>
+</mapper>

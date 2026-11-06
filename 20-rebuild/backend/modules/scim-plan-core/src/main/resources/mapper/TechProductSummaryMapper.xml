@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechProductSummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechProductSummary">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="category" property="category"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete_one" property="meteOne"/>
+        <result column="mete_two" property="meteTwo"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, product_id, category, product_type, quantity, mete_one, mete_two
+    </sql>
+    <select id="listByProjectId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.record.ProductSummaryDTO">
+        select sum(s.quantity) quantity,
+        <choose>
+            <when test="productType == 4">
+                sum(s.mete_one) length,
+            </when>
+            <otherwise>
+                sum(s.mete_one) netWeight,
+                sum(s.mete_two) grossWeight,
+            </otherwise>
+        </choose>
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name'
+        from tech_product_summary s
+        inner join plan_monomer m
+        on m.id = s.monomer_id and m.bool_delete_enum = 0
+        where s.bool_delete_enum = 0
+        and s.project_id = #{projectId}
+        and s.product_type = #{productType}
+        <if test="category != null">
+            and s.category = #{category}
+        </if>
+        group by m.id,m.name
+    </select>
+    <select id="listByMonomerId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.record.ProductSummaryDTO">
+        select s.quantity,
+        <choose>
+            <when test="productType == 4">
+                s.mete_one length,
+            </when>
+            <otherwise>
+                s.mete_one netWeight,
+                s.mete_two grossWeight,
+            </otherwise>
+        </choose>
+        d.`id` 'area.id',
+        d.`name` 'area.name'
+        from tech_product_summary s
+        inner join plan_area d
+        on d.id = s.monomer_id and d.bool_delete_enum = 0
+        where s.bool_delete_enum = 0
+        and s.monomer_id = #{monomerId}
+        and s.product_type = #{productType}
+        <if test="category != null">
+            and s.category = #{category}
+        </if>
+        order by d.sort,d.id
+    </select>
+
+</mapper>

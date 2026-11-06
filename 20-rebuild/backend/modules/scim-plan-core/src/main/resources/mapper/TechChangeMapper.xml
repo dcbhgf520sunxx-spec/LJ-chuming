@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechChange">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="product_id" property="productId" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="product_type" property="productType" />
+        <result column="user_id" property="userId" />
+        <result column="change_type" property="changeType" />
+        <result column="change_reason" property="changeReason" />
+        <result column="attachments" property="attachments" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, product_id, serial_number, product_type, user_id, change_type, change_reason, attachments
+    </sql>
+
+</mapper>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTaskNumberLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskNumberLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="artifact_id" property="artifactId" />
+        <result column="assemble_id" property="assembleId" />
+        <result column="artifact_task_id" property="artifactTaskId" />
+        <result column="assemble_task_id" property="assembleTaskId" />
+        <result column="artifact_number" property="artifactNumber" />
+        <result column="assemble_number" property="assembleNumber" />
+        <result column="artifact_task_process_id" property="artifactTaskProcessId" />
+        <result column="assemble_task_process_id" property="assembleTaskProcessId" />
+        <result column="bool_artifact_inspection" property="boolArtifactInspection" />
+        <result column="bool_assemble_inspection" property="boolAssembleInspection" />
+        <result column="bool_artifact_complete" property="boolArtifactComplete" />
+        <result column="bool_assemble_complete" property="boolAssembleComplete" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, artifact_id, assemble_id, artifact_task_id, assemble_task_id, artifact_number, assemble_number, artifact_task_process_id, assemble_task_process_id, bool_artifact_inspection, bool_assemble_inspection, bool_artifact_complete, bool_assemble_complete
+    </sql>
+    <select id="listProductType" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactStatusDTO">
+        SELECT
+        art.id productId,
+        art.`name`,
+        art.serial_number,
+        ext.sort_number number,
+        taskReport.id,
+        bgr.teamId teamId,
+        userLink.user_name leaderName,
+        numberLink.id,
+        tprocess.id taskProcessId,
+        shop.id workshopId,
+        shop.`name` workshopName,
+        line.id lineId,
+        line.`name` lineName,
+        bgr.id groupId,
+        bgr.`name` groupName,
+        IF
+        ((
+        ifnull( wrecord.id, 0 ) + ifnull( carNumber.id, 0 ) + ifnull( packageNumber.id, 0 )) > 0,
+        0,
+        1
+        ) AS boolCargo,
+        CASE
+
+        WHEN numberLink.id IS NULL THEN
+        '未下发'
+        WHEN wrecord.id IS NOT NULL THEN
+        '已发运'
+        WHEN carNumber.id IS NOT NULL THEN
+        '已装车'
+        WHEN packageNumber.id IS NOT NULL THEN
+        '已打包'
+        WHEN numberLink.bool_artifact_complete = 1 THEN
+        '已完成' ELSE process.`name`
+        END AS processName,
+        numberLink.bool_artifact_report boolReport,
+        numberLink.bool_artifact_inspection boolInspection,
+        numberLink.bool_artifact_complete boolComplete
+        FROM
+        tech_artifact art
+        LEFT JOIN tech_artifact_ext ext ON art.id = ext.artifact_id
+        AND ext.bool_delete_enum = 0
+        LEFT JOIN mes_building_task_number_link numberLink ON ext.artifact_id = numberLink.artifact_id
+        AND ext.sort_number = numberLink.artifact_number
+        AND numberLink.bool_delete_enum = 0
+        LEFT JOIN mes_building_task_process tprocess ON numberLink.artifact_task_process_id = tprocess.id
+        AND tprocess.bool_delete_enum = 0
+        LEFT JOIN mes_building_task task ON numberLink.artifact_task_id = task.id
+        AND task.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop shop ON task.workshop_id = shop.id
+        LEFT JOIN mes_building_production_line line ON task.production_line_id = line.id
+        LEFT JOIN (
+        SELECT
+        bgr.id id,
+        bgr.`name` NAME,
+        taskTeam.id teamId,
+        taskTeam.process_id processId
+        FROM
+        mes_building_groups bgr
+        LEFT JOIN mes_building_groups_team_link groupsLink ON bgr.id = groupsLink.groups_id
+        AND groupsLink.bool_delete_enum = 0
+        LEFT JOIN mes_building_team taskTeam ON taskTeam.id = groupsLink.team_id
+        WHERE
+        bgr.bool_delete_enum = 0
+        AND taskTeam.bool_delete_enum = 0
+        ) bgr ON task.groups_id = bgr.id
+        AND bgr.processId = tprocess.process_id
+        LEFT JOIN mes_building_team_user_link userLink ON userLink.bool_leader_enum = 1
+        AND userLink.bool_delete_enum = 0
+        AND bgr.teamId = userLink.team_id
+        LEFT JOIN mes_building_warehouse_record wrecord ON ext.artifact_id = wrecord.product_id
+        AND wrecord.number = ext.sort_number
+        AND wrecord.bool_delete_enum = 0
+        AND wrecord.type = 2
+        LEFT JOIN mes_building_produce_team_report taskReport ON taskReport.product_id = ext.artifact_id
+        AND taskReport.number = ext.sort_number
+        AND taskReport.bool_delete_enum = 0
+        AND taskReport.task_type_enum = 2
+        LEFT JOIN mes_building_process process ON tprocess.process_id = process.id
+        LEFT JOIN mes_building_cargo_list_product_number_link carNumber ON carNumber.product_id = ext.artifact_id
+        AND carNumber.number = ext.sort_number
+        AND carNumber.bool_delete_enum = 0
+        AND carNumber.product_type = 2
+        AND carNumber.bool_cancel_ship =
+        FALSE LEFT JOIN mes_building_package_number_link packageNumber ON packageNumber.product_id = ext.artifact_id
+        AND packageNumber.number = ext.sort_number
+        AND packageNumber.bool_delete_enum = 0
+        AND packageNumber.product_type = 2
+        WHERE
+        art.bool_delete_enum = 0
+        <if test="artifactIds != null and artifactIds.size() != 0">
+            AND art.id IN
+            <foreach collection="artifactIds" item="artifactId" separator="," close=")" open="(">
+                #{artifactId}
+            </foreach>
+        </if>
+    </select>
+    <select id="listLinksBydata"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskNumberLink">
+
+        SELECT
+        *
+        FROM mes_building_task_number_link
+        WHERE bool_delete_enum = 0
+
+        <if test="taskType == 2">
+            <if test="numbers != null and numbers.size() > 0">
+                AND (artifact_id, artifact_number) IN
+                <foreach collection="numbers" item="number" open="(" separator="," close=")">
+                    (#{number.productId}, #{number.number})
+                </foreach>
+            </if>
+        </if>
+
+        <if test="taskType == 16">
+            <if test="numbers != null and numbers.size() > 0">
+                AND (assemble_id, assemble_number) IN
+                <foreach collection="numbers" item="number" open="(" separator="," close=")">
+                    (#{number.productId}, #{number.number})
+                </foreach>
+            </if>
+        </if>
+    </select>
+
+    <select id="listAssembleExtWarehouseStatusList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingAssembleExtTaskCargoDTO">
+        SELECT
+        link.artifact_id,
+        link.artifact_number,
+        link.assemble_id,
+        link.assemble_number,
+        record.`status`
+        FROM mes_building_task_number_link link
+        INNER JOIN mes_building_warehouse_record record
+        ON record.product_id = link.assemble_id
+        AND record.number = link.assemble_number
+        AND record.type = 1
+        AND record.bool_delete_enum = 0
+        WHERE
+        link.bool_delete_enum = 0
+        AND record.product_type = 16
+        <if test="numbers != null and numbers.size() > 0">
+            AND (link.artifact_id, link.artifact_number) IN
+            <foreach collection="numbers" item="number" open="(" separator="," close=")">
+                (#{number.productId}, #{number.number})
+            </foreach>
+        </if>
+    </select>
+    <select id="listNumberLinksByTaskIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskNumberLink">
+        SELECT *
+        FROM mes_building_task_number_link
+        where artifact_task_id IN
+        <foreach collection="taskIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        or assemble_task_id in
+        <foreach collection="taskIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

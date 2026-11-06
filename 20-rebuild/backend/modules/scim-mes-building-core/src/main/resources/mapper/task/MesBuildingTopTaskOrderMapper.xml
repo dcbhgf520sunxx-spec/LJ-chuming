@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTopTaskOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTopTaskOrder">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="complete_time" property="completeTime" />
+        <result column="order_number" property="orderNumber" />
+        <result column="quantity" property="quantity" />
+        <result column="production_line_type_enum" property="productionLineTypeEnum" />
+        <result column="ask_complete_time" property="askCompleteTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, groups_id, project_id, complete_time, status, user_id, order_number, quantity, print_quantity, process_type_enum, lay_way_config_id, cut_config_id, layout_status, scheduling_id, production_line_type_enum, artifact_date_time, part_xml_attachment_id, yuan_jing_attachment_id, bool_yuan_jing_download_enum, bool_kai_yuan_download_enum, bool_xml_upload_enum, kai_yuan_attachment_id, ask_complete_time, task_type_enum
+    </sql>
+    <select id="getTopTaskOrderAssistList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.topTaskOrder.MesBuildingTopTaskOrderDO">
+        SELECT
+            top_task_order.id,
+            top_task_order.create_time,
+            project.id 'project.id',
+            project.`name` 'project.name',
+            project.short_name 'project.short_name',
+            project.serial_number 'project.serial_number',
+            monomer.id 'monomer.id',
+            monomer.`name` 'monomer.name',
+            area.`id` 'area.id',
+            area.`name` 'area.name',
+            top_task_order.order_number,
+            top_task_order.quantity,
+            top_task_order.production_line_type_enum,
+            top_task_order.ask_complete_time,
+            IFNULL(task.task.task_quantity,0)'totalMete.quantity',
+            IFNULL(task.task_net_weight,0)'totalMete.net_weight',
+            IFNULL(task.task_gross_weight,0)'totalMete.gross_weight',
+            IFNULL(task.complete_quantity,0)'totalCompleteMete.quantity',
+            IFNULL(task.complete_net_weight,0)'totalCompleteMete.net_weight',
+            IFNULL(task.complete_gross_weight,0)'totalCompleteMete.gross_weight'
+        FROM
+            mes_building_top_task_order  top_task_order
+                LEFT JOIN contract_project  project ON top_task_order.project_id=project.id
+                LEFT JOIN plan_monomer monomer ON monomer.id=top_task_order.monomer_id
+                LEFT JOIN plan_area area ON area.id=top_task_order.area_id
+                LEFT JOIN (SELECT
+        task_order.top_task_order_id,
+        sum( task_order.task_quantity ) task_quantity,
+        sum( task_order.task_net_weight ) task_net_weight,
+        sum( task_order.task_gross_weight ) task_gross_weight,
+        sum( task_order.complete_quantity ) complete_quantity,
+        sum( task_order.complete_net_weight ) complete_net_weight,
+        sum( task_order.complete_gross_weight ) complete_gross_weight
+        FROM
+        (SELECT
+                               task_order.top_task_order_id,
+                               task.task_quantity,
+                               task.task_net_weight,
+                               task.task_gross_weight,
+                               task.complete_quantity,
+                               task.complete_net_weight,
+                               task.complete_gross_weight
+                           FROM (SELECT
+                                     task_order_id,
+                                     sum(task_quantity) task_quantity,
+                                     sum(net_weight) task_net_weight,
+                                     sum(gross_weight) task_gross_weight,
+                                     sum(complete_quantity) complete_quantity,
+                                     sum(complete_net_weight) complete_net_weight,
+                                     sum(complete_gross_weight) complete_gross_weight
+                                 FROM
+                                     (SELECT
+                                          task_order_id,
+                                          task_quantity task_quantity,
+                                          task_quantity*product.net_weight net_weight,
+                                          task_quantity*product.gross_weight gross_weight,
+                                          complete_quantity complete_quantity,
+                                          complete_quantity*product.net_weight complete_net_weight,
+                                          complete_quantity*product.gross_weight complete_gross_weight
+                                      FROM
+                                          mes_building_task task
+                                              LEFT JOIN tech_artifact product ON task.product_id =product.id
+                                      WHERE task.task_type_enum=2
+                                        AND task.bool_delete_enum=0
+                                        AND task.task_quantity>complete_quantity
+                                    <if test="projectIds!=null and projectIds.size()>0">
+                                        AND task.project_id IN
+                                        <foreach collection="projectIds" separator="," item="projectId" open="(" close=")">
+                                            #{projectId}
+                                        </foreach>
+                                    </if>
+                                    <if test="monomerId != null">
+                                        AND task.monomer_id = #{monomerId}
+                                    </if>
+                                    <if test="areaId != null">
+                                        AND task.area_id = #{areaId}
+                                    </if>
+                                    <if test="serialNumber!=null and serialNumber!=''">
+                                        AND product.serial_number like CONCAT('%', #{serialNumber},'%')
+                                    </if>
+                                     )task
+                                 GROUP BY task_order_id) task
+                                    LEFT JOIN mes_building_task_order task_order ON task_order.id=task.task_order_id) task_order
+        GROUP BY
+        task_order.top_task_order_id) task ON top_task_order.id=task.top_task_order_id
+        WHERE
+            top_task_order.complete_time IS NULL
+          AND task.task_quantity>task.complete_quantity
+          <if test="dateTime!=null">
+              AND date_format(top_task_order.create_time, '%Y-%m') =date_format(#{dateTime}, '%Y-%m')
+          </if>
+        <if test="projectIds!=null and projectIds.size()>0">
+            AND top_task_order.project_id IN
+            <foreach collection="projectIds" separator="," item="projectId" open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+          ORDER BY  top_task_order.ask_complete_time,IFNULL(task.task.task_quantity,0)-IFNULL(task.task_net_weight,0)
+    </select>
+    <select id="getNumber" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            mes_building_top_task_order
+        WHERE
+            DATE( create_time )= (DATE(#{now}))
+    </select>
+    <select id="boolOrderComplete"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.onecodeChange.MesBuildingOrderIdAndQuantityDTO">
+        SELECT
+        top_task_order_id id,
+        SUM( task_quantity ) taskQuantity,
+        SUM( complete_quantity )completeQuantity
+        FROM
+        mes_building_task
+        WHERE
+        bool_delete_enum = 0
+        <if test="topOrderIds!=null  ">
+            AND top_task_order_id IN
+            <foreach collection="topOrderIds" item="oderId" open="(" separator="," close=")">
+                #{oderId}
+            </foreach>
+        </if>
+        GROUP BY
+        top_task_order_id
+    </select>
+
+</mapper>

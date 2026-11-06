@@ -1,0 +1,3 @@
+generated/*
+!generated/module-graph.json
+!generated/vendor-symbol-map.json

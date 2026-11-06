@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardStorehouseMaterialsLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouseMaterialsLink">
+        <id column="id" property="id" />
+        <result column="welding_material_name" property="weldingMaterialName" />
+        <result column="welding_material_manufacturing_plant" property="weldingMaterialManufacturingPlant" />
+        <result column="welding_material_trademark" property="weldingMaterialTrademark" />
+        <result column="welding_material_model" property="weldingMaterialModel" />
+        <result column="welding_material_type" property="weldingMaterialType" />
+        <result column="welding_material_drying_procedure" property="weldingMaterialDryingProcedure" />
+        <result column="remark" property="remark" />
+        <result column="tech_capp_craft_card_storehouse_id" property="techCappCraftCardStorehouseId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, welding_material_name, welding_material_manufacturing_plant, welding_material_trademark, welding_material_model, welding_material_type, welding_material_drying_procedure, remark, tech_capp_craft_card_storehouse_id
+    </sql>
+
+</mapper>

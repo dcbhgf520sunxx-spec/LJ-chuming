@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MaterialInventoryManufacturedMapper">
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventoryManufactured">
+        select
+        wmim.*
+        from wms_material_inventory_manufactured wmim
+        where wmim.bool_delete_enum = 0
+        and wmim.quantity != 0
+        <if test="basicClass != null and basicClass != ''">
+            and wmim.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="monomerId != null and monomerId != ''">
+            and wmim.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            and wmim.area_id = #{areaId}
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and wmim.project_id = #{projectId}
+        </if>
+        <if test=" manufacturedName != null and manufacturedName != ''">
+            and wmim.manufactured_name like concat('%',#{manufacturedName},'%')
+        </if>
+        <if test=" manufacturedSn != null and manufacturedSn != ''">
+            and wmim.manufactured_sn like concat('%',#{manufacturedSn},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and wmim.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="color != null and color != ''">
+            and wmim.color like concat('%',#{color},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            and wmim.brand like concat('%',#{brand},'%')
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and wmim.workshop_id = #{workshopId}
+        </if>
+        <if test="warehouseId != null and warehouseId != ''">
+            and wmim.warehouse_id = #{warehouseId}
+        </if>
+        <if test="workshopIds != null and workshopIds.size > 0">
+            and wmim.workshop_id in
+            <foreach item="item" index="index" collection="workshopIds" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectProjectIds" resultType="java.lang.Long">
+        select
+            wmim.project_id
+        from wms_material_inventory_manufactured wmim
+        where wmim.bool_delete_enum = 0
+        and wmim.quantity > 0
+    </select>
+</mapper>

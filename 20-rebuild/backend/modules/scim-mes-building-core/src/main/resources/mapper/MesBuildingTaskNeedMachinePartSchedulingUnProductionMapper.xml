@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTaskNeedMachinePartSchedulingUnProductionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskNeedMachinePartSchedulingUnProduction">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="artifact_task_id" property="artifactTaskId" />
+        <result column="task_order_id" property="taskOrderId" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="production_line_id" property="productionLineId" />
+        <result column="groups_id" property="groupsId" />
+        <result column="need_id" property="needId" />
+        <result column="product_id" property="productId" />
+        <result column="quantity" property="quantity" />
+        <result column="use_id" property="useId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, artifact_task_id, task_order_id, workshop_id, production_line_id, groups_id, need_id, product_id, quantity, use_id
+    </sql>
+    <select id="getUnProductionList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MachinePartSchedulingUnProductionDO">
+        SELECT
+        un_production.id,
+        un_production.product_id,
+        un_production.quantity,
+        un_production.create_time,
+        part.serial_number,
+        part.specification,
+        task.ask_complete_time,
+        task.task_type_enum,
+        task.id task_id,
+        part.material,
+        project.id 'project.id',
+        project.`name` 'project.`name`',
+        project.short_name 'project.short_name',
+        project.serial_number 'project.serial_number',
+        monomer.id 'monomer.id',
+        monomer.`name` 'monomer.name',
+        area.id 'area.id',
+        area.`name` 'area.name',
+        workshop.id 'workshop.id',
+        workshop.`name` 'workshop.name',
+        production_line.id 'production_line.id',
+        production_line.`name` 'production_line.name',
+        gro.id 'groups.id',
+        gro.`name` 'groups.name' ,
+        user.id 'user.id',
+        user.`name` 'user.name'
+        FROM
+        mes_building_task_need_machine_part_scheduling_un_production un_production
+        LEFT JOIN tech_machine_part part ON un_production.product_id = part.id
+        LEFT JOIN contract_project project ON un_production.project_id = project.id
+        LEFT JOIN plan_monomer monomer ON un_production.monomer_id = monomer.id
+        LEFT JOIN mes_building_task task ON un_production.task_id = task.id
+        LEFT JOIN tech_artifact artifact ON artifact.id = task.product_id
+        LEFT JOIN plan_area area ON un_production.area_id = area.id
+        LEFT JOIN mes_building_workshop workshop ON un_production.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON un_production.production_line_id = production_line.id
+        LEFT JOIN mes_building_groups gro ON un_production.groups_id = gro.id
+        LEFT JOIN sys_user user ON user.id=un_production.use_id
+        <where>
+            un_production.bool_delete_enum=0
+                <if test="projectId != null">
+                    AND un_production.project_id=#{projectId}
+                </if>
+                <if test="monomerId != null">
+                    AND  un_production.monomer_id=#{monomerId}
+                </if>
+                <if test="areaId != null">
+                    AND un_production.area_id=#{areaId}
+                </if>
+                <if test="workshopId != null">
+                    AND un_production.workshop_id=#{workshopId}
+                </if>
+                <if test="productionLineId != null">
+                    AND un_production.production_line_id=#{productionLineId}
+                </if>
+                <if test="groupsId != null">
+                    AND un_production.groups_id=#{groupsId}
+                </if>
+                <if test="serialNumber != null and serialNumber!=''">
+                    AND part.serial_number LIKE concat('%',#{serialNumber},'%')
+                </if>
+                <if test="artifactSerialNumber != null and artifactSerialNumber!=''">
+                    AND artifact.serial_number LIKE concat('%',#{artifactSerialNumber},'%')
+                </if>
+        </where>
+    </select>
+
+</mapper>

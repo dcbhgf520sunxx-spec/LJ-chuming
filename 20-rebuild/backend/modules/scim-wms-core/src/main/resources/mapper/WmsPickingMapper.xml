@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsPickingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsPicking">
+        <id column="id" property="id" />
+        <result column="project_id" property="projectId" />
+        <result column="mes_workshop_id" property="mesWorkshopId" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="task_order_number" property="taskOrderNumber" />
+        <result column="material_type" property="materialType" />
+        <result column="picking_mete" property="pickingMete" />
+        <result column="outbound_mete" property="outboundMete" />
+        <result column="transact_status" property="transactStatus" />
+        <result column="task_order_id" property="taskOrderId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_id, mes_workshop_id, applicant_id, task_order_number, material_type, picking_mete, outbound_mete, transact_status, task_order_id
+    </sql>
+    <resultMap id="getWmsPickingList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsPickingDTO">
+        <id column="id" property="id" />
+        <result column="task_order_number" property="taskOrderNumber"/>
+        <result column="material_type" property="materialType"/>
+        <result column="picking_mete" property="pickingMete"/>
+        <result column="outbound_mete" property="outboundMete"/>
+        <result column="transact_status" property="transactStatus"/>
+        <result column="task_order_id" property="taskOrderId"/>
+        <result column="bool_auto" property="boolAuto"/>
+        <result column="create_time" property="createTime"/>
+        <association property="project" javaType="com.hzchum.scim.scm.core.api.pojo.dto.ProjectInfoDTO">
+            <id column="projectId" property="id"/>
+            <result column="projectName" property="name"/>
+            <result column="shortName" property="shortName"/>
+            <result column="serialNumber" property="serialNumber"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.scm.core.api.pojo.dto.IdAndNameDTO">
+            <id column="mesWorkshopId" property="id"/>
+            <result column="mesWorkshopName" property="name"/>
+        </association>
+        <association property="applicant" javaType="com.hzchum.scim.scm.core.api.pojo.dto.IdAndNameDTO">
+            <id column="applicantId" property="id"/>
+            <result column="applicantName" property="name"/>
+        </association>
+    </resultMap>
+    <select id="getWmsPickingList" resultMap="getWmsPickingList">
+        select
+        wp.*,
+        cp.id projectId,
+        cp.name projectName,
+        cp.short_name shortName,
+        cp.serial_number serialNumber,
+        mbw.id mesWorkshopId,
+        mbw.name mesWorkshopName,
+        su.id applicantId,
+        su.name applicantName
+        from
+        wms_picking wp
+        left join contract_project cp on wp.project_id = cp.id
+        left join mes_building_workshop mbw on wp.mes_workshop_id = mbw.id
+        left join sys_user su on wp.applicant_id = su.id
+        where
+        wp.bool_delete_enum = 0
+        <if test="transactStatus != null">
+            and wp.transact_status = #{transactStatus}
+        </if>
+        <if test="times != null and times.size() > 0">
+            <if test="times[0] != null">
+                and wp.create_time &gt;= #{times[0]}
+            </if>
+            <if test="times[1] != null">
+                and wp.create_time &lt;= #{times[1]}
+            </if>
+        </if>
+        <if test="projectId != null">
+            and wp.project_id = #{projectId}
+        </if>
+        <if test="mesWorkshopId != null">
+            and wp.mes_workshop_id = #{mesWorkshopId}
+        </if>
+        <if test="applicantName != null">
+            and su.name like CONCAT('%', #{applicantName},'%')
+        </if>
+        <if test="materialType != null">
+            and wp.material_type like CONCAT('%', #{materialType},'%')
+        </if>
+        <if test="boolAuto != null">
+            and wp.bool_auto = #{boolAuto}
+        </if>
+        <if test="taskOrderNumber != null">
+            and wp.task_order_number like CONCAT('%', #{taskOrderNumber},'%')
+        </if>
+        order by wp.transact_status ASC
+    </select>
+    <select id="getPickingDTOByIds" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsPickingDTO">
+        select
+            wp.*,
+            cp.id projectId,
+            cp.name projectName,
+            cp.short_name shortName,
+            cp.serial_number serialNumber,
+            mbw.id mesWorkshopId,
+            mbw.name mesWorkshopName,
+            su.id applicantId,
+            su.name applicantName
+        from
+            wms_picking wp
+                left join contract_project cp on wp.project_id = cp.id
+                left join mes_building_workshop mbw on wp.mes_workshop_id = mbw.id
+                left join sys_user su on wp.applicant_id = su.id
+        where
+            wp.bool_delete_enum = 0
+        <if test="ids != null and ids.size() > 0">
+            and wp.id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

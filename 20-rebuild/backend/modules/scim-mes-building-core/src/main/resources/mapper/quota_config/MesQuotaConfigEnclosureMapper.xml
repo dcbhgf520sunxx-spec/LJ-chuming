@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesQuotaConfigEnclosureMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesQuotaConfigEnclosureDTO">
+        SELECT
+            mqce.*,
+            d.id AS 'enclosureTypeDictionary.id',
+            d.label AS 'enclosureTypeDictionary.label',
+            d.value AS 'enclosureTypeDictionary.value'
+        FROM mes_quota_config_enclosure mqce
+        LEFT JOIN sys_dictionary d ON d.bool_delete_enum = 0 AND d.name = 'enclosure_type' AND d.id = mqce.enclosure_type_dictionary_id
+        WHERE mqce.bool_delete_enum = 0
+        <if test="enclosureTypeDictionaryId != null">
+            AND mqce.enclosure_type_dictionary_id = #{enclosureTypeDictionaryId}
+        </if>
+    </select>
+
+    <select id="getMaxSerialNumber" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(MAX(CAST(TRIM(LEADING #{prefix} FROM serial_number) AS UNSIGNED)), 0)
+        FROM mes_quota_config_enclosure
+        WHERE serial_number REGEXP CONCAT('^', #{prefix}, '[0-9]+$')
+    </select>
+
+</mapper>

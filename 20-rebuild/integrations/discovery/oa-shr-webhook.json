@@ -1,0 +1,70 @@
+{
+  "kind": "source-preparation-only",
+  "integrations": [
+    "I01",
+    "I02",
+    "I13"
+  ],
+  "sources": [
+    {
+      "id": "I01",
+      "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/OaBusinessProcessServiceImpl.java",
+      "sha256": "2447b52fbfde1bafdeb39239cc9865fd524c557f91d41b2f72ab4cd4bd54f872",
+      "sourceAnchors": [
+        "ZhongNanOaProperties",
+        "getHeaderMap",
+        "getToken",
+        "doCreateRequest"
+      ]
+    },
+    {
+      "id": "I01",
+      "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/zhongnanoa/OaBusinessProcessApi.java",
+      "sha256": "1ad8d2eb60329e3a685bec52dd3e21c8731bd6679b902f202c840a6b2250e535",
+      "sourceAnchors": [
+        "@PostMapping(\"/syncApprovalFlowStatus\")",
+        "@RequestHeader(\"oaToken\")"
+      ]
+    },
+    {
+      "id": "I02",
+      "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/ShrPersonnelOrganizationServierImpl.java",
+      "sha256": "7e4bfd7432048c046f1535b3fc20e02c3dc8ab46cb798ee77cbf6ea510e5b93f",
+      "sourceAnchors": [
+        "${zhongnan.shr.host:}",
+        "shrEndpoint",
+        "requireSyncRows"
+      ]
+    },
+    {
+      "id": "I13",
+      "path": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/MessagePushUtil.java",
+      "sha256": "3e1b709daa126873e533f260555c9e6de47eb4c8c0e1aed47d06dc1d3063158c",
+      "sourceAnchors": [
+        "${ljaps.integrations.webhook.enabled:false}",
+        "textMessageBody",
+        "@all",
+        "1000002"
+      ]
+    },
+    {
+      "id": "I13",
+      "path": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/NotificationWebhookConfigController.java",
+      "sha256": "5f6e6f7d9b1e93d779460f1e653c49b4c6d0da3187f156bbeca658e437b1581d",
+      "sourceAnchors": [
+        "/api/notification/webhook/config"
+      ]
+    }
+  ],
+  "configPresence": "local-existing-config-presence.json",
+  "facts": [
+    "OA使用zhongnan.oa appId/host/secret/spk，现同步回调另外校验oaToken，当前JWT过滤器尚无兼容入口。",
+    "SHR保持原orgList/positionList/userList协议，主机外置；空响应先拒绝，不进入全量禁用。",
+    "Webhook保留原普通/WMS字段结构，用ObjectMapper处理转义并去除含URL认证信息的日志；本地需显式开关，不切换全局company环境。",
+    "原WMS接收体的@all和agentid保持原值，需真实接收端契约及隔离测试群后再开启。"
+  ],
+  "realRequests": 0,
+  "databaseWrites": 0,
+  "runtimeUpdated": false,
+  "testsExecuted": 0
+}

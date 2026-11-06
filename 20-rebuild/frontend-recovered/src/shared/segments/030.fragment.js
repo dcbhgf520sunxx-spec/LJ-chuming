@@ -1,0 +1,54 @@
+const yy = { MESSAGE_VALIDITY_CONFIG: { L: "信息有效期配置", K: "MESSAGE_VALIDITY_CONFIG", V: 1 }, CA_LOCK_VALIDITY_CONFIG: { L: "CA锁有效期配置", K: "CA_LOCK_VALIDITY_CONFIG", V: 2 }, PROJECT_NUMBER_PLACES: { L: "项目名额数量配置", K: "PROJECT_NUMBER_PLACES", V: 3 }, INDUSTRY_COMMERCE_NUMBER: { L: "工商信息查询上限配置", K: "INDUSTRY_COMMERCE_NUMBER", V: 4 } };
+ve(yy);
+const yo = { RECORD_PAGE: { L: "备案页面配置详情", K: "RECORD_PAGE", V: "RECORD_PAGE" }, SIGN_IN_PAGE: { L: "项目信息登记详情", K: "SIGN_IN_PAGE", V: "SIGN_IN_PAGE" }, TRACK_DOWN_PAGE: { L: "项目跟踪详情", K: "TRACK_DOWN_PAGE", V: "TRACK_DOWN_PAGE" }, QUALIFICATION_PAGE: { L: "资格预审详情", K: "QUALIFICATION_PAGE", V: "QUALIFICATION_PAGE" }, APPLICATION_PAGE: { L: "投标申请详情", K: "APPLICATION_PAGE", V: "APPLICATION_PAGE" }, PROJECT_GIVE_UP_PAGE: { L: "放弃项目详情", K: "PROJECT_GIVE_UP_PAGE", V: "PROJECT_GIVE_UP_PAGE" } };
+ve(yo);
+const Ty = { FIRM_RECORD_CONFIG: { L: "企业备案页面管理", SL: "企业备案", K: "FIRM_RECORD_CONFIG", V: 1, TYPE: yo.RECORD_PAGE.V }, PROJECT_SIGN_IN_CONFIG: { L: "项目信息登记页面管理", SL: "项目信息登记", K: "PROJECT_SIGN_IN_CONFIG", V: 5, TYPE: yo.SIGN_IN_PAGE.V }, GOVERNMENT_RECORD_CONFIG: { L: "政府备案页面管理", SL: "政府备案", K: "GOVERNMENT_RECORD_CONFIG", V: 2, TYPE: yo.RECORD_PAGE.V }, PLATFORM_REGISTRATION_RECORD_PAGE_MANAGEMENT: { L: "平台注册备案页面管理", SL: "平台注册", K: "PLATFORM_REGISTRATION_RECORD_PAGE_MANAGEMENT", V: 4, TYPE: yo.RECORD_PAGE.V }, SUPPLIER_INTO_RECORD_CONFIG: { L: "供应商入库备案管理", SL: "供应商备案", K: "SUPPLIER_INTO_RECORD_CONFIG", V: 3, TYPE: yo.RECORD_PAGE.V }, PROJECT_TRACK_DOWN: { L: "项目跟踪", SL: "项目跟踪", K: "PROJECT_TRACK_DOWN", V: 6, TYPE: yo.TRACK_DOWN_PAGE.V }, QUALIFICATION_REVIEW: { L: "资格预审", SL: "资格预审", K: "QUALIFICATION_REVIEW", V: 7, TYPE: yo.QUALIFICATION_PAGE.V }, APPLICATION_TENDER: { L: "投标申请", SL: "投标申请", K: "APPLICATION_TENDER", V: 8, TYPE: yo.APPLICATION_PAGE.V }, PROJECT_GIVE_UP: { L: "项目放弃", SL: "项目放弃", K: "PROJECT_GIVE_UP", V: 9, TYPE: yo.PROJECT_GIVE_UP_PAGE.V } };
+ve(Ty);
+const _y = { BASIC_INFORMATION: { L: "基础信息", K: "BASIC_INFORMATION", V: 1 }, BUSINESS_INFORMATION: { L: "商务信息", K: "BUSINESS_INFORMATION", V: 4 }, TRACE_LINE: { L: "跟踪线", K: "TRACE_LINE", V: 6 } };
+ve(_y);
+const by = { DOMESTIC: { L: "国内", K: "DOMESTIC", V: 1 }, FOREIGN: { L: "国外", K: "FOREIGN", V: 2 } };
+ve(by);
+const Vy = { LESS_THAN_EQUAL_TO: { L: "小于等于合同金额", K: "LESS_THAN_EQUAL_TO", V: false }, LARGER_THAN: { L: "允许大于合同金额", K: "LARGER_THAN", V: true } };
+ve(Vy);
+const wy = { LESS_THAN_EQUAL_TO: { L: "小于等于结算金额", K: "LESS_THAN_EQUAL_TO", V: false }, LARGER_THAN: { L: "允许大于结算金额", K: "LARGER_THAN", V: true } };
+ve(wy);
+const Sy = { METHOD_ONE: { L: `未结算时：应收款 = 合同金额 - 累计收款
+已结算时：应收款 = 结算金额 - 累计收款`, K: "METHOD_ONE", V: true }, METHOD_TWO: { L: `未结算时：应收款 显示【-】
+已结算时：应收款 = 结算金额 - 累计收款`, K: "METHOD_TWO", V: false } };
+ve(Sy);
+const vy = { METHOD_ONE: { L: `未结算时：未付款 = 合同金额 - 累计付款
+已结算时：未付款 = 结算金额 - 累计付款`, K: "METHOD_ONE", V: true }, METHOD_TWO: { L: `未结算时：未付款 显示【-】
+已结算时：未付款 = 结算金额 - 累计付款`, K: "METHOD_TWO", V: false } };
+ve(vy);
+const Ry = { ASSOCIATED: { L: "关联物料领用", K: "ASSOCIATED", V: true }, NOT_ASSOCIATED: { L: "不关联", K: "NOT_ASSOCIATED", V: false } };
+ve(Ry);
+const My = { INSTALLATION: { L: "安装", K: "INSTALLATION", V: 1 }, MANUFACTURING: { L: "加工", K: "MANUFACTURING", V: 2 }, OTHER: { L: "其它", K: "OTHER", V: 4 } };
+ve(My);
+const LP = { numberTypeEnum: KE, taxRateEnum: WE, workshopTypeEnum: ty, taxRateEnumV2: ey, wageStatisticsMode: HE, LC_STATICISTIC_MODE: Hc, LC_plateThickness: QE, LC_measurementMethods: Gc, LC_parameters: JE, LC_SCOPE_SYMBOL: zc, LC_type: Bc, LC_MODE: FE, LC_SCOPE: jE, LC_SCOPE_SYMBOL_ONE: BE, LC_SCOPE_SYMBOL_TWO: zE, LC_plateThickness_blanking: GE, LC_partsTypeEnum: XE, LC_processTypeEnum: $E, lc_component_mode_enum: qc, LC_measurementMethodsTwo: ZE, wageReportMode: qE, crmBaseConfigTypeEnum: fy, crmProjectInformationTypeEnum: gy, crmTenderApplyTypeEnum: Ey, crmConfigPageEnum: hy, messageValidityConfigEnum: yy, pageManageEnum: Ty, pageManageDetailEnum: yo, crmFormFieldType: _y, appTypeEnum: my, configStatusTypeEnum: iy, enableTypeEnum: ay, noticeWayEnum: ly, triggerWayEnum: oy, timeWayEnum: ny, messageMenuEnum: sy, applyOnjectEnum: ry, timingTypeEnum: uy, timeTypeEnum: cy, processPointTypeEnum: dy, modifyStateEnum: py, crmCountryType: by, preSettleConfigTypeEnum: Vy, afterSettleConfigTypeEnum: wy, auxiliaryMaterialAssociationEnum: Ry, branchAttributeEnum: My, unreceivedAmountCalculationMethodEnum: Sy, unpaidAmountCalculationMethodEnum: vy }, Ay = Object.freeze(Object.defineProperty({ __proto__: null, LC_MODE: FE, LC_SCOPE: jE, LC_SCOPE_SYMBOL: zc, LC_SCOPE_SYMBOL_ONE: BE, LC_SCOPE_SYMBOL_TWO: zE, LC_STATICISTIC_MODE: Hc, LC_measurementMethods: Gc, LC_measurementMethodsTwo: ZE, LC_parameters: JE, LC_partsTypeEnum: XE, LC_plateThickness: QE, LC_plateThickness_blanking: GE, LC_processTypeEnum: $E, LC_type: Bc, afterSettleConfigTypeEnum: wy, appTypeEnum: my, applyOnjectEnum: ry, auxiliaryMaterialAssociationEnum: Ry, branchAttributeEnum: My, configStatusTypeEnum: iy, crmBaseConfigTypeEnum: fy, crmConfigPageEnum: hy, crmCountryType: by, crmFormFieldType: _y, crmProjectInformationTypeEnum: gy, crmTenderApplyTypeEnum: Ey, default: LP, enableTypeEnum: ay, lc_component_mode_enum: qc, messageMenuEnum: sy, messageValidityConfigEnum: yy, modifyStateEnum: py, noticeWayEnum: ly, numberTypeEnum: KE, pageManageDetailEnum: yo, pageManageEnum: Ty, preSettleConfigTypeEnum: Vy, processPointTypeEnum: dy, taxRateEnum: WE, taxRateEnumV2: ey, timeTypeEnum: cy, timeWayEnum: ny, timingTypeEnum: uy, triggerWayEnum: oy, unpaidAmountCalculationMethodEnum: vy, unreceivedAmountCalculationMethodEnum: Sy, wageReportMode: qE, wageStatisticsMode: HE, workshopTypeEnum: ty }, Symbol.toStringTag, { value: "Module" })), jl = { UNDER_REVIEW: { L: "审核中", AL: "审核中", K: "UNDER_REVIEW", TYPE: "", V: 1 }, BE_IN_STORAGE: { L: "已入库", AL: "通过", K: "BE_IN_STORAGE", TYPE: "success", V: 2 }, NOT_PASS: { L: "未通过", AL: "未通过", K: "NOT_PASS", TYPE: "danger", V: 4 }, TEMPORARY_STORAGE: { L: "暂存", AL: "暂存", K: "TEMPORARY_STORAGE", TYPE: "info", V: 5 } };
+ve(jl);
+const Ny = { UN_RECORD: { L: "未认领", K: "UN_RECORD", V: 1 }, RECORD: { L: "已认领", K: "RECORD", V: 2 } };
+ve(Ny);
+const Ly = { FILING_STATUS: { L: "备案状态", K: "FILING_STATUS", TYPE: "", V: 1 }, FOLLOW_UP_STATUS: { L: "跟进通过状态", K: "FOLLOW_UP_STATUS", TYPE: "info", V: 2 }, PREQUALIFICATION_STATUS: { L: "预审资格通过状态", K: "PREQUALIFICATION_STATUS", TYPE: "warning", V: 3 }, BID_APPLICATION_STATUS: { L: "投标申请通过状态", K: "BID_APPLICATION_STATUS", TYPE: "warning", V: 5 }, LAPSE_STATUS: { L: "失效状态", K: "LAPSE_STATUS", TYPE: "danger", V: 7 }, WINNING_BIDDER: { L: "中标状态", K: "WINNING_BIDDER", TYPE: "success", V: 8 }, UN_BIDDED: { L: "未中标状态", K: "UN_BIDDED", TYPE: "info", V: 10 }, FINISH: { L: "项目终止", K: "FINISH", TYPE: "danger", V: 11 } };
+ve(Ly);
+const Iy = { MINBYAUK_THIHAPATE: { L: "明标", K: "MINBYAUK_THIHAPATE", V: 1 }, DARK_MARK: { L: "暗标", K: "DARK_MARK", V: 2 } };
+ve(Iy);
+const Cy = { BIDDING_METHOD: { L: "商务标", K: "BIDDING_METHOD", V: 1 }, SETTLEMENT_METHOD: { L: "技术标", K: "SETTLEMENT_METHOD", V: 2 }, TYPE_OF_PERFORMANCE_BOND: { L: "设计标", K: "TYPE_OF_PERFORMANCE_BOND", V: 3 } };
+ve(Cy);
+const Py = { UNDER_WAY: { L: "进行中", K: "UNDER_WAY", V: 2, TYPE: "" }, NOT_APPOINTED: { L: "未任命", K: "NOT_APPOINTED", V: 1, TYPE: "info" }, COMPLETED: { L: "已完成", K: "COMPLETED", V: 3, TYPE: "success" }, PAUSED: { L: "暂停", K: "PAUSED", V: 4, TYPE: "warning" } };
+ve(Py);
+const Oy = { BIDDING_METHOD: { L: "商务标", K: "BIDDING_METHOD", V: 1 }, SETTLEMENT_METHOD: { L: "技术标", K: "SETTLEMENT_METHOD", V: 2 }, TYPE_OF_PERFORMANCE_BOND: { L: "设计标", K: "TYPE_OF_PERFORMANCE_BOND", V: 4 } };
+ve(Oy);
+const ky = { BIDDING_METHOD_HEAD: { L: "商务标负责人", K: "BIDDING_METHOD", V: 1 }, SETTLEMENT_METHOD_HEAD: { L: "技术标负责人", K: "SETTLEMENT_METHOD_HEAD", V: 2 }, STRUCTURAL_DESIGN_TARGET_HEAD: { L: "结构设计标负责人", K: "STRUCTURAL_DESIGN_TARGET_HEAD", V: 3 } };
+ve(ky);
+const Dy = { ROUTINE_OPERATIONS: { L: "常规操作", K: "ROUTINE_OPERATIONS", V: 1 }, NOT_MODIFIABLE: { L: "不可修改", K: "NOT_MODIFIABLE", V: 2 } };
+ve(Dy);
+const xy = { UN_FILL: { L: "未提报", K: "UN_FILL", V: 2, T: "danger" }, HALF_FILL: { L: "部分提报", K: "HALF_FILL", V: 3, T: "warning" }, FILLED: { L: "已提报", K: "FILLED", V: 1, T: "success" } };
+ve(xy);
+const Qc = { SPECIAL_PROGRAMS: { L: "专项施工方案", K: "SPECIAL_PROGRAMS", V: 1 }, BID_ALLOCATION: { L: "投标分配", K: "BID_ALLOCATION", V: 2 }, CONSTRUCTION_ORGANIZATION_DESIGN: { L: "施工组织设计", K: "CONSTRUCTION_ORGANIZATION_DESIGN", V: 3 }, SCENE_SUPPORT_SERVICE: { L: "技术支持服务", K: "SCENE_SUPPORT_SERVICE", V: 4 }, CONSTRUCTION_ACCEPTANCE: { L: "施工验算", K: "CONSTRUCTION_ACCEPTANCE", V: 5 }, ANIMATION_EFFECT_DIAGRAM: { L: "可视化", K: "ANIMATION_EFFECT_DIAGRAM", V: 6 }, TECHNOLOGICAL_INNOVATION: { L: "科技创新", K: "TECHNOLOGICAL_INNOVATION", V: 7 } };
+ve(Qc);
+const Uy = { BIDDING_METHOD: { L: "商务标", K: "BIDDING_METHOD", V: 1 }, SETTLEMENT_METHOD: { L: "技术标", K: "SETTLEMENT_METHOD", V: 2 }, STRUCTURAL_DESIGN_METHOD: { L: "结构设计标", K: "STRUCTURAL_DESIGN_METHOD", V: 4 }, DEEPEN_DESIGN_METHOD: { L: "深化设计标", K: "DEEPEN_DESIGN_METHOD", V: 5 } };
+ve(Uy);
+const Yy = { BIDDING_METHOD_HEAD: { L: "商务标负责人", K: "BIDDING_METHOD", V: 1 }, SETTLEMENT_METHOD_HEAD: { L: "技术标负责人", K: "SETTLEMENT_METHOD_HEAD", V: 2 }, STRUCTURAL_DESIGN_TARGET_HEAD: { L: "结构设计标负责人", K: "STRUCTURAL_DESIGN_TARGET_HEAD", V: 4 }, DEEPEN_DESIGN_METHOD_HEAD: { L: "深化设计标负责人", K: "DEEPEN_DESIGN_METHOD_HEAD", V: 5 }, SPECIFICAL_PROGRAM_METHOD_HEAD: { L: "专项方案接收人", K: "SPECIFICAL_PROGRAM_METHOD_HEAD", V: 6 } };
+ve(Yy);
+const Ky = { NO_SETTING: { L: "无需设定", K: "NO_SETTING", V: false }, CUSTOM_USER: { L: "自定义人员", K: "CUSTOM_USER", V: true } };
+ve(Ky);

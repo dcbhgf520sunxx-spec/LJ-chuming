@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractWageFeeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractWageFee">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="fill_in_date" property="fillInDate" />
+        <result column="fill_in_year" property="fillInYear" />
+        <result column="fill_in_month" property="fillInMonth" />
+        <result column="branch_company_id" property="branchCompanyId" />
+        <result column="expense_type_id" property="expenseTypeId" />
+        <result column="founder_id" property="founderId" />
+        <result column="total_wage" property="totalWage" />
+        <result column="employee_quantity" property="employeeQuantity" />
+        <result column="average_wage" property="averageWage" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, fill_in_date, fill_in_year, fill_in_month, branch_company_id, expense_type_id, founder_id, total_wage, employee_quantity, average_wage
+    </sql>
+
+    <select id="listInfo" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractWageFeeDTO">
+        SELECT
+            cwf.*,
+            sbc.name AS branch_company_name,
+            founder.name AS founder_name,
+            cet.name AS expense_type_name
+        FROM contract_wage_fee cwf
+        LEFT JOIN sys_branch_company sbc ON sbc.bool_delete_enum = FALSE AND sbc.id = cwf.branch_company_id
+        LEFT JOIN contract_expense_type cet ON cet.bool_delete_enum = FALSE AND cet.id = cwf.expense_type_id
+        LEFT JOIN sys_user founder ON founder.bool_delete_enum = FALSE AND founder.id = cwf.founder_id
+        WHERE cwf.bool_delete_enum = FALSE
+        <if test="year != null">
+            AND cwf.fill_in_year = #{year}
+        </if>
+        <if test="branchCompanyId != null">
+            AND cwf.branch_company_id = #{branchCompanyId}
+        </if>
+    </select>
+
+</mapper>

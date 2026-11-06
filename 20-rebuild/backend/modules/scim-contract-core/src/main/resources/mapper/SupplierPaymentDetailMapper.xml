@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.SupplierPaymentDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.SupplierPaymentDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="supplier_payment_id" property="supplierPaymentId"/>
+        <result column="type" property="type"/>
+        <result column="purchase_id" property="purchaseId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="payment_unit_id" property="paymentUnitId"/>
+        <result column="receiving_unit_id" property="receivingUnitId"/>
+        <result column="apply_amount" property="applyAmount"/>
+        <result column="actually_payment_amount" property="actuallyPaymentAmount"/>
+        <result column="audit_status" property="auditStatus"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, supplier_payment_id, type,purchase_id,project_id, payment_unit_id, receiving_unit_id, apply_amount,actually_payment_amount, audit_status
+    </sql>
+
+    <select id="selectApplyAmount" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(case audit_status when 1 then apply_amount else actually_payment_amount end),0)
+        from contract_supplier_payment_detail
+        where bool_delete_enum = 0
+        and audit_status &lt; 4
+        and type = #{type}
+        and receiving_unit_id = #{receivingUnitId}
+        <if test="paymentUnitId != null">
+            and payment_unit_id = #{paymentUnitId}
+        </if>
+        <if test="purchaseId != null">
+            and purchase_id = #{purchaseId}
+        </if>
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+    </select>
+
+</mapper>

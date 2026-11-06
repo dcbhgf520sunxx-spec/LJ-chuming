@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.PurchaseOrderDetailMapper">
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, purchase_id, name, quantity, total_length, specification, material, unit_weight, project_id, factory_id, amount_excluding_VAT, unit_price_excluding_VAT, input_VAT, unit_price, amount, remark, inbound_time, area_id, monomer_id
+    </sql>
+
+    <update id="updateInboundMete">
+        UPDATE scm_purchase_order_detail
+        set inbound_mete = (inbound_mete + #{mete}), inbound_quantity = (inbound_quantity + #{quantity})
+        where id = #{purchaseOrderDetailId};
+    </update>
+    <select id="getUnderReviewDetailsByApplyId"
+            resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrderDetail">
+        SELECT spod.*
+        FROM scm_purchase_order_detail spod
+        INNER JOIN scm_purchase_order spo ON spod.purchase_id = spo.id and spo.bool_delete_enum = 0 and spo.data_status = 1
+        WHERE spod.bool_delete_enum = 0
+          AND spod.apply_purchase_detail_id = #{applyPurchaseDetail}
+        GROUP BY spod.id
+    </select>
+    <select id="selectPassDetailByApplyDetailIds"
+            resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrderDetail">
+        SELECT spod.*
+        FROM scm_purchase_order_detail spod
+        INNER JOIN scm_purchase_order spo ON spod.purchase_id = spo.id and spo.bool_delete_enum = 0
+        WHERE spod.bool_delete_enum = 0
+          AND spo.review_status = 2
+          AND spod.apply_purchase_detail_id in
+        <foreach item="applyDetailId" collection="applyDetailIds" separator="," open="(" close=")">
+            #{applyDetailId}
+        </foreach>
+    </select>
+    <select id="getPurchaseRejectMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.ReceiptMeteDTO">
+        select
+        spod.purchase_id as id,
+        IFNULL(sum(spod.actual_received_mete),0) as mete
+        from scm_purchase_order_detail spod
+        left join scm_purchase_order spo on spod.purchase_id = spo.id
+        where
+        spod.bool_delete_enum = 0
+        and spo.review_status  = 2
+        <if test="purchaseIds != null and purchaseIds.size > 0">
+            and spod.purchase_id in
+            <foreach collection="purchaseIds" item="purchaseId" open="(" separator="," close=")">
+                #{purchaseId}
+            </foreach>
+        </if>
+        group by spod.purchase_id
+    </select>
+</mapper>

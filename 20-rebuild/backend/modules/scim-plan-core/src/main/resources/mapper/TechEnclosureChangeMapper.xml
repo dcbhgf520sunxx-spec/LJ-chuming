@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechEnclosureChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechEnclosureChange">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="plan_id" property="planId" />
+        <result column="enclosure_id" property="enclosureId" />
+        <result column="old_quantity" property="oldQuantity" />
+        <result column="new_quantity" property="newQuantity" />
+        <result column="name" property="name" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="category" property="category" />
+        <result column="plate" property="plate" />
+        <result column="user_id" property="userId" />
+        <result column="handle_status_enum" property="handleStatusEnum" />
+        <result column="handle_user_id" property="handleUserId" />
+        <result column="handle_time" property="handleTime" />
+        <result column="reason_id" property="reasonId" />
+        <result column="change_remark" property="changeRemark" />
+    </resultMap>
+
+    <select id="findAllEnclosureList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.change.EnclosureChangeVo">
+        SELECT
+            cg.id,
+            cp.id 'project.id',
+            cp.name  'project.name',
+            plan.id 'plan.id',
+            plan.name 'plan.name',
+            rea.id 'reasonId',
+            rea.name 'reasonName',
+            cg.name,
+            cg.serial_number,
+            cg.plate,
+            cg.old_quantity,
+            cg.new_quantity,
+            cg.create_time,
+            cg.handle_time,
+            cg.handle_status_enum,
+            commit.id 'commitUser.id',
+            commit.name 'commitUser.name',
+            handle.id 'handleUser.id',
+            handle.name 'handleUser.name'
+        FROM tech_enclosure_change cg
+        LEFT JOIN contract_project cp on cg.project_id = cp.id
+        LEFT JOIN enclosure_plan plan on cg.plan_id = plan.id
+        LEFT JOIN sys_change_reason rea on cg.reason_id = rea.id
+        LEFT JOIN sys_user commit on cg.user_id = commit.id
+        LEFT JOIN sys_user handle on cg.handle_user_id = handle.id
+        <where>
+            <if test="voParam.projectId != null">
+                and cg.project_id = #{voParam.projectId}
+            </if>
+            <if test="voParam.handleStatusEnum != null">
+                and cg.handle_status_enum = #{voParam.handleStatusEnum}
+            </if>
+            <if test="voParam.planId != null">
+                and cg.plan_id = #{voParam.planId}
+            </if>
+            <if test="voParam.serialNumber != null">
+                and cg.serial_number like concat('%',#{voParam.serialNumber},'%')
+            </if>
+        </where>
+        order by cg.create_time desc
+    </select>
+
+</mapper>

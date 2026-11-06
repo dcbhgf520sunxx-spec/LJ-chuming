@@ -1,0 +1,1483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingCompleteMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingComplete">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, factory_id, workshop_id, production_line_id, task_id, product_id, product_type, quantity, user_id
+    </sql>
+    <select id="listArtifactGroupByDate" resultType="com.hzchum.scim.common.core.api.pojo.common.KevMeteDO">
+        select
+        <choose>
+            <when test="year != null">
+                date_format(c.create_time, '%c') groupKey,
+            </when>
+            <otherwise>
+                date_format(c.create_time, '%e') groupKey,
+            </otherwise>
+        </choose>
+        sum(c.quantity * a.net_weight) mete
+        from mes_building_complete c
+        inner join tech_artifact a on a.id = c.product_id and c.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        <where>
+            and c.bool_delete_enum = 0
+            <choose>
+                <when test="year != null">
+                    and date_format(c.create_time, '%Y') = #{year}
+                </when>
+                <otherwise>
+                    and date_format(c.create_time, '%Y-%m') = #{month}
+                </otherwise>
+            </choose>
+            <if test="projectId != null">
+                and c.project_id = #{projectId}
+            </if>
+            <if test="factoryId != null">
+                and c.factory_id = #{factoryId}
+            </if>
+        </where>
+        group by groupKey
+    </select>
+    <select id="listEnclosureGroupByDate"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.KevMeteDO">
+        select
+        <choose>
+            <when test="year != null">
+                date_format(c.create_time, '%c') groupKey,
+            </when>
+            <otherwise>
+                date_format(c.create_time, '%e') groupKey,
+            </otherwise>
+        </choose>
+        sum(c.quantity * a.length) mete
+        from mes_building_complete c
+        inner join tech_enclosure a on a.id = c.product_id and c.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()}
+        <where>
+            and c.bool_delete_enum = 0
+            <choose>
+                <when test="year != null">
+                    and date_format(c.create_time, '%Y') = #{year}
+                </when>
+                <otherwise>
+                    and date_format(c.create_time, '%Y-%m') = #{month}
+                </otherwise>
+            </choose>
+            <if test="factoryId != null">
+                and c.factory_id = #{factoryId}
+            </if>
+        </where>
+        group by groupKey
+    </select>
+    <select id="listEnclosureCategoryGroupByDate"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.KevMeteDO">
+        select
+        a.category groupKey,
+        sum(c.quantity * a.length) mete
+        from mes_building_complete c
+        inner join tech_enclosure a on a.id = c.product_id and c.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()}
+        <where>
+            and c.bool_delete_enum = 0
+            <choose>
+                <when test="month != null">
+                    and date_format(c.create_time, '%Y-%m') = #{month}
+                </when>
+                <otherwise>
+                    and date_format(c.create_time, '%Y-%m-%d') = #{date}
+                </otherwise>
+            </choose>
+            <if test="factoryId != null">
+                and c.factory_id = #{factoryId}
+            </if>
+        </where>
+        group by groupKey
+    </select>
+    <select id="listEnclosurePlateGroupByDate"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.KevMeteDO">
+        select
+        a.plate groupKey,
+        sum(c.quantity * a.length) mete
+        from mes_building_complete c
+        inner join tech_enclosure a on a.id = c.product_id and c.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()}
+        <where>
+            and c.bool_delete_enum = 0
+            <choose>
+                <when test="month != null">
+                    and date_format(c.create_time, '%Y-%m') = #{month}
+                </when>
+                <otherwise>
+                    and date_format(c.create_time, '%Y-%m-%d') = #{date}
+                </otherwise>
+            </choose>
+            <if test="factoryId != null">
+                and c.factory_id = #{factoryId}
+            </if>
+        </where>
+        group by groupKey
+    </select>
+    <select id="listArtifactByProjectIdAndMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.report.ArtifactProductionDetailDO">
+        select
+        a.name,
+        a.serial_number,
+        a.material,
+        a.specification,
+        a.length length,
+        a.net_weight,
+        a.gross_weight,
+        c.quantity,
+        a.net_weight * c.quantity total_net_weight,
+        a.gross_weight * c.quantity total_gross_weight,
+        c.create_time,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name'
+        from mes_building_complete c
+        inner join tech_artifact a on a.id = c.product_id and c.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()} and a.bool_delete_enum = 0
+        inner join contract_project p on p.id = a.project_id and p.bool_delete_enum = 0
+        inner join plan_monomer m on m.id = a.monomer_id and m.bool_delete_enum = 0
+        where c.bool_delete_enum = 0
+        <if test="projectId != null">
+            and c.project_id = #{projectId}
+        </if>
+        <if test="month != null">
+            and date_format(c.create_time, '%Y-%m') = #{month}
+        </if>
+    </select>
+    <select id="sumMeteByProjectId" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL( sum( a.net_weight * c.in_production_quantity ) ,0)total_net_weight
+        FROM
+            mes_building_task c
+                LEFT JOIN tech_artifact a ON a.id = c.product_id
+                AND c.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+                AND a.bool_delete_enum = 0
+        WHERE
+            c.bool_delete_enum = 0
+          and c.project_id = #{projectId}
+    </select>
+
+    <select id="getSumStructureCompleteMete"
+            resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL( SUM( cm.quantity * a.net_weight / 1000 ), 0 ) AS completed_mete
+        FROM
+        mes_building_complete AS cm
+        INNER JOIN tech_artifact AS a ON cm.product_id = a.id AND a.bool_delete_enum = 0
+        WHERE
+        cm.bool_delete_enum = 0
+        AND cm.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        <if test="monomerId != null">
+            AND cm.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND cm.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="getSumEnclosureCompleteMete" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL( SUM( te.length * bc.quantity ), 0 )/1000
+        FROM mes_building_complete AS bc
+        INNER JOIN tech_enclosure AS te ON bc.product_id = te.id
+        WHERE bc.bool_delete_enum = 0
+        AND bc.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()}
+        AND bc.area_id IN
+        <foreach collection="list" item="areaId" open="(" separator="," close=")">
+            #{areaId}
+        </foreach>
+    </select>
+
+    <select id="getProductionByDateAndType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.ProductionAnalysisDetailsDO">
+        SELECT
+        DATE_FORMAT(complete.create_time,'%Y-%m') month,
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            IFNULL(sum(complete.quantity*product.net_weight), 0 )
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            IFNULL(sum(complete.quantity*product.length), 0 )
+        </if>
+        production
+        FROM
+        mes_building_complete complete
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON product.id=complete.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure product ON product.id=complete.product_id
+        </if>
+        WHERE complete.task_type_enum=#{productType}
+        AND complete.bool_delete_enum=FALSE
+        <if test="factoryId!=null">
+            AND complete.factory_id=#{factoryId}
+        </if>
+        AND DATE_FORMAT(complete.create_time,'%Y')=DATE_FORMAT(#{dateTime}, '%Y')
+        GROUP BY DATE_FORMAT(complete.create_time,'%Y-%m');
+
+    </select>
+    <select id="getProjectProductionByDate"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.ProjectProductionDO">
+        SELECT project.id 'project.id', project.serial_number 'project.serial_number', project.short_name 'project.short_name', project.`name` 'project.name', IFNULL(complete.production, 0) production
+        FROM contract_project project
+                 LEFT JOIN (
+            SELECT complete.project_id,
+                   sum(complete.quantity * product.net_weight) production
+            FROM mes_building_complete complete
+                     LEFT JOIN tech_artifact product ON product.id = complete.product_id
+            WHERE complete.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+              AND complete.bool_delete_enum = FALSE
+            GROUP BY complete.project_id
+        ) AS complete ON project.id = complete.project_id
+        WHERE DATE_FORMAT(create_time, '%Y') = DATE_FORMAT(#{dateTime}, '%Y')
+          AND project.bool_delete_enum = FALSE
+    </select>
+    <select id="productionTypeAnalysis"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProductionTypeAnalysisDO">
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            SELECT
+            IFNULL(classification.classification_name,'其他') typeName,
+            IFNULL( sum( complete.quantity * product.net_weight ), 0 ) yield
+            FROM
+            mes_building_complete complete
+            LEFT JOIN tech_artifact product ON product.id = complete.product_id AND product.bool_delete_enum = 0
+            LEFT JOIN sys_structure_classification classification ON product.structure_class_id = classification.id AND classification.bool_delete_enum = 0
+            WHERE
+            complete.bool_delete_enum = 0
+            AND complete.task_type_enum = #{productType}
+            AND DATE_FORMAT( complete.create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+            GROUP BY
+            classification.id;
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            SELECT
+            product.plate typeName,
+            IFNULL( sum( complete.quantity * product.length ), 0 ) yield
+            FROM
+            mes_building_complete complete
+            LEFT JOIN tech_enclosure product ON product.id = complete.product_id
+            WHERE
+            complete.bool_delete_enum = 0
+            AND complete.task_type_enum = #{productType}
+            AND DATE_FORMAT( complete.create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+            GROUP BY
+            product.plate
+        </if>
+    </select>
+    <select id="productionTypeAnalysisV2" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProductionTypeAnalysisDO">
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            SELECT
+            IFNULL(classification.classification_name,'其他') typeName,
+            classification.artifact_type as artifactType,
+            IFNULL( sum( complete.quantity * product.net_weight ), 0 ) yield
+            FROM
+            mes_building_complete complete
+            LEFT JOIN tech_artifact product ON product.id = complete.product_id AND product.bool_delete_enum = 0
+            LEFT JOIN sys_structure_classification classification ON product.structure_class_id = classification.id AND classification.bool_delete_enum = 0
+            WHERE
+            complete.bool_delete_enum = 0
+            AND complete.task_type_enum = #{productType}
+            AND DATE_FORMAT( complete.create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+            <if test="branchCompanyId!=null">
+                AND EXISTS(
+                select 1 from project_branch_company_link pbcl
+                where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+                and pbcl.branch_company_id = #{branchCompanyId}
+                and pbcl.project_id = complete.project_id
+                )
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND complete.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            GROUP BY
+            classification.id;
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            SELECT
+            product.plate typeName,
+            IFNULL( sum( complete.quantity * product.length ), 0 ) yield
+            FROM
+            mes_building_complete complete
+            LEFT JOIN tech_enclosure product ON product.id = complete.product_id
+            WHERE
+            complete.bool_delete_enum = 0
+            AND complete.task_type_enum = #{productType}
+            AND DATE_FORMAT( complete.create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+            <if test="branchCompanyId!=null">
+                AND EXISTS(
+                select 1 from project_branch_company_link pbcl
+                where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+                and pbcl.branch_company_id = #{branchCompanyId}
+                and pbcl.project_id = complete.project_id
+                )
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND complete.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            GROUP BY
+            product.plate
+        </if>
+    </select>
+    <select id="completeYieldGropMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProductionCompleteYieldKpiDO">
+        SELECT DATE_FORMAT(complete.create_time, '%Y-%m') month,
+               IFNULL(sum(complete.quantity * artifact.net_weight), 0) yield
+        FROM mes_building_complete complete
+                 LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id
+        WHERE complete.bool_delete_enum = 0
+          AND complete.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+          AND DATE_FORMAT(complete.create_time, '%Y') = DATE_FORMAT(#{dateTime}, '%Y')
+        GROUP BY DATE_FORMAT(complete.create_time, '%Y-%m')
+    </select>
+    <select id="completeYield"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProductionLineCompleteYieldKpiDO">
+        SELECT
+        complete.production_line_id id,
+        IFNULL(sum( complete.quantity * artifact.net_weight ),0) yield
+        FROM
+        mes_building_complete complete
+        LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id
+        WHERE
+        complete.bool_delete_enum = 0
+        AND complete.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        AND complete.in_year_month_date = DATE_FORMAT(#{dateTime}, '%Y-%m')
+        <if test="productionLineIds.size()!=0">
+            AND complete.production_line_id IN
+            <foreach collection="productionLineIds" item="id" separator="," close=")" open="(">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY complete.production_line_id
+    </select>
+    <select id="projectCompleteYield"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProjectCompleteYieldKpiDO">
+        SELECT project.id 'project.id', project.`name` 'project.name', project.short_name 'project.short_name', project.serial_number 'project.serial_number', IFNULL(artifact.total_net_weight, 0) total_net_weight,
+               IFNULL(complete.yield, 0)          yield,
+               IFNULL(despatch.despatchAmount, 0) despatchAmount
+        FROM contract_project project
+                 LEFT JOIN (
+            SELECT project_id, sum(total_net_weight) total_net_weight
+            FROM tech_artifact
+            WHERE bool_delete_enum = 0
+            GROUP BY project_id
+        ) AS artifact ON artifact.project_id = project.id
+                 LEFT JOIN (
+            SELECT complete.project_id                          project_id,
+                   sum(complete.quantity * artifact.net_weight) yield
+            FROM mes_building_complete complete
+                     LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id
+            WHERE complete.bool_delete_enum = 0
+              AND complete.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+            GROUP BY complete.project_id
+        ) AS complete ON complete.project_id = project.id
+                 LEFT JOIN (
+            SELECT despatch.project_id                          project_id,
+                   sum(despatch.quantity * artifact.net_weight) despatchAmount
+            FROM mes_building_warehouse_summary despatch
+                     LEFT JOIN tech_artifact artifact ON artifact.id = despatch.product_id
+            WHERE despatch.bool_delete_enum = 0
+              AND despatch.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+              AND despatch.type = 2
+            GROUP BY despatch.project_id
+        ) AS despatch ON despatch.project_id = project.id
+        WHERE DATE_FORMAT(project.create_time, '%Y') = DATE_FORMAT(#{dateTime}, '%Y')
+          AND settlement_status = 0
+          AND project.bool_delete_enum=0
+        ORDER BY project.create_time DESC
+    </select>
+    <select id="productionLoad"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.complete.ProductionLoadDO">
+        SELECT
+        DATE_FORMAT( complete.create_time, "%m" ) `month`,
+        IFNULL( sum( complete.quantity * artifact.net_weight ), 0 ) complete
+        FROM
+        mes_building_complete complete
+        LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id
+        <where>
+            task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+            <if test="factoryId!=null">
+                AND complete.factory_id = #{factoryId}
+            </if>
+            AND complete.bool_delete_enum = 0
+            AND DATE_FORMAT( complete.create_time, "%Y" )= DATE_FORMAT(#{dateTime}, "%Y" )
+        </where>
+        GROUP BY
+        month
+        ORDER BY month
+    </select>
+    <select id="getTeamProduction"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.complete.CompleteProductDO">
+        SELECT
+        product.id,
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()
+         or
+         productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            product.`name`,
+        </if>
+        <if test="productType!=@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+        product.specification,
+        </if>
+        product.serial_number,
+        project.id 'project.id',
+        project.`name` 'project.name',
+        project.short_name 'project.short_name',
+        project.serial_number 'project.serial_number',
+        date(complete.create_time) date,
+        ifnull(sum(complete.quantity),0) quantity,
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            ifnull(sum(complete.quantity*product.length),0)
+            </when>
+            <otherwise>
+            ifnull(sum(complete.quantity*product.net_weight),0)
+            </otherwise>
+        </choose> mete
+        FROM
+        mes_building_complete complete
+        LEFT JOIN contract_project project ON complete.project_id=project.id
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON complete.product_id=product.id
+            </when>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON complete.product_id=product.id
+            </when>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON complete.product_id=product.id
+            </when>
+            <otherwise>
+                LEFT JOIN tech_enclosure product ON complete.product_id=product.id
+            </otherwise>
+        </choose>
+        WHERE complete.task_type_enum=#{productType} AND complete.team_id=#{teamId} AND  complete.in_year_month_date = DATE_FORMAT(#{dateTime},"%Y-%m")
+        GROUP BY product.id,
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()
+        or
+         productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+        product.`name`,
+        </if>
+        product.serial_number,
+        <if test="productType!=@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            product.specification,
+        </if>
+        project.id,
+        project.`name`,
+        project.short_name,
+        project.serial_number,
+        date(complete.create_time)
+    </select>
+    <select id="getTeamMeteByMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.complete.CompleteMeteByMonthDO">
+        SELECT
+        DATE_FORMAT(complete.create_time,"%m") month,
+        ifnull(sum(complete.quantity),0) quantity,
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                ifnull(sum(complete.quantity*product.net_weight),0)
+            </when>
+            <otherwise>
+                ifnull(sum(complete.quantity*product.length),0)
+            </otherwise>
+        </choose> mete
+        FROM
+        mes_building_complete complete
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON complete.product_id=product.id
+            </when>
+            <otherwise>
+                LEFT JOIN tech_enclosure product ON complete.product_id=product.id
+            </otherwise>
+        </choose>
+        WHERE complete.task_type_enum=#{productType} AND complete.team_id=#{teamId} AND  DATE_FORMAT(complete.create_time,"%Y")=DATE_FORMAT(#{dateTime},"%Y")
+        GROUP BY DATE_FORMAT(complete.create_time,"%m")
+    </select>
+    <select id="getMeteSummaryByCondition" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL( SUM( a.mete ), 0 )
+        FROM
+            (
+                SELECT
+                    complete.quantity * product.net_weight mete
+                FROM
+                    mes_building_complete complete
+                        <if test="taskTypeEnum==1">
+                            LEFT JOIN tech_machine_part product ON complete.product_id = product.id
+                        </if>
+                        <if test="taskTypeEnum==2">
+                            LEFT JOIN tech_artifact product ON complete.product_id = product.id
+                        </if>
+                        <if test="taskTypeEnum==16">
+                            LEFT JOIN tech_assemble product ON complete.product_id = product.id
+                        </if>
+                WHERE
+                      <if test="timeTypeEnum==1">
+                          DATE_FORMAT( complete.create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+                      </if>
+                      <if test="timeTypeEnum==2">
+                          complete.in_year_month_date = DATE_FORMAT( #{dateTime}, '%Y-%m' )
+                      </if>
+                      <if test="timeTypeEnum==4">
+                          complete.in_year_month_day_date = DATE_FORMAT( #{dateTime}, '%Y-%m-%d' )
+                      </if>
+
+                  AND complete.task_type_enum = #{taskTypeEnum}
+            )a
+    </select>
+    <select id="getWorkshopReport" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.WorkshopMonthAndMeteDTO">
+        SELECT
+        <if test="type==1">
+            MONTH( mc.create_time) date,
+        </if>
+        <if test="type==2">
+            DAY( mc.create_time) date,
+        </if>
+        IFNULL( sum( ta.net_weight * mc.quantity ), 0 ) totalNetWeight,
+        IFNULL( sum( ta.gross_weight * mc.quantity ), 0 ) totalGrossWeight
+        FROM
+        mes_building_complete mc
+        LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+        AND ta.bool_delete_enum = false
+        WHERE
+        mc.task_type_enum = 2
+        AND mc.bool_delete_enum = false
+        <if test="type==1">
+            AND date_format(mc.create_time, '%Y') = date_format(#{dateTime}, '%Y')
+        </if>
+        <if test="type==2">
+            AND date_format(mc.create_time, '%Y%m') = date_format(#{dateTime}, '%Y%m')
+        </if>
+        <if test="workShopId != null">
+            AND mc.workshop_id = #{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            AND mc.production_line_id = #{productionLineId}
+        </if>
+        GROUP BY
+        <if test="type==1">
+            MONTH( mc.create_time)
+        </if>
+        <if test="type==2">
+            DAY( mc.create_time)
+        </if>
+    </select>
+    <select id="artifactSummary" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.WorkshopSummaryDTO">
+<!--        SELECT-->
+<!--        cp.id 'project.id',-->
+<!--        cp.NAME 'project.name',-->
+<!--        cp.serial_number 'project.serialNumber',-->
+<!--        cp.short_name 'project.shortName',-->
+<!--        ta.`name` name,-->
+<!--        ta.serial_number serialNumber,-->
+<!--        ta.specification specification,-->
+<!--        ta.material material,-->
+<!--        ta.length length,-->
+<!--        ta.net_weight,-->
+<!--        ta.gross_weight,-->
+<!--        sum(c.quantity) quantity,-->
+<!--        IFNULL( SUM( c.quantity * ta.net_weight ), 0 ) totalNetWeight,-->
+<!--        IFNULL( SUM( c.quantity * ta.gross_weight ), 0 ) totalGrossWeight-->
+<!--        FROM-->
+<!--        `mes_building_complete` c-->
+<!--        LEFT JOIN contract_project cp ON cp.id = c.project_id-->
+<!--        AND cp.bool_delete_enum = 0-->
+<!--        LEFT JOIN tech_artifact ta ON ta.id = c.product_id-->
+<!--        AND ta.bool_delete_enum = 0-->
+<!--        WHERE-->
+<!--        c.bool_delete_enum = 0-->
+<!--        AND c.task_type_enum = 2-->
+<!--        <if test="projectId != null">-->
+<!--            AND c.project_id = #{projectId}-->
+<!--        </if>-->
+<!--        <if test="startTime!=null">-->
+<!--            AND date_format (c.create_time, '%Y-%m-%d') &gt;= date_format(#{startTime}, '%Y-%m-%d')-->
+<!--        </if>-->
+<!--        <if test="endTime!=null">-->
+<!--            AND date_format (c.create_time, '%Y-%m-%d') &lt;= date_format(#{endTime}, '%Y-%m-%d')-->
+<!--        </if>-->
+<!--        group by-->
+<!--        cp.id,-->
+<!--        ta.id-->
+        SELECT
+        line.id 'productionLine.id',
+        line.`name`'productionLine.name',
+        tulink.user_name 'teamName',
+        a.create_time date,
+        cp.id 'project.id',
+        cp.NAME 'project.name',
+        cp.serial_number 'project.serialNumber',
+        cp.short_name 'project.shortName',
+        pl.id 'monomer.id',
+        pl.NAME 'monomer.name',
+        pa.id 'area.id',
+        pa.NAME 'area.name',
+        a.task_id,
+        a.NAME,
+        a.specification,
+        a.serial_number,
+        a.material,
+        a.length,
+        a.net_weight,
+        a.gross_weight,
+        a.quantity,
+        a.surface_area,
+        a.total_surface_area,
+        a.total_net_weight,
+        a.total_gross_weight,
+        a.order_number
+        FROM
+        (
+        SELECT
+        c.project_id,
+        c.monomer_id,
+        c.area_id,
+        c.task_id,
+        DATE(c.create_time) create_time,
+        c.production_line_id,
+        c.team_id,
+        ta.`name` NAME,
+        ta.serial_number,
+        ta.specification,
+        ta.material,
+        ta.length,
+        ta.net_weight,
+        ta.gross_weight,
+        sum( c.quantity ) quantity,
+        ta.surface_area / 1000000 AS surface_area,
+        IFNULL( SUM(ta.surface_area * c.quantity), 0 ) / 1000000 AS total_surface_area,
+        IFNULL( SUM( c.quantity * ta.net_weight ), 0 ) total_net_weight,
+        IFNULL( SUM( c.quantity * ta.gross_weight ), 0 ) total_gross_weight,
+        taskOrder.order_number
+        FROM
+        `mes_building_complete` c
+        LEFT JOIN tech_artifact ta ON ta.id = c.product_id
+        LEFT JOIN mes_building_task task ON task.id = c.task_id
+        LEFT JOIN mes_building_task_order taskOrder ON taskOrder.id = task.task_order_id
+        AND ta.bool_delete_enum = 0
+        WHERE
+        c.bool_delete_enum = 0
+        AND c.task_type_enum = 2
+        <if test="startTime!=null">
+            AND date_format (c.create_time, '%Y-%m-%d') &gt;= date_format(#{startTime}, '%Y-%m-%d')
+        </if>
+        <if test="endTime!=null">
+            AND date_format (c.create_time, '%Y-%m-%d') &lt;= date_format(#{endTime}, '%Y-%m-%d')
+        </if>
+        <if test="projectId != null">
+            AND c.project_id=#{projectId}
+        </if>
+        <if test="workShopId != null">
+            AND c.workshop_id=#{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            AND c.production_line_id=#{productionLineId}
+        </if>
+        GROUP BY
+        DATE(c.create_time),
+        c.team_id,
+        c.production_line_id,
+        c.project_id,
+        c.monomer_id,
+        c.area_id,
+        c.task_id,
+        ta.id
+        ) a
+        LEFT JOIN mes_building_production_line line ON line.id = a.production_line_id
+        LEFT JOIN mes_building_team_user_link tulink on tulink.team_id = a.team_id and tulink.bool_leader_enum = 1 and tulink.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN plan_monomer pl ON pl.id = a.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = a.area_id
+    </select>
+    <select id="getWorkshopMete"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.ProductMeteDTO">
+        <if test="type==1">
+            SELECT
+            DATE_FORMAT( mc.create_time, '%Y-%m' ) date,
+            IFNULL( sum( ta.net_weight * mc.quantity ), 0 ) totalNetWeight,
+            IFNULL( sum( ta.gross_weight * mc.quantity ), 0 ) totalGrossWeight
+            FROM
+            mes_building_complete mc
+            LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+            AND ta.bool_delete_enum = false
+            WHERE
+            mc.task_type_enum = 2
+            AND mc.bool_delete_enum = false
+            AND date_format(mc.create_time, '%Y') = date_format(#{dateTime}, '%Y')
+            <if test="workShopId != null">
+                AND mc.workshop_id = #{workShopId}
+            </if>
+            <if test="productionLineId != null">
+                AND mc.production_line_id = #{productionLineId}
+            </if>
+            GROUP BY
+            DATE_FORMAT( mc.create_time, '%Y-%m' )
+        </if>
+        <if test="type==2">
+            SELECT
+            DATE_FORMAT( mc.create_time, '%Y-%m-%d' ) date,
+            IFNULL( sum( ta.net_weight * mc.quantity ), 0 ) totalNetWeight,
+            IFNULL( sum( ta.gross_weight * mc.quantity ), 0 ) totalGrossWeight
+            FROM
+            mes_building_complete mc
+            LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+            AND ta.bool_delete_enum = false
+            WHERE
+            mc.task_type_enum = 2
+            AND mc.bool_delete_enum = false
+            AND date_format(mc.create_time, '%Y/%m') = date_format(#{dateTime}, '%Y/%m')
+            <if test="workShopId != null">
+                AND mc.workshop_id = #{workShopId}
+            </if>
+            <if test="productionLineId != null">
+                AND mc.production_line_id = #{productionLineId}
+            </if>
+            GROUP BY
+            DATE_FORMAT( mc.create_time, '%Y-%m-%d' )
+        </if>
+    </select>
+
+    <select id="getWorkshopMeteByMonthDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.ProductMeteDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.`name`'project.name',
+        cp.short_name'project.shortName',
+        cp.serial_number'project.serialNumber',
+        IFNULL( sum( ta.net_weight * mc.quantity ), 0 ) totalNetWeight,
+        IFNULL( sum( ta.gross_weight * mc.quantity ), 0 ) totalGrossWeight
+        FROM
+        mes_building_complete mc
+        LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+        AND ta.bool_delete_enum = false
+        LEFT JOIN contract_project cp ON cp.id = mc.project_id
+        WHERE
+        mc.task_type_enum = 2
+        AND mc.bool_delete_enum = false
+        AND date_format(mc.create_time, '%Y/%m') = date_format(#{dateTime}, '%Y/%m')
+        <if test="workShopId != null">
+            AND mc.workshop_id = #{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            AND mc.production_line_id = #{productionLineId}
+        </if>
+        GROUP BY
+        cp.id
+    </select>
+
+    <select id="selectProjectMonthMete" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthMeteInfo">
+        SELECT
+        DATE_FORMAT( bc.create_time, '%Y%m' ) month,
+        SUM( a.net_weight * bc.quantity ) mete
+        FROM
+        `mes_building_complete` bc
+        LEFT JOIN tech_artifact a ON bc.product_id = a.id AND a.bool_delete_enum = 0
+        WHERE
+        bc.bool_delete_enum = 0
+        <if test="productType != null">
+            AND bc.task_type_enum = #{productType}
+        </if>
+        <if test="projectId != null">
+            AND bc.project_id = #{projectId}
+        </if>
+        GROUP BY DATE_FORMAT( bc.create_time, '%Y%m' )
+        ORDER BY month
+    </select>
+
+    <select id="selectMonthTotalMete" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthMeteInfo">
+        SELECT DATE_FORMAT(bc.create_time, '%Y%m') month,
+               SUM(bc.quantity * a.net_weight) mete
+        FROM mes_building_complete bc
+                 LEFT JOIN tech_artifact a ON bc.product_id = a.id AND a.bool_delete_enum = 0
+        WHERE bc.bool_delete_enum = 0
+          AND bc.task_type_enum = 2
+          AND DATE_FORMAT(bc.create_time, '%Y%m') &gt;= #{startMonth}
+          AND DATE_FORMAT(bc.create_time, '%Y%m') &lt;= #{endMonth}
+        GROUP BY month
+        ORDER BY month
+    </select>
+
+    <select id="selectLastProductionMonth" resultType="java.lang.Integer">
+        SELECT IFNULL(MAX(DATE_FORMAT(create_time, '%Y%m')), 0) last_month
+        FROM `mes_building_complete`
+        WHERE bool_delete_enum = 0
+          AND DATE_FORMAT(create_time, '%Y%m') &lt; #{startMonth}
+    </select>
+
+    <select id="selectListProjectMete"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectMeteInfo">
+        SELECT complete.project_id,
+        sum(complete.quantity * product.net_weight) mete
+        FROM mes_building_complete complete
+        LEFT JOIN tech_artifact product ON product.id = complete.product_id AND product.bool_delete_enum = 0
+        WHERE complete.task_type_enum = 2
+        AND complete.bool_delete_enum = 0
+        <if test="year != null">
+            AND DATE_FORMAT(complete.create_time, '%Y') = #{year}
+        </if>
+        GROUP BY complete.project_id
+    </select>
+
+    <select id="getCompleteProduction"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.largeScreen.manufacturingDeptProduction.TaskProductionVO">
+        SELECT
+            ifnull(a.quantity * b.net_weight,0) / 1000 as ton
+        FROM
+            mes_building_complete a
+            left join tech_artifact b on a.product_id = b.id
+            and b.bool_delete_enum = 0
+        WHERE
+            a.bool_delete_enum = 0
+            and a.task_type_enum = 2
+            and DATE_FORMAT( a.create_time, '%Y-%m' ) &gt;= DATE_FORMAT( #{date}, '%Y-%m' )
+            and a.task_id in
+            <foreach collection="taskIds" item="taskId" separator="," open="(" close=")">
+                #{taskId}
+            </foreach>
+    </select>
+
+    <select id="manufacturingDeptProductionLaborEfficiency" resultType="java.math.BigDecimal">
+        select
+            b.workshop_id,
+            ( b.quantity * c.net_weight ) / 1000 as ton,
+            date_format( b.create_time, '%Y-%m-%d' ) as dateValue
+        from
+            mes_building_complete b
+            left join tech_artifact c on c.id = b.product_id
+            and c.bool_delete_enum = 0
+        where
+            b.bool_delete_enum = 0
+          and b.task_type_enum = 2
+          and b.workshop_id = #{id}
+          and date_format( b.create_time, '%Y-%m-%d' ) = date_format( #{date}, '%Y-%m-%d' )
+    </select>
+
+    <select id="sumProduceTon" resultType="java.math.BigDecimal">
+        select
+            ifnull(round( sum( ( ifnull( a.quantity, 0 ) * ifnull( b.net_weight, 0 ) ) / 1000 ), 2), 0) as ton
+        from
+            mes_building_complete a
+            left join tech_artifact b on a.product_id = b.id
+            and b.bool_delete_enum = 0
+        where
+            a.bool_delete_enum = 0
+          and a.task_type_enum = 2
+          and a.project_id = #{projectId}
+    </select>
+
+    <select id="getTechArtifactTonOfDimension"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.largeScreen.artifactWarehouse.TonVO">
+        SELECT
+        '构件产量' AS `key`,
+        date_table.dates AS dateValue,
+        ROUND( IFNULL( temp.total_weight, 0 ), 2 ) AS ton
+        FROM
+        (
+            SELECT
+            @s := @s + 1 AS indexs,
+            <if test="dimension == '%Y'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s YEAR ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s MONTH ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m-%d'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s DAY ) ), #{dimension} ) AS dates
+            </if>
+            FROM
+            mysql.help_topic,
+            ( SELECT @s := -1 ) temp
+            WHERE
+            @s &lt; #{val}
+            ORDER BY
+            dates
+        ) date_table
+        LEFT JOIN (
+            select
+                a.dateValue,
+                sum( a.total_weight ) as total_weight
+            from
+            (
+                select
+                    DATE_FORMAT( a.create_time, #{dimension} ) AS dateValue,
+                    ifnull( ( a.quantity * b.net_weight ) / 1000, 0 ) as total_weight
+                from
+                    mes_building_complete a
+                left join tech_artifact b on b.bool_delete_enum = 0
+                and a.product_id = b.id
+                where
+                    a.bool_delete_enum = 0
+                    and a.task_type_enum = 2
+            ) a
+            GROUP BY
+            a.dateValue
+        ) temp ON date_table.dates = temp.dateValue
+        ORDER BY
+        date_table.dates
+    </select>
+
+    <select id="getTechAssembleTonOfDimension"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.largeScreen.artifactWarehouse.TonVO">
+        SELECT
+        '部件产量' AS `key`,
+        date_table.dates AS dateValue,
+        ROUND( IFNULL( temp.total_weight, 0 ), 2 ) AS ton
+        FROM
+        (
+            SELECT
+            @s := @s + 1 AS indexs,
+            <if test="dimension == '%Y'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s YEAR ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s MONTH ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m-%d'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s DAY ) ), #{dimension} ) AS dates
+            </if>
+            FROM
+            mysql.help_topic,
+            ( SELECT @s := -1 ) temp
+            WHERE
+            @s &lt; #{val}
+            ORDER BY
+            dates
+        ) date_table
+        LEFT JOIN (
+            select
+            a.dateValue,
+            sum( a.total_weight ) as total_weight
+            from
+            (
+                SELECT
+                temp.dateValue,
+                sum( temp.total_weight ) as total_weight
+                from (
+                    select
+                    a.dateValue,
+                    sum( a.total_weight ) as total_weight
+                    from
+                    (
+                        select
+                        DATE_FORMAT( a.create_time, '%Y-%m' ) AS dateValue,
+                        ifnull( ( a.quantity * b.net_weight ) / 1000, 0 ) as total_weight
+                        from
+                        mes_building_complete a
+                        left join tech_assemble b on b.bool_delete_enum = 0
+                        and a.product_id = b.id
+                        where
+                        a.bool_delete_enum = 0
+                        and a.task_type_enum = 16
+                    ) a
+                    GROUP BY
+                    a.dateValue
+            ) temp GROUP BY
+            temp.dateValue
+        ) a
+        GROUP BY
+        a.dateValue
+        ) temp ON date_table.dates = temp.dateValue
+        ORDER BY
+        date_table.dates
+    </select>
+
+    <select id="getTechMachinePartTonOfDimension"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.largeScreen.artifactWarehouse.TonVO">
+        SELECT
+        '零件产量' AS `key`,
+        date_table.dates AS dateValue,
+        ROUND( IFNULL( temp.total_weight, 0 ), 2 ) AS ton
+        FROM
+        (
+            SELECT
+            @s := @s + 1 AS indexs,
+            <if test="dimension == '%Y'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s YEAR ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s MONTH ) ), #{dimension} ) AS dates
+            </if>
+            <if test="dimension == '%Y-%m-%d'">
+                DATE_FORMAT( DATE( DATE_SUB( CURRENT_DATE, INTERVAL @s DAY ) ), #{dimension} ) AS dates
+            </if>
+            FROM
+            mysql.help_topic,
+            ( SELECT @s := -1 ) temp
+            WHERE
+            @s &lt; #{val}
+            ORDER BY
+            dates
+        ) date_table
+        LEFT JOIN (
+        select
+        a.dateValue,
+        sum( a.total_weight ) as total_weight
+        from
+        (
+            select
+            DATE_FORMAT( a.create_time, #{dimension} ) AS dateValue,
+            ifnull( ( a.quantity * b.net_weight ) / 1000, 0 ) as total_weight
+            from
+            mes_building_complete a
+            left join tech_assemble b on b.bool_delete_enum = 0
+            and a.product_id = b.id
+            where
+            a.bool_delete_enum = 0
+            and a.task_type_enum = 1
+        ) a
+        GROUP BY
+        a.dateValue
+        ) temp ON date_table.dates = temp.dateValue
+        ORDER BY
+        date_table.dates
+    </select>
+
+    <select id="processProductionProgress"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.largeScreen.processProductionProgress.ProcessProductionProgressVO">
+        select
+            b.process_id,
+            b.task_quantity,
+            b.inspection_quantity,
+            CASE
+                WHEN b.task_type_enum = 1 THEN
+                    ifnull( b.task_quantity, 0 ) * ifnull( c.net_weight, 0 )
+                WHEN b.task_type_enum = 2 THEN
+                    ifnull( b.task_quantity, 0 ) * ifnull( d.net_weight, 0 )
+                WHEN b.task_type_enum = 16 THEN
+                    ifnull( b.task_quantity, 0 ) * ifnull( e.net_weight, 0 )
+               ELSE 0
+                END task_ton,
+            CASE
+                WHEN b.task_type_enum = 1 THEN
+                    ifnull( b.inspection_quantity, 0 ) * ifnull( c.net_weight, 0 )
+                WHEN b.task_type_enum = 2 THEN
+                    ifnull( b.inspection_quantity, 0 ) * ifnull( d.net_weight, 0 )
+                WHEN b.task_type_enum = 16 THEN
+                    ifnull( b.inspection_quantity, 0 ) * ifnull( e.net_weight, 0 )
+                ELSE 0
+                END inspection_ton
+        from
+            mes_building_task_process b
+            left join tech_machine_part c on c.id = b.product_id
+            and c.bool_delete_enum = 0
+            left join tech_artifact d on d.id = b.product_id
+            and d.bool_delete_enum = 0
+            left join tech_assemble e on e.id = b.product_id
+            and e.bool_delete_enum = 0
+        where
+            b.bool_delete_enum = 0
+          and b.project_id = #{projectId}
+    </select>
+    <select id="listCompleteByData"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingComplete">
+        SELECT
+            *
+        FROM
+            mes_building_complete
+        WHERE
+        <if test="numberInfoDTOS!=null and numberInfoDTOS.size() != 0">
+            <foreach collection="numberInfoDTOS" item="numberInfo" separator="or" open="(" close=")">
+                ( product_id= #{numberInfo.productId}
+                and number=#{numberInfo.number})
+            </foreach>
+        </if>
+        AND bool_delete_enum = 0
+        AND task_type_enum=#{type}
+    </select>
+    <select id="listArtifactSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.WorkshopSummaryDTO">
+        SELECT
+        c.project_id 'project.id',
+        c.monomer_id 'monomer.id',
+        c.area_id 'area.id',
+        c.product_id 'productId',
+        c.task_id 'taskId',
+        c.create_time 'date',
+        c.production_line_id 'productionLine.id',
+        c.team_id 'teamId',
+        sum( c.quantity ) quantity
+        FROM
+        `mes_building_complete` c
+        LEFT JOIN tech_artifact artifact on artifact.id = c.product_id and artifact.bool_delete_enum = 0
+        WHERE
+        c.bool_delete_enum = 0
+        AND c.task_type_enum = 2
+        <if test="startTime!=null">
+            AND c.create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND c.create_time &lt;= #{endTime}
+        </if>
+        <if test="projectId != null">
+            AND c.project_id=#{projectId}
+        </if>
+        <if test="workShopId != null">
+            AND c.workshop_id=#{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            AND c.production_line_id=#{productionLineId}
+        </if>
+        <if test="name != null and name != ''">
+            AND artifact.name like concat('%',#{name},'%')
+        </if>
+        GROUP BY
+        c.project_id,
+        c.monomer_id,
+        c.area_id,
+        c.product_id,
+        c.task_id,
+        c.create_time,
+        c.production_line_id,
+        c.team_id
+    </select>
+
+    <select id="findProjectAnalysisDataDTO"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.ProjectAnalysisDataDTO">
+<!--        SELECT-->
+<!--            cp.short_name,-->
+<!--            cp.serial_number,-->
+<!--            cp.structure_status,-->
+<!--            case cp.product_category-->
+<!--                when 2 then '吨'-->
+<!--                when 4 then '米'-->
+<!--            end unit,-->
+<!--            ct.quantity_work/1000 AS structureQuantityWork,-->
+<!--            IFNULL(sum(sche.task_quantity) / SUM(sche.quantity),0) AS deepenTon,-->
+<!--            IFNULL(sum(com.quantity) /sum(sche.task_quantity),0) 'productionCompleteTon',-->
+<!--            IFNULL(sum(wr2.quantity)/ sum(wr1.quantity),0) 'shippedCompleteTon'-->
+<!--        FROM-->
+<!--            contract_project cp-->
+<!--                JOIN-->
+<!--            contract_tech ct ON cp.id = ct.project_id AND ct.bool_delete_enum = 0-->
+<!--                left JOIN-->
+<!--            tech_artifact ta ON cp.id = ta.project_id AND ta.bool_delete_enum = 0-->
+<!--                left JOIN-->
+<!--            mes_building_artifact_scheduling sche ON ta.id = sche.product_id AND sche.bool_delete_enum = 0-->
+<!--                LEFT JOIN mes_building_complete com ON ta.id = com.product_id-->
+<!--                AND com.bool_delete_enum = 0 AND com.task_type_enum = 2-->
+<!--                left join mes_building_warehouse_record wr1 on com.id = wr1.complete_id and wr1.bool_delete_enum = 0 and wr1.product_type = 2 and wr1.type = 1-->
+<!--                left join mes_building_warehouse_record wr2 on wr1.product_id = wr2.product_id and wr1.number = wr2.number and wr2.bool_delete_enum = 0  and wr2.product_type = 2 and wr2.type = 2-->
+<!--        WHERE-->
+<!--            cp.bool_delete_enum = 0-->
+<!--            <if test="workShopId != null">-->
+<!--                and sche.workshop_id = #{workShopId}-->
+<!--                and com.workshop_id = #{workShopId}-->
+<!--                and wr1.workshop_id = #{workShopId}-->
+<!--            </if>-->
+<!--        <if test="year != null">-->
+<!--                and date_format(sche.create_time,'%Y') = #{year}-->
+<!--                and date_format(com.create_time,'%Y') = #{year}-->
+<!--                and date_format(wr1.create_time,'%Y') = #{year}-->
+<!--        </if>-->
+<!--        GROUP BY-->
+<!--            cp.short_name,cp.serial_number,cp.structure_status,cp.product_category,ct.quantity_work;-->
+
+
+        SELECT
+        cp.serial_number AS project_serial_number,
+        cp.short_name AS short_name,
+        cp.structure_status AS structure_status,
+        case cp.product_category
+        when 2 then '吨'
+        when 4 then '米'
+        end unit,
+        IFNULL(ct.quantity_work / 1000, 0) AS structureQuantityWork,
+        IFNULL(tcw.deepen_weight / (ct.quantity_work/1000) , 0) AS deepenTon,
+        IFNULL(tpw.produced_weight / tcw.deepen_weight , 0) AS productionCompleteTon,
+        IFNULL(tdw.delivery_weight / tcw.deepen_weight , 0) AS shippedCompleteTon
+        FROM contract_project AS cp
+        LEFT JOIN contract_tech ct ON ct.bool_delete_enum = FALSE AND ct.category_type = 2 AND ct.project_id = cp.id
+        LEFT JOIN (
+        SELECT
+        ta.project_id,
+        (SUM(ta.total_net_weight) / 1000) AS deepen_weight
+        FROM tech_artifact ta
+        WHERE ta.bool_delete_enum = FALSE
+        GROUP BY ta.project_id
+        ) tcw ON tcw.project_id = cp.id
+        LEFT JOIN (
+        SELECT
+        ta.project_id,
+        (SUM(ta.produced_quantity * net_weight) / 1000) AS produced_weight
+        FROM tech_artifact ta
+        WHERE ta.bool_delete_enum = FALSE
+        GROUP BY ta.project_id
+        ) tpw ON tpw.project_id = cp.id
+        LEFT JOIN (
+        SELECT
+        mbt.project_id,
+        (SUM(mbt.task_quantity * ta.net_weight) / 1000) AS scheduling_weight
+        FROM mes_building_task mbt
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbt.product_id
+        WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2
+        GROUP BY mbt.project_id
+        ) tsw ON tsw.project_id = cp.id
+        LEFT JOIN (
+        SELECT
+        mbws.project_id,
+        (SUM(mbws.quantity * ta.net_weight) / 1000) AS delivery_weight
+        FROM mes_building_warehouse_summary mbws
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbws.product_id
+        WHERE mbws.bool_delete_enum = FALSE AND mbws.type = 2 AND mbws.product_type = 2
+        GROUP BY mbws.project_id
+        ) tdw ON tdw.project_id = cp.id
+        WHERE cp.bool_delete_enum = FALSE
+    </select>
+
+    <select id="findProjectSteelRearing"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.ProjectSteelRearingDTO">
+        SELECT
+            cp.id AS project_id,
+            cp.serial_number AS serialNumber,
+            cp.short_name AS short_name,
+            ROUND(IFNULL(tsw.scheduling_weight , 0),2) AS schedulingWeight
+        FROM contract_project AS cp
+                 LEFT JOIN contract_tech ct ON ct.bool_delete_enum = FALSE AND ct.category_type = 2 AND ct.project_id = cp.id
+                 LEFT JOIN (
+            SELECT
+                mbt.project_id,
+                (SUM(mbt.task_quantity * ta.net_weight) / 1000) AS scheduling_weight
+            FROM mes_building_task mbt
+                     LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbt.product_id
+            WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2
+            GROUP BY mbt.project_id
+        ) tsw on cp.id = tsw.project_id
+        WHERE cp.bool_delete_enum = FALSE
+    </select>
+
+    <select id="getProjectInboundCurrentMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.ProjectInboundCurrentMonth">
+        SELECT
+            cp.short_name projectName,
+            ROUND((IFNULL(sum(case when wr.product_type = 2 then wr.quantity * art.net_weight END),0) +
+                   IFNULL(sum(case when wr.product_type = 1 then wr.quantity * part.net_weight END),0) +
+                   IFNULL(sum(case when wr.product_type = 16 then wr.quantity * ass.net_weight END),0))/1000,2) inboundWeight
+        FROM
+            mes_building_warehouse_record wr
+                LEFT JOIN contract_project cp ON wr.project_id = cp.id AND cp.bool_delete_enum = 0
+                LEFT JOIN tech_artifact art ON wr.product_id = art.id AND art.bool_delete_enum = 0  and wr.product_type = 2
+                LEFT JOIN tech_machine_part part ON wr.product_id = part.id AND part.bool_delete_enum = 0  and wr.product_type = 1
+                LEFT JOIN tech_assemble ass ON wr.project_id = ass.id AND ass.bool_delete_enum = 0 and wr.product_type = 16
+        WHERE
+            wr.bool_delete_enum = 0
+          AND wr.type = 1
+          AND wr.bool_delete_enum = 0
+          AND wr.warehouse_type in(0,2,4)
+          and wr.product_type in (1,2,16)
+          AND wr.in_year_month_date = date_format(now(), '%Y-%m')
+            <if test="workshopId != null and workshopId != ''">
+                and wr.workshop_id = #{workshopId}
+            </if>
+        GROUP BY cp.short_name
+    </select>
+
+    <select id="getWeeklyProductionReportDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingWeeklyProductionReportDTO">
+        SELECT IFNULL(SUM(ta.net_weight * mc.quantity), 0) AS weeksNetWeight,
+               w.name                                      as workShopName
+        FROM mes_building_complete mc
+                 LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+                 LEFT JOIN mes_building_workshop w ON mc.workshop_id = w.id
+            AND ta.bool_delete_enum = FALSE
+        WHERE mc.task_type_enum = 2
+          AND mc.bool_delete_enum = FALSE
+          AND mc.create_time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY workShopName
+    </select>
+
+    <select id="getMonthlyProductionReportDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingWeeklyProductionReportDTO">
+        SELECT
+        IFNULL(SUM(ta.net_weight * mc.quantity), 0) AS monthNetWeight,
+        w.name AS workShopName
+        FROM
+        mes_building_complete mc
+        LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+        LEFT JOIN mes_building_workshop w ON mc.workshop_id = w.id
+        WHERE
+        mc.task_type_enum = 2
+        AND mc.bool_delete_enum = FALSE
+        AND ta.bool_delete_enum = FALSE
+        AND mc.create_time &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+        AND mc.create_time &lt; DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+        GROUP BY
+        workShopName;
+    </select>
+
+    <select id="getYeaslyProductionReportDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingWeeklyProductionReportDTO">
+        SELECT
+            IFNULL(SUM(ta.net_weight * mc.quantity), 0) AS totalNetWeight,
+            w.name AS workShopName
+        FROM
+            mes_building_complete mc
+                LEFT JOIN tech_artifact ta ON mc.product_id = ta.id
+                LEFT JOIN mes_building_workshop w ON mc.workshop_id = w.id
+        WHERE
+            mc.task_type_enum = 2
+          AND mc.bool_delete_enum = FALSE
+          AND ta.bool_delete_enum = FALSE
+          AND YEAR(mc.create_time) = YEAR(CURDATE())
+        GROUP BY
+            workShopName;
+    </select>
+
+
+    <select id="getAreaArtifactOneCodeCompleteDetails" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        SELECT
+        ta.*,
+        1 as actualQuantity,
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name',
+        CASE WHEN tnl.artifact_task_process_id = 0 THEN '0' ELSE pro.id END AS 'process.id',
+        CASE WHEN tnl.artifact_task_process_id = 0 THEN '已入库' ELSE pro.name END AS 'process.name'
+        FROM tech_artifact ta
+        left join contract_project cp on ta.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer m on ta.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area ar on ta.area_id = ar.id and ar.bool_delete_enum = 0
+        left join (
+            select
+            artifact_id,
+            artifact_number,
+            artifact_task_process_id
+            from mes_building_task_number_link
+            where bool_delete_enum = 0
+            group by
+            artifact_id,
+            artifact_number,
+            artifact_task_process_id
+        ) tnl on tnl.artifact_id = ta.id
+        left join mes_building_task_process mp on mp.id = tnl.artifact_task_process_id and mp.bool_delete_enum = 0
+        and mp.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        left join mes_building_process pro on pro.id = mp.process_id and pro.bool_delete_enum = 0
+        where
+        ta.bool_delete_enum = 0
+        and ta.area_id = #{areaId}
+        and tnl.artifact_task_process_id is not null
+        <if test="processId != null">
+            <choose>
+                <when test="processId == 0">
+                    AND tnl.artifact_task_process_id = 0
+                </when>
+                <when test="processId > 0">
+                    AND mp.process_id = #{processId}
+                </when>
+            </choose>
+        </if>
+    </select>
+    <select id="getEnclosureCompleteDetails" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        SELECT
+        enc.*,
+        com.quantity as actualQuantity,
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name',
+        '0' as 'process.id',
+        '已入库' as 'process.name'
+        FROM
+        mes_building_complete com
+        INNER JOIN tech_enclosure enc ON com.product_id = enc.id
+        LEFT JOIN contract_project cp ON cp.id = enc.project_id
+        left join plan_monomer m on enc.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area ar on enc.area_id = ar.id and ar.bool_delete_enum = 0
+        where com.bool_delete_enum=0
+        and com.task_type_enum=4
+        <if test="areaId != null ">
+            AND com.area_id = #{areaId}
+        </if>
+    </select>
+    <select id="getAccumulatedCompleteMeteByDate"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.DateAndMeteDTO">
+        select
+        date_format(a.create_time, #{dateQueryFormat}) AS dateStr,
+        ifnull(sum( a.quantity * b.net_weight ),0) / 1000 AS value
+        FROM mes_building_complete a
+        left join tech_artifact b on a.product_id = b.id and a.bool_delete_enum = 0
+        and a.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        where a.bool_delete_enum = 0
+        <if test="dateStrList != null and dateStrList.size > 0">
+            and date_format(a.create_time, #{dateQueryFormat}) in
+            <foreach collection="dateStrList" item="dateStr" open="(" separator="," close=")">
+                #{dateStr}
+            </foreach>
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and a.workshop_id = #{workshopId}
+        </if>
+        <if test="teamId != null and teamId != ''">
+            and a.team_id = #{teamId}
+        </if>
+        GROUP BY date_format(a.create_time, #{dateQueryFormat})
+    </select>
+    <select id="getYearAccumulatedCompleteMete" resultType="java.math.BigDecimal">
+        select
+        ifnull(sum( a.quantity * b.net_weight ),0) / 1000
+        FROM mes_building_complete a
+        left join tech_artifact b on a.product_id = b.id and a.bool_delete_enum = 0
+        and a.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        where a.bool_delete_enum = 0
+        <if test="dateQueryTypeEnum == @com.hzchum.scim.mes.building.core.api.enums.DateQueryTypeEnum@YEAR.getTypeEn()">
+            and date_format(a.create_time, '%Y') = date_format(CURDATE(), '%Y')
+        </if>
+        <if test="dateQueryTypeEnum == @com.hzchum.scim.mes.building.core.api.enums.DateQueryTypeEnum@MONTH.getTypeEn()">
+            and date_format(a.create_time, '%Y-%m') = date_format(CURDATE(), '%Y-%m')
+        </if>
+        <if test="dateQueryTypeEnum == @com.hzchum.scim.mes.building.core.api.enums.DateQueryTypeEnum@LAST_MONTH.getTypeEn()">
+            AND DATE_FORMAT(a.create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m');
+        </if>
+        <if test="dateQueryTypeEnum == @com.hzchum.scim.mes.building.core.api.enums.DateQueryTypeEnum@WEEK.getTypeEn()">
+            and YEARWEEK(date_format(a.create_time, '%Y-%m-%d'),1) = YEARWEEK(now(),1)
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and a.workshop_id = #{workshopId}
+        </if>
+        <if test="teamId != null and teamId != ''">
+            and a.team_id = #{teamId}
+        </if>
+    </select>
+
+
+</mapper>

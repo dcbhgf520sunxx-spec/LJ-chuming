@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectSupplierAreaLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectSupplierAreaLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="bool_relation_status" property="boolRelationStatus"/>
+        <result column="break_time" property="breakTime"/>
+        <result column="subcontract_order_id" property="subcontractOrderId"/>
+        <result column="bool_settlement_status" property="boolSettlementStatus"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, supplier_id, supplier_name, bool_relation_status, break_time, subcontract_order_id, bool_settlement_status
+    </sql>
+
+</mapper>

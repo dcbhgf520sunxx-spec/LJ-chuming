@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.PrintMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Print">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="receipt_type" property="receiptType" />
+        <result column="receipt_id" property="receiptId" />
+        <result column="receipt_serial_number" property="receiptSerialNumber" />
+        <result column="project_ids" property="projectIds" />
+        <result column="receipt_reviewer" property="receiptReviewer" />
+        <result column="receipt_review_time" property="receiptReviewTime" />
+        <result column="bool_printed" property="boolPrinted" />
+        <result column="total_print_number" property="totalPrintNumber" />
+        <result column="total_print_share_number" property="totalPrintShareNumber" />
+        <result column="total_not_print_number" property="totalNotPrintNumber" />
+        <result column="printer_id" property="printerId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, receipt_type, receipt_id, receipt_serial_number, project_ids, receipt_reviewer, receipt_review_time, bool_printed, total_print_number, total_print_share_number, total_not_print_number, printer_id
+    </sql>
+
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Print" >
+        select * from wms_print
+        where
+        bool_delete_enum = 0
+        <if test="boolPrinted != null">
+            and bool_printed = #{boolPrinted}
+        </if>
+        <if test=" materialLabelPrintType != null">
+            and type = #{materialLabelPrintType}
+        </if>
+        <if test="projectWarehouseType == 1">
+            and project_ids is null
+        </if>
+        <if test=" projectWarehouseType == 2 ">
+            and project_ids is not null
+        </if>
+        <if test="projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="createDate != null and createDate.size()>0">
+            <if test="createDate[0] != null">
+                and create_time &gt;= #{createDate[0]}
+            </if>
+            <if test="createDate[1] != null">
+                and create_time &lt;= #{createDate[1]}
+            </if>
+        </if>
+        <if test=" basicClass != null">
+            and contain_basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+    </select>
+
+    <select id="countNotPrintedNumber" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TypeAndNumberDO">
+        select
+       type ,
+        ifnull(sum(total_not_print_number),0) notPrinted
+        from wms_print
+        where bool_printed = 0
+        GROUP BY type
+    </select>
+
+    <select id="listV2" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Print">
+        select wp.* from wms_print wp
+        left join wms_print_detail wpd on wpd.print_id = wp.id
+        where
+        wp.bool_delete_enum = 0
+        <if test="boolPartyA !=null">
+            and wpd.bool_party_a = #{boolPartyA}
+        </if>
+        <if test="boolPrinted != null">
+            and wp.bool_printed = #{boolPrinted}
+        </if>
+        <if test=" materialLabelPrintType != null">
+            and wp.type = #{materialLabelPrintType}
+        </if>
+        <if test="projectWarehouseType == 1">
+            and wp.project_ids is null
+        </if>
+        <if test=" projectWarehouseType == 2 ">
+            and wp.project_ids is not null
+        </if>
+        <if test="projectId != null ">
+            and find_in_set(#{projectId},wp.project_ids)
+        </if>
+        <if test="createDate != null and createDate.size()>0">
+            <if test="createDate[0] != null">
+                and wp.create_time &gt;= #{createDate[0]}
+            </if>
+            <if test="createDate[1] != null">
+                and wp.create_time &lt;= #{createDate[1]}
+            </if>
+        </if>
+        <if test=" basicClass != null">
+            and wp.contain_basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        GROUP BY wp.id
+    </select>
+    <select id="countNotPrintedNumberV2"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TypeAndNumberDO">
+        select
+        wp.type ,
+        ifnull(sum(wpd.not_print_number),0) notPrinted
+        from wms_print wp
+        left join wms_print_detail wpd on wpd.print_id = wp.id
+        where wpd.bool_printed = 0
+        <if test="boolPartyA != null">
+            and wpd.bool_party_a = #{boolPartyA}
+        </if>
+        GROUP BY wp.type
+    </select>
+</mapper>

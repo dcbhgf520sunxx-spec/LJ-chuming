@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.ProjectExecutionDynamicsMapper">
+
+    <select id="listInfo" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDTO">
+        SELECT
+            cp.id AS project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            cp.structure_status AS structure_type,
+            cp.structure_area AS contract_weight,
+            IFNULL(tcw.deepen_weight, 0) AS deepen_weight,
+            IFNULL(tpw.produced_weight, 0) AS produced_weight,
+            IFNULL((tcw.deepen_weight - tpw.produced_weight), 0) AS not_produced_weight,
+            IFNULL(tsw.scheduling_weight, 0) AS scheduling_weight,
+            IFNULL(tdw.delivery_weight, 0) AS delivery_weight
+        FROM contract_project AS cp
+        LEFT JOIN contract_tech ct ON ct.bool_delete_enum = FALSE AND ct.category_type = 2 AND ct.project_id = cp.id
+        LEFT JOIN (
+                      SELECT
+                          ta.project_id,
+                          (SUM(ta.total_net_weight) / 1000) AS deepen_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE
+                      GROUP BY ta.project_id
+                  ) tcw ON tcw.project_id = cp.id
+        LEFT JOIN (
+                      SELECT
+                          ta.project_id,
+                          (SUM(ta.produced_quantity * net_weight) / 1000) AS produced_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE
+                      GROUP BY ta.project_id
+                  ) tpw ON tpw.project_id = cp.id
+        LEFT JOIN (
+                      SELECT
+                          mbt.project_id,
+                          (SUM(mbt.task_quantity * ta.net_weight) / 1000) AS scheduling_weight
+                      FROM mes_building_task mbt
+                      LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbt.product_id
+                      WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2
+                      GROUP BY mbt.project_id
+                  ) tsw ON tsw.project_id = cp.id
+        LEFT JOIN (
+                      SELECT
+                          mbws.project_id,
+                          (SUM(mbws.quantity * ta.net_weight) / 1000) AS delivery_weight
+                      FROM mes_building_warehouse_summary mbws
+                      LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbws.product_id
+                      WHERE mbws.bool_delete_enum = FALSE AND mbws.type = 2 AND mbws.product_type = 2
+                      GROUP BY mbws.project_id
+                  ) tdw ON tdw.project_id = cp.id
+        WHERE cp.bool_delete_enum = FALSE
+        <if test="projectIds != null and projectIds.size() > 0">
+            <foreach collection="projectIds" item="i" open="AND cp.id in (" separator="," close=")">
+                #{i}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getTotalWeight" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL(SUM(ta.total_net_weight) / 1000, 0)
+        FROM tech_artifact ta
+        WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+    </select>
+
+    <select id="deepenDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailDTO">
+        SELECT
+            #{projectId} AS project_id,
+            t.monomer_id,
+            t.area_id,
+            IFNULL(t.weight, 0) as weight,
+            pm.name AS monomer_name,
+            pa.name AS area_name
+        FROM (
+                 SELECT
+                     ta.monomer_id,
+                     ta.area_id,
+                     (SUM(ta.total_net_weight) / 1000) AS weight
+                 FROM tech_artifact ta
+                 WHERE ta.bool_delete_enum = FALSE
+                   AND ta.project_id = #{projectId}
+                 GROUP BY ta.monomer_id, ta.area_id
+             ) t
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = t.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = t.area_id
+    </select>
+
+    <select id="deepenDetailProduct" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailProductDTO">
+        SELECT
+            ta.project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            ta.monomer_id,
+            pm.name AS monomer_name,
+            ta.area_id,
+            pa.name AS area_name,
+            ta.id AS product_id,
+            ta.name AS product_name,
+            ta.serial_number AS product_serial_number,
+            ta.specification AS product_specification,
+            ta.length AS product_length,
+            ta.material AS product_material,
+            ta.quantity,
+            ta.net_weight AS product_net_weight,
+            (ta.quantity * ta.net_weight) AS product_total_net_weight,
+            ta.create_time AS import_date
+        FROM tech_artifact ta
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = ta.area_id
+        WHERE ta.bool_delete_enum = FALSE
+          AND ta.project_id = #{projectId}
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ta.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="schedulingDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailDTO">
+        SELECT
+            pa.project_id,
+            pa.monomer_id,
+            pa.id AS area_id,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            IFNULL(completeValume.weight, 0) AS weight,
+            IFNULL(deepen.total_weight, 0) AS total_weight
+        FROM plan_area pa
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = pa.monomer_id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM(ta.total_net_weight) / 1000) AS total_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) deepen ON deepen.monomer_id = pa.monomer_id AND deepen.area_id = pa.id
+        LEFT JOIN (
+                      SELECT
+                          mbt.monomer_id,
+                          mbt.area_id,
+                          (SUM(mbt.task_quantity * ta.net_weight) / 1000) AS weight
+                      FROM mes_building_task mbt
+                      LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbt.product_id
+                      WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2 AND mbt.project_id = #{projectId}
+                      GROUP BY mbt.monomer_id, mbt.area_id
+                  ) completeValume ON completeValume.monomer_id = pa.monomer_id AND completeValume.area_id = pa.id
+        WHERE pa.bool_delete_enum = FALSE AND pa.project_id = #{projectId}
+    </select>
+
+    <select id="schedulingDetailProduct" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailProductDTO">
+        SELECT
+            t.project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            t.monomer_id,
+            pm.name AS monomer_name,
+            t.area_id,
+            pa.name AS area_name,
+            ta.id AS product_id,
+            ta.name AS product_name,
+            ta.serial_number AS product_serial_number,
+            ta.specification AS product_specification,
+            ta.length AS product_length,
+            ta.material AS product_material,
+            IFNULL(t.quantity, 0) AS quantity,
+            ta.net_weight AS product_net_weight,
+            IFNULL(t.quantity * ta.net_weight, 0) AS product_total_net_weight,
+            t.import_date
+        FROM (
+                 SELECT
+                     mbt.project_id,
+                     mbt.monomer_id,
+                     mbt.area_id,
+                     mbt.product_id,
+                     SUM(mbt.task_quantity) AS quantity,
+                     mbt.in_year_month_day_date AS import_date
+                 FROM mes_building_task mbt
+                 WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2
+                   AND mbt.project_id = #{projectId}
+                 <if test="monomerId != null">
+                     AND mbt.monomer_id = #{monomerId}
+                 </if>
+                 <if test="areaId != null">
+                     AND mbt.area_id = #{areaId}
+                 </if>
+                 GROUP BY mbt.project_id, mbt.monomer_id, mbt.area_id, mbt.product_id,mbt.in_year_month_day_date
+             ) t
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = t.product_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = t.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = t.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = t.area_id
+    </select>
+
+    <select id="producedDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailDTO">
+        SELECT
+            pa.project_id,
+            pa.monomer_id,
+            pa.id AS area_id,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            IFNULL(completeValume.weight, 0) AS weight,
+            IFNULL(deepen.total_weight, 0) AS total_weight
+        FROM plan_area pa
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = pa.monomer_id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM(ta.total_net_weight) / 1000) AS total_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) deepen ON deepen.monomer_id = pa.monomer_id AND deepen.area_id = pa.id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM(ta.produced_quantity * net_weight) / 1000) AS weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) completeValume ON completeValume.monomer_id = pa.monomer_id AND completeValume.area_id = pa.id
+        WHERE pa.bool_delete_enum = FALSE AND pa.project_id = #{projectId}
+    </select>
+
+    <select id="producedDetailProduct" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailProductDTO">
+        SELECT
+        t.project_id,
+        cp.serial_number AS project_serial_number,
+        cp.short_name AS project_short_name,
+        t.monomer_id,
+        pm.name AS monomer_name,
+        t.area_id,
+        pa.name AS area_name,
+        ta.id AS product_id,
+        ta.name AS product_name,
+        ta.serial_number AS product_serial_number,
+        ta.specification AS product_specification,
+        ta.length AS product_length,
+        ta.material AS product_material,
+        IFNULL(t.quantity, 0) AS quantity,
+        ta.net_weight AS product_net_weight,
+        IFNULL(t.quantity * ta.net_weight, 0) AS product_total_net_weight,
+        t.import_date
+        FROM (
+        SELECT
+        mbt.project_id,
+        mbt.monomer_id,
+        mbt.area_id,
+        mbt.product_id,
+        SUM(mbt.quantity) AS quantity,
+        mbt.in_year_month_day_date AS import_date
+        FROM mes_building_complete mbt
+        WHERE mbt.bool_delete_enum = FALSE AND mbt.task_type_enum = 2
+        AND mbt.project_id = #{projectId}
+        <if test="monomerId != null">
+            AND mbt.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND mbt.area_id = #{areaId}
+        </if>
+        GROUP BY mbt.project_id, mbt.monomer_id, mbt.area_id, mbt.product_id,mbt.in_year_month_day_date
+        ) t
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = t.product_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = t.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = t.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = t.area_id
+    </select>
+
+    <select id="notProducedDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailDTO">
+        SELECT
+            pa.project_id,
+            pa.monomer_id,
+            pa.id AS area_id,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            IFNULL(completeValume.weight, 0) AS weight,
+            IFNULL(deepen.total_weight, 0) AS total_weight
+        FROM plan_area pa
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = pa.monomer_id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM(ta.total_net_weight) / 1000) AS total_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) deepen ON deepen.monomer_id = pa.monomer_id AND deepen.area_id = pa.id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM((ta.quantity - ta.produced_quantity) * net_weight) / 1000) AS weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) completeValume ON completeValume.monomer_id = pa.monomer_id AND completeValume.area_id = pa.id
+        WHERE pa.bool_delete_enum = FALSE AND pa.project_id = #{projectId}
+    </select>
+
+    <select id="notProducedDetailProduct" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailProductDTO">
+        SELECT
+            ta.project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            ta.monomer_id,
+            pm.name AS monomer_name,
+            ta.area_id,
+            pa.name AS area_name,
+            ta.id AS product_id,
+            ta.name AS product_name,
+            ta.serial_number AS product_serial_number,
+            ta.specification AS product_specification,
+            ta.length AS product_length,
+            ta.material AS product_material,
+            IFNULL((ta.quantity - ta.produced_quantity), 0) AS quantity,
+            ta.net_weight AS product_net_weight,
+            IFNULL((ta.quantity - ta.produced_quantity) * ta.net_weight, 0) AS product_total_net_weight,
+            ta.create_time AS import_date
+        FROM tech_artifact ta
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = ta.area_id
+        WHERE ta.bool_delete_enum = FALSE
+          AND ta.quantity > ta.produced_quantity
+          AND ta.project_id = #{projectId}
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ta.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="deliveryDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailDTO">
+        SELECT
+            pa.project_id,
+            pa.monomer_id,
+            pa.id AS area_id,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            IFNULL(completeValume.weight, 0) AS weight,
+            IFNULL(deepen.total_weight, 0) AS total_weight
+        FROM plan_area pa
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = pa.monomer_id
+        LEFT JOIN (
+                      SELECT
+                          ta.monomer_id,
+                          ta.area_id,
+                          (SUM(ta.total_net_weight) / 1000) AS total_weight
+                      FROM tech_artifact ta
+                      WHERE ta.bool_delete_enum = FALSE AND ta.project_id = #{projectId}
+                      GROUP BY ta.monomer_id, ta.area_id
+                  ) deepen ON deepen.monomer_id = pa.monomer_id AND deepen.area_id = pa.id
+        LEFT JOIN (
+                      SELECT
+                          mbws.monomer_id,
+                          mbws.area_id,
+                          (SUM(mbws.quantity * ta.net_weight) / 1000) AS weight
+                      FROM mes_building_warehouse_summary mbws
+                      LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbws.product_id
+                      WHERE mbws.bool_delete_enum = FALSE AND mbws.type = 2 AND mbws.product_type = 2 AND mbws.project_id = #{projectId}
+                      GROUP BY mbws.monomer_id, mbws.area_id
+                  ) completeValume ON completeValume.monomer_id = pa.monomer_id AND completeValume.area_id = pa.id
+        WHERE pa.bool_delete_enum = FALSE AND pa.project_id = #{projectId}
+    </select>
+
+    <select id="deliveryDetailProduct" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectExecutionDynamicsDetailProductDTO">
+        SELECT
+            t.project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            t.monomer_id,
+            pm.name AS monomer_name,
+            t.area_id,
+            pa.name AS area_name,
+            ta.id AS product_id,
+            ta.name AS product_name,
+            ta.serial_number AS product_serial_number,
+            ta.specification AS product_specification,
+            ta.length AS product_length,
+            ta.material AS product_material,
+            IFNULL(t.quantity, 0) AS quantity,
+            ta.net_weight AS product_net_weight,
+            IFNULL(t.quantity * ta.net_weight, 0) AS product_total_net_weight,
+            t.import_date
+        FROM (
+                 SELECT
+                     mbws.project_id,
+                     mbws.monomer_id,
+                     mbws.area_id,
+                     mbws.product_id,
+                     sum(mbws.quantity) AS quantity,
+                     mbws.in_year_month_day_date AS import_date
+                 FROM mes_building_warehouse_record mbws
+                 WHERE mbws.bool_delete_enum = FALSE AND mbws.type = 2 AND mbws.product_type = 2
+                   AND mbws.project_id = #{projectId}
+                 <if test="monomerId != null">
+                     AND mbws.monomer_id = #{monomerId}
+                 </if>
+                 <if test="areaId != null">
+                     AND mbws.area_id = #{areaId}
+                 </if>
+                 GROUP BY mbws.project_id, mbws.monomer_id, mbws.area_id, mbws.product_id,mbws.in_year_month_day_date
+             ) t
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = t.product_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = t.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = t.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = t.area_id
+    </select>
+
+</mapper>

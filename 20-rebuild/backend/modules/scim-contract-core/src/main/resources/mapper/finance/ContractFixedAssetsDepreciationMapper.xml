@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractFixedAssetsDepreciationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractFixedAssetsDepreciation">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="type" property="type"/>
+        <result column="name" property="name"/>
+        <result column="original_value" property="originalValue"/>
+        <result column="depreciation_year" property="depreciationYear"/>
+        <result column="start_date" property="startDate"/>
+        <result column="year_month_value" property="yearMonthValue"/>
+        <result column="end_year_month" property="endYearMonth"/>
+        <result column="residual_value" property="residualValue"/>
+        <result column="residual_value_rate" property="residualValueRate"/>
+        <result column="year_depreciation_amount" property="yearDepreciationAmount"/>
+        <result column="year_depreciation_rate" property="yearDepreciationRate"/>
+        <result column="month_depreciation_amount" property="monthDepreciationAmount"/>
+        <result column="month_depreciation_rate" property="monthDepreciationRate"/>
+        <result column="user_id" property="userId"/>
+        <result column="bool_status" property="boolStatus"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, name, original_value, depreciation_year, start_date, year_month_value, end_year_month, residual_value, residual_value_rate, year_depreciation_amount, year_depreciation_rate,
+        month_depreciation_amount, month_depreciation_rate, user_id, bool_status, attachment_ids, remark
+    </sql>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractFixedAssetsDepreciationDTO">
+        select
+        fad.*,
+        u.name user_name
+        from contract_fixed_assets_depreciation fad
+        left join sys_user u on fad.user_id = u.id and u.bool_delete_enum = 0
+        where fad.bool_delete_enum = 0
+        <if test="type != null">
+            and fad.type = #{type}
+        </if>
+        <if test="name != null and name != ''">
+            and fad.name like concat('%', #{name},'%')
+        </if>
+        <if test="boolStatus != null">
+            and fad.bool_status = #{boolStatus}
+        </if>
+        order by fad.bool_status desc, fad.id desc
+
+    </select>
+
+    <select id="selectByYear"
+            resultType="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractFixedAssetsDepreciation">
+        select *
+        from contract_fixed_assets_depreciation
+        where bool_delete_enum = 0
+        and type = 1
+        <if test="year != null">
+            and date_format(start_date, '%Y') &lt;= #{year}
+            and end_year_month / 100 &gt;= #{year}
+        </if>
+    </select>
+
+    <select id="factoryBuildingDepreciationList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.FactoryBuildingDepreciationDTO">
+        SELECT
+            cfad.*,
+            sbc.name AS branch_company_name,
+            su.name AS user_name
+        FROM contract_fixed_assets_depreciation cfad
+        LEFT JOIN sys_branch_company sbc ON sbc.bool_delete_enum = FALSE AND sbc.id = cfad.branch_company_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = FALSE AND su.id = cfad.user_id
+        WHERE cfad.bool_delete_enum = FALSE AND cfad.type = 1
+        <if test="branchCompanyId != null">
+            AND cfad.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="nameLike" value="'%' + name + '%'"/>
+            AND cfad.name like #{nameLike}
+        </if>
+        <if test="boolStatus != null">
+            AND cfad.bool_status = #{boolStatus}
+        </if>
+    </select>
+
+</mapper>

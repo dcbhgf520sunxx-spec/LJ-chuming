@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechAssembleTypesettingPartLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechAssembleTypesettingPartLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="assemble_typesetting_id" property="assembleTypesettingId" />
+        <result column="machine_part_id" property="machinePartId" />
+        <result column="quantity" property="quantity" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, assemble_typesetting_id, machine_part_id, quantity
+    </sql>
+    <select id="listByTypeSettingId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingTypeSettingMachinePartDTO">
+        SELECT
+            link.assemble_typesetting_id 'typeSettingId',
+            mac.id 'id',
+            mac.length 'length',
+            mac.serial_number 'serialNumber',
+            mac.spec_prefix 'specPrefix',
+            mac.specification 'specification',
+            mac.project_id 'projectId',
+            mac.monomer_id 'monomerId',
+            mac.area_id 'areaId'
+        FROM
+            tech_assemble_typesetting_part_link link
+                LEFT JOIN tech_machine_part mac ON link.machine_part_id = mac.id
+                AND mac.bool_delete_enum = 0
+        WHERE
+            link.bool_delete_enum = 0
+        <if test="ids != null and ids.size()>0">
+            AND link.assemble_typesetting_id IN
+            <foreach collection="ids"  item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesContractProjectStatisticsConfigLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.system.core.api.pojo._do.MesContractProjectStatisticsConfigLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="statistics_mode" property="statisticsMode"/>
+        <result column="statistics_deadline" property="statisticsDeadline"/>
+        <result column="config_price" property="configPrice"/>
+        <result column="config_price_sync_start_date" property="configPriceSyncStartDate"/>
+        <result column="config_price_sync_end_date" property="configPriceSyncEndDate"/>
+        <result column="individual_price" property="individualPrice"/>
+        <result column="individual_price_sync_start_date" property="individualPriceSyncStartDate"/>
+        <result column="individual_price_sync_end_date" property="individualPriceSyncEndDate"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, contract_project_id, statistics_mode, statistics_deadline, config_price, config_price_sync_start_date, config_price_sync_end_date, individual_price, individual_price_sync_start_date, individual_price_sync_end_date
+    </sql>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.MesContractProjectStatisticsConfigLinkDTO">
+        SELECT
+        mcpscl.id,
+        mcpscl.create_time,
+        mcpscl.update_time,
+        mcpscl.bool_delete_enum,
+        mcpscl.version,
+        mcpscl.contract_project_id,
+        mcpscl.statistics_mode,
+        mcpscl.statistics_deadline,
+        mcpscl.config_price,
+        mcpscl.config_price_sync_start_date,
+        mcpscl.config_price_sync_end_date,
+        mcpscl.individual_price,
+        mcpscl.individual_price_sync_start_date,
+        mcpscl.individual_price_sync_end_date,
+        cp.name AS project_name
+        FROM mes_contract_project_statistics_config_link mcpscl
+        LEFT JOIN contract_project cp ON mcpscl.contract_project_id = cp.id
+        <where>
+            mcpscl.bool_delete_enum = FALSE
+            <if test="statisticsMode != null">
+                AND mcpscl.statistics_mode = #{statisticsMode}
+            </if>
+            <if test="projectNumberOrName != null and projectNumberOrName != ''">
+                <bind name="projectNumberOrNameLike" value="'%' + projectNumberOrName + '%'"/>
+                AND (cp.name LIKE #{projectNumberOrNameLike} or cp.serial_number LIKE #{projectNumberOrNameLike})
+            </if>
+        </where>
+    </select>
+
+</mapper>

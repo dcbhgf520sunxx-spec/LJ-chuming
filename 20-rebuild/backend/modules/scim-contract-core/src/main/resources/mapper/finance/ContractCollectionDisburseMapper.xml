@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractCollectionDisburseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractCollectionDisburse">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_manager_id" property="projectManagerId" />
+        <result column="project_id" property="projectId" />
+        <result column="use_amount" property="useAmount" />
+        <result column="payment_id" property="paymentId" />
+        <result column="payment_project_id" property="paymentProjectId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_manager_id, project_id, use_amount, payment_id, payment_project_id, user_id
+    </sql>
+
+</mapper>

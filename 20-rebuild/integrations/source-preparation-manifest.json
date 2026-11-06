@@ -1,0 +1,63 @@
+{
+  "kind": "source-preparation-not-activated",
+  "changes": [
+    {
+      "path": "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java",
+      "before": "900db2ef1ee26c16482ed0c15a0a0ebc7ae3d686d78d1ab88b44a18aa68a459b",
+      "after": "d0bbf68b9c3837132b65b2456860b99f5b368583420ea6078118d0f7112ce876"
+    },
+    {
+      "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/OaBusinessProcessServiceImpl.java",
+      "before": "6cfb8dd7b0d58eddfac825520ffc992b037d08c45eec2b9cf07610f89d9ae513",
+      "after": "2447b52fbfde1bafdeb39239cc9865fd524c557f91d41b2f72ab4cd4bd54f872"
+    },
+    {
+      "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/ShrPersonnelOrganizationServierImpl.java",
+      "before": "6f0fbd6c68f7091f04b1a5b25003a59c2c133cca52a379a0bf6ba70ed8cd4ad7",
+      "after": "7e4bfd7432048c046f1535b3fc20e02c3dc8ab46cb798ee77cbf6ea510e5b93f"
+    },
+    {
+      "path": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+      "before": "f9f3aff20b2707ee734b7c572c484cd9db742048456e5cfa3d6284dc2e55db81",
+      "after": "5d6a11320f1533682a1c02aa31e016eaf3c7d232038c30f50afdfc6c38abc90d"
+    },
+    {
+      "path": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/WmsNestMaterialServiceImpl.java",
+      "before": "3c8e0f3e7d38feadc5842c2cc798efc6009c28bf820a8503a19a11864beadd44",
+      "after": "de0718647c9c765c29c20d3d20de414333a05327a64666fc2dbc0781b896a7e4"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskNeedMachinePartSchedulingServiceImpl.java",
+      "before": "48a8a1977f6e65bb823e3eea77497f4ae1c9bd641ee82a5cf8f3f432b1520a6c",
+      "after": "7b432e03b6d79553f60080b24ad2dd14668808d2261e8b98b0d8117369f1fb14"
+    },
+    {
+      "path": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/util/NestingUtils.java",
+      "before": "08a5f82a0a448333533d57e823e0b91fce5b9149b7a139445204e726880b64b8",
+      "after": "5c45141019ba67c683de38c532a7d45addd6667889e88eea3a3166ecc7875053"
+    },
+    {
+      "path": "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java",
+      "before": "8d31f169de8e6ec479694dfc880d4b43713e0e6ff3ef4b34b9e13c728d80af08",
+      "after": "ed8028aa68d639ec47624adf743b27b9b1dbcd4fbde8a618dfa22d83ee49c365"
+    },
+    {
+      "path": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java",
+      "before": "0491420ab5eefe189ab1af448c540591a0466e076b0f222a638b61fe494b19bb",
+      "after": "1bdf93d07f23dae5c82a79bddf0359ab8c5d98bbda3d51aefd6e39d27b2cb67b"
+    },
+    {
+      "path": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/MessagePushUtil.java",
+      "before": "f496a0b5bc6a13c303f34e87767925c9cc25d1a62affd8551b39b6cb2af8c70c",
+      "after": "3e1b709daa126873e533f260555c9e6de47eb4c8c0e1aed47d06dc1d3063158c"
+    },
+    {
+      "path": "frontend-recovered/vite.config.js",
+      "before": "3dc8da35176b8db687ff9423d25e80ae2256b92c7d2cf1db833fe41e263bb1c0",
+      "after": "fd3a1f885ec470bc18a6360920ce876b705c71b264dc1e824cc06dccbcf56c49"
+    }
+  ],
+  "files": 11,
+  "liveUpdated": false,
+  "realTestsExecuted": false
+}

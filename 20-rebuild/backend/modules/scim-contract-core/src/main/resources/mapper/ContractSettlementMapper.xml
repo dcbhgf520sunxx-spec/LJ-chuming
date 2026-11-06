@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractSettlementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractSettlement">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="amount" property="amount"/>
+        <result column="settlement_date" property="settlementDate"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_user_name" property="auditUserName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="remark" property="remark"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, amount, settlement_date, create_user_id, create_user_name, audit_status, audit_user_id, audit_user_name, audit_time, remark, attachment_ids
+    </sql>
+
+</mapper>

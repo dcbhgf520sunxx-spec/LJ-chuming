@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesAuxiliaryMapper">
+
+
+    <select id="list" resultType="com.hzchum.scim.system.core.api.pojo._do.MesAuxiliary">
+        select
+            ma.*
+        from mes_auxiliary ma
+        LEFT JOIN mes_auxiliary_relevancy_wms_class marwc on ma.id = marwc.auxiliary_id and marwc.bool_delete_enum = 0
+        LEFT JOIN wms_classification wc on marwc.classify_id = wc.id and wc.bool_delete_enum = 0
+        where
+            ma.bool_delete_enum = 0
+          <if test="basicClass != null and basicClass != ''">
+              and ma.basic_class = #{basicClass}
+          </if>
+          <if test="auxiliaryName != null and auxiliaryName != ''">
+              and ma.auxiliary_name like concat('%', #{auxiliaryName}, '%')
+          </if>
+          <if test="className != null and className != ''">
+              and wc.name like concat('%', #{className}, '%')
+          </if>
+        GROUP BY ma.id
+    </select>
+</mapper>

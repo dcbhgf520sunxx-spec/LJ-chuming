@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.RemnantMaterialReturnableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RemnantMaterialReturnable">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="classify_id" property="classifyId" />
+        <result column="classify_name" property="classifyName" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="outbound_unit_type" property="outboundUnitType" />
+        <result column="material_sn" property="materialSn" />
+        <result column="basic_class" property="basicClass" />
+        <result column="specification" property="specification" />
+        <result column="accounting_unit" property="accountingUnit" />
+        <result column="returnable_mete" property="returnableMete" />
+        <result column="single_mete" property="singleMete" />
+        <result column="single_returnable_mete" property="singleReturnableMete" />
+        <result column="single_returnable_length" property="singleReturnableLength" />
+        <result column="unit_net" property="unitNet" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="theory_thickness" property="theoryThickness" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="color" property="color" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="factory_id" property="factoryId" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="standard_id" property="standardId" />
+        <result column="standard_name" property="standardName" />
+        <result column="weighted_average_spec" property="weightedAverageSpec" />
+        <result column="section_steel_weight" property="sectionSteelWeight" />
+        <result column="one_theory_weight" property="oneTheoryWeight" />
+        <result column="material_returnable_id" property="materialReturnableId" />
+    </resultMap>
+
+    <select id="rementReturnableList"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RemnantMaterialReturnable">
+        select
+        wrmr.*
+        FROM wms_remnant_material_returnable wrmr
+        left join wms_material_returnable wmr on wrmr.material_returnable_id = wmr.id
+        left join wms_outbound wo on wmr.outbound_id = wo.id
+        where
+        wrmr.bool_delete_enum = 0
+        and  wrmr.returnable_mete != 0
+        <if test="outboundTypeSelection != null and outboundTypeSelection != ''">
+            and wo.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="basicClass != null ">
+            and wrmr.basic_class = #{basicClass}
+        </if>
+        <if test="classifyId != null ">
+            and wrmr.classify_id = #{classifyId}
+        </if>
+<!--        <if test="factoryId != null ">-->
+<!--            and factory_id = #{factoryId}-->
+<!--        </if>-->
+        <if test="warehouseId != null ">
+            and wrmr.warehouse_id = #{warehouseId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND wrmr.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="length != null ">
+            AND wrmr.length = #{length}
+        </if>
+        <if test="width != null ">
+            AND wrmr.width = #{width}
+        </if>
+        <if test="theoryThickness != null ">
+            AND wrmr.theory_thickness = #{theoryThickness}
+        </if>
+        <if test="thickness != null ">
+            AND wrmr.thickness = #{thickness}
+        </if>
+        <if test="projectId != null ">
+            AND wrmr.project_id = #{projectId}
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND wrmr.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="color != null and color != ''">
+            AND wrmr.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wrmr.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test="workshopId!=null">
+            and wrmr.workshop_id=#{workshopId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wrmr.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyId != null">
+            and wrmr.classify_id = #{classifyId}
+        </if>
+        <if test="mete != null">
+            and wrmr.returnable_mete >=#{mete}
+        </if>
+        <if test="boolPartyA != null">
+            and wrmr.bool_party_a =#{boolPartyA}
+        </if>
+        <if test="areaBatchId != null">
+            and wrmr.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="recipientId != null">
+            and wrmr.recipient_id = #{recipientId}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                -- 开始时间: 数据 大于 条件
+                and wrmr.create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                -- 结束时间: 数据 小于 条件
+                and wrmr.create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+
+
+    </select>
+
+    <update id="updateReviewById">
+        update  wms_material_returnable set bool_review_pending = #{bool}
+        where id in (select wms_remnant_material_returnable from wms_return_detail where remnant_id = #{id})
+    </update>
+
+</mapper>

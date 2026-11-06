@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.ApplyPurchaseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._do.ApplyPurchase">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="type" property="type" />
+        <result column="project_id" property="projectId" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="review_time" property="reviewTime" />
+        <result column="reviewer_ids" property="reviewerIds" />
+        <result column="user_update_time" property="userUpdateTime" />
+        <result column="editor_id" property="editorId" />
+        <result column="editor_name" property="editorName" />
+    </resultMap>
+
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, type, project_id, applicant_name, applicant_id, review_status, review_time, reviewer_ids, user_update_time, editor_id, editor_name
+    </sql>
+
+    <select id="list" resultType="com.hzchum.scim.scm.core.api.pojo.dto.ApplyPurchaseDTO">
+        SELECT  sap.*,
+            p.id                    'project.id',
+            p.short_name            'project.shortName',
+            p.serial_number         'project.serialNumber',
+            p.name                  'project.name',
+            ap.approve_info_name approveInfoName
+        FROM scm_apply_purchase sap
+        left join contract_project p on p.id = sap.project_id
+        left join approve_process ap on ap.id = sap.approve_process_id
+        WHERE sap.bool_delete_enum = 0
+          and sap.bool_initiate_approve = #{boolInitiateApprove}
+        <if test="materialType != null ">
+            and sap.material_type = #{materialType}
+        </if>
+        <if test="status != null ">
+            and sap.review_status = #{status}
+        </if>
+        <if test="serialNumber != null ">
+            and sap.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="enabled != null ">
+            and sap.enabled = #{enabled}
+        </if>
+        <if test="times != null and times.size()>0">
+            <if test="times[0] != null">
+                and sap.create_time &gt; #{times[0]}
+            </if>
+            <if test="times[1] != null">
+                and sap.create_time &lt; #{times[1]}
+            </if>
+        </if>
+    </select>
+
+    <select id="applyPurchaseDTOListV2" resultType="com.hzchum.scim.scm.core.api.pojo.dto.ApplyPurchaseDTO">
+        SELECT  sap.*
+        FROM scm_apply_purchase sap
+        WHERE sap.bool_delete_enum = 0
+          and bool_temporary_storage = 0
+          and data_status in (1,2,3)
+        <if test="materialType != null and materialType != ''">
+            and (sap.material_type = #{materialType} or #{materialType} &amp; sap.material_type)
+        </if>
+        <if test="status != null and status != ''">
+            and sap.data_status = #{status}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and sap.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="enabled != null and enabled != ''">
+            and sap.enabled = #{enabled}
+        </if>
+        <if test="times != null and times.size()>0">
+            <if test="times[0] != null">
+                and sap.create_time &gt; #{times[0]}
+            </if>
+            <if test="times[1] != null">
+                and sap.create_time &lt; #{times[1]}
+            </if>
+        </if>
+        <if test="departmentName != null and departmentName != ''">
+        and sap.department_name like CONCAT('%', #{departmentName},'%')
+        </if>
+        <if test="applicantName != null and applicantName != ''">
+        and sap.applicant_name like CONCAT('%', #{applicantName},'%')
+        </if>
+        <if test="projectId != null and projectId != ''">
+            AND find_in_set(#{projectId}, sap.project_ids)
+        </if>
+        <if test="projectAttribute != null and projectAttribute != ''">
+            AND sap.project_attribute = #{projectAttribute}
+        </if>
+        <if test="purchaseCreationState != null and purchaseCreationState != ''">
+            AND sap.purchase_creation_state = #{purchaseCreationState}
+        </if>
+        <if test="level != null and level != ''">
+            AND sap.level = #{level}
+        </if>
+        <if test="branchCompanyId != null">
+            AND sap.branch_company_id = #{branchCompanyId}
+        </if>
+    </select>
+
+    <select id="getById" resultType="com.hzchum.scim.scm.core.api.pojo.dto.ApplyPurchaseDTO">
+        SELECT sap.*,
+                p.id                    'project.id',
+                p.short_name            'project.shortName',
+                p.serial_number         'project.serialNumber',
+                p.name                  'project.name'
+        FROM scm_apply_purchase sap
+                 left join contract_project p on p.id = sap.project_id
+        WHERE sap.bool_delete_enum = 0
+            AND sap.id = #{id}
+    </select>
+
+    <update id="updateInboundMete" >
+        UPDATE scm_apply_purchase set inbound_mete = (inbound_mete + #{inboundMete}) where id = #{applyPurchaseId}
+    </update>
+    <update id="updateBoolDeleteById">
+        update scm_apply_purchase set bool_delete_enum = 0 where id = #{id}
+    </update>
+
+    <select id="getCountByDate" resultType="integer">
+        SELECT COUNT(*)
+        FROM `scm_apply_purchase`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(NOW(), '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <select id="getCountByDateV2" resultType="integer">
+        SELECT COUNT(*)
+        FROM `scm_apply_purchase`
+        WHERE pass_parent_id IS NULL AND DATE_FORMAT(NOW(), '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d') AND serial_number = serial_number_parent
+    </select>
+
+    <select id="selectApplyPurchaseList" resultType="com.hzchum.scim.scm.core.api.pojo._do.ApplyPurchase">
+        select sap.*
+        FROM scm_apply_purchase sap
+        <where>
+            bool_delete_enum = 0 and enabled = 1
+            and data_status = 2
+            <if test="times != null and times.size > 0">
+                <if test="times[0] != null">
+                    and sap.create_time &gt; #{times[0]}
+                </if>
+                <if test="times[1] != null">
+                    and sap.create_time &lt; #{times[1]}
+                </if>
+            </if>
+            <if test="materialType != null and materialType != ''">
+                and #{materialType} &amp; sap.material_type
+            </if>
+            <if test="purchaseCreationState != null and purchaseCreationState != ''">
+                and purchase_creation_state = #{purchaseCreationState}
+            </if>
+            <if test="level !=null">
+                and sap.level = #{level}
+            </if>
+            <if test="projectAttribute !=null and projectAttribute != ''">
+                and (find_in_set(#{projectAttribute},sap.project_attribute) or sap.project_attribute is NUll or sap.project_attribute = '')
+            </if>
+            <if test="branchCompanyId != null and branchCompanyId != ''">
+                and sap.branch_company_id = #{branchCompanyId}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                and FIND_IN_SET(#{projectId}, project_ids)
+            </if>
+        </where>
+
+    </select>
+    <select id="selectCountBySerialNumberParent" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `scm_apply_purchase`
+        WHERE serial_number_parent = #{serialNumberParent}
+    </select>
+    <select id="selectApplyPurchaseManufacturedList"
+            resultType="com.hzchum.scim.scm.core.api.pojo.dto.BriefIdAndSNDTO">
+        select
+            id  id,
+            serial_number  serialNumber,
+            purchase_creation_state  purchaseCreationState
+        FROM scm_apply_purchase
+        <where>
+            bool_delete_enum = 0 and `enabled` = 1
+            and `type` = 8
+            and data_status = 2
+            <if test="materialType != null and materialType != ''">
+                and #{materialType} &amp; material_type
+            </if>
+            <if test="projectId != null and projectId != ''">
+                and find_in_set(project_ids,#{projectId})
+            </if>
+            <if test="branchCompanyId != null and branchCompanyId != ''">
+                and branch_company_id = #{branchCompanyId}
+            </if>
+        </where>
+    </select>
+    <select id="getByIdAll" resultType="com.hzchum.scim.scm.core.api.pojo._do.ApplyPurchase">
+        select * from scm_apply_purchase where id = #{id}
+    </select>
+</mapper>

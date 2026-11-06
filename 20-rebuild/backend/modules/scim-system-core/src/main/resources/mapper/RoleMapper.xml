@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.RoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.Role">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_default" property="isDefault"/>
+        <result column="name" property="name"/>
+        <result column="permission" property="permission"/>
+        <result column="remark" property="remark"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,update_time,bool_delete_enum,version,
+        id, is_default, name, permission, remark
+    </sql>
+
+    <select id="listByUserId" resultType="com.hzchum.scim.system.core.api.pojo._do.Role">
+        SELECT r.*
+        FROM `sys_user_role_link` url
+                 INNER JOIN sys_role r ON url.role_id = r.id
+        WHERE url.user_id = #{userId}
+          and url.bool_delete_enum = 0
+          and r.bool_delete_enum = 0
+
+    </select>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.system.core.api.pojo.dto.RoleDTO">
+        SELECT *
+        FROM sys_role
+        WHERE bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            and name LIKE concat('%',#{name},'%')
+        </if>
+        order by sort, id
+    </select>
+
+</mapper>

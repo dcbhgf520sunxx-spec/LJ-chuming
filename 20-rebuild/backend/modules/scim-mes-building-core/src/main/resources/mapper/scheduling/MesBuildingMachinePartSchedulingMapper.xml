@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingMachinePartSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingMachinePartScheduling">
+        <id column="id" property="id"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="quantity" property="quantity"/>
+        <result column="status" property="status"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum
+        ,
+        create_time,
+        update_time,
+        version,
+        id, area_id, ask_complete_time , issue_status,  product_id,   quantity, status, user_id , lay_way_config_id
+    </sql>
+    <select id="getMachinePartSchedulingRecordList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingMachinePartSchedulingDO">
+        SELECT
+            scheduling.id,
+            scheduling.order_number,
+            scheduling.quantity,
+            DATE(scheduling.create_time) date,
+            scheduling.thick,
+            scheduling.material,
+            scheduling.total_net_weight,
+            scheduling.issue_status_enum,
+            scheduling.user_id,
+            u.name AS userName,
+            scheduling.nesting_time,
+            scheduling.cut_config_id,
+            scheduling.bool_nest_cut_enum,
+            cut.name AS cutConfigName
+        FROM mes_building_machine_part_scheduling scheduling
+        LEFT JOIN sys_user u on u.id = scheduling.user_id
+        LEFT JOIN mes_building_cut_config cut on cut.id = scheduling.cut_config_id
+        WHERE scheduling.bool_delete_enum = 0
+        <if test="dateTime != null">
+            AND DATE_FORMAT(scheduling.create_time, '%Y-%m') = DATE_FORMAT(#{dateTime}, '%Y-%m')
+        </if>
+        <if test="issueStatusEnum != null">
+            AND scheduling.issue_status_enum &amp; #{issueStatusEnum} > 0
+        </if>
+        ORDER BY scheduling.issue_status_enum ASC, scheduling.create_time DESC
+    </select>
+    <select id="passDeleteCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            mes_building_machine_part_scheduling
+        WHERE
+            date( create_time )= date(#{now})
+    </select>
+    <select id="listNeedSchedulingMonth" resultType="java.lang.String">
+        SELECT DISTINCT
+            DATE_FORMAT( ask_complete_time, '%Y-%m' )
+        FROM
+            mes_building_task_need_machine_part_scheduling
+        WHERE
+            bool_delete_enum = 0
+          AND need_quantity > scheduling_quantity
+        <if test="workshopId != null">
+            AND workshop_id = #{workshopId}
+        </if>
+    </select>
+
+    <select id="listNeedSchedulingMonthTwo" resultType="java.lang.String">
+        SELECT
+            DATE_FORMAT( need.ask_complete_time, '%Y-%m' )
+        FROM
+        mes_building_task_need_machine_part_scheduling need
+        LEFT JOIN tech_machine_part machine_part ON machine_part.id = need.product_id and machine_part.bool_delete_enum = 0
+        WHERE
+        need.bool_delete_enum = 0
+        <if test="sendStatus != null">
+            AND need.send_nesting_status = #{sendStatus}
+        </if>
+        <if test="workshopIds != null">
+            AND need.workshop_id  in
+            <foreach collection="workshopIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="steelPlateTypeEnum">
+            AND machine_part.steel_plate_type_enum in
+            <foreach collection="steelPlateTypeEnum" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY DATE_FORMAT( need.ask_complete_time, '%Y-%m' )
+        <if test="sendStatus != null and !sendStatus">
+        HAVING SUM(need.need_quantity - need.scheduling_quantity) > 0
+        </if>
+    </select>
+
+    <select id="listNeedSchedulingParts"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingParNeedSchedulingDTO">
+        SELECT
+        a.product_id AS id,
+        a.project_id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        a.monomer_id 'monomer.id',
+        mon.`name` 'monomer.name',
+        a.area_id 'area.id',
+        area.`name` 'area.name',
+        a.workshop_id 'workshop.id',
+        shop.`name` 'workshop.name',
+        a.production_line_id 'productionLine.id',
+        line.`name` 'productionLine.name',
+        a.groups_id 'group.name',
+        bgroups.`name` 'group.name',
+        a.quantity 'quantity',
+        par.net_weight 'netWeight',
+        a.quantity * par.net_weight 'totalNetWeight',
+        par.gross_weight 'grossWeight',
+        par.relation_type 'relationType',
+        par.material 'material',
+        par.serial_number 'serialNumber',
+        par.name 'name',
+        par.specification 'specification',
+        par.length 'length',
+        par.thick 'thick',
+        if(draw.picture_path!=null,1,0),
+        a.quantity * par.gross_weight 'totalGrossWeight',
+        draw.picture_path 'picturePath',
+        a.maxAskCompleteTime 'maxAskCompleteTime',
+        a.minAskCompleteTime 'minAskCompleteTime'
+        FROM (
+        SELECT need.project_id,
+        need.monomer_id,
+        need.area_id,
+        need.workshop_id,
+        need.production_line_id,
+        need.groups_id,
+        need.product_id ,
+        SUM(need.need_quantity - need.scheduling_quantity) quantity,
+        MAX(ask_complete_time) 'maxAskCompleteTime',
+        MIN(ask_complete_time) 'minAskCompleteTime'
+        FROM mes_building_task_need_machine_part_scheduling need
+        WHERE need.bool_delete_enum = 0
+        AND need.need_quantity > need.scheduling_quantity
+        <if test="projectIds!=null and projectIds.size()!=0">
+            AND need.project_id IN
+            <foreach collection="projectIds" separator="," item="projectId" open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="monomerIds!=null and monomerIds.size()!=0">
+            AND need.monomer_id IN
+            <foreach collection="monomerIds" separator="," item="monomerId" open="(" close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        <if test="areaIds!=null and areaIds.size()!=0">
+            AND need.area_id IN
+            <foreach collection="areaIds" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monthList!=null and monthList.size()!=0">
+            AND DATE_FORMAT(need.ask_complete_time, '%Y-%m') IN
+            <foreach collection="monthList" separator="," item="month" open="(" close=")">
+                DATE_FORMAT( #{month}, '%Y-%m' )
+            </foreach>
+        </if>
+        <if test="workshopIds!=null and workshopIds.size()!=0">
+            AND need.workshop_id IN
+            <foreach collection="workshopIds" separator="," item="shopId" open="(" close=")">
+                #{shopId}
+            </foreach>
+        </if>
+        <if test="productionLineIds!=null and productionLineIds.size()!=0">
+            AND need.production_line_id IN
+            <foreach collection="productionLineIds" separator="," item="lineId" open="(" close=")">
+                #{lineId}
+            </foreach>
+        </if>
+        <if test="groupsIds!=null and groupsIds.size()!=0">
+            AND need.groups_id IN
+            <foreach collection="groupsIds" separator="," item="groupsId" open="(" close=")">
+                #{groupsId}
+            </foreach>
+        </if>
+        GROUP BY
+        need.product_id ,
+        need.project_id,
+        need.monomer_id,
+        need.area_id,
+        need.workshop_id,
+        need.production_line_id,
+        need.groups_id
+        ) a
+        LEFT JOIN contract_project pro ON a.project_id = pro.id and pro.bool_delete_enum=0
+        LEFT JOIN plan_monomer mon ON a.monomer_id = mon.id and mon.bool_delete_enum=0
+        LEFT JOIN plan_area area ON a.area_id = area.id and area.bool_delete_enum=0
+        LEFT JOIN mes_building_workshop shop ON a.workshop_id = shop.id and shop.bool_delete_enum=0
+        LEFT JOIN mes_building_production_line line ON a.production_line_id = line.id and line.bool_delete_enum=0
+        LEFT JOIN mes_building_groups bgroups ON a.groups_id = bgroups.id and bgroups.bool_delete_enum=0
+        LEFT JOIN tech_machine_part par ON a.product_id = par.id and par.bool_delete_enum=0
+        LEFT JOIN tech_drawing draw ON par.monomer_id = draw.monomer_id and draw.bool_delete_enum=0
+        AND par.serial_number = draw.serial_number
+        AND draw.data_type = 2 AND draw.product_type = 1
+        where 1=1
+        <if test="taskTypeEnum!=null">
+            AND par.relation_type&amp;#{taskTypeEnum}
+        </if>
+        <if test="material!=null">
+            AND par.material=#{material}
+        </if>
+        <if test="thicks!=null">
+            AND par.thick in
+            <foreach collection="thicks" separator="," item="thick" open="(" close=")">
+                #{thick}
+            </foreach>
+        </if>
+        <if test="material!=null">
+            AND par.material=#{material}
+        </if>
+        <if test="minLength!=null">
+            AND par.length>=#{minLength}
+        </if>
+        <if test="maxLength!=null">
+            AND #{maxLength}>= par.length
+        </if>
+        <if test="boolDxfEnum!=null">
+            <if test="boolDxfEnum">
+                AND draw.picture_path is NOT NULL
+            </if>
+            <if test="!boolDxfEnum">
+                AND draw.picture_path is NULL
+            </if>
+        </if>
+    </select>
+
+    <select id="listNeedSchedulingPartsForNesting"
+      resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingParNeedSchedulingDTO">
+        SELECT
+        a.project_id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        a.monomer_id 'monomer.id',
+        mon.`name` 'monomer.name',
+        a.area_id 'area.id',
+        area.`name` 'area.name',
+        a.workshop_id 'workshop.id',
+        shop.`name` 'workshop.name',
+        a.production_line_id 'productionLine.id',
+        line.`name` 'productionLine.name',
+        a.groups_id 'group.name',
+        bgroups.`name` 'group.name',
+        a.quantity 'quantity',
+        par.net_weight 'netWeight',
+        a.quantity * par.net_weight 'totalNetWeight',
+        par.gross_weight 'grossWeight',
+        par.relation_type 'relationType',
+        par.material 'material',
+        par.serial_number 'serialNumber',
+        par.name 'name',
+        par.specification 'specification',
+        par.length 'length',
+        par.thick 'thick',
+        if(draw.picture_path!=null,1,0),
+        a.quantity * par.gross_weight 'totalGrossWeight',
+        draw.picture_path 'picturePath',
+        a.maxAskCompleteTime 'maxAskCompleteTime',
+        a.minAskCompleteTime 'minAskCompleteTime'
+        FROM (
+        SELECT need.project_id,
+        need.monomer_id,
+        need.area_id,
+        need.workshop_id,
+        need.production_line_id,
+        need.groups_id,
+        need.product_id ,
+        SUM(need.need_quantity - need.scheduling_quantity) quantity,
+        MAX(ask_complete_time) 'maxAskCompleteTime',
+        MIN(ask_complete_time) 'minAskCompleteTime'
+        FROM mes_building_task_need_machine_part_scheduling need
+        WHERE need.bool_delete_enum = 0
+        AND need.need_quantity > need.scheduling_quantity
+        <if test="projectIds!=null and projectIds.size()!=0">
+            AND need.project_id IN
+            <foreach collection="projectIds" separator="," item="projectId" open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="monomerIds!=null and monomerIds.size()!=0">
+            AND need.monomer_id IN
+            <foreach collection="monomerIds" separator="," item="monomerId" open="(" close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        <if test="areaIds!=null and areaIds.size()!=0">
+            AND need.area_id IN
+            <foreach collection="areaIds" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monthList!=null and monthList.size()!=0">
+            AND DATE_FORMAT(need.ask_complete_time, '%Y-%m') IN
+            <foreach collection="monthList" separator="," item="month" open="(" close=")">
+                DATE_FORMAT( #{month}, '%Y-%m' )
+            </foreach>
+        </if>
+        <if test="workshopIds!=null and workshopIds.size()!=0">
+            AND need.workshop_id IN
+            <foreach collection="workshopIds" separator="," item="shopId" open="(" close=")">
+                #{shopId}
+            </foreach>
+        </if>
+        <if test="productionLineIds!=null and productionLineIds.size()!=0">
+            AND need.production_line_id IN
+            <foreach collection="productionLineIds" separator="," item="lineId" open="(" close=")">
+                #{lineId}
+            </foreach>
+        </if>
+        <if test="groupsIds!=null and groupsIds.size()!=0">
+            AND need.groups_id IN
+            <foreach collection="groupsIds" separator="," item="groupsId" open="(" close=")">
+                #{groupsId}
+            </foreach>
+        </if>
+        GROUP BY
+        need.product_id ,
+        need.project_id,
+        need.monomer_id,
+        need.area_id,
+        need.workshop_id,
+        need.production_line_id,
+        need.groups_id
+        ) a
+        LEFT JOIN contract_project pro ON a.project_id = pro.id and pro.bool_delete_enum=0
+        LEFT JOIN plan_monomer mon ON a.monomer_id = mon.id and mon.bool_delete_enum=0
+        LEFT JOIN plan_area area ON a.area_id = area.id and area.bool_delete_enum=0
+        LEFT JOIN mes_building_workshop shop ON a.workshop_id = shop.id and shop.bool_delete_enum=0
+        LEFT JOIN mes_building_production_line line ON a.production_line_id = line.id and line.bool_delete_enum=0
+        LEFT JOIN mes_building_groups bgroups ON a.groups_id = bgroups.id and bgroups.bool_delete_enum=0
+        LEFT JOIN tech_machine_part par ON a.product_id = par.id and par.bool_delete_enum=0
+        LEFT JOIN tech_drawing draw ON par.monomer_id = draw.monomer_id and draw.bool_delete_enum=0
+        AND par.serial_number = draw.serial_number
+        AND draw.data_type = 2 AND draw.product_type = 1
+        where 1=1
+        <if test="taskTypeEnum!=null">
+            AND par.relation_type&amp;#{taskTypeEnum}
+        </if>
+        <if test="serialNumber!=null">
+            AND par.steel_plate_type_enum=#{steelPlateTypeEnum}
+        </if>
+        <if test="material!=null">
+            AND par.material=#{material}
+        </if>
+        <if test="thicks!=null">
+            AND par.thick in
+            <foreach collection="thicks" separator="," item="thick" open="(" close=")">
+                #{thick}
+            </foreach>
+        </if>
+        <if test="material!=null">
+            AND par.material=#{material}
+        </if>
+        <if test="minLength!=null">
+            AND par.length>=#{minLength}
+        </if>
+        <if test="maxLength!=null">
+            AND #{maxLength}>= par.length
+        </if>
+        <if test="boolDxfEnum!=null">
+            <if test="boolDxfEnum">
+                AND draw.picture_path is NOT NULL
+            </if>
+            <if test="!boolDxfEnum">
+                AND draw.picture_path is NULL
+            </if>
+        </if>
+    </select>
+
+</mapper>

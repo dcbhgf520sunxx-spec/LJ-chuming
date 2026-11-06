@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ProjectInspectionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.ProjectInspection">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="name" property="name" />
+        <result column="status" property="status" />
+        <result column="point" property="point" />
+        <result column="point_name" property="pointName" />
+        <result column="around_radius" property="aroundRadius" />
+        <result column="attachment_id" property="attachmentId" />
+        <result column="create_user_id" property="createUserId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, name, status, is_deleted, point, point_name, around_radius, attachment_id, create_user_id
+    </sql>
+    <select id="getInspectionList"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.safety.inspection.ProjectInspectionDTO">
+        select
+        pi.*,
+        piul.`sort_number` sortNumber
+        from project_inspection as pi
+        left join project_inspection_user_link as piul on pi.id = piul.project_inspection_id and piul.bool_delete_enum = 0
+        left join project_inspection_user as piu on piul.project_inspection_user_id = piu.id and piu.bool_delete_enum = 0
+        <where>
+            and piu.id = #{inspectionUserId}
+            and pi.bool_delete_enum = 0
+            <if test="inspectionIds != null and  inspectionIds.size() > 0">
+                and pi.id in
+                <foreach collection="inspectionIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

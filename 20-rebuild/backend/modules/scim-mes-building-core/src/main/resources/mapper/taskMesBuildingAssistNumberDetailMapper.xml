@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingAssistNumberDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssistNumberDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="assist_id" property="assistId" />
+        <result column="task_process_id" property="taskProcessId" />
+        <result column="groups_id" property="groupsId" />
+        <result column="user_id" property="userId" />
+        <result column="number" property="number" />
+        <result column="bool_finish_enum" property="boolFinishEnum" />
+        <result column="process_id" property="processId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, assist_id, task_process_id, groups_id, user_id, number, bool_finish_enum, process_id
+    </sql>
+    <select id="listAssistDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssistNumberDetail">
+        SELECT
+        *
+        FROM
+        mes_building_assist_number_detail
+        WHERE
+        <if test="numberInfoDTOS!=null and numberInfoDTOS.size() != 0">
+            <foreach collection="numberInfoDTOS" item="numberInfo" separator="or" open="(" close=")">
+                ( product_id= #{numberInfo.productId}
+                and number=#{numberInfo.number})
+            </foreach>
+        </if>
+        and bool_delete_enum = 0
+        and task_type=#{taskType}
+    </select>
+
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftProductWeldTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftProductWeldTask">
+        <id column="id" property="id" />
+        <result column="tech_capp_craft_product_task_id" property="techCappCraftProductTaskId" />
+        <result column="tech_capp_product_task_work_type" property="techCappProductTaskWorkType" />
+        <result column="welding_serial_number" property="weldingSerialNumber" />
+        <result column="tech_capp_craft_card_storehouse_id" property="techCappCraftCardStorehouseId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tech_capp_craft_product_task_id, tech_capp_product_task_work_type, welding_serial_number, tech_capp_craft_card_storehouse_id
+    </sql>
+
+</mapper>

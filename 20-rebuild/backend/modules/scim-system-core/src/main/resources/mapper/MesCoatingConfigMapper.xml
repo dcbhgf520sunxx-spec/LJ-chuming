@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesCoatingConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesCoatingConfig">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact_classification" property="artifactClassification"/>
+        <result column="paint_type" property="paintType"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="price" property="price"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, artifact_classification, paint_type, measurement_manner, price, status
+    </sql>
+
+    <select id="artifactClassificationIsExist" resultType="java.lang.Boolean">
+        SELECT
+        COUNT(0) > 0
+        FROM mes_coating_config
+        <where>
+            bool_delete_enum = FALSE
+            <if test="id != null">
+                AND id &lt;> #{id}
+            </if>
+            <if test="artifactClassificationIdList != null and artifactClassificationIdList.size() > 0">
+                AND
+                <foreach collection="artifactClassificationIdList" item="i" open="(" separator="or" close=")">
+                    FIND_IN_SET(#{i}, artifact_classification) > 0
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="MesCoatingConfigDTOMap" type="com.hzchum.scim.system.core.api.pojo.dto.MesCoatingConfigDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact_classification" property="artifactClassification"/>
+        <result column="paint_type" property="paintType"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="price" property="price"/>
+        <result column="status" property="status"/>
+        <collection property="artifactClassificationIdList" ofType="Long">
+            <constructor>
+                <arg column="artifact_classification_id"/>
+            </constructor>
+        </collection>
+        <collection property="artifactClassificationNameList" ofType="String">
+            <constructor>
+                <arg column="artifact_classification_name"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesCoatingConfigDTOMap">
+        SELECT
+            mcc.id,
+            mcc.create_time,
+            mcc.update_time,
+            mcc.bool_delete_enum,
+            mcc.version,
+            mcc.artifact_classification,
+            mcc.paint_type,
+            mcc.measurement_manner,
+            mcc.price,
+            mcc.status,
+            mac.id             AS artifact_classification_id,
+            mac.classification AS artifact_classification_name
+        FROM mes_coating_config mcc
+        LEFT JOIN mes_artifact_classification mac ON FIND_IN_SET(mac.id, mcc.artifact_classification)
+        WHERE mcc.bool_delete_enum = FALSE
+    </select>
+
+    <select id="detailById" resultMap="MesCoatingConfigDTOMap">
+        SELECT
+            mcc.id,
+            mcc.create_time,
+            mcc.update_time,
+            mcc.bool_delete_enum,
+            mcc.version,
+            mcc.artifact_classification,
+            mcc.paint_type,
+            mcc.measurement_manner,
+            mcc.price,
+            mcc.status,
+            mac.id             AS artifact_classification_id,
+            mac.classification AS artifact_classification_name
+        FROM mes_coating_config mcc
+        LEFT JOIN mes_artifact_classification mac ON FIND_IN_SET(mac.id, mcc.artifact_classification)
+        WHERE mcc.bool_delete_enum = FALSE AND mcc.id = #{id}
+    </select>
+
+</mapper>

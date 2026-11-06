@@ -1,0 +1,3487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.cargoList.MesBuildingCargoListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.cargoList.MesBuildingCargoList">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="project_id" property="projectId"/>
+        <result column="supplier_price_id" property="supplierPriceId"/>
+        <result column="product_type" property="productType"/>
+        <result column="manufacture_type" property="manufactureType"/>
+        <result column="license_plate" property="licensePlate"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="driver_phone" property="driverPhone"/>
+        <result column="user_id" property="userId"/>
+        <result column="total_net_weight" property="totalNetWeight"/>
+        <result column="total_groess_weight" property="totalGrossWeight"/>
+        <result column="actual_weight" property="actualWeight"/>
+        <result column="actual_user_id" property="actualUserId"/>
+        <result column="actual_time" property="actualTime"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="status" property="status"/>
+        <result column="receipt_name" property="receiptName"/>
+        <result column="receipt_phone" property="receiptPhone"/>
+        <result column="audit_receipt_name" property="auditReceiptName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, project_id, project_settlement_type, supplier_price_id, product_type, manufacture_type, license_plate, driver_name, driver_phone, user_id, total_net_weight, total_groess_weight, actual_weight, actual_user_id, actual_time, audit_user_id, audit_time, status, send_time, receipt_name, receipt_phone, audit_receipt_name, audit_receipt_phone, receipt_time, price
+    </sql>
+    <select id="getProjectId" resultType="java.lang.Long">
+        SELECT
+        project_id
+        FROM
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">tech_artifact</if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">tech_enclosure</if>
+        WHERE
+        id =#{productId}
+    </select>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.CargoListDO">
+        select c.*,
+        c.create_time loadingTime,
+        c.empty_cars,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        p.business_type 'project.business_type',
+        p.customer_unit AS receipt_unit,
+        s.`id` 'supplier.id',
+        s.`name` 'supplier.name',
+        c.`price` 'supplier.price',
+        c.shipment_status 'shipmentStatus',
+        c.remark 'remark',
+        sp.`price_type` 'supplier.price_type',
+        CASE c.structure_measure_mode
+        WHEN 1 THEN
+        c.total_net_weight
+        ELSE
+        c.actual_weight
+        END mete
+        from mes_building_cargo_list c
+        left join contract_project p on p.id = c.project_id
+        left join mes_building_supplier_price sp on sp.id = c.supplier_price_id
+        left join scm_supplier s on s.id = sp.supplier_id
+        <where>
+            and c.bool_delete_enum = 0
+            <if test="projectId != null">
+                and c.project_id = #{projectId}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND (c.project_id in
+                <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+                or c.project_id is null)
+            </if>
+            <if test="priceType != null">
+                and c.price_type = #{priceType}
+            </if>
+            <if test="supplierPriceId != null">
+                and c.supplier_price_id = #{supplierPriceId}
+            </if>
+            <if test="manufactureType != null">
+                and c.manufacture_type = #{manufactureType}
+            </if>
+            <if test="status != null">
+                and c.status &amp; #{status} > 0
+            </if>
+            <choose>
+                <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                    <if test="serialNumber != null and serialNumber != ''">
+                        and c.serial_number = #{#{serialNumber}}
+                    </if>
+                    <if test="supplierName != null and supplierName != ''">
+                        and s.`name` = #{supplierName}
+                    </if>
+                    <if test="licensePlate != null and licensePlate != ''">
+                        and c.license_plate = #{licensePlate}
+                    </if>
+                    <if test="actualUserName != null and actualUserName != ''">
+                        and c.actual_user_name = #{actualUserName}
+                    </if>
+                    <if test="driverName != null and driverName != ''">
+                        and c.driver_name = #{driverName}
+                    </if>
+                    <if test="userName != null and userName != ''">
+                        and c.user_name = #{userName}
+                    </if>
+                    <if test="receiptName != null and receiptName != ''">
+                        and c.receipt_name = #{receiptName}
+                    </if>
+                    <if test="auditReceiptName != null and auditReceiptName != ''">
+                        and c.audit_receipt_name = #{auditReceiptName}
+                    </if>
+                    <if test="auditUserName != null and auditUserName != ''">
+                        and c.audit_user_name = #{auditUserName}
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="serialNumber != null and serialNumber != ''">
+                        and c.serial_number like CONCAT('%',#{serialNumber},'%')
+                    </if>
+                    <if test="supplierName != null and supplierName != ''">
+                        and s.`name` like CONCAT('%',#{supplierName},'%')
+                    </if>
+                    <if test="licensePlate != null and licensePlate != ''">
+                        and c.license_plate like CONCAT('%',#{licensePlate},'%')
+                    </if>
+                    <if test="actualUserName != null and actualUserName != ''">
+                        and c.actual_user_name like CONCAT('%',#{actualUserName},'%')
+                    </if>
+                    <if test="driverName != null and driverName != ''">
+                        and c.driver_name like CONCAT('%',#{driverName},'%')
+                    </if>
+                    <if test="userName != null and userName != ''">
+                        and c.user_name like CONCAT('%',#{userName},'%')
+                    </if>
+                    <if test="receiptName != null and receiptName != ''">
+                        and c.receipt_name like CONCAT('%',#{receiptName},'%')
+                    </if>
+                    <if test="auditReceiptName != null and auditReceiptName != ''">
+                        and c.audit_receipt_name like CONCAT('%',#{auditReceiptName},'%')
+                    </if>
+                    <if test="auditUserName != null and auditUserName != ''">
+                        and c.audit_user_name like CONCAT('%',#{auditUserName},'%')
+                    </if>
+                </otherwise>
+            </choose>
+
+            <if test="productType != null">
+                and c.product_type &amp; #{productType} > 0
+            </if>
+<!--            <if test="productType != null and productType == 1">-->
+<!--                and c.product_type &amp; 17-->
+<!--            </if>-->
+            <if test="category != null">
+                and c.category = #{category}
+            </if>
+            <if test="deliveryStatus != null">
+                and c.delivery_status = #{deliveryStatus}
+            </if>
+            <if test="shipmentStatus != null">
+                and c.shipment_status = #{shipmentStatus}
+            </if>
+            <if test="statusUpdateStartDate != null">
+                and date(c.status_update_date) >= date(#{statusUpdateStartDate})
+            </if>
+            <if test="statusUpdateEndDate != null">
+                and date(c.status_update_date) &lt;= date(#{statusUpdateEndDate})
+            </if>
+            <if test="actualEndDate != null">
+                and date(c.actual_time) &lt;= date(#{actualEndDate})
+            </if>
+            <if test="startDate != null">
+                and date(c.create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(c.create_time) &lt;= date(#{endDate})
+            </if>
+            <if test="actualStartDate != null">
+                and date(c.actual_time) >= date(#{actualStartDate})
+            </if>
+            <if test="actualEndDate != null">
+                and date(c.actual_time) &lt;= date(#{actualEndDate})
+            </if>
+
+            <if test="auditStartDate != null">
+                and date(c.audit_time) >= date(#{auditStartDate})
+            </if>
+            <if test="auditEndDate != null">
+                and date(c.audit_time) &lt;= date(#{auditEndDate})
+            </if>
+
+            <if test="auditReceiptStartDate != null">
+                and date(c.audit_receipt_time) >= date(#{auditReceiptStartDate})
+            </if>
+            <if test="auditReceiptEndDate != null">
+                and date(c.audit_receipt_time) &lt;= date(#{auditReceiptEndDate})
+            </if>
+            <if test="ids != null and ids.size() > 0">
+                AND c.id IN
+                <foreach collection="ids" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by c.create_time DESC
+    </select>
+    <select id="countShipByProjectId" resultType="java.lang.Integer">
+        select count(*)
+        from mes_building_cargo_list
+        WHERE audit_time IS NOT NULL
+          and project_id = #{projectId}
+    </select>
+
+    <select id="countShipByProjectIdV2" resultType="java.lang.String">
+        select serial_number
+        from mes_building_cargo_list
+        WHERE audit_time IS NOT NULL
+          and project_id = #{projectId}
+    </select>
+    <select id="sumShipmentQuantityGroupByDate"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ShipQuantityGroupByDateDO">
+        select date_format(audit_time, '%Y-%m-%d') date,count(*) quantity
+        from mes_building_cargo_list
+        WHERE bool_delete_enum = 0 and audit_time IS NOT NULL
+        AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="month != null and month != ''">
+            and date_format(audit_time, '%Y-%m') = #{month}
+        </if>
+        group by date
+    </select>
+
+    <select id="selectCargoFeeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListDTO">
+        SELECT
+        p.id AS project_id,
+        p.name as project_name,
+        p.short_name,
+        p.serial_number,
+        sp.supplier_id,
+        ss.`name` AS supplier_name,
+        sum(c.total_price) AS freight
+        FROM
+        mes_building_cargo_list AS c
+        INNER JOIN mes_building_supplier_price AS sp ON sp.id = c.supplier_price_id
+        LEFT JOIN contract_project AS p ON p.id = c.project_id
+        LEFT JOIN scm_supplier AS ss ON sp.supplier_id = ss.id
+        AND ss.bool_delete_enum = 0
+        WHERE c.bool_delete_enum = 0 and c.delivery_status = 1
+        <if test="supplierId != null and supplierId != 0">
+            AND sp.supplier_id = #{supplierId}
+        </if>
+        <if test="supplierId == null or supplierId == 0">
+            AND sp.supplier_id IS NULL
+        </if>
+        <if test="branchCompanyId != null">
+            AND p.contract_sign_body_id = #{branchCompanyId}
+        </if>
+        GROUP BY
+        p.id,
+        p.NAME,
+        sp.supplier_id,
+        ss.`name`
+    </select>
+
+    <select id="selectFeeSum" resultType="java.math.BigDecimal">
+        SELECT IFNULL(sum(c.total_price), 0) AS freight
+        FROM mes_building_cargo_list AS c
+        INNER JOIN mes_building_supplier_price AS sp ON sp.id = c.supplier_price_id AND c.bool_delete_enum = 0
+        WHERE c.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND c.project_id = #{projectId}
+        </if>
+        <if test="supplierId != null and supplierId != 0">
+            AND sp.supplier_id = #{supplierId}
+        </if>
+        <if test="supplierId == null or supplierId == 0">
+            AND sp.supplier_id IS NULL
+        </if>
+        <if test="startDate != null">
+            AND c.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND c.create_time &lt;= #{endDate}
+        </if>
+
+
+    </select>
+
+    <resultMap id="BimResultMap" type="com.hzchum.scim.common.core.api.pojo.vo.BimLogisticsVO">
+        <id column="id" property="id"/>
+        <result column="id" property="id"/>
+        <result column="serialNumber" property="serialNumber"/>
+        <result column="license_plate" property="licensePlate"/>
+        <result column="audit_time" property="auditTime"/>
+        <collection property="bimLogisticsLinkVOList"
+                    ofType="com.hzchum.scim.common.core.api.pojo.vo.BimLogisticsLinkVO">
+            <result property="id" column="linkId"/>
+            <result property="name" column="name"/>
+            <result property="serialNumber" column="productNumber"/>
+            <result property="quantity" column="quantity"/>
+        </collection>
+    </resultMap>
+
+    <select id="getArtifactLogisticsByBim" resultMap="BimResultMap">
+        SELECT mbcl.`id`,
+        mbcl.license_plate,-- 车牌号
+        mbcl.serial_number AS serialNumber, -- 车次
+        mbcl.audit_time, -- 发运时间
+        b.`id`             AS linkId, -- id
+        b.`name`, -- 产品名称
+        b.`serial_number`  AS productNumber, -- 产品编号
+        b.`quantity` -- 发运数量
+        FROM mes_building_cargo_list mbcl
+        LEFT JOIN (
+        SELECT mbclpl.`id`,        -- id
+        mbclpl.`cargo_list_id`,
+        ta.`name`,          -- 产品名称
+        ta.`serial_number`, -- 产品编号
+        mbclpl.`quantity`   -- 发运数量
+        FROM tech_artifact ta
+        INNER JOIN mes_building_cargo_list_product_link mbclpl
+        ON mbclpl.`product_id` = ta.`id` AND mbclpl.`product_type` = #{productType}
+        WHERE ta.`bool_delete_enum` = 0
+        <if test="areaIds != null and areaIds.size() > 0">
+            and ta.`area_id` in
+            <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND ta.`monomer_id` = #{monomerId}
+        </if>
+        ) b ON b.cargo_list_id = mbcl.`id`
+        WHERE mbcl.`project_id` = #{projectId}
+        AND mbcl.`bool_delete_enum` = 0
+        AND mbcl.status &amp; #{status}
+        AND mbcl.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND mbcl.audit_time IS NOT NULL
+    </select>
+    <select id="cargoListGroupByMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.CargoListKpiDO">
+        SELECT
+            DATE_FORMAT(audit_time,'%Y-%m') month,
+            COUNT(*) quantity
+        FROM
+            mes_building_cargo_list
+        WHERE status &amp; 12
+        AND bool_delete_enum=0
+        AND DATE_FORMAT( audit_time, '%Y')=DATE_FORMAT( #{dateTime}, '%Y')
+        AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        GROUP BY DATE_FORMAT(audit_time,'%Y-%m')
+    </select>
+    <select id="cargoListAmountByYear" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL( sum( cargo_link.quantity * artifact.net_weight ), 0 )
+        FROM
+            mes_building_cargo_list_product_link cargo_link
+                LEFT JOIN tech_artifact artifact ON cargo_link.product_id = artifact.id
+                LEFT JOIN mes_building_cargo_list  cargo ON cargo_link.cargo_list_id=cargo.id
+        WHERE
+            cargo_link.product_type = #{productType}
+          AND cargo_link.bool_delete_enum = 0
+          AND cargo.`status` &amp; 12
+	AND DATE_FORMAT(cargo.audit_time,'%Y' )= DATE_FORMAT(#{dateTime},'%Y')
+    </select>
+    <select id="cargoListAmountByDay" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL( sum( cargo_link.quantity * artifact.net_weight ), 0 )
+        FROM
+            mes_building_cargo_list_product_link cargo_link
+                LEFT JOIN tech_artifact artifact ON cargo_link.product_id = artifact.id
+                LEFT JOIN mes_building_cargo_list  cargo ON cargo_link.cargo_list_id=cargo.id
+        WHERE
+            cargo_link.product_type = #{productType}
+          AND cargo_link.bool_delete_enum = 0
+          AND cargo.`status` &amp; 12
+          AND date(cargo.audit_time)=date(#{dateTime})
+    </select>
+    <select id="cargoListQuantityByDay" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM mes_building_cargo_list
+        WHERE `status` &amp; 12
+	AND bool_delete_enum = 0
+	AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+	AND date(audit_time)=date(#{dateTime});
+    </select>
+    <select id="stockByDay" resultType="java.math.BigDecimal">
+        SELECT
+            ( a.sum - b.sum )
+            from
+            (
+                   SELECT IFNULL(sum(cargo.quantity * artifact.net_weight), 0) sum
+                   FROM mes_building_warehouse_summary cargo
+                            LEFT JOIN tech_artifact artifact ON cargo.product_id = artifact.id
+                   WHERE cargo.product_type = #{productType}
+                     AND cargo.type = 1
+                     AND cargo.bool_delete_enum = 0
+                     AND date( cargo.create_time )&lt;= date( #{dateTime})) a ,(
+        SELECT
+            IFNULL( sum( cargo.quantity * artifact.net_weight ), 0 ) sum
+        FROM
+            mes_building_warehouse_summary cargo
+            LEFT JOIN tech_artifact artifact
+        ON cargo.product_id = artifact.id
+        WHERE
+            cargo.product_type = #{productType}
+          AND cargo.type = 2
+          AND cargo.bool_delete_enum = 0
+          AND date ( cargo.create_time ) &lt;= date ( #{dateTime})) b;
+    </select>
+    <select id="cargoListAmountGroupByMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.CargoListKpiDO">
+        SELECT DATE_FORMAT(cargo.create_time, '%Y-%m') month,
+               IFNULL(sum(cargo.quantity * artifact.net_weight), 0) amount
+        FROM mes_building_warehouse_summary cargo
+                 LEFT JOIN tech_artifact artifact ON cargo.product_id = artifact.id
+        WHERE cargo.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+          AND cargo.type = 2
+          AND cargo.bool_delete_enum = 0
+          AND DATE_FORMAT(cargo.create_time, '%Y') = DATE_FORMAT(#{dateTime}, '%Y')
+        GROUP BY DATE_FORMAT(cargo.create_time, '%Y-%m')
+    </select>
+    <select id="carModelByYear" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.CarModleKpiDO">
+        SELECT car_model model,
+               COUNT(*)  quantity
+        FROM mes_building_cargo_list
+        WHERE `status` &amp; 12  AND DATE_FORMAT(create_time,'%Y')=DATE_FORMAT(#{dateTime}
+            , '%Y')
+        AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        GROUP BY
+            car_model
+        ORDER BY
+            car_model*1 ASC
+    </select>
+    <select id="projectCargoListByYear"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProjectCargoListKpiDO">
+        SELECT
+            project.id 'project.id',
+            project.`name` 'project.name',
+            project.short_name 'project.shortName',
+            project.serial_number 'project.serialNumber',
+            IFNULL(artifact.total_net_weight,0)total_net_weight,
+            IFNULL(cargo.amount,0)cargo_amount,
+            IFNULL(in_warehousing.amount,0)in_warehousing_amount,
+            IFNULL(in_warehousing.amount-cargo.amount,0)stock
+        FROM
+            contract_project project
+                LEFT JOIN (	SELECT project_id,sum(net_weight*quantity) total_net_weight FROM tech_artifact GROUP BY project_id )as artifact ON artifact.project_id=project.id
+                LEFT JOIN(
+                SELECT
+                    cargo.project_id,
+                    IFNULL( sum( cargo_link.quantity * artifact.net_weight ), 0 ) amount
+                FROM
+                    mes_building_cargo_list_product_link cargo_link
+                        LEFT JOIN tech_artifact artifact ON cargo_link.product_id = artifact.id
+                        LEFT JOIN mes_building_cargo_list cargo ON cargo_link.cargo_list_id = cargo.id
+                WHERE
+                    cargo_link.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                  AND cargo_link.bool_delete_enum = 0
+                  AND cargo.`status` &amp; 12
+                GROUP BY cargo.project_id
+                )as cargo ON cargo.project_id=project.id
+                LEFT JOIN(
+                SELECT
+                    cargo.project_id,
+                    IFNULL( sum( cargo.quantity * artifact.net_weight ), 0 ) amount
+                FROM
+                    mes_building_warehouse_summary cargo
+                        LEFT JOIN tech_artifact artifact ON cargo.product_id = artifact.id
+                WHERE
+                    cargo.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                  AND cargo.type = 1
+                  AND cargo.bool_delete_enum = 0
+                GROUP BY cargo.project_id
+            )as in_warehousing ON in_warehousing.project_id=project.id
+        WHERE
+                DATE_FORMAT(project.create_time,'%Y')=
+                DATE_FORMAT(#{dateTime},'%Y')
+          AND artifact.total_net_weight!=cargo.amount
+          AND project.bool_delete_enum = 0
+        ORDER BY stock DESC
+    </select>
+    <select id="projectCargoListByDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.kpi.ProjectCargoListKpiDO">
+        SELECT
+            project.id 'project.id',
+            project.`name` 'project.name',
+            project.short_name 'project.short_name',
+            project.serial_number 'project.serial_number',
+            IFNULL(cargo.amount,0)cargo_amount,
+            IFNULL(quantity_table.quantity,0)cargo_quantity
+        FROM
+            (
+                SELECT
+                    cargo.project_id,
+                    IFNULL( sum( cargo_link.quantity * artifact.net_weight ), 0 ) amount
+                FROM
+                    mes_building_cargo_list_product_link cargo_link
+                        LEFT JOIN tech_artifact artifact ON cargo_link.product_id = artifact.id
+                        LEFT JOIN mes_building_cargo_list cargo ON cargo_link.cargo_list_id = cargo.id
+                WHERE
+                    cargo_link.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                  AND cargo_link.bool_delete_enum = 0
+                  AND cargo.`status` &amp; 12
+		        AND date( cargo.audit_time )= date( #{dateTime} )
+        GROUP BY
+            cargo.project_id
+            ) AS cargo
+            LEFT JOIN ( SELECT project_id, COUNT(*) quantity FROM mes_building_cargo_list WHERE bool_delete_enum=0 and status &amp; 12  AND date(audit_time )= date( #{dateTime} )
+            AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+            GROUP BY project_id ) quantity_table ON quantity_table.project_id = cargo.project_id
+            LEFT JOIN contract_project project  ON cargo.project_id = project.id
+    </select>
+
+    <select id="selectCargoListRecord"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.cargoList.MesBuildingCargoList">
+        select distinct cl.*
+        FROM mes_building_cargo_list AS cl
+        INNER JOIN contract_project AS cp ON cl.project_id = cp.id AND cp.bool_delete_enum = 0 AND cp.business_type = 2
+        <where>
+            and cl.bool_delete_enum = 0
+            and cl.shipment_status != 2
+            <if test="startDate != null">and DATE_FORMAT(cl.create_time, '%Y-%m-%d') &gt;= #{startDate}</if>
+            <if test="endDate != null">and DATE_FORMAT(cl.create_time, '%Y-%m-%d') &lt;= #{endDate}</if>
+            <if test="projectId != null">and cl.project_id = #{projectId}</if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and cl.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="licensePlate != null and licensePlate != ''">
+                 and cl.license_plate like concat('%',#{licensePlate},'%')
+            </if>
+            <if test="driverName != null and driverName != ''">
+                and cl.driver_name like concat('%',#{driverName},'%')
+            </if>
+            <if test="userName != null and userName != ''">
+                and cl.user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="auditUserName != null and auditUserName != ''">
+                 and cl.audit_user_name like concat('%',#{auditUserName},'%')
+            </if>
+            <if test="receiptName != null and receiptName != ''">
+                 and (cl.receipt_name like concat('%',#{receiptName},'%') or cl.audit_receipt_name like concat('%',#{receiptName},'%'))
+            </if>
+            <if test="status != null">
+                and cl.status &amp; #{status} > 0
+            </if>
+            order by cl.status asc , cl.id desc
+        </where>
+    </select>
+
+    <select id="projectCargoListMeteSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProjectCargoListMeteDO">
+        SELECT
+            cp.id 'project.id',
+            cp.`name` 'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+            a.quantity,
+            a.mete,
+            a.grossMete,
+            a.send_quantity,
+            a.send_mete,
+            a.send_grossMete,
+            a.send_mete / a.mete * 100 ratio
+        FROM (
+                SELECT
+                    a.project_id,
+                    sum( quantity ) quantity,
+                    sum( a.weight ) mete,
+                    sum( a.grossWeight ) grossMete,
+                    sum( a.send_quantity ) send_quantity,
+                    sum( a.send_weight ) send_mete,
+                    sum( a.send_grossWeight ) send_grossMete
+                FROM (
+                    SELECT
+                        artifact.project_id,
+                        artifact.quantity,
+                        artifact.quantity * artifact.net_weight weight,
+                        artifact.quantity * artifact.gross_weight grossWeight,
+                        IFNULL( send.quantity, 0 ) send_quantity,
+                        IFNULL( send.quantity * artifact.net_weight, 0 ) send_weight,
+                        IFNULL( send.quantity * artifact.gross_weight, 0 ) send_grossWeight
+                    FROM
+                        tech_artifact artifact
+                    LEFT JOIN (
+                        SELECT
+                            product_id,
+                            sum( quantity ) quantity
+                        FROM
+                            mes_building_warehouse_record
+                            WHERE
+                                type = 2
+                                AND product_type = 2
+                                AND warehouse_type in(0,2)
+                                AND bool_delete_enum = 0
+                                <if test="workshopId != null">
+                                    AND workshop_id = #{workshopId}
+                                </if>
+                                <if test="type==1">
+                                    <if test="dateTime!=null">
+                                        AND DATE_FORMAT(create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                                    </if>
+                                </if>
+                                <if test="type==2">
+                                    <if test="dateTime!=null">
+                                        AND DATE_FORMAT(create_time, '%Y/%m' ) = DATE_FORMAT(#{dateTime}, '%Y/%m')
+                                    </if>
+                                </if>
+                            GROUP BY
+                                product_id
+                    ) send ON send.product_id = artifact.id
+                    WHERE
+                        artifact.bool_delete_enum = 0
+                        <if test="projectIds != null and projectIds.size() != 0">
+                            AND artifact.project_id in
+                            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                                #{projectId}
+                            </foreach>
+                        </if>
+                        <if test="productionLineTypeEnum != null">
+                            AND artifact.production_line_type_enum = #{productionLineTypeEnum}
+                        </if>
+                ) a
+        GROUP BY
+            a.project_id
+        ) a
+        LEFT JOIN contract_project cp ON a.project_id = cp.id
+        <where>
+            <if test="sendStatus == 2">
+                and a.quantity = a.send_quantity
+            </if>
+            <if test="sendStatus == 1">
+                and a.quantity > a.send_quantity
+            </if>
+            <if test="settled != null">
+                and cp.settlement_status = 1
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                AND (cp.short_name like concat('%',#{projectName},'%')
+                or cp.serial_number like concat('%',#{projectName},'%')
+                or cp.name like concat('%',#{projectName},'%'))
+            </if>
+            <if test="projectStatus != null">
+                and cp.status = #{projectStatus}
+            </if>
+        </where>
+        ORDER BY
+            ratio
+    </select>
+
+    <sql id="currentDirectShipmentSummaryProducts">
+        SELECT id, project_id, 1 AS product_type, quantity, IFNULL(net_weight,0) AS net_weight,
+               IFNULL(gross_weight,0) AS gross_weight
+        FROM tech_machine_part
+        WHERE bool_delete_enum=0 AND bool_send_directly=1 AND relation_type=2
+        UNION ALL
+        SELECT id, project_id, 16 AS product_type, quantity, IFNULL(net_weight,0) AS net_weight,
+               IFNULL(gross_weight,0) AS gross_weight
+        FROM tech_assemble
+        WHERE bool_delete_enum=0 AND bool_send_directly=1
+    </sql>
+
+    <select id="projectCargoListMeteSummaryV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProjectCargoListMeteDO">
+        SELECT
+        s1.project_id,
+        s1.`project.id`, s1.`project.name`, s1.`project.short_name`, s1.`project.serial_number`,
+        s1.warehouse_quantity, s1.warehouse_mete, s1.warehouse_gross_mete,
+        IFNULL( s2.send_quantity, 0 ) send_quantity,
+        IFNULL( s2.send_mete, 0 ) send_mete,
+        IFNULL( s2.send_gross_mete, 0 ) send_gross_mete,
+        a.quantity, a.mete, a.gross_mete
+        FROM
+        (
+        SELECT
+        s.project_id,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        (CASE cp.bool_required_warehouse WHEN 0 THEN SUM( s.quantity )
+        ELSE SUM(s.warehouse_quantity) END ) AS warehouse_quantity,
+        (CASE cp.bool_required_warehouse WHEN 0 THEN SUM( s.quantity * a.net_weight )
+        ELSE SUM(s.warehouse_quantity* a.net_weight) END ) AS warehouse_mete,
+        (CASE cp.bool_required_warehouse WHEN 0 THEN SUM( s.quantity * a.gross_weight )
+        ELSE SUM(s.warehouse_quantity * a.gross_weight) END ) AS warehouse_gross_mete
+        FROM
+        (
+        SELECT
+        s.*,
+        IFNULL( SUM( wsp.quantity ), 0 ) AS warehouse_quantity
+        FROM
+        mes_building_warehouse_summary s
+        LEFT JOIN mes_building_warehouse_storage_product AS wsp ON wsp.warehouse_summary_id = s.id
+        AND wsp.bool_delete_enum = 0
+        WHERE
+        s.bool_delete_enum = 0
+        AND s.product_type = 2
+        AND s.type = 1
+        AND s.warehouse_type IN ( 0, 2, 4 )
+        <if test="workshopId != null">
+            AND s.workshop_id = #{workshopId}
+        </if>
+        GROUP BY s.id
+        ) s
+        INNER JOIN tech_artifact a ON s.product_id = a.id
+        LEFT JOIN contract_project cp ON s.project_id = cp.id
+        WHERE
+        s.bool_delete_enum = 0
+        AND a.bool_delete_enum = 0
+        AND cp.bool_delete_enum = 0
+        AND s.product_type = 2
+        AND s.type = 1
+        AND s.warehouse_type IN ( 0, 2, 4 )
+        <if test="dateTime != null">
+            AND YEAR(cp.create_time) = YEAR(#{dateTime})
+        </if>
+        <if test="projectName != null and projectName != ''">
+            AND (cp.short_name LIKE concat('%',#{projectName},'%')
+            OR cp.serial_number LIKE concat('%',#{projectName},'%')
+            OR cp.name LIKE concat('%',#{projectName},'%'))
+        </if>
+        <if test="projectStatus != null">
+            AND cp.status = #{projectStatus}
+        </if>
+        GROUP BY
+        s.project_id
+        HAVING warehouse_quantity > 0
+        ) s1
+        LEFT JOIN (
+        SELECT
+        s.project_id,
+        SUM( s.quantity ) send_quantity,
+        SUM( s.quantity * a.net_weight ) send_mete,
+        SUM( s.quantity * ( CASE a.gross_weight WHEN 0 THEN a.net_weight ELSE a.gross_weight END ) ) send_gross_mete
+        FROM
+        mes_building_warehouse_summary s
+        INNER JOIN tech_artifact a ON s.product_id = a.id
+        WHERE
+        s.bool_delete_enum = 0
+        AND a.bool_delete_enum = 0
+        AND s.product_type = 2
+        AND s.type = 2
+        AND s.warehouse_type IN ( 0, 2, 4 )
+        GROUP BY
+        s.project_id
+        ) s2 ON s1.project_id = s2.project_id
+        INNER JOIN (
+        SELECT
+        a.project_id,
+        SUM( a.quantity ) AS quantity,
+        SUM( a.quantity * a.net_weight ) AS mete,
+        SUM( a.quantity * ( CASE a.gross_weight WHEN 0 THEN a.net_weight ELSE a.gross_weight END ) ) AS gross_mete
+        FROM
+        tech_artifact a
+        WHERE
+        a.bool_delete_enum = 0
+        GROUP BY
+        a.project_id
+        ) a ON s1.project_id = a.project_id
+        <if test="sendStatus != null and sendStatus == 1">
+            AND a.quantity > IFNULL( s2.send_quantity, 0 )
+        </if>
+        <if test="sendStatus != null and sendStatus == 2">
+            AND a.quantity = IFNULL( s2.send_quantity, 0 )
+        </if>
+        UNION ALL
+        SELECT
+        cp.id AS project_id,
+        cp.id AS 'project.id', cp.name AS 'project.name', cp.short_name AS 'project.short_name',
+        cp.serial_number AS 'project.serial_number',
+        flow.warehouse_quantity, flow.warehouse_mete, flow.warehouse_gross_mete,
+        flow.send_quantity, flow.send_mete, flow.send_gross_mete,
+        inventory.quantity, inventory.mete, inventory.gross_mete
+        FROM contract_project cp
+        INNER JOIN (
+            SELECT p.project_id, SUM(p.quantity) AS quantity,
+                   SUM(p.quantity*p.net_weight) AS mete, SUM(p.quantity*p.gross_weight) AS gross_mete
+            FROM (<include refid="currentDirectShipmentSummaryProducts"/>) p
+            GROUP BY p.project_id
+        ) inventory ON inventory.project_id=cp.id
+        INNER JOIN (
+            SELECT s.project_id,
+                   SUM(CASE WHEN s.type=1 THEN s.quantity ELSE 0 END) AS warehouse_quantity,
+                   SUM(CASE WHEN s.type=1 THEN s.quantity*p.net_weight ELSE 0 END) AS warehouse_mete,
+                   SUM(CASE WHEN s.type=1 THEN s.quantity*p.gross_weight ELSE 0 END) AS warehouse_gross_mete,
+                   SUM(CASE WHEN s.type=2 THEN s.quantity ELSE 0 END) AS send_quantity,
+                   SUM(CASE WHEN s.type=2 THEN s.quantity*p.net_weight ELSE 0 END) AS send_mete,
+                   SUM(CASE WHEN s.type=2 THEN s.quantity*p.gross_weight ELSE 0 END) AS send_gross_mete
+            FROM mes_building_warehouse_summary s
+            INNER JOIN (<include refid="currentDirectShipmentSummaryProducts"/>) p
+                ON p.id=s.product_id AND p.product_type=s.product_type AND p.project_id=s.project_id
+            WHERE s.bool_delete_enum=0 AND s.type IN(1,2) AND s.warehouse_type IN(0,2,4)
+            <if test="workshopId != null">AND s.workshop_id=#{workshopId}</if>
+            GROUP BY s.project_id
+            HAVING warehouse_quantity > 0
+        ) flow ON flow.project_id=cp.id
+        WHERE cp.bool_delete_enum=0
+        <if test="dateTime != null">AND YEAR(cp.create_time)=YEAR(#{dateTime})</if>
+        <if test="projectName != null and projectName != ''">
+            AND (cp.short_name LIKE concat('%',#{projectName},'%')
+                 OR cp.serial_number LIKE concat('%',#{projectName},'%')
+                 OR cp.name LIKE concat('%',#{projectName},'%'))
+        </if>
+        <if test="projectStatus != null">AND cp.status=#{projectStatus}</if>
+        <if test="sendStatus != null and sendStatus == 1">AND inventory.quantity > flow.send_quantity</if>
+        <if test="sendStatus != null and sendStatus == 2">AND inventory.quantity = flow.send_quantity</if>
+        AND NOT EXISTS (
+            SELECT 1
+            FROM mes_building_warehouse_summary normal
+            INNER JOIN tech_artifact parent ON parent.id=normal.product_id AND parent.bool_delete_enum=0
+            WHERE normal.project_id=cp.id AND normal.bool_delete_enum=0
+              AND normal.product_type=2 AND normal.type=1 AND normal.warehouse_type IN(0,2,4)
+            <if test="workshopId != null">AND normal.workshop_id=#{workshopId}</if>
+            GROUP BY normal.project_id
+            HAVING SUM(CASE cp.bool_required_warehouse WHEN 0 THEN normal.quantity
+                ELSE (SELECT IFNULL(SUM(nsp.quantity),0) FROM mes_building_warehouse_storage_product nsp
+                      WHERE nsp.warehouse_summary_id=normal.id AND nsp.bool_delete_enum=0) END) > 0
+        )
+        ORDER BY project_id
+    </select>
+
+
+
+    <select id="projectCargoListEnclosureProjectSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProjectCargoListEnclosureMeteDO">
+        SELECT
+            cp.id 'project.id',
+            cp.`name` 'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+            cp.project_content 'project.projectContent',
+            a.quantity,
+            a.totalLength,
+            a.totalArea,
+            a.send_quantity,
+            a.sendTotalLength,
+            a.sendTotalArea,
+            a.sendTotalLength / a.totalLength * 100 ratio
+        FROM(
+                SELECT
+                    a.project_id,
+                    sum( quantity ) quantity,
+                    sum( a.totalLength ) totalLength,
+                    sum( a.totalArea ) totalArea,
+                    sum( a.send_quantity ) send_quantity,
+                    sum( a.sendTotalLength ) sendTotalLength,
+                    sum( a.sendTotalArea ) sendTotalArea
+                FROM (
+                        SELECT
+                            enclosure.project_id,
+                            enclosure.quantity,
+                            enclosure.quantity * enclosure.length totalLength,
+                            enclosure.quantity * enclosure.surface_area totalArea,
+                            IFNULL( send.quantity, 0 ) send_quantity,
+                            IFNULL( send.quantity * enclosure.length, 0 ) sendTotalLength,
+                            IFNULL( send.quantity * enclosure.surface_area, 0 ) sendTotalArea
+                        FROM
+                            tech_enclosure enclosure
+                        LEFT JOIN (
+                            SELECT
+                                product_id,
+                                workshop_id,
+                                sum( quantity ) quantity
+                            FROM
+                                mes_building_warehouse_record
+                            WHERE type = 2
+                                  AND product_type = 4
+                                  AND bool_delete_enum = 0
+                                  <if test="workshopId != null">
+                                      AND workshop_id = #{workshopId}
+                                  </if>
+                                  <if test="type==1">
+                                      <if test="dateTime!=null">
+                                          AND DATE_FORMAT(create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                                      </if>
+                                  </if>
+                                  <if test="type==2">
+                                      <if test="dateTime!=null">
+                                          AND DATE_FORMAT(create_time, '%Y/%m' ) = DATE_FORMAT(#{dateTime}, '%Y/%m')
+                                      </if>
+                                  </if>
+                            GROUP BY
+                                product_id,
+                                workshop_id
+                        ) send ON send.product_id = enclosure.id
+                        WHERE
+                            enclosure.bool_delete_enum = 0
+                            <if test="projectIds != null and projectIds.size() != 0">
+                                AND enclosure.project_id in
+                                <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                                    #{projectId}
+                                </foreach>
+                            </if>
+                        UNION
+                        SELECT
+                            part.project_id,
+                            part.quantity,
+                            IF(true, 0, 0) totalLength,
+                            IF(true, 0, 0) totalArea,
+                            IFNULL( send.quantity, 0 ) send_quantity,
+                            IF(true, 0, 0) sendTotalLength,
+                            IF(true, 0, 0) sendTotalArea
+                        FROM
+                            tech_standard_part part
+                        LEFT JOIN (
+                            SELECT
+                                product_id,
+                                sum( quantity ) quantity
+                            FROM
+                                mes_building_warehouse_record
+                            WHERE
+                                type = 2
+                                AND product_type = 8
+                                AND bool_delete_enum = 0
+                                <if test="workshopId != null">
+                                    AND workshop_id = #{workshopId}
+                                </if>
+                                <if test="type==1">
+                                    <if test="dateTime!=null">
+                                        AND DATE_FORMAT(create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                                    </if>
+                                </if>
+                                <if test="type==2">
+                                    <if test="dateTime!=null">
+                                        AND DATE_FORMAT(create_time, '%Y/%m' ) = DATE_FORMAT(#{dateTime}, '%Y/%m')
+                                    </if>
+                                </if>
+                            GROUP BY
+                                product_id
+                        ) send ON send.product_id = part.id
+                        WHERE part.bool_delete_enum = 0 AND part.relation_type = 4
+                        <if test="projectIds != null and projectIds.size() != 0">
+                            AND part.project_id in
+                            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                                #{projectId}
+                            </foreach>
+                        </if>
+                ) a
+                GROUP BY
+                    a.project_id
+        ) a
+        LEFT JOIN contract_project cp ON a.project_id = cp.id
+        <where>
+            <if test="sendStatus == 2">
+                and a.quantity = a.send_quantity
+            </if>
+            <if test="sendStatus == 1">
+                and a.quantity > a.send_quantity
+            </if>
+            <if test="settled != null">
+                and cp.settlement_status = 1
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                AND (cp.short_name like concat('%',#{projectName},'%')
+                or cp.serial_number like concat('%',#{projectName},'%')
+                or cp.name like concat('%',#{projectName},'%'))
+            </if>
+            <if test="projectStatus != null">
+                and cp.status = #{projectStatus}
+            </if>
+        </where>
+        ORDER BY
+            ratio
+    </select>
+
+    <select id="projectCargoListEnclosureProjectSummaryV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProjectCargoListEnclosureMeteDO">
+        SELECT
+        s1.project_id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        SUM(s1.quantity) AS quantity,
+        SUM(s1.quantity * e.length) AS total_length,
+        SUM(s1.quantity * e.surface_area) AS total_area,
+        IFNULL(SUM(s2.quantity), 0) AS send_quantity,
+        IFNULL(SUM(s2.quantity * e.length), 0) AS send_total_length,
+        IFNULL(SUM(s2.quantity * e.surface_area), 0) AS send_total_area,
+        ROUND(IFNULL(SUM(s2.quantity), 0) / SUM(s1.quantity) * 100, 18) AS ratio
+        FROM mes_building_warehouse_summary s1
+        LEFT JOIN mes_building_warehouse_summary s2 ON s1.product_type = s2.product_type
+        AND s1.product_id = s2.product_id
+        AND s1.workshop_id = s2.workshop_id
+        AND s1.warehouse_type = s2.warehouse_type
+        AND s2.type = 2
+        AND s2.bool_delete_enum = 0
+        INNER JOIN tech_enclosure e ON e.id = s1.product_id
+        INNER JOIN contract_project cp ON s1.project_id = cp.id
+        WHERE s1.bool_delete_enum = 0
+        AND cp.bool_delete_enum = 0
+        AND s1.type = 1
+        AND s1.product_type = 4
+        <if test="dateTime != null">
+            AND YEAR(cp.create_time) = YEAR(#{dateTime})
+        </if>
+        <if test="projectName != null and projectName != ''">
+            AND (cp.short_name LIKE concat('%',#{projectName},'%')
+            OR cp.serial_number LIKE concat('%',#{projectName},'%')
+            OR cp.name LIKE concat('%',#{projectName},'%'))
+        </if>
+        GROUP BY s1.project_id
+        <if test="sendStatus != null and sendStatus == 1">
+            HAVING quantity > send_quantity
+        </if>
+        <if test="sendStatus != null and sendStatus == 2">
+            HAVING quantity = send_quantity
+        </if>
+        ORDER BY s1.project_id
+    </select>
+
+    <select id="projectDetailSummary"  resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListSumDetailDTO">
+        select
+            cp.id AS 'projectInfo.id',
+            cp.name AS 'projectInfo.name',
+            cp.short_name AS 'projectInfo.shortName',
+            artifact.quantity,
+            artifact.mete,
+            artifact.grossMete,
+            scheduling.schedulingQuantity,
+            scheduling.schedulingMete,
+            scheduling.schedulingGrossMete,
+            inRecord.inBoundQuantity,
+            inRecord.inBoundMete,
+            inRecord.inBoundGrossMete,
+            outRecord.outBoundQuantity,
+            outRecord.outBoundMete,
+            outRecord.outBoundGrossMete,
+            outMounthRecord.outMounthBoundQuantity,
+            outMounthRecord.outMounthBoundMete,
+            outMounthRecord.outMounthBoundGrossMete,
+            pack.packageQuantity,
+            pack.packageMete,
+            pack.packageGrossMete,
+            ifnull(inRecord.inBoundQuantity,0) - ifnull(outRecord.outBoundQuantity,0) AS stockQuantity,
+            ifnull(inRecord.inBoundMete,0) - ifnull(outRecord.outBoundMete,0) AS stockMete ,
+            ifnull(inRecord.inBoundGrossMete,0) - ifnull(outRecord.outBoundGrossMete,0) AS stockGrossMete,
+        cargo.trainNumber
+        from
+            contract_project cp
+        LEFT JOIN (
+        SELECT
+        count(DISTINCT cargo.id ) trainNumber,
+        cargo.project_id
+            from mes_building_cargo_list cargo
+        inner join mes_building_cargo_list_product_link  link on link.cargo_list_id = cargo.id and link.bool_delete_enum = 0
+        inner join mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id and summary.bool_delete_enum = 0  and summary.product_type = 2
+        <if test="monomerId != null ">
+            AND summary.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND summary.area_id = #{areaId}
+        </if>
+        <if test="workshopId != null">
+            AND summary.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(summary.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        where cargo.bool_delete_enum = 0 and delivery_status = 1 and status in (4,8) and cargo.project_id = #{projectId}
+         ) cargo on cargo.project_id = cp.id
+        LEFT JOIN
+            ( SELECT
+                  project_id,
+                  sum(quantity) AS quantity ,
+                  sum(ifnull(quantity,0) * ifnull(net_weight,0)) AS mete,
+                  sum(ifnull(quantity,0) * ifnull(gross_weight,0)) AS grossMete
+                  FROM tech_artifact
+                  WHERE bool_delete_enum = 0
+        <!--and bool_all_part_send_directly = 0-->
+        <if test="monomerId != null ">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND area_id = #{areaId}
+        </if>
+                 and project_id = #{projectId}
+            ) artifact on artifact.project_id = cp.id
+        LEFT JOIN
+            ( SELECT
+                  scheduling.project_id,
+                  sum(scheduling.quantity) AS schedulingQuantity,
+                  sum(ifnull(scheduling.quantity,0) * ifnull(artifact.net_weight,0)) AS schedulingMete,
+                  sum(ifnull(scheduling.quantity,0) * ifnull(artifact.gross_weight,0)) AS schedulingGrossMete
+              FROM mes_building_artifact_scheduling  scheduling
+                       left JOin tech_artifact artifact on artifact.id = scheduling.product_id
+              WHERE scheduling.bool_delete_enum = 0
+        <!-- and artifact.bool_all_part_send_directly = 0-->
+        <if test="monomerId != null ">
+            AND scheduling.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND scheduling.area_id = #{areaId}
+        </if>
+                    <if test="workshopId != null">
+                    AND scheduling.workshop_id = #{workshopId}
+                    </if>
+                   <if test="dateTime != null and dateTime != ''">
+                        and DATE_FORMAT(scheduling.create_time, '%Y' ) =  DATE_FORMAT(#{dateTime}, '%Y')
+                    </if>
+                and scheduling.project_id = #{projectId}
+            ) scheduling on scheduling.project_id = cp.id
+         LEFT JOIN
+            ( SELECT
+              t.project_id,
+              CASE cp.bool_required_warehouse WHEN 0 THEN	SUM(t.quantity) ELSE SUM(t.warehouse_quantity) END inBoundQuantity,
+              CASE cp.bool_required_warehouse WHEN 0
+              THEN	sum(t.quantity * artifact.net_weight) ELSE SUM(t.warehouse_quantity *  artifact.net_weight) END  AS inBoundMete,
+              CASE cp.bool_required_warehouse WHEN 0
+              THEN	sum(t.quantity * artifact.gross_weight) ELSE SUM(t.warehouse_quantity *  artifact.gross_weight) END  AS inBoundGrossMete
+              FROM
+              (
+                SELECT
+                record.project_id,
+                record.product_id,
+                record.quantity,
+                IFNULL( SUM( wsp.quantity ), 0 ) warehouse_quantity
+                FROM
+                mes_building_warehouse_summary record
+                LEFT JOIN mes_building_warehouse_storage_product AS wsp ON wsp.warehouse_summary_id = record.id
+                AND wsp.bool_delete_enum = 0
+                WHERE
+                record.type = 1
+                AND record.product_type = 2
+                AND record.bool_delete_enum = 0
+                AND record.warehouse_type IN ( 0, 2 )
+                <if test="monomerId != null ">
+                    AND record.monomer_id = #{monomerId}
+                </if>
+                <if test="areaId != null ">
+                    AND record.area_id = #{areaId}
+                </if>
+                <if test="workshopId != null">
+                    AND record.workshop_id = #{workshopId}
+                </if>
+                <if test="dateTime != null and dateTime != ''">
+                    AND DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                </if>
+                AND record.project_id = #{projectId}
+                GROUP BY record.id
+              ) t INNER JOIN contract_project cp ON cp.id = t.project_id
+              LEFT JOIN tech_artifact artifact ON artifact.id = t.product_id
+              <!-- WHERE artifact.bool_all_part_send_directly = 0-->
+              GROUP BY t.project_id
+            ) inRecord on inRecord.project_id = cp.id
+
+        LEFT JOIN
+            ( SELECT
+                  record.project_id,
+                  sum(ifnull(record.quantity,0)) AS outBoundQuantity,
+                  sum(ifnull(record.quantity,0) * ifnull(artifact.net_weight,0)) AS outBoundMete,
+                  sum(ifnull(record.quantity,0) * ifnull(artifact.gross_weight,0)) AS outBoundGrossMete
+              FROM mes_building_warehouse_summary  record
+                       left JOin tech_artifact artifact on artifact.id = record.product_id
+              WHERE record.type = 2 AND record.product_type = 2 and record.bool_delete_enum = 0
+                AND record.warehouse_type in (0, 2)
+        <if test="monomerId != null ">
+            AND record.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND record.area_id = #{areaId}
+        </if>
+                    <if test="workshopId != null ">
+                         AND record.workshop_id = #{workshopId}
+                    </if>
+                    <if test="dateTime != null and dateTime != ''">
+                         and DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                    </if>
+                and record.project_id = #{projectId}
+            ) outRecord on outRecord.project_id = cp.id
+         LEFT JOIN
+            ( SELECT
+                  record.project_id,
+                  sum(record.quantity) AS outMounthBoundQuantity,
+                  sum(ifnull(record.quantity,0) * ifnull(artifact.net_weight,0)) AS outMounthBoundMete,
+                  sum(ifnull(record.quantity,0) * ifnull(artifact.gross_weight,0)) AS outMounthBoundGrossMete
+              FROM mes_building_warehouse_summary  record
+                       left JOin tech_artifact artifact on artifact.id = record.product_id
+              WHERE record.type = 2 AND record.product_type = 2 and record.bool_delete_enum = 0
+                AND record.warehouse_type in (0, 2)
+        <if test="monomerId != null ">
+            AND record.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND record.area_id = #{areaId}
+        </if>
+                    <if test="workshopId != null">
+                        AND record.workshop_id = #{workshopId}
+                    </if>
+                and DATE_FORMAT(record.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+                 and record.project_id = #{projectId}
+            ) outMounthRecord on outMounthRecord.project_id = cp.id
+        left join (
+            select
+            packLink.project_id,
+            sum(packLink.quantity) AS packageQuantity,
+            sum(ifnull(packLink.quantity,0) * ifnull(artifact.net_weight,0)) AS packageMete,
+            sum(ifnull(packLink.quantity,0) * ifnull(artifact.gross_weight,0)) AS packageGrossMete
+            from mes_building_package_link packLink
+        <!--INNER JOIN mes_building_package pack on pack.id = packLink.package_id and pack.id and pack.status = 0 and pack.bool_delete_enum = 0 and pack.product_type = 2-->
+            LEFT JOIN tech_artifact artifact on artifact.id = packLink.product_id and artifact.bool_delete_enum = 0
+            where packLink.bool_delete_enum = 0 and packLink.product_type = 2 and packLink.project_id = #{projectId}
+              and packLink.warehouse_type IN (0, 2)
+            <if test="monomerId != null ">
+                AND packLink.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND packLink.area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND packLink.workshop_id = #{workshopId}
+            </if>
+            <if test="dateTime != null and dateTime != ''">
+                and DATE_FORMAT(packLink.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+        ) pack on pack.project_id = cp.id
+        where cp.id = #{projectId}
+    </select>
+
+
+    <select id="directShipmentProjectDetailSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListSumDetailDTO">
+        select
+        a.id AS 'projectInfo.id',
+        a.name AS 'projectInfo.name',
+        a.short_name AS 'projectInfo.shortName',
+        sum(a.quantity) as quantity,
+        sum(a.mete) as mete,
+        sum(a.grossMete) as grossMete,
+        sum(a.inBoundQuantity) as inBoundQuantity,
+        sum(a.inBoundMete) as inBoundMete,
+        sum(a.inBoundGrossMete) as inBoundGrossMete,
+        sum(a.outBoundQuantity) as outBoundQuantity,
+        sum(a.outBoundMete) as outBoundMete,
+        sum(a.outBoundGrossMete) as outBoundGrossMete,
+        sum(a.outMounthBoundQuantity) as outMounthBoundQuantity,
+        sum(a.outMounthBoundMete) as outMounthBoundMete,
+        sum(a.outMounthBoundGrossMete) as outMounthBoundGrossMete,
+        sum(a.stockQuantity) as stockQuantity,
+        sum(a.stockMete) as stockMete,
+        sum(a.stockGrossMete) as stockGrossMete,
+        cargo.trainNumber
+        from (
+        <foreach collection="productTypeList" item="productType" separator="UNION ALL">
+            select
+            cp.id,
+            cp.name,
+            cp.short_name,
+            artifact.quantity,
+            artifact.mete,
+            artifact.grossMete,
+            inRecord.inBoundQuantity,
+            inRecord.inBoundMete,
+            inRecord.inBoundGrossMete,
+            outRecord.outBoundQuantity,
+            outRecord.outBoundMete,
+            outRecord.outBoundGrossMete,
+            outMounthRecord.outMounthBoundQuantity,
+            outMounthRecord.outMounthBoundMete,
+            outMounthRecord.outMounthBoundGrossMete,
+            ifnull(inRecord.inBoundQuantity,0) - ifnull(outRecord.outBoundQuantity,0) AS stockQuantity,
+            ifnull(inRecord.inBoundMete,0) - ifnull(outRecord.outBoundMete,0) AS stockMete,
+            ifnull(inRecord.inBoundGrossMete,0) - ifnull(outRecord.outBoundGrossMete,0) AS stockGrossMete
+            from
+            contract_project cp
+
+            LEFT JOIN
+            ( SELECT
+            project_id,
+            sum(quantity) AS quantity ,
+            sum(ifnull(quantity,0) * ifnull(net_weight,0)) AS mete,
+            sum(ifnull(quantity,0) * ifnull(gross_weight,0)) AS grossMete
+            FROM
+            <if test="productType == 1 ">
+                tech_machine_part
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble
+            </if>
+            WHERE bool_delete_enum = 0 and bool_send_directly = 1
+            <if test="productType == 1 ">
+                and relation_type = 2
+            </if>
+            <if test="monomerId != null ">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND area_id = #{areaId}
+            </if>
+            and project_id = #{projectId}
+            ) artifact on artifact.project_id = cp.id
+
+            LEFT JOIN
+            ( SELECT
+            record.project_id,
+            sum(record.quantity) AS inBoundQuantity,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.net_weight,0)) AS inBoundMete,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.gross_weight,0)) AS inBoundGrossMete
+            FROM mes_building_warehouse_summary  record
+            left JOin
+            <if test="productType == 1 ">
+                tech_machine_part artifact
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble artifact
+            </if>
+            on artifact.id = record.product_id
+            WHERE record.type = 1
+            and record.product_type = #{productType}
+            and artifact.bool_send_directly = 1
+            and record.bool_delete_enum = 0
+            <if test="monomerId != null ">
+                AND record.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND record.area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND record.workshop_id = #{workshopId}
+            </if>
+            <if test="dateTime != null and dateTime != ''">
+                and DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            and record.project_id = #{projectId}
+            ) inRecord on inRecord.project_id = cp.id
+
+            LEFT JOIN
+            ( SELECT
+            record.project_id,
+            sum(ifnull(record.quantity,0)) AS outBoundQuantity,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.net_weight,0)) AS outBoundMete,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.gross_weight,0)) AS outBoundGrossMete
+            FROM mes_building_warehouse_summary  record
+            left JOin
+            <if test="productType == 1 ">
+                tech_machine_part artifact
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble artifact
+            </if>
+            on artifact.id = record.product_id
+            WHERE record.type = 2
+            AND record.product_type = #{productType}
+            and artifact.bool_send_directly = 1
+            and record.bool_delete_enum = 0
+            <if test="monomerId != null ">
+                AND record.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND record.area_id = #{areaId}
+            </if>
+            <if test="workshopId != null ">
+                AND record.workshop_id = #{workshopId}
+            </if>
+            <if test="dateTime != null and dateTime != ''">
+                and DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            and record.project_id = #{projectId}
+            ) outRecord on outRecord.project_id = cp.id
+
+            LEFT JOIN
+            ( SELECT
+            record.project_id,
+            sum(record.quantity) AS outMounthBoundQuantity,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.net_weight,0)) AS outMounthBoundMete,
+            sum(ifnull(record.quantity,0) * ifnull(artifact.gross_weight,0)) AS outMounthBoundGrossMete
+            FROM mes_building_warehouse_summary  record
+            left JOin
+            <if test="productType == 1 ">
+                tech_machine_part artifact
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble artifact
+            </if>
+            on artifact.id = record.product_id
+            WHERE record.type = 2
+            AND record.product_type = #{productType}
+            and artifact.bool_send_directly = 1
+            and record.bool_delete_enum = 0
+            <if test="monomerId != null ">
+                AND record.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND record.area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND record.workshop_id = #{workshopId}
+            </if>
+            and DATE_FORMAT(record.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+            and record.project_id = #{projectId}
+            ) outMounthRecord on outMounthRecord.project_id = cp.id
+            left join (
+            select
+            packLink.project_id,
+            sum(packLink.quantity) AS packageQuantity,
+            sum(ifnull(packLink.quantity,0) * ifnull(mp.net_weight,0)) AS packageMete,
+            sum(ifnull(packLink.quantity,0) * ifnull(mp.gross_weight,0)) AS packageGrossMete
+            from mes_building_package_link packLink
+            left JOIN
+            <if test="productType == 1 ">
+                tech_machine_part mp
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble mp
+            </if>
+            on mp.id = packLink.product_id and mp.bool_delete_enum = 0
+            where packLink.bool_delete_enum = 0
+            and packLink.product_type = #{productType}
+            and mp.bool_send_directly = 1
+            and packLink.project_id = #{projectId}
+            <if test="monomerId != null ">
+                AND packLink.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND packLink.area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND packLink.workshop_id = #{workshopId}
+            </if>
+            <if test="dateTime != null">
+                and DATE_FORMAT(packLink.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            ) pack on pack.project_id = cp.id
+            where cp.id = #{projectId}
+        </foreach>
+
+        ) a LEFT JOIN (
+        SELECT
+        count(distinct cargo.id ) trainNumber,
+        cargo.project_id
+        from mes_building_cargo_list cargo
+        inner join mes_building_cargo_list_product_link  link on link.cargo_list_id = cargo.id and link.bool_delete_enum = 0
+        inner join mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id
+        and summary.bool_delete_enum = 0  and summary.product_type in (1,16)
+        <if test="monomerId != null ">
+            AND summary.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND summary.area_id = #{areaId}
+        </if>
+        <if test="workshopId != null">
+            AND summary.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(summary.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        where cargo.bool_delete_enum = 0 and delivery_status = 1 and status in (4,8) and cargo.project_id = #{projectId}
+        ) cargo on cargo.project_id = a.id
+        group by a.id,a.name,a.short_name,cargo.trainNumber
+    </select>
+
+
+    <select id="projectEnclosureDetailSummary"  resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListSumEnclosureDetailDTO">
+        select
+        cp.id AS 'projectInfo.id',
+        cp.name AS 'projectInfo.name',
+        cp.short_name AS 'projectInfo.shortName',
+        enclosure.quantity,
+        enclosure.totalLength,
+        enclosure.totalArea,
+        scheduling.schedulingQuantity,
+        scheduling.schedulingTotalLength,
+        scheduling.schedulingTotalArea,
+        inRecord.inBoundQuantity,
+        inRecord.inBoundTotalLength,
+        inRecord.inBoundTotalArea,
+        outRecord.outBoundQuantity,
+        outRecord.outBoundTotalLength,
+        outRecord.outBoundTotalArea,
+        outMounthRecord.outMounthBoundQuantity,
+        outMounthRecord.outMounthBoundTotalLength,
+        outMounthRecord.outMounthBoundTotalArea,
+        ifnull(inRecord.inBoundQuantity,0) - ifnull(outRecord.outBoundQuantity,0) AS stockQuantity,
+        ifnull(inRecord.inBoundTotalLength,0) - ifnull(outRecord.outBoundTotalLength,0) AS stockTotalLength ,
+        ifnull(inRecord.inBoundTotalArea,0) - ifnull(outRecord.outBoundTotalArea,0) AS stockTotalArea,
+        cargo.trainNumber
+        from
+        contract_project cp
+        LEFT JOIN (
+        SELECT
+        count(DISTINCT cargo.id ) trainNumber,
+        cargo.project_id
+        from mes_building_cargo_list cargo
+        inner join mes_building_cargo_list_product_link  link on link.cargo_list_id = cargo.id and link.bool_delete_enum = 0
+        inner join mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id and summary.bool_delete_enum = 0 and summary.product_type = 4
+        <if test="category != null ">
+            AND summary.category = #{category}
+        </if>
+        <if test="enclosurePlanId != null ">
+            AND summary.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="workshopId != null">
+            AND summary.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(summary.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        where cargo.bool_delete_enum = 0 and delivery_status = 1 and status in (4,8) and cargo.project_id = #{projectId}
+        ) cargo on cargo.project_id = cp.id
+        LEFT JOIN
+        ( SELECT
+        project_id,
+        sum(quantity) AS quantity ,
+        sum(ifnull(quantity,0) * ifnull(length,0)) AS totalLength,
+        sum(ifnull(quantity,0) * ifnull(surface_area,0)) AS totalArea
+        FROM tech_enclosure
+        WHERE bool_delete_enum = 0
+        <if test="enclosurePlanId != null ">
+            AND enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND category = #{category}
+        </if>
+        and project_id = #{projectId}
+        ) enclosure on enclosure.project_id = cp.id
+        LEFT JOIN
+        ( SELECT
+        scheduling.project_id,
+        sum(scheduling.task_quantity) AS schedulingQuantity,
+        sum(ifnull(scheduling.task_quantity,0) * ifnull(enclosure.length,0)) AS schedulingTotalLength,
+        sum(ifnull(scheduling.task_quantity,0) * ifnull(enclosure.surface_area,0)) AS schedulingTotalArea
+        FROM mes_enclosure_task  scheduling
+        left JOin tech_enclosure enclosure on enclosure.id = scheduling.product_id
+        WHERE scheduling.bool_delete_enum = 0
+        <if test="enclosurePlanId != null ">
+            AND scheduling.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND enclosure.category = #{category}
+        </if>
+        <if test="workshopId != null">
+            AND scheduling.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(scheduling.create_time, '%Y' ) =  DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        and scheduling.project_id = #{projectId}
+        ) scheduling on scheduling.project_id = cp.id
+        LEFT JOIN
+        ( SELECT
+        record.project_id,
+        sum(record.quantity) AS inBoundQuantity,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.length,0)) AS inBoundTotalLength,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.surface_area,0)) AS inBoundTotalArea
+        FROM mes_building_warehouse_record  record
+        left JOin tech_enclosure enclosure on enclosure.id = record.product_id
+        WHERE record.type = 1 AND record.product_type = 4 and record.bool_delete_enum = 0
+        <if test="enclosurePlanId != null ">
+            AND record.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND enclosure.category = #{category}
+        </if>
+        <if test="workshopId != null">
+            AND record.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        and record.project_id = #{projectId}
+        ) inRecord on inRecord.project_id = cp.id
+        LEFT JOIN
+        ( SELECT
+        record.project_id,
+        sum(ifnull(record.quantity,0)) AS outBoundQuantity,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.length,0)) AS outBoundTotalLength,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.surface_area,0)) AS outBoundTotalArea
+        FROM mes_building_warehouse_record  record
+        left JOin tech_enclosure enclosure on enclosure.id = record.product_id
+        WHERE record.type = 2 AND record.product_type = 4 and record.bool_delete_enum = 0
+        <if test="enclosurePlanId != null ">
+            AND record.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND enclosure.category = #{category}
+        </if>
+        <if test="workshopId != null ">
+            AND record.workshop_id = #{workshopId}
+        </if>
+        <if test="dateTime != null and dateTime != ''">
+            and DATE_FORMAT(record.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        and record.project_id = #{projectId}
+        ) outRecord on outRecord.project_id = cp.id
+        LEFT JOIN
+        ( SELECT
+        record.project_id,
+        sum(record.quantity) AS outMounthBoundQuantity,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.length,0)) AS outMounthBoundTotalLength,
+        sum(ifnull(record.quantity,0) * ifnull(enclosure.surface_area,0)) AS outMounthBoundTotalArea
+        FROM mes_building_warehouse_record  record
+        left JOin tech_enclosure enclosure on enclosure.id = record.product_id
+        WHERE record.type = 2 AND record.product_type = 4 and record.bool_delete_enum = 0
+        <if test="enclosurePlanId != null ">
+            AND record.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND enclosure.category = #{category}
+        </if>
+        <if test="workshopId != null">
+            AND record.workshop_id = #{workshopId}
+        </if>
+        and DATE_FORMAT(record.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+        and record.project_id = #{projectId}
+        ) outMounthRecord on outMounthRecord.project_id = cp.id
+        where cp.id = #{projectId}
+    </select>
+
+
+
+    <select id="getYearCargoListMeteSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.YearCargoListMeteDO">
+        SELECT
+            IFNULL(sum(a.quantity * b.net_weight ),0) mete
+        FROM
+        mes_building_warehouse_summary a
+                INNER JOIN tech_artifact b ON a.product_id = b.id and b.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON a.project_id = cp.id
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND b.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        WHERE
+            a.product_type = 2
+          AND a.type =2  and a.bool_delete_enum = 0
+          <if test="dateTime!=null">
+              AND  DATE_FORMAT(a.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+          </if>
+        <if test="workshopId != null">
+            AND  a.workshop_id = #{workshopId}
+        </if>
+        <if test="projectStatus != null">
+            AND  cp.status = #{projectStatus}
+        </if>
+    </select>
+
+    <select id="getYearCargoListEnclosureMeteSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.YearCargoListMeteDO">
+        SELECT
+        IFNULL(sum(a.quantity * b.length ),0) totalLength,
+        IFNULL(sum(a.quantity * b.surface_area ),0) totalArea
+        FROM
+        mes_building_warehouse_record a
+        INNER JOIN tech_enclosure b ON a.product_id = b.id and b.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON a.project_id = cp.id
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND b.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        WHERE
+        a.product_type = 4
+        AND a.type =2  and a.bool_delete_enum = 0
+        <if test="dateTime!=null">
+            AND  DATE_FORMAT(a.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        <if test="workshopId != null">
+            AND  a.workshop_id = #{workshopId}
+        </if>
+        <if test="projectStatus != null">
+            AND  cp.status = #{projectStatus}
+        </if>
+    </select>
+
+
+    <select id="getYearCargoListNumberSummary" resultType="java.lang.Integer">
+        select
+        count(DISTINCT cargo.id)
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN mes_building_cargo_list cargo on cargo.id = link.cargo_list_id and  (cargo.status = 4 or cargo.status = 8)  and cargo.shipment_status !=  2
+        and cargo.bool_delete_enum = 0
+        <if test="dateTime!=null">
+            and DATE_FORMAT(cargo.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        <if test="projectId!=null">
+            and cargo.project_id =#{projectId}
+        </if>
+        <if test="startDate != null">
+            and date(cargo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cargo.create_time) &lt;= date(#{endDate})
+        </if>
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id and summary.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON summary.project_id = cp.id
+        WHERE
+        link.product_type = 2 and link.bool_delete_enum = 0
+        <if test="workshopId != null">
+            AND  summary.workshop_id = #{workshopId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND summary.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="projectStatus != null">
+            AND  cp.status = #{projectStatus}
+        </if>
+    </select>
+
+
+
+    <select id="getYearCargoListEnclosureNumberSummary" resultType="java.lang.Integer">
+        select
+        count(DISTINCT cargo.id)
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN tech_enclosure  b ON link.product_id = b.id
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND b.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        INNER JOIN mes_building_cargo_list cargo on cargo.id = link.cargo_list_id and  (cargo.status = 4 or cargo.status = 8)  and cargo.shipment_status !=  2
+        <if test="dateTime!=null">
+            and DATE_FORMAT(cargo.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        <if test="projectId!=null">
+            and cargo.project_id =#{projectId}
+        </if>
+        <if test="startDate != null">
+            and date(cargo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cargo.create_time) &lt;= date(#{endDate})
+        </if>
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id
+        LEFT JOIN contract_project cp ON summary.project_id = cp.id
+        WHERE
+        link.product_type = 4
+        <if test="workshopId != null">
+            AND  summary.workshop_id = #{workshopId}
+        </if>
+        <if test="projectStatus != null">
+        AND  cp.status = #{projectStatus}
+        </if>
+    </select>
+
+
+
+
+    <select id="projectCargoListMeteDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListMeteDetailDTO">
+        SELECT
+        pm.id monomerId,
+        pm.`name` monomerName,
+        pa.id areaId,
+        pa.`name` areaName,
+        a.workshopName AS workshopName,
+        a.id,
+        a.name,
+        a.serial_number,
+        a.material,
+        a.remark,
+        a.specification,
+        a.length,
+        a.net_weight,
+        a.surface_area,
+        a.total_area,
+        a.gross_weight,
+        a.quantity,
+        a.total_net_weight,
+        a.total_gross_weight,
+        a.inno_quantity inboundQuantity,
+        a.send_quantity cargoQuantity,
+        a.send_gross_weight cargo_gross_weight,
+        a.send_net_weight cargo_net_weight,
+        a.cargoDate
+        FROM
+        (
+        SELECT
+        a.monomer_id,
+        a.area_id,
+        a.id,
+        a.name,
+        a.serial_number,
+        a.material,
+        a.remark,
+        a.specification,
+        a.length,
+        IFNULL(a.surface_area, 0) / 1000000 AS surface_area,
+        IFNULL(a.surface_area * a.quantity, 0) / 1000000 AS total_area,
+        inno.workshopName,
+        IFNULL(a.net_weight,0) net_weight,
+        IFNULL(a.gross_weight,0) gross_weight,
+        IFNULL(a.quantity,0) quantity,
+        IFNULL(a.net_weight * a.quantity,0) total_net_weight,
+        IFNULL(a.gross_weight * a.quantity,0) total_gross_weight,
+        IFNULL(inno.inno_quantity,0) inno_quantity,
+        IFNULL(send.send_quantity ,0) send_quantity,
+        IFNULL(a.net_weight * send.send_quantity, 0 ) send_net_weight,
+        IFNULL(a.gross_weight * send.send_quantity, 0 ) send_gross_weight,
+        send.cargoDate
+        FROM
+        tech_artifact a
+        LEFT JOIN (
+        SELECT
+        record.product_id,
+        group_concat(distinct workshop.name) AS workshopName,
+        sum(record.quantity ) inno_quantity
+        FROM
+        mes_building_warehouse_record record
+        LEFT JOIN mes_building_workshop workshop on workshop.id = record.workshop_id
+        WHERE
+        record.bool_delete_enum = 0
+        AND record.type = 1
+        AND record.product_type = 2
+        AND record.warehouse_type in(0,2)
+        <if test="projectId!=null">
+            AND record.project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            AND record.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND record.area_id = #{areaId}
+        </if>
+        <if test="shopId != null">
+            AND record.workshop_id = #{shopId}
+        </if>
+        GROUP BY
+        record.product_id
+        ) inno ON inno.product_id = a.id
+        LEFT JOIN (
+        SELECT
+        record.product_id,
+        sum( record.quantity ) send_quantity,
+        max( record.create_time ) cargoDate
+        FROM
+        mes_building_warehouse_record record
+        WHERE
+        record.bool_delete_enum = 0
+        AND record.type = 2
+        AND record.product_type = 2
+        AND record.warehouse_type in(0,2)
+        <if test="startDate != null">
+            and date(record.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(record.create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="projectId!=null">
+            AND record.project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            AND record.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND record.area_id = #{areaId}
+        </if>
+        <if test="shopId != null">
+            AND record.workshop_id = #{shopId}
+        </if>
+        GROUP BY
+        record.product_id
+        ) send  ON send.product_id = inno.product_id
+        WHERE
+        a.bool_delete_enum = 0
+        and a.bool_all_part_send_directly = 0
+        <if test="projectId!=null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="productionLineTypeEnum != null">
+            AND a.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="serialNumber != null and serialNumber!=''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ) a
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = a.area_id
+        <where>
+            <if test="startDate != null">
+                AND a.cargoDate is not null
+            </if>
+        </where>
+        order by a.send_quantity
+    </select>
+
+    <select id="directShipProjectCargoListMeteDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListMeteDetailDTO">
+        select * from (
+        <foreach collection="productTypeList" item="productType" separator="UNION ALL">
+            SELECT
+            pm.id monomerId,
+            pm.`name` monomerName,
+            pa.id areaId,
+            pa.`name` areaName,
+            workshop.id AS workshopId,
+            workshop.name AS workshopName,
+            a.name,
+            a.serial_number,
+            a.material,
+            a.remark,
+            a.net_weight,
+            a.gross_weight,
+            a.quantity,
+            a.total_net_weight,
+            a.total_gross_weight,
+            a.workshop_id,
+            a.bool_all_part_send_directly,
+            a.inno_quantity inboundQuantity,
+            a.send_quantity cargoQuantity,
+            a.send_gross_weight cargo_gross_weight,
+            a.send_net_weight cargo_net_weight,
+            a.cargoDate
+            FROM
+            (
+            SELECT
+            a.monomer_id,
+            a.area_id,
+            a.name,
+            a.serial_number,
+            a.material,
+            a.remark,
+            a.bool_all_part_send_directly,
+            inno.workshop_id,
+            IFNULL(a.net_weight,0) net_weight,
+            IFNULL(a.gross_weight,0) gross_weight,
+            IFNULL(a.quantity,0) quantity,
+            IFNULL(a.net_weight * a.quantity,0) total_net_weight,
+            IFNULL(a.gross_weight * a.quantity,0) total_gross_weight,
+            IFNULL(inno.inno_quantity,0) inno_quantity,
+            IFNULL(send.send_quantity ,0) send_quantity,
+            IFNULL(a.net_weight * send.send_quantity, 0 ) send_net_weight,
+            IFNULL(a.gross_weight * send.send_quantity, 0 ) send_gross_weight,
+            send.cargoDate
+            FROM
+            <if test="productType == 1 ">
+                tech_machine_part a
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble a
+            </if>
+            LEFT JOIN (
+            SELECT
+            product_id,
+            workshop_id,
+            sum( quantity ) inno_quantity
+            FROM
+            mes_building_warehouse_record
+            WHERE
+            bool_delete_enum = 0
+            AND type = 1
+            AND product_type = #{productType}
+            <if test="projectId!=null">
+                AND project_id = #{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND workshop_id = #{workshopId}
+            </if>
+            GROUP BY
+            product_id,workshop_id
+            ) inno ON inno.product_id = a.id
+            LEFT JOIN (
+            SELECT
+            product_id,
+            workshop_id,
+            sum( quantity ) send_quantity,
+            max( create_time ) cargoDate
+            FROM
+            mes_building_warehouse_record
+            WHERE
+            bool_delete_enum = 0
+            AND type = 2
+            AND product_type = #{productType}
+            <if test="startDate != null">
+                and date(create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(create_time) &lt;= date(#{endDate})
+            </if>
+            <if test="projectId!=null">
+                AND project_id = #{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND area_id = #{areaId}
+            </if>
+            <if test="workshopId != null">
+                AND workshop_id = #{workshopId}
+            </if>
+            GROUP BY
+            product_id,workshop_id
+            ) send  ON send.product_id = inno.product_id and send.workshop_id = inno.workshop_id
+            WHERE
+            a.bool_delete_enum = 0
+            and a.bool_send_directly = 1
+            <if test="projectId!=null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND a.area_id = #{areaId}
+            </if>
+            <if test="productionLineTypeEnum != null">
+                AND a.production_line_type_enum = #{productionLineTypeEnum}
+            </if>
+            <if test="serialNumber != null and serialNumber!=''">
+                AND a.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="productType == 1">
+                and a.relation_type = 2
+            </if>
+            ) a
+            LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+            LEFT JOIN plan_area pa ON pa.id = a.area_id
+            LEFT JOIN mes_building_workshop workshop on workshop.id = a.workshop_id
+            <where>
+                <if test="workshopId != null">
+                    AND a.workshop_id = #{workshopId}
+                </if>
+                <if test="startDate != null">
+                    AND a.cargoDate is not null
+                </if>
+            </where>
+        </foreach>
+        ) a
+        order by a.cargoQuantity,a.workshop_id
+    </select>
+
+
+    <select id="projectCargoListEnclosureDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListEnclosureDetailDTO">
+        SELECT
+        plan.id enclosurePlanId,
+        plan.`name` enclosurePlanName,
+        workshop.id AS workshopId,
+        workshop.name AS workshopName,
+        a.name,
+        a.serial_number,
+        a.plate,
+        a.length,
+        a.surface_area,
+        a.remark,
+        a.quantity,
+        a.workshop_id,
+        a.totalLength,
+        a.totalArea,
+        a.inno_quantity inboundQuantity,
+        a.send_quantity cargoQuantity,
+        a.send_total_length cargoTotalLength,
+        a.send_total_area cargoTotalArea
+        FROM
+        (
+        SELECT
+        a.name,
+        a.enclosure_plan_id,
+        a.serial_number,
+        a.plate,
+        a.length,
+        a.surface_area,
+        a.remark,
+        IFNULL(a.quantity,0) quantity,
+        inno.workshop_id,
+        IFNULL(a.length * a.quantity,0) totalLength,
+        IFNULL(a.surface_area * a.quantity,0) totalArea,
+        IFNULL(inno.inno_quantity,0) inno_quantity,
+        IFNULL(send.send_quantity ,0) send_quantity,
+        IFNULL(a.length * send.send_quantity, 0 ) send_total_length,
+        IFNULL(a.surface_area * send.send_quantity, 0 ) send_total_area
+        FROM
+        tech_enclosure a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        workshop_id,
+        sum( quantity) inno_quantity
+        FROM
+        mes_building_warehouse_record
+        WHERE
+        bool_delete_enum = 0
+        AND type = 1
+        AND product_type = 4
+        <if test="projectId!=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="workshopId != null">
+            AND workshop_id = #{workshopId}
+        </if>
+        GROUP BY
+        product_id,workshop_id
+        ) inno ON inno.product_id = a.id
+        LEFT JOIN (
+        SELECT
+        product_id,
+        workshop_id,
+        sum( quantity ) send_quantity
+        FROM
+        mes_building_warehouse_record
+        WHERE
+        bool_delete_enum = 0
+        AND type = 2
+        AND product_type = 4
+        <if test="projectId!=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="workshopId != null">
+            AND workshop_id = #{workshopId}
+        </if>
+        GROUP BY
+        product_id,workshop_id
+        ) send  ON send.product_id = inno.product_id and send.workshop_id = inno.workshop_id
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="projectId!=null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="enclosurePlanId != null ">
+            AND a.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND a.category = #{category}
+        </if>
+        <if test="serialNumber != null and serialNumber!=''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ) a
+        LEFT JOin enclosure_plan plan on plan.id = a.enclosure_plan_id
+        LEFT JOIN mes_building_workshop workshop on workshop.id = a.workshop_id and workshop.type = 4
+        <where>
+            <if test="workshopId != null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+        </where>
+        order by a.send_quantity DESC,a.workshop_id
+    </select>
+
+
+
+
+
+    <select id="projectCargoListAuxiliaryDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListAuxiliaryDetailDTO">
+        SELECT
+        pm.id monomerId,
+        pm.`name` monomerName,
+        pa.id areaId,
+        pa.`name` areaName,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.measure_unit,
+        a.quantity,
+        ifnull(a.mete,0) mete,
+        a.accounting_unit,
+        a.remark,
+        bool_weight_type_enum,
+        a.send_quantity cargoQuantity,
+        ROUND(a.mete * a.send_quantity / a.quantity, 2) AS cargo_mete,
+        ROUND(a.mete * (ifnull(a.quantity,0) - ifnull(a.send_quantity,0)) / a.quantity , 2) AS un_cargo_mete,
+        ifnull(a.quantity,0) - ifnull(a.send_quantity,0)  AS unCargoQuantity
+        FROM
+        (
+        SELECT
+        a.name,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.serial_number,
+        a.specification,
+        a.measure_unit,
+        a.quantity,
+        a.mete,
+        a.accounting_unit,
+        a.remark,
+        bool_weight_type_enum,
+        IFNULL(send.send_quantity ,0) send_quantity
+        FROM
+        tech_standard_part a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        sum( quantity) send_quantity
+        FROM
+        mes_building_warehouse_record
+        WHERE
+        bool_delete_enum = 0
+        AND type = 2
+        AND product_type = 8
+        <if test="projectId!=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND area_id = #{areaId}
+        </if>
+        GROUP BY
+        product_id
+        ) send ON send.product_id = a.id
+        WHERE
+        a.bool_delete_enum = 0 and a.relation_type = #{relationType} and a.use_property = 1
+        <if test="projectId!=null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND a.area_id = #{areaId}
+        </if>
+        ) a
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = a.area_id
+        LEFT JOIN contract_project cp ON a.project_id = cp.id
+        where cp.bool_delete_enum = 0
+        <if test="projectStatus != null">
+            AND  cp.status = #{projectStatus}
+        </if>
+        order by a.send_quantity
+    </select>
+
+    <select id="projectCargoListAuxiliaryDetailV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListAuxiliaryDetailDTO">
+        SELECT
+        a.id,
+        a.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.id monomerId,
+        pm.`name` monomerName,
+        pa.id areaId,
+        pa.`name` areaName,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.measure_unit,
+        a.quantity,
+        ifnull(a.mete, 0) mete,
+        a.accounting_unit,
+        a.remark,
+        ROUND(a.mete * IFNULL(sum(rcd.quantity), 0) / a.quantity, 2) AS cargo_mete,
+        ROUND(a.mete * (a.quantity - ifnull(sum(rcd.quantity), 0)) / a.quantity , 2) AS un_cargo_mete,
+        IFNULL(sum(rcd.quantity), 0) cargo_quantity,
+        a.quantity - ifnull(sum(rcd.quantity), 0) AS un_cargo_quantity
+        FROM tech_standard_part a
+        LEFT JOIN mes_building_warehouse_record rcd ON a.id = rcd.product_id
+        AND rcd.bool_delete_enum = 0
+        AND rcd.type = 2
+        AND rcd.product_type = 8
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = a.area_id
+        WHERE a.bool_delete_enum = 0
+        and a.use_property = 1
+        <!--  and a.bool_subscription = 1-->
+        <if test="relationType != null">
+            and a.relation_type = #{relationType}
+        </if>
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="category != null">
+            AND a.category = #{category}
+        </if>
+        <if test="enclosurePlanId != null">
+            AND a.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+        </if>
+        GROUP BY a.id
+        ORDER BY a.id DESC
+    </select>
+
+
+    <select id="cargoListMeteSumQuantity" resultType="java.math.BigDecimal">
+        SELECT
+            COUNT(*) quantity
+        FROM
+            mes_building_cargo_list
+        WHERE status &amp; 12
+        AND bool_delete_enum=0
+        <if test="type==1">
+            AND DATE_FORMAT( audit_time, '%Y')=DATE_FORMAT( #{dateTime}, '%Y')
+        </if>
+        <if test="type==2">
+            AND DATE_FORMAT( audit_time, '%Y/%m')=DATE_FORMAT( #{dateTime}, '%Y/%m')
+        </if>
+          AND shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        <if test="projectId!=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            and project_id in
+            <foreach collection="projectIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="auditEndDate != null">
+            and date(actual_time) &lt;= date(#{auditEndDate})
+        </if>
+        <if test="auditStartDate != null">
+            and date(actual_time) >= date(#{auditStartDate})
+        </if>
+    </select>
+    <select id="cargoListMeteSumMete" resultType="java.math.BigDecimal">
+        SELECT
+        sum(cargo.mete)
+        FROM
+        (
+        SELECT
+        CASE cargo.structure_measure_mode
+        WHEN 1 THEN
+        IFNULL(cargo.total_net_weight,0)
+        ELSE
+        IFNULL(cargo.actual_weight,0)
+        END mete
+        FROM
+        mes_building_cargo_list cargo
+        WHERE
+        cargo.bool_delete_enum = 0
+        AND cargo.`status` in(4,8)
+        AND cargo.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        <if test="type==1">
+            AND DATE_FORMAT( cargo.audit_time, '%Y')=DATE_FORMAT( #{dateTime}, '%Y')
+        </if>
+        <if test="type==2">
+            AND DATE_FORMAT( cargo.audit_time, '%Y/%m')=DATE_FORMAT( #{dateTime}, '%Y/%m')
+        </if>
+        <if test="projectId!=null">
+            AND cargo.project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            and cargo.project_id in
+            <foreach collection="projectIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="auditEndDate != null">
+            and date(cargo.actual_time) &lt;= date(#{auditEndDate})
+        </if>
+        <if test="auditStartDate != null">
+            and date(cargo.actual_time) >= date(#{auditStartDate})
+        </if>
+        ) cargo
+
+    </select>
+    <select id="getYearCargoListQuantity"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.ProjectCargoListMeteDTO">
+        SELECT
+            cp.id 'project.id',
+            count( DISTINCT cargo.id ) cargoQuantity
+        FROM
+            mes_building_cargo_list cargo
+        LEFT JOIN contract_project cp ON cp.id=cargo.project_id
+        WHERE
+            cargo.product_type = 2
+          AND ( cargo.STATUS = 4 OR cargo.STATUS = 8 )
+          AND cargo.shipment_status != 2
+        <if test="dateTime!=null">
+            AND DATE_FORMAT( cargo.create_time, '%Y/%m' ) = DATE_FORMAT(#{dateTime}, '%Y/%m')
+        </if>
+          <if test="projectId!=null">
+              AND cargo.project_id=#{projectId}
+          </if>
+        GROUP BY cp.id
+    </select>
+    <select id="getCargoListGroupMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListMeteGroupMonthDTO">
+        SELECT
+            DATE_FORMAT( a.create_time, '%Y-%m' ) date,
+            IFNULL( sum( a.quantity * b.net_weight ), 0 ) cargoNetWeight,
+            IFNULL( sum( a.quantity * b.gross_weight ), 0 ) cargoGrossWeight
+        FROM
+            mes_building_warehouse_record a
+            INNER JOIN tech_artifact b ON a.product_id = b.id
+            AND b.bool_delete_enum = 0
+        WHERE
+            a.product_type = 2
+          AND a.type = 2
+          AND a.bool_delete_enum = 0
+          AND DATE_FORMAT( a.create_time, '%Y' ) = DATE_FORMAT( #{dateTime}, '%Y' )
+        GROUP BY DATE_FORMAT( a.create_time, '%Y-%m' )
+    </select>
+
+
+    <select id="getCargoDetailByshipEnumType"  resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListArtifactTypeDTO">
+        select
+            project.id AS 'projectInfo.id',
+            project.name AS 'projectInfo.name',
+            project.short_name AS 'projectInfo.shortName',
+            monomer.id AS 'monomer.id',
+            monomer.name AS 'monomer.name',
+            area.id AS 'area.id',
+            area.name AS 'area.name',
+            artifact.id AS productId,
+            artifact.name,
+            artifact.serial_number,
+            artifact.specification,
+            artifact.material,
+            artifact.length,
+            artifact.net_weight,
+            artifact.gross_weight,
+        <if test="shipEnumType != 1  and shipEnumType != 2 and shipEnumType != 3">
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            sum(common.quantity) quantity,
+            sum(common.quantity * ifnull(artifact.net_weight,0)) totalNetWeight,
+            sum(common.quantity * ifnull(artifact.gross_weight,0)) totalGrossNetWeight,
+        </if>
+        <if test="shipEnumType == 2 ">
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            sum(common.task_quantity) quantity,
+            sum(common.task_quantity * ifnull(artifact.net_weight,0)) totalNetWeight,
+            sum(common.task_quantity * ifnull(artifact.gross_weight,0)) totalGrossNetWeight,
+        </if>
+        <if test="shipEnumType == 1 ">
+            <if test="productSourceType == null">
+                artifact.quantity,
+                artifact.total_net_weight,
+                artifact.total_gross_weight AS totalGrossNetWeight,
+            </if>
+            <!--自制-->
+            <if test="productSourceType != null and productSourceType == 1">
+                artifact.quantity - artifact.subscription_quantity AS quantity,
+                artifact.net_weight * (artifact.quantity - artifact.subscription_quantity) AS total_net_weight,
+                artifact.gross_weight * (artifact.quantity - artifact.subscription_quantity) AS total_gross_net_weight,
+            </if>
+            <!--内协-->
+            <if test="productSourceType != null and productSourceType == 2">
+                0 quantity,
+                0 total_net_weight,
+                0 totalGrossNetWeight,
+            </if>
+            <!--外协-->
+            <if test="productSourceType != null and productSourceType == 4">
+                artifact.subscription_quantity AS quantity,
+                artifact.net_weight * artifact.subscription_quantity AS total_net_weight,
+                artifact.gross_weight * artifact.subscription_quantity AS total_gross_net_weight,
+            </if>
+        </if>
+        <if test="shipEnumType == 3">
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            (CASE project.bool_required_warehouse
+            WHEN 0 THEN SUM(common.quantity) ELSE IFNULL(SUM(wsp.warehouse_quantity), 0) END) AS quantity,
+            (CASE project.bool_required_warehouse WHEN 0 THEN SUM(common.quantity * artifact.net_weight)
+            ELSE IFNULL(SUM(wsp.warehouse_quantity * artifact.net_weight), 0) END) AS total_net_weight,
+            (CASE project.bool_required_warehouse WHEN 0 THEN SUM(common.quantity * artifact.gross_weight)
+            ELSE IFNULL(SUM(wsp.warehouse_quantity * artifact.gross_weight), 0) END) AS total_gross_net_weight,
+        </if>
+        (case artifact.subscription_quantity when 0 then 1 else 4 end) product_source_type,
+        2 AS productType
+        from
+        tech_artifact artifact
+        <if test="shipEnumType == 2 ">
+            inner Join mes_building_artifact_scheduling common on common.product_id = artifact.id
+            and common.bool_delete_enum =0
+        </if>
+        <if test="shipEnumType == 3 ">
+            inner Join mes_building_warehouse_summary common on common.product_id = artifact.id and common.type = 1 and common.product_type = 2
+            and common.bool_delete_enum = 0
+            and common.warehouse_type in (0, 2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+            LEFT JOIN (
+            SELECT
+            warehouse_summary_id,
+            SUM(quantity) AS warehouse_quantity
+            FROM
+            mes_building_warehouse_storage_product
+            WHERE bool_delete_enum = 0
+            AND project_id = #{projectId}
+            <if test="monomerId != null ">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND area_id = #{areaId}
+            </if>
+            <if test="productSourceType != null and productSourceType == 1">
+                and warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and warehouse_type = 2
+            </if>
+            GROUP BY warehouse_summary_id
+            ) AS wsp on common.id = wsp.warehouse_summary_id
+        </if>
+        <if test="shipEnumType == 4 ">
+            inner Join mes_building_warehouse_summary common on common.product_id = artifact.id and common.type = 2 and common.product_type = 2
+            and common.bool_delete_enum =0
+            and common.warehouse_type in (0, 2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 5 ">
+            inner Join mes_building_warehouse_summary common on common.product_id = artifact.id and common.type = 2 and common.product_type = 2
+            and DATE_FORMAT(common.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+            and common.bool_delete_enum = 0
+            and common.warehouse_type in (0, 2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 6 ">
+            inner JOin (
+            select
+            i.workshop_id,
+            i.product_id,
+            (CASE cp.bool_required_warehouse
+            WHEN 0 THEN SUM(i.quantity) - IFNULL(o.quantity, 0)
+            ELSE IFNULL(SUM(wsp.quantity), 0) - IFNULL(o.quantity, 0) END) AS quantity
+            from
+            mes_building_warehouse_summary i
+            left join (
+            select
+            warehouse_summary_id,
+            SUM(quantity) quantity
+            from mes_building_warehouse_storage_product
+            where bool_delete_enum = 0
+            AND project_id = #{projectId}
+            <if test="productSourceType != null and productSourceType == 1">
+                AND warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND warehouse_type = 2
+            </if>
+            <if test="monomerId != null ">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND area_id = #{areaId}
+            </if>
+            group by warehouse_summary_id
+            ) AS wsp ON i.id = wsp.warehouse_summary_id
+            Left join
+            (
+            select
+            o.workshop_id,
+            o.product_id,
+            sum(o.quantity) quantity
+            from mes_building_warehouse_summary o
+            where o.type = 2 and o.bool_delete_enum = 0 and o.project_id = #{projectId} and o.product_type = 2
+            and o.warehouse_type in (0, 2)
+            <if test="monomerId != null ">
+                AND o.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND o.area_id = #{areaId}
+            </if>
+            <if test="productSourceType != null and productSourceType == 1">
+                and o.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and o.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and o.warehouse_type = 2
+            </if>
+            group by o.product_id, o.workshop_id
+            ) o on o.product_id = i.product_id and o.workshop_id = i.workshop_id
+            LEFT JOIN contract_project AS cp on i.project_id = cp.id
+            where i.type = 1 and i.bool_delete_enum = 0 and i.project_id = #{projectId}  and i.product_type = 2
+            AND cp.bool_delete_enum = 0
+            and i.warehouse_type in (0, 2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and i.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and i.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and i.warehouse_type = 2
+            </if>
+            <if test="monomerId != null ">
+                AND i.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND i.area_id = #{areaId}
+            </if>
+            <if test=" dateTime != null and dateTime != ''">
+                and DATE_FORMAT(i.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            group by i.id
+            ) common on common.product_id = artifact.id and common.quantity > 0
+        </if>
+        <if test="shipEnumType == 8 ">
+            inner JOin (
+            select
+            packLink.workshop_id,
+            packLink.product_id,
+            sum(packLink.quantity)  quantity
+            from mes_building_package_link packLink
+            INNER JOIN mes_building_package pack on pack.id = packLink.package_id and pack.id and pack.status = 0 and pack.bool_delete_enum = 0 and pack.product_type = 2
+            LEFT JOIN tech_artifact artifact on artifact.id = packLink.product_id and artifact.bool_delete_enum = 0
+            where packLink.bool_delete_enum = 0 and packLink.product_type = 2 and packLink.project_id = #{projectId}
+            <if test="monomerId != null ">
+                AND packLink.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND packLink.area_id = #{areaId}
+            </if>
+            <if test="dateTime != null and dateTime != ''">
+                and DATE_FORMAT(packLink.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            group by packLink.product_id,packLink.workshop_id
+            ) common on common.product_id = artifact.id and common.quantity > 0
+        </if>
+        LEFT JOin contract_project project on project.id = artifact.project_id
+        LEFT JOin plan_monomer monomer on monomer.id = artifact.monomer_id
+        LEFT JOin plan_area area on area.id = artifact.area_id
+        <if test="shipEnumType != 1 ">
+            LEFT JOIN mes_building_workshop workshop ON workshop.id = common.workshop_id
+        </if>
+        where artifact.project_id = #{projectId} and artifact.bool_delete_enum = 0
+          <!--and artifact.bool_all_part_send_directly = 0-->
+        <if test="monomerId != null ">
+            AND artifact.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND artifact.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipEnumType == 1 and productSourceType != null">
+            <if test="productSourceType == 1">
+                AND artifact.quantity > artifact.subscription_quantity
+            </if>
+            <if test="productSourceType == 2">
+                AND artifact.quantity = 0
+            </if>
+            <if test="productSourceType == 4">
+                AND artifact.subscription_quantity > 0
+            </if>
+        </if>
+        <if test="shipEnumType != 1 ">
+            <if test="workshopId != null ">
+                AND common.workshop_id = #{workshopId}
+            </if>
+            <if test="shipEnumType != 5 and shipEnumType != 6 and shipEnumType != 8 and dateTime != null and dateTime != ''">
+                and DATE_FORMAT(common.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+        </if>
+        GROUP BY artifact.id
+        <if test="shipEnumType != 1 ">
+            ,common.workshop_id
+            HAVING quantity > 0
+        </if>
+        ORDER BY artifact.id
+        <if test="shipEnumType != 1 ">
+            ,common.workshop_id
+        </if>
+    </select>
+
+    <select id="getDirectShipmentCargoDetailByshipEnumType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListArtifactTypeDTO">
+        select * from (
+        <foreach collection="productTypeList" item="productType" separator="UNION ALL">
+            select
+            project.id AS 'projectInfo.id',
+            project.name AS 'projectInfo.name',
+            project.short_name AS 'projectInfo.shortName',
+            monomer.id AS 'monomer.id',
+            monomer.name AS 'monomer.name',
+            area.id AS 'area.id',
+            area.name AS 'area.name',
+            artifact.id AS productId,
+            artifact.serial_number,
+            artifact.specification,
+            artifact.material,
+            artifact.net_weight,
+            artifact.gross_weight,
+            artifact.bool_all_part_send_directly,
+            <if test="shipEnumType != 1 ">
+                workshop.id AS 'workshop.id',
+                workshop.name AS 'workshop.name',
+                sum(common.quantity) quantity,
+                sum(common.quantity * ifnull(artifact.net_weight,0)) totalNetWeight,
+                sum(common.quantity * ifnull(artifact.gross_weight,0)) totalGrossNetWeight,
+            </if>
+            <if test="shipEnumType == 1 ">
+                artifact.quantity,
+                artifact.total_net_weight,
+                artifact.total_gross_weight AS totalGrossNetWeight,
+            </if>
+            #{productType} AS productType
+            <if test="shipEnumType != 1 ">
+                ,common.workshop_id
+            </if>
+            from
+            <if test="productType == 1 ">
+                tech_machine_part artifact
+            </if>
+            <if test="productType == 16 ">
+                tech_assemble artifact
+            </if>
+            <if test="shipEnumType == 3 ">
+                inner Join mes_building_warehouse_record common on common.product_id = artifact.id and common.type = 1 and common.product_type = #{productType}
+            </if>
+            <if test="shipEnumType == 4 ">
+                inner Join mes_building_warehouse_record common on common.product_id = artifact.id and common.type = 2 and common.product_type = #{productType}
+            </if>
+            <if test="shipEnumType == 5 ">
+                inner Join mes_building_warehouse_record common on common.product_id = artifact.id and common.type = 2 and common.product_type = #{productType}
+                and DATE_FORMAT(common.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+            </if>
+            <if test="shipEnumType == 6 ">
+                inner JOin (
+                select
+                i.workshop_id,
+                i.product_id,
+                sum(i.quantity) - IFNULL(o.quantity,0)  quantity
+                from
+                mes_building_warehouse_record i
+                Left JOin
+                (
+                select
+                o.workshop_id,
+                o.product_id,
+                sum(o.quantity) quantity
+                from mes_building_warehouse_record o
+                where o.type = 2 and o.bool_delete_enum = 0 and o.project_id = #{projectId} and o.product_type = #{productType}
+                group by o.product_id,o.workshop_id
+                ) o on o.product_id = i.product_id and o.workshop_id = i.workshop_id
+                where i.type = 1 and i.bool_delete_enum = 0 and i.project_id = #{projectId}  and i.product_type = #{productType}
+                <if test="monomerId != null ">
+                    AND i.monomer_id = #{monomerId}
+                </if>
+                <if test="areaId != null ">
+                    AND i.area_id = #{areaId}
+                </if>
+                <if test=" dateTime != null and dateTime != ''">
+                    and DATE_FORMAT(i.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                </if>
+                group by i.product_id,i.workshop_id
+                ) common on common.product_id = artifact.id and common.quantity > 0
+            </if>
+            LEFT JOin contract_project project on project.id = artifact.project_id
+            LEFT JOin plan_monomer monomer on monomer.id = artifact.monomer_id
+            LEFT JOin plan_area area on area.id = artifact.area_id
+            <if test="shipEnumType != 1 ">
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = common.workshop_id
+            </if>
+            where artifact.project_id = #{projectId} and artifact.bool_delete_enum = 0
+            and artifact.bool_send_directly = 1
+            <if test="productType == 1 ">
+                and artifact.relation_type = 2
+            </if>
+            <if test="monomerId != null ">
+                AND artifact.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND artifact.area_id = #{areaId}
+            </if>
+            <if test="shipEnumType != 1 ">
+                <if test="workshopId != null ">
+                    AND common.workshop_id = #{workshopId}
+                </if>
+                <if test="shipEnumType != 5 and shipEnumType != 6 and dateTime != null and dateTime != ''">
+                    and DATE_FORMAT(common.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+                </if>
+            </if>
+            GROUP BY artifact.id
+            <if test="shipEnumType != 1 ">
+                ,common.workshop_id
+            </if>
+        </foreach>
+        ) a
+        <if test="shipEnumType != 1 ">
+            order by a.workshop_id
+        </if>
+    </select>
+
+    <select id="getDirectShipmentCargoDetailByShipEnumTypeV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListArtifactTypeDTO">
+        select
+        project.id AS 'projectInfo.id',
+        project.name AS 'projectInfo.name',
+        project.short_name AS 'projectInfo.shortName',
+        project.serial_number AS 'projectInfo.serial_number',
+        monomer.id AS 'monomer.id',
+        monomer.name AS 'monomer.name',
+        area.id AS 'area.id',
+        area.name AS 'area.name',
+        part.id AS productId,
+        part.serial_number,
+        part.specification,
+        part.material,
+        part.length,
+        part.net_weight,
+        part.gross_weight,
+        part.bool_all_part_send_directly,
+        <if test="shipEnumType == 1 ">
+            <if test="productSourceType == null">
+                part.quantity,
+                part.total_net_weight,
+                part.total_gross_weight AS totalGrossNetWeight,
+            </if>
+            <if test="productSourceType != null and productSourceType == 1">
+                SUM((artifact.quantity - artifact.subscription_quantity) * link.quantity) AS quantity,
+                SUM((artifact.quantity - artifact.subscription_quantity) * link.quantity * part.net_weight ) AS
+                total_net_weight,
+                SUM((artifact.quantity - artifact.subscription_quantity) * link.quantity * part.gross_weight ) AS
+                total_gross_net_weight,
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                0 AS quantity,
+                0 AS total_net_weight,
+                0 AS total_gross_net_weight,
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                SUM(artifact.subscription_quantity * link.quantity) AS quantity,
+                SUM(artifact.subscription_quantity * link.quantity * part.net_weight ) AS total_net_weight,
+                SUM(artifact.subscription_quantity * link.quantity * part.gross_weight ) AS total_gross_net_weight,
+            </if>
+        </if>
+
+        <if test="shipEnumType != 1 ">
+            common.workshop_id,
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            sum(common.quantity) quantity,
+            sum(common.quantity * part.net_weight) total_net_weight,
+            sum(common.quantity * part.gross_weight) total_gross_net_weight,
+        </if>
+        1 AS productType
+        from tech_machine_part AS part
+        <if test="shipEnumType == 1 ">
+            INNER JOIN tech_artifact_machine_part_link AS link ON part.id = link.machine_part_id and link.bool_delete_enum = 0
+            INNER JOIN tech_artifact AS artifact ON link.artifact_id = artifact.id and artifact.bool_delete_enum = 0
+        </if>
+        <if test="shipEnumType == 3 ">
+            inner Join mes_building_warehouse_record common on common.product_id = part.id and common.type = 1 and common.product_type = 1
+            and common.warehouse_type in (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 4 ">
+            inner Join mes_building_warehouse_record common on common.product_id = part.id and common.type = 2 and common.product_type = 1
+            and common.warehouse_type in (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 5 ">
+            inner Join mes_building_warehouse_record common on common.product_id = part.id and common.type = 2 and common.product_type = 1
+            and DATE_FORMAT(common.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+            and common.warehouse_type in (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 6 ">
+            inner join (
+            select
+            i.workshop_id,
+            i.product_id,
+            sum(i.quantity) - IFNULL(o.quantity,0)  quantity
+            from
+            mes_building_warehouse_record i
+            Left JOin
+            (
+            select
+            o.workshop_id,
+            o.product_id,
+            sum(o.quantity) quantity
+            from mes_building_warehouse_record o
+            where o.type = 2 and o.bool_delete_enum = 0 and o.project_id = #{projectId} and o.product_type = 1
+            and o.warehouse_type in (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and o.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and o.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and o.warehouse_type = 2
+            </if>
+            group by o.product_id,o.workshop_id
+            ) o on o.product_id = i.product_id and o.workshop_id = i.workshop_id
+            where i.type = 1 and i.bool_delete_enum = 0 and i.project_id = #{projectId}  and i.product_type = 1
+            <if test="monomerId != null ">
+                AND i.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND i.area_id = #{areaId}
+            </if>
+            <if test=" dateTime != null and dateTime != ''">
+                and DATE_FORMAT(i.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            and i.warehouse_type in (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                and i.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                and i.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                and i.warehouse_type = 2
+            </if>
+            group by i.product_id,i.workshop_id
+            ) common on common.product_id = part.id and common.quantity > 0
+        </if>
+        LEFT JOin contract_project project on project.id = part.project_id
+        LEFT JOin plan_monomer monomer on monomer.id = part.monomer_id
+        LEFT JOin plan_area area on area.id = part.area_id
+        <if test="shipEnumType != 1 ">
+            LEFT JOIN mes_building_workshop workshop ON workshop.id = common.workshop_id
+        </if>
+        where part.bool_delete_enum = 0
+        and part.bool_send_directly = 1
+        and part.relation_type IN (2,18)
+        <if test="projectId != null">
+            AND part.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null ">
+            AND part.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND part.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            AND part.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipEnumType == 1 ">
+            <if test="productSourceType != null and productSourceType == 1">
+                AND artifact.quantity > artifact.subscription_quantity
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND artifact.quantity = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND artifact.subscription_quantity > 0
+            </if>
+        </if>
+        <if test="shipEnumType != 1 ">
+            <if test="workshopId != null ">
+                AND common.workshop_id = #{workshopId}
+            </if>
+            <if test="shipEnumType != 5 and shipEnumType != 6 and dateTime != null and dateTime != ''">
+                and DATE_FORMAT(common.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+        </if>
+        GROUP BY part.id
+        <if test="shipEnumType != 1 ">
+            ,common.workshop_id
+        </if>
+        ORDER BY part.id
+    </select>
+
+
+
+    <select id="getCargoEnclosureDetailByshipEnumType"  resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListEnclosureTypeDTO">
+        select
+        project.id AS 'projectInfo.id',
+        project.name AS 'projectInfo.name',
+        project.short_name AS 'projectInfo.shortName',
+        plan.id AS 'plan.id',
+        plan.name AS 'plan.name',
+        enclosure.id AS productId,
+        enclosure.serial_number,
+        enclosure.name,
+        enclosure.plate,
+        enclosure.length,
+        enclosure.surface_area,
+        <if test="shipEnumType != 1 ">
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            <if test="shipEnumType != 2 ">
+                sum(common.quantity) quantity,
+                sum(common.quantity * ifnull(enclosure.length,0)) totalLength,
+                sum(common.quantity * ifnull(enclosure.surface_area,0)) totalArea,
+            </if>
+            <if test="shipEnumType == 2 ">
+                sum(common.task_quantity) quantity,
+                sum(common.task_quantity * ifnull(enclosure.length,0)) totalLength,
+                sum(common.task_quantity * ifnull(enclosure.surface_area,0)) totalArea,
+            </if>
+        </if>
+        <if test="shipEnumType == 1 ">
+            <!-- enclosure.quantity,-->
+            <!-- enclosure.quantity * ifnull(enclosure.length,0) totalLength,-->
+            <!-- enclosure.quantity * ifnull(enclosure.surface_area,0) totalArea,-->
+
+            <if test="productSourceType == null">
+                enclosure.quantity quantity,
+                enclosure.quantity * ifnull(enclosure.length,0) totalLength,
+                enclosure.quantity * ifnull(enclosure.surface_area,0) totalArea,
+            </if>
+            <if test="productSourceType != null and productSourceType == 1">
+                (enclosure.quantity - enclosure.subscribe_quantity) AS quantity,
+                (enclosure.quantity - enclosure.subscribe_quantity) * enclosure.length AS totalLength,
+                (enclosure.quantity - enclosure.subscribe_quantity) * enclosure.surface_area AS totalArea,
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                0 AS quantity,
+                0 AS totalLength,
+                0 AS totalArea,
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                enclosure.subscribe_quantity AS quantity,
+                enclosure.subscribe_quantity * enclosure.length AS totalLength,
+                enclosure.subscribe_quantity * enclosure.surface_area AS totalArea,
+            </if>
+        </if>
+<!--         (case enclosure.subscription_quantity when 0 then 1 else 4 end) product_source_type,-->
+        4 AS productType
+        from
+        tech_enclosure enclosure
+        <if test="shipEnumType == 2 ">
+            inner Join mes_enclosure_task common on common.product_id = enclosure.id and common.bool_delete_enum = 0
+        </if>
+        <if test="shipEnumType == 3 ">
+            inner Join mes_building_warehouse_record common on common.product_id = enclosure.id and common.type = 1 and common.product_type = 4
+            and common.bool_delete_enum = 0
+            AND common.warehouse_type IN (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                AND common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 4 ">
+            inner Join mes_building_warehouse_record common on common.product_id = enclosure.id and common.type = 2 and common.product_type = 4
+            and common.bool_delete_enum = 0
+            AND common.warehouse_type IN (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                AND common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 5 ">
+            inner Join mes_building_warehouse_record common on common.product_id = enclosure.id and common.type = 2 and common.product_type = 4
+            and DATE_FORMAT(common.create_time, '%Y%m' ) = DATE_FORMAT(#{dateMounthTime}, '%Y%m')
+            and common.bool_delete_enum = 0
+            AND common.warehouse_type IN (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                AND common.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND common.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND common.warehouse_type = 2
+            </if>
+        </if>
+        <if test="shipEnumType == 6 ">
+            inner JOin (
+            select
+            i.workshop_id,
+            i.product_id,
+            sum(i.quantity) - IFNULL(o.quantity,0)  quantity
+            from
+            mes_building_warehouse_record i
+            Left JOin
+            (
+            select
+            o.workshop_id,
+            o.product_id,
+            sum(o.quantity) quantity
+            from mes_building_warehouse_record o
+            where o.type = 2 and o.bool_delete_enum = 0 and o.project_id = #{projectId} and o.product_type = 4
+            AND o.warehouse_type IN (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                AND o.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND o.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND o.warehouse_type = 2
+            </if>
+            group by o.product_id,o.workshop_id
+            ) o on o.product_id = i.product_id and o.workshop_id = i.workshop_id
+            where i.type = 1 and i.bool_delete_enum = 0 and i.project_id = #{projectId}  and i.product_type = 4
+            AND i.warehouse_type IN (0,2)
+            <if test="productSourceType != null and productSourceType == 1">
+                AND i.warehouse_type = 0
+            </if>
+            <if test="productSourceType != null and productSourceType == 2">
+                AND i.warehouse_type = 4
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND i.warehouse_type = 2
+            </if>
+            <if test="enclosurePlanId != null ">
+                AND i.plan_id = #{enclosurePlanId}
+            </if>
+            <if test=" dateTime != null and dateTime != ''">
+                and DATE_FORMAT(i.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+            group by i.product_id,i.workshop_id
+            ) common on common.product_id = enclosure.id and common.quantity > 0
+        </if>
+        LEFT JOin contract_project project on project.id = enclosure.project_id
+        LEFT JOin enclosure_plan plan on plan.id = enclosure.enclosure_plan_id
+        <if test="shipEnumType != 1 ">
+            LEFT JOIN mes_building_workshop workshop ON workshop.id = common.workshop_id and workshop.type = 4
+        </if>
+        where enclosure.project_id = #{projectId} and enclosure.bool_delete_enum = 0
+        <if test="shipEnumType == 1">
+            <if test="productSourceType != null and productSourceType == 1">
+                AND enclosure.quantity > enclosure.subscribe_quantity
+            </if>
+            <if test="productSourceType != null and productSourceType == 4">
+                AND enclosure.subscribe_quantity > 0
+            </if>
+        </if>
+        <if test="enclosurePlanId != null ">
+            AND enclosure.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="category != null ">
+            AND enclosure.category = #{category}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND enclosure.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipEnumType != 1 ">
+            <if test="workshopId != null ">
+                AND common.workshop_id = #{workshopId}
+            </if>
+            <if test="shipEnumType != 5 and shipEnumType != 6 and dateTime != null and dateTime != ''">
+                and DATE_FORMAT(common.create_time, '%Y' ) = DATE_FORMAT(#{dateTime}, '%Y')
+            </if>
+        </if>
+        GROUP BY enclosure.id
+        <if test="shipEnumType == 1 ">
+            HAVING quantity > 0
+        </if>
+        <if test="shipEnumType != 1 ">
+            ,common.workshop_id
+            order by common.workshop_id
+        </if>
+    </select>
+
+    <select id="selectShipMete" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM(clpl.quantity * a.net_weight),0)
+        FROM
+        mes_building_cargo_list_product_link clpl
+        INNER JOIN mes_building_cargo_list cl ON cl.id = clpl.cargo_list_id AND cl.bool_delete_enum = 0
+        INNER JOIN tech_artifact a ON clpl.product_id = a.id AND a.bool_delete_enum = 0
+        WHERE clpl.bool_delete_enum = 0
+        AND clpl.product_type = 2
+        AND cl.`status` IN (4,8)
+        AND cl.delivery_status = 1
+        AND a.monomer_id = #{monomerId}
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="getDriverCargoList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListDriverDTO">
+        select
+            license_plate,driver_name,driver_phone,empty_cars,means_conveyance_enum
+        from mes_building_cargo_list
+        where id in(select
+                    max(id)
+                    from
+                    mes_building_cargo_list
+                    where bool_delete_enum = 0 and status not in(1,2,16)
+                      and license_plate not in
+                          (select
+                        DISTINCT license_plate
+                        from mes_building_cargo_list
+                       where bool_delete_enum = 0 and status  in(1,2,16))
+
+                 <if test="licensePlate != null and licensePlate != ''">
+                     and license_plate like CONCAT('%',#{licensePlate},'%')
+                    </if>
+                    GROUP BY license_plate
+        )
+    </select>
+
+    <select id="getYearCargoListAllSendSummary" resultType="java.lang.Integer">
+        select count(DISTINCT a.count)  from (
+        select
+        cargo.id count
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN tech_assemble  b ON link.product_id = b.id
+        INNER JOIN mes_building_cargo_list cargo on cargo.id = link.cargo_list_id and  (cargo.status = 4 or cargo.status = 8)  and cargo.shipment_status !=  2
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id
+        WHERE
+        link.product_type = 16
+        and b.bool_send_directly = 1
+        AND  summary.type = 1
+        <if test="productionLineTypeEnum != null">
+            AND  b.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND b.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="dateTime!=null">
+            and DATE_FORMAT(cargo.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        <if test="projectId!=null">
+            and cargo.project_id =#{projectId}
+        </if>
+        <if test="startDate != null">
+            and date(cargo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cargo.create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="workshopId != null">
+            AND  summary.workshop_id = #{workshopId}
+        </if>
+        union all
+        select
+        cargo.id count
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN tech_machine_part  b ON link.product_id = b.id
+        INNER JOIN mes_building_cargo_list cargo on cargo.id = link.cargo_list_id and  (cargo.status = 4 or cargo.status = 8)  and cargo.shipment_status !=  2
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id
+        WHERE
+        link.product_type = 1
+        and b.bool_send_directly = 1
+        AND  summary.type = 1
+        <if test="productionLineTypeEnum != null">
+            AND  b.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND b.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="dateTime!=null">
+            and DATE_FORMAT(cargo.create_time, '%Y' ) =   DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+        <if test="projectId!=null">
+            and cargo.project_id =#{projectId}
+        </if>
+        <if test="startDate != null">
+            and date(cargo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cargo.create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="workshopId != null">
+            AND  summary.workshop_id = #{workshopId}
+        </if>
+        )a
+    </select>
+
+    <select id="printShipDayOrMonthSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoDayOrMonthSummaryDTO">
+        select a.name supplierName,
+        a.short_name projectName,
+        <if test="type == 1">
+            a.date date,
+        </if>
+        a.shippedWeight shippedWeight,
+        b.totalWeight totalWeight
+        from(
+        SELECT
+        s.`name`,
+        p.short_name,
+        <if test="type == 1">
+            DATE_FORMAT( c.audit_time, '%Y-%m-%d') date,
+        </if>
+        ROUND(sum( c.actual_weight )/ 1000, 2) shippedWeight
+        FROM
+        mes_building_cargo_list c
+        INNER JOIN contract_project p ON p.id = c.project_id and p.bool_delete_enum = 0
+        INNER JOIN mes_building_supplier_price sp ON sp.id = c.supplier_price_id and sp.bool_delete_enum = 0
+        INNER JOIN scm_supplier s ON s.id = sp.supplier_id and s.bool_delete_enum = 0
+        where c.bool_delete_enum = 0
+        <if test="startDate != null">
+            AND DATE( c.audit_time) &gt;= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE( c.audit_time) &lt;= DATE(#{endDate})
+        </if>
+        <if test="projectId != null">
+            AND p.id = #{projectId}
+        </if>
+        GROUP BY s.`name`,
+        <if test="type == 1">
+            DATE_FORMAT( c.audit_time, '%Y-%m-%d'),
+        </if>
+        p.short_name
+        )a
+        inner join(
+        SELECT s.`name`,
+        p.short_name,
+        ROUND(sum(c.actual_weight) / 1000, 2) totalWeight
+        FROM mes_building_cargo_list c
+        INNER JOIN contract_project p ON p.id = c.project_id and p.bool_delete_enum = 0
+        INNER JOIN mes_building_supplier_price sp ON sp.id = c.supplier_price_id and sp.bool_delete_enum = 0
+        INNER JOIN scm_supplier s ON s.id = sp.supplier_id and s.bool_delete_enum = 0
+        where c.bool_delete_enum = 0
+        GROUP BY s.`name`,p.short_name
+        )b on a.name = b.name and a.short_name = b.short_name
+    </select>
+    <select id="findCargoRealtimeInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.CargoRealtimeInfoDTO">
+        SELECT
+            CASE WHEN cl.audit_time is null THEN DATE_FORMAT( cl.create_time, '%Y-%m-%d %H:%i:%s' )
+            ELSE DATE_FORMAT( cl.audit_time, '%Y-%m-%d %H:%i:%s' ) END AS date,
+            cp.`name` projectName,
+            cl.license_plate licensePlate,
+            cl.`status` status
+        FROM
+            mes_building_cargo_list cl
+                left join contract_project cp on cl.project_id = cp.id and cp.bool_delete_enum = 0
+        where cl.bool_delete_enum = 0
+          AND DATE_FORMAT( cl.create_time, '%Y-%m%d' ) >= DATE_FORMAT( CURDATE() - INTERVAL 7 DAY, '%Y-%m%d' )
+    </select>
+
+    <select id="getMonthlyDispatchReportDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingWeeklyProductionReportDTO">
+        SELECT
+            a.mete as monthNetWeight,
+            workshop.NAME as workShopName
+        FROM
+            (
+                SELECT
+                    IFNULL( sum( a.quantity * b.net_weight ), 0 ) mete,
+                    a.workshop_id
+                FROM
+                    mes_building_warehouse_record a
+                        LEFT JOIN tech_artifact b ON a.product_id = b.id
+                        AND b.bool_delete_enum = 0
+                        AND a.bool_delete_enum = 0
+                WHERE
+                    a.product_type = 2
+                  AND a.type = 2
+                  AND a.STATUS = 8
+                  AND a.create_time &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                  AND a.create_time &lt; DATE_FORMAT(CURDATE() + INTERVAL 1 MONTH, '%Y-%m-01')
+                GROUP BY
+                    a.workshop_id
+            ) a
+                LEFT JOIN mes_building_workshop workshop ON a.workshop_id = workshop.id
+    </select>
+
+    <select id="getYearslyDispatchReportDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingWeeklyProductionReportDTO">
+        SELECT
+            a.mete as totalNetWeight,
+            workshop.NAME as workShopName
+        FROM
+            (
+                SELECT
+                    IFNULL( sum( a.quantity * b.net_weight ), 0 ) mete,
+                    a.workshop_id
+                FROM
+                    mes_building_warehouse_record a
+                        LEFT JOIN tech_artifact b ON a.product_id = b.id
+                        AND b.bool_delete_enum = 0
+                        AND a.bool_delete_enum = 0
+                WHERE
+                    a.product_type = 2
+                  AND a.type = 2
+                  AND a.STATUS = 8
+                  AND YEAR(a.create_time) = YEAR(CURDATE())
+                GROUP BY
+                    a.workshop_id
+            ) a
+                LEFT JOIN mes_building_workshop workshop ON a.workshop_id = workshop.id
+    </select>
+
+    <select id="selectEnclosureShipMete" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL( SUM( a.length * clpl.quantity ), 0 )/1000
+        FROM
+        mes_building_cargo_list_product_link clpl
+        INNER JOIN mes_building_cargo_list cl ON cl.id = clpl.cargo_list_id AND cl.bool_delete_enum = 0
+        INNER JOIN tech_enclosure a ON clpl.product_id = a.id AND a.bool_delete_enum = 0
+        WHERE clpl.bool_delete_enum = 0
+        AND clpl.product_type = 4
+        AND cl.`status` IN (4,8)
+        AND cl.delivery_status = 1
+        AND a.monomer_id = #{monomerId}
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+
+    </select>
+
+
+</mapper>

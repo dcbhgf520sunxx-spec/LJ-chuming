@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.attend.MesBuildingAttendanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.attend.MesBuildingAttendance">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="attendance_date" property="attendanceDate" />
+        <result column="work_type" property="workType" />
+        <result column="name" property="name" />
+        <result column="roster_id" property="rosterId" />
+        <result column="user_id" property="userId" />
+        <result column="morning_working_time" property="morningWorkingTime" />
+        <result column="morning_closing_time" property="morningClosingTime" />
+        <result column="afternoon_working_time" property="afternoonWorkingTime" />
+        <result column="afternoon_closing_time" property="afternoonClosingTime" />
+        <result column="overtime_working_time" property="overtimeWorkingTime" />
+        <result column="overtime_closing_time" property="overtimeClosingTime" />
+        <result column="stand_config_id" property="standConfigId" />
+        <result column="over_config_id" property="overConfigId" />
+        <result column="point" property="point" />
+        <result column="attend_status" property="attendStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, supplier_id, attendance_date, work_type, name, roster_id, user_id, morning_working_time, morning_closing_time, afternoon_working_time, afternoon_closing_time, overtime_working_time, overtime_closing_time, stand_config_id, over_config_id, point, attend_status
+    </sql>
+    <select id="getAttendanceSummary" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.attend.MesAttendanceSummaryDTO">
+        SELECT
+        attendance_date as attendanceDate,
+        sum(case when attend_status = 1 then 1 else 0 end) as 'standAbsenteeNumber',
+        sum(case when attend_status !=1 and attend_status !=0 then 1 else 0 end) as 'standClockNumber',
+        sum(case when attend_status !=0 then 1 else 0 end) as 'standTotalNumber',
+        sum(case when over_status = 1 then 1 else 0 end) as 'overAbsenteeNumber',
+        sum(case when over_status !=1 and over_status !=0 then 1 else 0 end) as 'overClockNumber',
+        sum(case when over_status !=0 then 1 else 0 end) as 'overTotalNumber'
+        FROM `mes_building_attendance`
+        where bool_delete_enum = 0
+        <if test="monthDate != null">
+            AND DATE_FORMAT(attendance_date, '%Y-%m' ) = DATE_FORMAT(#{monthDate}, '%Y-%m' )
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        group by attendance_date
+        order by attendance_date desc
+    </select>
+    <select id="getUserAttendanceSummary" resultType="java.util.HashMap">
+        SELECT
+            IFNULL(SUM(CASE WHEN attend_status=2 or attend_status=4 or over_status=2 or over_status=4 THEN 1 ELSE 0 END),0) as totalMete,
+            IFNULL(SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')  and (attend_status=2 or attend_status=4 or over_status=2 or over_status=4) THEN 1 ELSE 0 END),0) AS currentMonthMete,
+            IFNULL(SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m') and (attend_status=2 or attend_status=4 or over_status=2 or over_status=4)  THEN 1 ELSE 0 END),0) AS lastMonthMete
+        FROM `mes_building_attendance`
+        where bool_delete_enum =0
+        and roster_id = #{rosterId}
+    </select>
+
+</mapper>

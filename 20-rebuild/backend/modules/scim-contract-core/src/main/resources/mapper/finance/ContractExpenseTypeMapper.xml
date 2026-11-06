@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractExpenseTypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractExpenseType">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, sort
+    </sql>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractExpenseTypeDTO">
+        SELECT *
+        FROM contract_expense_type
+        WHERE bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND `name` LIKE concat('%', #{name}, '%')
+        </if>
+        order by sort, id
+    </select>
+
+    <resultMap id="ResultMap" type="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractExpenseTypeDTO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+        <result column="sort" property="sort"/>
+        <collection property="links" ofType="com.hzchum.scim.common.core.api.pojo.common.DictionaryInfo">
+            <result column="dic_id" property="id"/>
+            <result column="value" property="value"/>
+            <result column="label" property="label"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectAllList" resultMap="ResultMap">
+        select type.id,
+               type.name,
+               type.sort,
+               type.category,
+               link.dictionary_id as dic_id,
+               link.dictionary_value as value,
+               link.dictionary_label as label
+        from contract_expense_type type
+                 left join contract_expense_dictionary_link link
+                           on type.id = link.expense_type_id and link.bool_delete_enum = 0
+        where type.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND type.`name` LIKE concat('%', #{name}, '%')
+        </if>
+    </select>
+
+    <select id="selectByType" resultMap="ResultMap">
+        select
+            cet.id,
+            cet.name,
+            cet.sort,
+            cet.category,
+            link.dictionary_id as dic_id,
+            link.dictionary_value as `value`,
+            link.dictionary_label as label
+        from contract_expense_type cet
+        left join contract_expense_dictionary_link link
+        on cet.id = link.expense_type_id and link.bool_delete_enum = 0
+        where cet.bool_delete_enum = 0
+        <if test="category != null">
+            AND cet.category = #{category}
+        </if>
+    </select>
+
+
+</mapper>

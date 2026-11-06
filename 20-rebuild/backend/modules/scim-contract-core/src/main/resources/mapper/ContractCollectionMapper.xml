@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractCollectionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractCollection">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="type" property="type"/>
+        <result column="project_id" property="projectId"/>
+        <result column="collection_unit_id" property="collectionUnitId"/>
+        <result column="collection_unit" property="collectionUnit"/>
+        <result column="collection_deposit_bank" property="collectionDepositBank"/>
+        <result column="collection_bank_account_id" property="collectionBankAccountId"/>
+        <result column="collection_bank_account" property="collectionBankAccount"/>
+        <result column="collection_date" property="collectionDate"/>
+        <result column="collection_mode" property="collectionMode"/>
+        <result column="payment_unit" property="paymentUnit"/>
+        <result column="payment_deposit_bank" property="paymentDepositBank"/>
+        <result column="payment_bank_account" property="paymentBankAccount"/>
+        <result column="collection_amount" property="collectionAmount"/>
+        <result column="collection_reason" property="collectionReason"/>
+        <result column="written_by_id" property="writtenById"/>
+        <result column="written_by_name" property="writtenByName"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="auditor_name" property="auditorName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, project_id, have_collection_amount,collection_unit_id,collection_unit, collection_deposit_bank, collection_bank_account_id,collection_bank_account,
+        collection_date, collection_mode, payment_unit, payment_deposit_bank,payment_bank_account, collection_amount, collection_reason,
+        written_by_id, written_by_name, auditor_id, auditor_name, audit_time, audit_status, remark
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Select_Column_List">
+        cle.id,
+        cle.type,
+        cle.collection_unit_id,
+        cle.collection_unit,
+        cle.collection_deposit_bank,
+        cle.collection_bank_account_id,
+        cle.collection_bank_account,
+        cle.collection_date,
+        cle.collection_mode,
+        cle.acceptance_draft_json,
+        cle.collection_amount,
+        cle.collection_amount AS have_collection_amount,
+        cle.collection_reason,
+        cle.payment_unit,
+        cle.payment_deposit_bank,
+        cle.payment_bank_account,
+        cle.written_by_id,
+        cle.written_by_name,
+        cle.auditor_id,
+        cle.auditor_name,
+        cle.audit_time,
+        cle.audit_status,
+        cle.remark,
+        cle.accessory_id,
+        cle.create_time,
+        cp.contract_amount,
+        cp.business_type,
+        cp.customer_unit,
+
+        cle.project_id AS 'project.id',
+        cp.`name` AS 'project.name',
+        cp.short_name AS 'project.shortName',
+        cp.serial_number AS 'project.serialNumber',
+
+        cle.contract_waste_id AS 'contract_waste.id',
+        cw.serial_number AS 'contract_waste.serial_number',
+        cw.purchaser AS 'contract_waste.purchaser'
+    </sql>
+
+
+    <select id="listByCondition" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractCollectionDTO">
+        SELECT
+        <include refid="Select_Column_List"/>
+        FROM contract_collection AS cle
+        LEFT JOIN contract_project AS cp ON cle.project_id = cp.id
+
+        <if test="userId != null">
+            LEFT JOIN sys_project_user_link AS pul ON cle.project_id = pul.project_id
+            AND pul.bool_delete_enum = 0
+        </if>
+
+        <!--LEFT JOIN sys_department AS dept on cp.relation_dept_id = dept.id-->
+        LEFT JOIN contract_waste AS cw on cle.contract_waste_id = cw.id
+        LEFT JOIN sys_branch_company as bc on bc.id = cle.collection_unit_id
+        WHERE cle.bool_delete_enum = 0
+
+        <if test="type != null">
+            AND cle.type = #{type}
+        </if>
+
+        <if test="userId != null">
+            AND ((cle.type = 1 AND pul.user_id = #{userId}) OR cle.type IN (2,4))
+        </if>
+
+        <if test="businessType != null">
+            and cp.business_type = #{businessType}
+        </if>
+
+        <if test="projectId != null">
+            and cle.project_id = #{projectId}
+        </if>
+
+        <if test="businessType != null">
+            and cp.business_type = #{businessType}
+        </if>
+
+        <if test="contractWasteId != null">
+            and cle.contract_waste_id = #{contractWasteId}
+        </if>
+
+        <if test="collectionUnitId != null">
+            and cle.collection_unit_id = #{collectionUnitId}
+        </if>
+
+        <if test="startDate != null">
+            and cle.collection_date &gt;= #{startDate}
+        </if>
+
+        <if test="endDate != null">
+            and cle.collection_date &lt;= #{endDate}
+        </if>
+
+        <if test="auditStatus != null">
+            and cle.audit_status = #{auditStatus}
+        </if>
+
+        <if test=" name != null and name != ''">
+            and (cp.name like concat('%',#{name},'%')
+            or cp.short_name like concat('%',#{name},'%')
+            or cw.purchaser like concat('%',#{name},'%')
+            )
+        </if>
+
+        <if test="contractSignBodyName != null and contractSignBodyName != ''">
+            and bc.name like concat('%',#{contractSignBodyName},'%')
+        </if>
+        GROUP BY cle.id
+        ORDER BY cle.audit_status ASC, cle.collection_date DESC, cle.id DESC
+    </select>
+
+    <select id="selectCollectionAmount" resultType="java.math.BigDecimal">
+        select
+        IFNULL(sum(collection_amount),0)
+        from contract_collection
+        where bool_delete_enum = 0
+
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="auditStatus != null">
+            and audit_status = #{auditStatus}
+        </if>
+    </select>
+
+
+    <select id="selectCollectionWarning" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractCollectionWarningDTO">
+
+        SELECT
+        p.id,
+        p.id AS 'project.id',
+        p.name AS 'project.name',
+        p.short_name AS 'project.shortName',
+        p.serial_number AS 'project.serialNumber',
+        (SELECT `name` FROM sys_user WHERE bool_delete_enum = 0 AND id = p.project_manager_id ) AS project_manager_name,
+        p.signing_date,
+        p.business_type,
+        p.contract_amount,
+        p.happened_amount,
+        (SELECT IFNULL(SUM(collection_amount), 0 ) FROM contract_collection WHERE project_id = p.id and bool_delete_enum = 0 and audit_status = 2) as collection_amount
+        FROM
+        contract_project AS p
+
+        <if test="userId != null">
+            INNER JOIN (
+            ( SELECT id AS project_id FROM contract_project WHERE bool_delete_enum = 0 AND user_id = #{userId})
+            UNION
+            (SELECT project_id FROM sys_project_user_link WHERE bool_delete_enum = 0 AND user_id = #{userId})
+            ) AS pids ON p.id = pids.project_id
+        </if>
+
+        WHERE p.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND p.id = #{projectId}
+        </if>
+        <if test="year != null">
+            AND DATE_FORMAT( p.create_time, '%Y' ) = #{year}
+        </if>
+        <if test="boolArrears != null">
+            AND p.bool_arrears =  #{boolArrears}
+        </if>
+        order by p.id desc
+    </select>
+
+
+    <select id="selectIncomeExpenseList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectIncomeExpenseDTO">
+        SELECT
+            t.month,
+            sum(t.collection_amount) collection_amount,
+            sum(t.payment_amount) payment_amount
+        FROM
+            (SELECT
+                 collection.*,
+                 0 AS payment_amount
+             FROM
+                 (
+                    SELECT
+                    DATE_FORMAT( cc.collection_date, '%m' ) AS MONTH,
+                    SUM( cc.collection_amount ) AS collection_amount
+                    FROM
+                    contract_collection AS cc
+                    INNER JOIN contract_project AS cp ON cc.project_id = cp.id AND cp.bool_delete_enum = 0
+                    WHERE cc.bool_delete_enum = 0
+                        AND cc.audit_status = 2
+                    <if test="year != null">
+                        AND  DATE_FORMAT( cc.collection_date, '%Y' ) = #{year}
+                    </if>
+                    <if test="branchCompanyId != null">
+                        AND cc.collection_unit_id = #{branchCompanyId}
+                    </if>
+                    GROUP BY MONTH
+                 ) AS collection
+
+
+             UNION ALL
+
+             SELECT
+                 payment.`month`,
+                 0 collection_amount,
+                 payment.payment_amount
+             FROM
+                 (
+                     SELECT
+                         DATE_FORMAT( payment_date, '%m' ) AS month,
+		                 SUM( actually_payment_amount ) AS payment_amount
+                     FROM
+                         contract_supplier_payment
+                     WHERE
+                         bool_delete_enum = 0
+                       AND audit_status = 2
+                        <if test="year != null">
+                            AND  DATE_FORMAT( payment_date, '%Y' ) = #{year}
+                        </if>
+                        <if test="branchCompanyId != null">
+                            AND payment_unit_id = #{branchCompanyId}
+                        </if>
+                     GROUP BY
+                         month
+                 ) AS payment ) AS t GROUP BY t.month
+    </select>
+
+    <select id="selectIncomeAndExpenses" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractCollection">
+        select * from contract_collection
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="remark != null">
+            and payment_unit like concat('%',#{remark},'%')
+        </if>
+        <if test="collectionMode != null">
+            and collection_mode = #{collectionMode}
+        </if>
+        <if test="startDate != null">
+            and collection_date &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and collection_date &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+
+    </select>
+
+<!--    <select id="getCollectionAll" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractCollection">
+        select * from contract_collection
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="remark != null">
+            and payment_unit like concat('%',#{remark},'%')
+        </if>
+        <if test="collectionMode != null">
+            and collection_mode = #{collectionMode}
+        </if>
+        <if test="startDate != null">
+            and collection_date &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and collection_date &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+
+    </select>-->
+
+</mapper>

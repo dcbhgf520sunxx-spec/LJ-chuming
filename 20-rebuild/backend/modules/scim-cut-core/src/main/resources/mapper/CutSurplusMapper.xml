@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.cut.core.mapper.CutSurplusMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.cut.core.api.pojo._do.CutSurplus">
+        <id column="id" property="id" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="surplus_state" property="surplusState" />
+        <result column="area" property="area" />
+        <result column="figure_url" property="figureUrl" />
+        <result column="plant_no" property="plantNo" />
+        <result column="project_no" property="projectNo" />
+        <result column="project_name" property="projectName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time,
+        create_time,
+        bool_delete_enum,
+        version,
+        id, surplus_state, area, figure_url, plant_no, project_no, project_name
+    </sql>
+
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WholeWeightedAveragePriceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WholeWeightedAveragePrice">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVat" />
+        <result column="basic_class" property="basicClass" />
+        <result column="classify_id" property="classifyId" />
+        <result column="specification" property="specification" />
+        <result column="thickness" property="thickness" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="color" property="color" />
+        <result column="brand" property="brand" />
+        <result column="mete" property="mete" />
+        <result column="accounting_unit" property="accountingUnit" />
+        <result column="unit_net" property="unitNet" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="quantity" property="quantity" />
+        <result column="standard_id" property="standardId" />
+        <result column="standard_name" property="standardName" />
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_vat" property="amountExcludingVat" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, unit_price, unit_price_excluding_vat, basic_class, classify_id, specification, thickness, heat_no_and_batch_no, color, brand, mete, accounting_unit, unit_net, bool_party_a, quantity, standard_id, standard_name, amount, amount_excluding_vat
+    </sql>
+
+
+    <select id="getPrice" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WholeWeightedAveragePrice">
+        select
+        *
+        from
+        wms_whole_weighted_average_price
+        where
+        bool_delete_enum = 0
+        and bool_party_a = #{boolPartyA}
+        <if test="basicClass != null">
+            and basic_class = #{basicClass}
+        </if>
+        <if test="classifyId != null">
+            and classify_id = #{ classifyId}
+        </if>
+        <if test="weightedAverageSpec != null  and weightedAverageSpec != ''">
+            and specification = #{weightedAverageSpec}
+        </if>
+        <if test="weightedAverageSpec == null  ">
+            and specification is null
+        </if>
+        <if test="thickness != null ">
+            and thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            and thickness is null
+        </if>
+        <if test="standardId != null ">
+            and standard_id = #{standardId}
+        </if>
+        <if test="standardId == null ">
+            and standard_id is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            and heat_no_and_batch_no is null
+        </if>
+        <if test="color != null and color != ''">
+            and color = #{color}
+        </if>
+        <if test="color == null ">
+            and color is null
+        </if>
+        <if test="brand != null and brand != '' ">
+            and brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            and brand is null
+        </if>
+        <if test="unitNet != null ">
+            and unit_net = #{unitNet}
+        </if>
+        <if test="unitNet == null ">
+            and unit_net is null
+        </if>
+    </select>
+
+
+</mapper>

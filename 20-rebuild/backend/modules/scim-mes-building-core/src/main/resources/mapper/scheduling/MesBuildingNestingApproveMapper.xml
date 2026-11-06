@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingNestingApproveMapper">
+
+  <select id="getNestingApprove" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingNestingApproveDTO">
+    SELECT
+      mbna.scheduling_id,
+      mbna.wms_approve_record_id,
+      mbna.order_number,
+      mbna.job_id,
+      war.review_status
+    FROM
+      mes_building_nesting_approve mbna
+        LEFT JOIN wms_approve_record war ON war.data_id = mbna.wms_approve_record_id
+    WHERE
+      mbna.bool_delete_enum = 0
+      AND war.approve_process_type = 60004
+      <if test="reviewStatus != null">
+        AND war.review_status = #{reviewStatus}
+      </if>
+      AND mbna.job_id = #{jobId}
+  </select>
+</mapper>

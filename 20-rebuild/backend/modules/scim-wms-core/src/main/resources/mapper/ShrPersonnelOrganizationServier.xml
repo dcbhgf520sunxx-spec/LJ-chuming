@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.ReturnDetailWholeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.ReturnDetailWhole">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="classify_id" property="classifyId" />
+        <result column="basic_class" property="basicClass" />
+        <result column="specification" property="specification" />
+        <result column="quantity" property="quantity" />
+        <result column="mete" property="mete" />
+        <result column="unit_net" property="unitNet" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="color" property="color" />
+        <result column="remark" property="remark" />
+        <result column="project_id" property="projectId" />
+        <result column="factory_id" property="factoryId" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="material_returnable_id" property="materialReturnableId" />
+        <result column="return_id" property="returnId" />
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_vat" property="amountExcludingVat" />
+        <result column="input_vat" property="inputVat" />
+        <result column="invoice_type" property="invoiceType" />
+        <result column="material_is_whole" property="materialIsWhole" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="outbound_id" property="outboundId" />
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVat" />
+        <result column="tax_rate" property="taxRate" />
+        <result column="theory_thickness" property="theoryThickness" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="standard_id" property="standardId" />
+        <result column="standard_name" property="standardName" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="material_sn" property="materialSn" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="source_workshop_id" property="sourceWorkshopId" />
+        <result column="bool_returns" property="boolReturns" />
+        <result column="board_id" property="boardId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, classify_id, basic_class, specification, quantity, mete, unit_net, length, width, thickness, brand, heat_no_and_batch_no, color, remark, project_id, factory_id, warehouse_id, material_returnable_id, return_id, amount, amount_excluding_vat, input_vat, invoice_type, material_is_whole, unit_price, outbound_id, unit_price_excluding_vat, tax_rate, theory_thickness, bool_party_a, standard_id, standard_name, monomer_id, area_id, material_sn, workshop_id, source_workshop_id, bool_returns, board_id
+    </sql>
+
+</mapper>

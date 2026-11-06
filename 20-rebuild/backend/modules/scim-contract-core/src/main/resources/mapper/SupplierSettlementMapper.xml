@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.SupplierSettlementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.SupplierSettlement">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_class" property="orderClass"/>
+        <result column="amount" property="amount"/>
+        <result column="bool_deduct" property="boolDeduct"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="apply_user_id" property="applyUserId"/>
+        <result column="apply_user_name" property="auditUserName"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_user_name" property="auditUserName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="audit_data_type" property="auditDataType"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, order_id, amount, bool_deduct, apply_date, apply_user_id, apply_user_name, audit_user_id, audit_user_name, audit_time, audit_status, attachment_ids,audit_data_type, remark
+    </sql>
+
+    <select id="selectSettlementAmount" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(css.amount), 0)
+        FROM contract_supplier_settlement AS css
+                 INNER JOIN scm_purchase_order AS spo ON css.order_id = spo.id AND spo.bool_delete_enum = 0
+        WHERE css.bool_delete_enum = 0
+          AND css.audit_status = 2
+
+          AND spo.supplier_id = #{supplierId}
+    </select>
+
+    <select id="update" resultType="java.lang.Boolean">
+        update contract_supplier_settlement
+        set bool_delete_enum = 0
+        where id = #{id}
+    </select>
+
+    <select id="getAount" resultType="java.math.BigDecimal">
+        select amount  from contract_supplier_settlement
+        where id = #{id}
+    </select>
+</mapper>

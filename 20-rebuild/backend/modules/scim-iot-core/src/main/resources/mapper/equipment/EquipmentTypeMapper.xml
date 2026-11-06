@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.iot.core.mapper.equipment.EquipmentTypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.iot.core.api.pojo._doModel.equipment.EquipmentType">
+        <id column="id" property="id" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="version" property="version" />
+        <result column="type_code" property="typeCode" />
+        <result column="type_name" property="typeName" />
+        <result column="order_num" property="orderNum" />
+        <result column="parent_type_code" property="parentTypeCode" />
+        <result column="remark" property="remark" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum,
+        create_time,
+        update_time,
+        version,
+        id, type_code, type_name, order_num, parent_type_code, remark, create_by, update_by
+    </sql>
+    <delete id="deletetUnBoolen">
+        truncate table equipment_type;
+    </delete>
+
+</mapper>

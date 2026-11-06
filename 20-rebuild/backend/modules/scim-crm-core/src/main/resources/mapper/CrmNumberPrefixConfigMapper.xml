@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmNumberPrefixConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmNumberPrefixConfig">
+        <id column="id" property="id" />
+        <result column="number_prefix_config_enum" property="numberPrefixConfigEnum" />
+        <result column="prefix_naming" property="prefixNaming" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, number_prefix_config_enum, prefix_naming
+    </sql>
+
+</mapper>

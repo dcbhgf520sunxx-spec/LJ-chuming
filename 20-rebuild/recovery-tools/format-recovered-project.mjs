@@ -1,0 +1,5 @@
+// Explicit one-time readability pass; never invoked by normal build.
+import fs from'node:fs';import path from'node:path';import{createRequire}from'node:module';import{fileURLToPath}from'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');const project=path.join(root,'20-rebuild/frontend-recovered');const r=createRequire(path.join(project,'package.json'));const esbuild=r('esbuild');
+function files(p){return fs.readdirSync(p,{withFileTypes:true}).flatMap(x=>x.isDirectory()?files(path.join(p,x.name)):[path.join(p,x.name)]);}
+let count=0;for(const file of files(path.join(project,'src')).filter(x=>/\.(?:m?js)$/.test(x)&&!x.endsWith('/shared/runtime.js')&&!x.endsWith('/exports.fragment.js')&&!x.endsWith('/inline-exports.fragment.js'))){const source=fs.readFileSync(file,'utf8').replaceAll('element-plus/es/locale/lang/zh-cn.mjs','element-plus/es/locale/lang/zh-cn');const result=await esbuild.transform(source,{loader:'js',format:'esm',charset:'utf8',minify:false,legalComments:'inline'});fs.writeFileSync(file,result.code);count++;}console.log({formatted_source_files:count});

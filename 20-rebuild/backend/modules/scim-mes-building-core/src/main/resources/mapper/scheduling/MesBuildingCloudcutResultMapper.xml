@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingCloudcutResultMapper">
+
+  <select id="pageMesBuildingCloudcutResult"
+    parameterType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingCloudcutResultDTO"
+    resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.scheduling.MesBuildingCloudcutResultVO">
+      SELECT
+        mbcr.id,
+        mbcr.cloudcut_id,
+        mbcr.file_name,
+        mbcr.file_path,
+        mbcr.import_time,
+        mbcr.import_user_id,
+        su.username import_user_name,
+        mbcr.part_type,
+        mbcr.machine_tool_id,
+        mbcr.cut_send_status,
+        mbcr.cut_send_time,
+        mbcr.cut_send_user_id,
+        mbcr.cut_status,
+        mbcr.ask_complete_time,
+        mbcr.complete_time
+      FROM
+        mes_building_cloudcut_result mbcr
+        LEFT JOIN sys_user su ON mbcr.import_user_id = su.id AND su.bool_delete_enum = 0
+        LEFT JOIN mes_building_machine_part_team_detail mbmptd ON mbcr.machine_tool_id = mbmptd.id AND mbmptd.bool_delete_enum = 0
+      WHERE
+        mbcr.bool_delete_enum = 0
+      <if test="mesBuildingCloudcutResultDTO.cloudcutId != null and mesBuildingCloudcutResultDTO.cloudcutId != ''">
+              AND mbcr.cloudcut_id = #{mesBuildingCloudcutResultDTO.cloudcutId}
+      </if>
+      <if test="mesBuildingCloudcutResultDTO.cutSendStatus != null">
+              AND mbcr.cut_send_status = #{mesBuildingCloudcutResultDTO.cutSendStatus}
+      </if>
+    <if test="mesBuildingCloudcutResultDTO.cutStatus != null">
+              AND mbcr.cut_status = #{mesBuildingCloudcutResultDTO.cutStatus}
+    </if>
+  </select>
+</mapper>

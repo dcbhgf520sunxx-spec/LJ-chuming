@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesQuotaConfigAuxiliaryMaterialMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesQuotaConfigAuxiliaryMaterialDTO">
+        SELECT
+            mqcam.*
+        FROM mes_quota_config_auxiliary_material mqcam
+        WHERE mqcam.bool_delete_enum = 0
+        <if test="typeName != null and typeName != ''">
+            AND mqcam.type_name = #{typeName}
+        </if>
+    </select>
+
+    <select id="getMaxSerialNumber" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(MAX(CAST(TRIM(LEADING #{prefix} FROM serial_number) AS UNSIGNED)), 0)
+        FROM mes_quota_config_auxiliary_material
+        WHERE serial_number REGEXP CONCAT('^', #{prefix}, '[0-9]+$')
+    </select>
+
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.InboundDetailManufacturedMapper">
+
+
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.InboundDetailManufactured">
+        select
+            widm.*
+        from wms_inbound_detail_manufactured widm
+        join wms_inbound_manufactured wim on widm.inbound_manufactured_id = wim.id and wim.bool_delete_enum = 0 and wim.review_status = 2
+        where widm.bool_delete_enum = 0
+        <if test=" basicClass != null">
+            and widm.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and widm.project_id = #{projectId}
+        </if>
+        <if test="createTime != null and createTime.size() > 0">
+            <if test="createTime[0] != null">
+                and wim.create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wim.create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="reviewPassTime != null and reviewPassTime.size() > 0">
+            <if test="reviewPassTime[0] != null">
+                and wim.review_pass_time &gt;= #{reviewPassTime[0]}
+            </if>
+            <if test="reviewPassTime[1] != null">
+                and wim.review_pass_time &lt;= #{reviewPassTime[1]}
+            </if>
+        </if>
+        <if test="supplierId != null and supplierId != ''">
+            and wim.supplier_id = #{supplierId}
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wim.purchase_SN like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wim.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipmentNumber != null and shipmentNumber != '' ">
+            and wim.shipment_number like CONCAT('%', #{shipmentNumber},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+            and wim.license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+        <if test="personName != null and personName != ''">
+            and wim.applicant_name like concat('%',#{personName},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and widm.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            and widm.brand like concat('%',#{brand},'%')
+        </if>
+    </select>
+    <select id="getCountMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.QuantityMeteDTO">
+        select
+        IFNULL(sum(widm.quantity),0) as quantity
+        from wms_inbound_detail_manufactured widm
+        left join wms_inbound_manufactured wim on widm.inbound_manufactured_id = wim.id
+        where
+        widm.bool_delete_enum = 0
+        <if test="status != null and status.size > 0">
+            and wim.review_status in
+            <foreach collection="status" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="purchaseId != null">
+            and wim.purchase_id = #{purchaseId}
+        </if>
+    </select>
+    <select id="getByApplyPurchaseId"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.InboundDetailManufactured">
+        select widm.*
+        FROM wms_inbound_detail_manufactured widm 
+                 LEFT JOIN wms_inbound_manufactured wim ON wim.id = widm.inbound_manufactured_id
+        where widm.bool_delete_enum = 0
+          and wim.bool_delete_enum = 0
+          and wim.review_status = 2
+          and widm.apply_purchase_id = #{id}
+        order by widm.basic_class, widm.thickness
+    </select>
+
+    <select id="getPassQuantity" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.QuantityMeteDTO">
+        select
+        IFNULL(sum(widm.quantity),0) as quantity
+        from wms_inbound_detail_manufactured widm
+        left join wms_inbound_manufactured wim on widm.inbound_manufactured_id = wim.id and wim.bool_delete_enum = 0
+        where
+        widm.bool_delete_enum = 0
+        and wim.review_status = 2
+        and widm.purchase_order_detail_id = #{purchaseDetailId}
+    </select>
+    <select id="selectPassDetailByPurchaseDetailIds"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.InboundDetailManufactured">
+        select
+        widm.*
+        FROM wms_inbound_detail_manufactured widm
+                 LEFT JOIN wms_inbound_manufactured wim ON wim.id = widm.inbound_manufactured_id
+        where widm.bool_delete_enum = 0
+          and wim.bool_delete_enum = 0
+          and wim.review_status = 2
+          and widm.purchase_order_detail_id in
+        <foreach collection="purchaseDetailIds" item="purchaseDetailId" open="(" separator="," close=")">
+            #{purchaseDetailId}
+        </foreach>
+    </select>
+    <select id="getInboundDetailManufacturedList"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.InboundDetailManufactured">
+        select
+        widm.*
+        FROM wms_inbound_detail_manufactured widm
+                 LEFT JOIN wms_inbound_manufactured wim ON wim.id = widm.inbound_manufactured_id and wim.bool_delete_enum = 0
+        where widm.bool_delete_enum = 0
+        <if test="purchaseId != null">
+            and wim.purchase_id = #{purchaseId}
+        </if>
+
+        <if test="reviewStatus != null">
+            and wim.review_status = #{reviewStatus}
+        </if>
+
+    </select>
+    <select id="orderReconciliationDetail"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.ReconciliationDetailDTO">
+        select
+        widm.id,
+        widm.purchase_order_detail_id purchaseDetailId,
+        spo.id purchaseId,
+        "2" type,
+        wim.review_pass_time createTime
+        FROM wms_inbound_detail_manufactured widm
+        LEFT JOIN wms_inbound_manufactured wim ON wim.id = widm.inbound_manufactured_id and wim.bool_delete_enum = 0
+        INNER JOIN scm_purchase_order spo ON wim.purchase_id = spo.id AND spo.bool_delete_enum = 0 AND spo.data_status = 2
+        where widm.bool_delete_enum = 0
+          and wim.review_status = 2
+        <if test="query.materialType != null">
+            and widm.basic_class &amp; #{query.basicClassBit} &gt; 0
+        </if>
+        <if test="query.basicClass != null">
+            and widm.basic_class = #{query.basicClass}
+        </if>
+        <if test="query.createUser != null">
+            and wim.applicant_name like CONCAT('%', #{query.createUser},'%')
+        </if>
+        <if test="query.className != null">
+            and widm.manufactured_name like CONCAT('%', #{query.className},'%')
+        </if>
+        <if test="query.startTime != null">
+            and wim.review_pass_time &gt;= #{query.startTime}
+        </if>
+        <if test="query.endTime != null">
+            and wim.review_pass_time &lt;= #{query.endTime}
+        </if>
+        <if test="query.projectId != null">
+            and widm.project_id = #{query.projectId}
+        </if>
+        <if test="query.purchaseSerialNumber != null">
+            and spo.serial_number like CONCAT('%', #{query.purchaseSerialNumber},'%')
+        </if>
+        <if test="query.supplierId != null">
+            and spo.supplier_id = #{query.supplierId}
+        </if>
+        <if test="query.specification != null">
+            and widm.specification like CONCAT('%', #{query.specification},'%')
+        </if>
+        <if test="query.branchCompanyId != null">
+            and spo.branch_company_id = #{query.branchCompanyId}
+        </if>
+    </select>
+    <select id="getPurchaseRejectMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.ReceiptMeteDTO">
+        select
+        wim.purchase_id as id,
+        IFNULL(sum(widm.total_weight),0) as mete
+        from wms_inbound_detail_manufactured widm
+        left join wms_inbound_manufactured wim on widm.inbound_manufactured_id = wim.id
+        where
+        widm.bool_delete_enum = 0
+        and wim.review_status  = 2
+        <if test="purchaseIds != null and purchaseIds.size > 0">
+            and wim.purchase_id in
+            <foreach collection="purchaseIds" item="purchaseId" open="(" separator="," close=")">
+                #{purchaseId}
+            </foreach>
+        </if>
+        group by wim.purchase_id
+    </select>
+</mapper>

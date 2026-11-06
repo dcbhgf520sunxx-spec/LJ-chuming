@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractGasSummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractGasSummary">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="year_month_value" property="yearMonthValue"/>
+        <result column="used_mete" property="usedMete"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="bool_confirm_status" property="boolConfirmStatus"/>
+        <result column="user_id" property="userId"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, classify_id, year, month, year_month_value, used_mete, accounting_unit, total_amount, bool_confirm_status, user_id, attachment_ids, remark
+    </sql>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractGasSummaryDTO">
+        select
+        gs.*,
+        wc.name classify_name,
+        wc.basic_class,
+        (gs.total_amount / gs.used_mete) avg_unit_price
+        from contract_gas_summary gs
+        LEFT JOIN wms_classification wc on gs.classify_id = wc.id and wc.bool_delete_enum = 0
+        where gs.bool_delete_enum = 0
+        <if test="year != null">
+            and gs.year = #{year}
+        </if>
+        <if test="classifyId != null">
+            and gs.classify_id = #{classifyId}
+        </if>
+        order by gs.year desc, gs.month asc
+
+    </select>
+
+    <select id="selectGasMonthAmount" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT
+            `year_month_value` month,
+            SUM(total_amount) amount
+        FROM
+            `contract_gas_summary`
+        WHERE bool_delete_enum = 0
+          AND `year_month_value` &lt;= #{endMonth}
+          AND `year_month_value` &gt; #{startMonth}
+        GROUP BY `year_month_value`
+        ORDER BY `year_month_value`
+    </select>
+
+</mapper>

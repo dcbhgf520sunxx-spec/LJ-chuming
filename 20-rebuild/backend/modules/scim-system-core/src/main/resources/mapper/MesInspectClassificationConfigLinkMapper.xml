@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesInspectClassificationConfigLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesInspectClassificationConfigLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="inspect_config_id" property="inspectConfigId" />
+        <result column="classification_id" property="classificationId" />
+        <result column="task_type_enum" property="taskTypeEnum" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, inspect_config_id, classification_id, task_type_enum
+    </sql>
+    <select id="findClassInfoByInspectId"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesInspectClassificationConfigLinkDTO">
+        select
+        cl.inspect_config_id,
+        cl.task_type_enum,
+        cl.classification_id,
+        case when cl.task_type_enum = 1 then partc.name
+        when cl.task_type_enum = 2 then artc.classification_name
+        when cl.task_type_enum = 16 then assc.name
+        else null
+        end as classificationName
+        from mes_inspect_classification_config_link cl
+        left join sys_steel_classification partc on cl.classification_id = partc.id and cl.task_type_enum = 1 and
+        partc.bool_delete_enum = 0
+        left join sys_structure_classification artc on cl.classification_id = artc.id and cl.task_type_enum = 2 and
+        artc.bool_delete_enum = 0
+        left join sys_assemble_config assc on cl.classification_id = assc.id and cl.task_type_enum = 16 and
+        assc.bool_delete_enum = 0
+        <where>
+            cl.bool_delete_enum = 0
+            <if test="idList.size > 0 and idList != null">
+                and cl.inspect_config_id in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

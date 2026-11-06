@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.cargoList.MesBuildingSupplierPriceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.cargoList.MesBuildingSupplierPrice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="price_type" property="priceType"/>
+        <result column="price" property="price"/>
+        <result column="tax" property="tax"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, supplier_id, price_type, price, tax, user_id, user_name
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.SupplierPriceDO">
+        select sp.*,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        s.id 'supplier.id',
+        s.name 'supplier.name',
+        sp.license_plate,
+        sp.bool_personal_enum,
+        sp.invoice_type_enum,
+        if(count > 0,1,0) boolUseEnwum
+        from mes_building_supplier_price sp
+        left join contract_project p on p.id = sp.project_id
+        left join scm_supplier s on s.id = sp.supplier_id
+        left join (
+        select supplier_price_id,count(*) count
+        from mes_building_cargo_list
+        where supplier_price_id is not null and bool_delete_enum = 0
+        group
+        by supplier_price_id
+        ) temp on temp.supplier_price_id = sp.id
+        <where>
+            sp.bool_delete_enum = 0
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND sp.project_id in
+                <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="name != null and name != ''">
+                and s.name like CONCAT('%',#{name},'%') or sp.license_plate like CONCAT('%',#{name},'%')
+            </if>
+            <if test="status != null">
+                and p.status = #{status}
+            </if>
+            <if test="licensePlate != null and licensePlate != ''">
+                and sp.license_plate = #{licensePlate}
+            </if>
+        </where>
+        order by sp.create_time desc
+    </select>
+
+    <select id="getSupplierAndLicensePlate" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.AppSupplierPersonalDO">
+        select
+       	sp.id,
+        CASE sp.bool_personal_enum
+        WHEN 1  THEN s.name
+        WHEN 0 then sp.license_plate END  name,
+        sp.bool_personal_enum
+        from mes_building_supplier_price sp
+        left join contract_project p on p.id = sp.project_id
+        left join scm_supplier s on s.id = sp.supplier_id
+        where sp.bool_delete_enum = 0  and sp.project_id = #{projectId}
+        order by sp.bool_personal_enum desc
+    </select>
+
+    <select id="getSupplierPriceList" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.cargoList.MesBuildingSupplierPrice">
+        SELECT
+            supplier_id,
+            branch_company_id
+        FROM
+            mes_building_supplier_price
+        WHERE
+            bool_personal_enum = 0
+          and bool_delete_enum = 0
+        <if test="year != null">
+            and year(create_time) = #{year}
+        </if>
+        <if test="branchCompanyId != null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        GROUP BY
+            supplier_id,branch_company_id
+    </select>
+
+</mapper>

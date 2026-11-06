@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractExpenseDictionaryLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractExpenseDictionaryLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="expense_type_id" property="expenseTypeId"/>
+        <result column="dictionary_id" property="dictionaryId"/>
+        <result column="dictionary_value" property="dictionaryValue"/>
+        <result column="dictionary_label" property="dictionaryLabel"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, expense_type_id, dictionary_id, dictionary_value, dictionary_label
+    </sql>
+
+    <select id="selectByExpenseTypeId" resultType="com.hzchum.scim.common.core.api.pojo.common.DictionaryInfo">
+        select dictionary_id as id,
+               dictionary_value as value,
+               dictionary_label as label
+        from contract_expense_dictionary_link
+        where bool_delete_enum = 0
+          and expense_type_id = #{expenseTypeId}
+    </select>
+
+</mapper>

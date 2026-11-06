@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectReturnProductMainMapper">
+
+    <select id="selectProjectReturnProductMainList"
+            resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReturnProductMainDTO">
+        SELECT
+        rm.*,
+        CASE rm.handle_method WHEN 1 THEN rm.freight ELSE rm.total_amount END AS totalAmount,
+        rm.warehouse_id AS 'warehouse.id',
+        wh.name AS 'warehouse.name',
+        bc.name AS branch_company_name,
+        su.NAME AS create_user_name,
+        su2.NAME AS audit_user_name,
+        cp.NAME AS project_name,
+        cp.serial_number AS project_code
+        FROM
+        project_return_product_main AS rm
+        LEFT JOIN contract_project cp ON cp.id = project_id
+        LEFT JOIN sys_user su ON su.id = rm.create_user_id
+        LEFT JOIN sys_user su2 ON su2.id = rm.audit_user_id
+        LEFT JOIN sys_branch_company AS bc ON bc.id = rm.branch_company_id
+        LEFT JOIN mes_building_warehouse AS wh on rm.warehouse_id = wh.id
+        WHERE rm.bool_delete_enum = 0
+        <if test="projectId != null">
+            and rm.project_id = #{projectId}
+        </if>
+        <if test="projectName != null and projectName != ''">
+            AND (cp.name like concat('%', #{projectName}, '%') or cp.short_name like concat('%',#{projectName},'%'))
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and su.name like concat('%', #{createUserName}, '%'))
+        </if>
+        <if test="auditUserName != null and auditUserName != ''">
+            and su2.name like concat('%', #{auditUserName},'%'))
+        </if>
+        <if test="serialNumber != null">
+            and rm.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="auditStatus != null">
+            and rm.audit_status = #{auditStatus}
+        </if>
+        <if test="productType != null">
+            and rm.product_type = #{productType}
+        </if>
+        <if test="relationType != null">
+            and rm.relation_type = #{relationType}
+        </if>
+        <if test="createTimeStartDate != null">
+            and DATE(rm.create_time) &gt;= DATE(#{createTimeStartDate})
+        </if>
+        <if test="createTimeEndDate != null">
+            and DATE(rm.create_time) &lt;= DATE(#{createTimeEndDate})
+        </if>
+        ORDER BY rm.audit_status, rm.id DESC
+    </select>
+
+</mapper>

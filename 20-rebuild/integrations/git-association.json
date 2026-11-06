@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/dcbhgf520sunxx-spec/LJ-chuming.git",
+  "visibilityObserved": "public",
+  "branch": "main",
+  "baselineCommit": "0591fc68c6c716ac3b417acbc0b70f16ab631aba",
+  "upstream": "origin/main",
+  "existingFilesPreserved": true,
+  "sourceCommitCreated": false,
+  "pushExecuted": false,
+  "privateInputPaths": [
+    "integrations/private/",
+    "integrations/runtime/"
+  ],
+  "scope": "Historical observation before separately authorized source publication. Current Git status is determined by repository HEAD and remote, not this snapshot.",
+  "recordType": "historical-pre-publication-association-snapshot"
+}

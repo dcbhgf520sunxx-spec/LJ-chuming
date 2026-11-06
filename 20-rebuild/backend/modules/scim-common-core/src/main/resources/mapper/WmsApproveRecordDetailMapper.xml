@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.common.core.mapper.WmsApproveRecordDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.common.core.api.pojo._do.WmsApproveRecordDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="flow_id" property="flowId" />
+        <result column="decision" property="decision" />
+        <result column="opinion" property="opinion" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        id, create_by, apply_purchase_id, approve_id, flow_id, decision, opinion, node, operator
+    </sql>
+    <select id="selectCanCheckCount"
+            resultType="java.lang.Integer">
+        select COUNT(*)
+        from wms_approve_record_detail ward
+        left join wms_approve_record war on war.serial_number = ward.approve_record_serial_number
+        where
+            war.bool_delete_enum = 0
+          and war.status = #{status}
+          and ward.bool_delete_enum = 0
+          and ward.status = #{status}
+          and ward.check_user_id = #{currentUserId}
+          and ward.flow_type != #{flowType}
+        <if test="componentNameList != null and componentNameList.size > 0">
+            and war.component_name in
+            <foreach collection="componentNameList" item="componentName" open="(" separator="," close=")">
+                #{componentName}
+            </foreach>
+        </if>
+        <if test="approveSource != null and approveSource != ''">
+            and war.approve_source = #{approveSource}
+        </if>
+    </select>
+
+</mapper>

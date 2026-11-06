@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.craft.MesPaintConfigMapper">
+
+    <select id="listInfo" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.craft.MesPaintConfigDTO">
+        SELECT
+            mpc.*
+        FROM mes_paint_config mpc
+        WHERE mpc.bool_delete_enum = 0
+        <if test="paintingTypeEnum != null">
+          AND mpc.painting_type_enum = #{paintingTypeEnum}
+        </if>
+        <if test="paintBrand != null and paintBrand != ''">
+          <bind name="paintBrandLike" value="'%' + paintBrand + '%'"/>
+          AND mpc.paint_brand LIKE #{paintBrandLike}
+        </if>
+        <if test="paintType != null and paintType != ''">
+          <bind name="paintTypeLike" value="'%' + paintType + '%'"/>
+          AND mpc.paint_type LIKE #{paintTypeLike}
+        </if>
+        <if test="paintBrandList != null and paintBrandList.size() > 0">
+            <foreach collection="paintBrandList" item="item" open="AND mpc.paint_brand IN (" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="paintTypeList != null and paintTypeList.size() > 0">
+            <foreach collection="paintTypeList" item="item" open="AND mpc.paint_type IN (" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="paintBrandList" resultType="java.lang.String">
+        SELECT DISTINCT
+            mpc.paint_brand
+        FROM mes_paint_config mpc
+        WHERE mpc.bool_delete_enum = 0
+        <if test="paintBrand != null and paintBrand != ''">
+            AND mpc.paint_brand LIKE concat('%', #{paintBrand}, '%')
+        </if>
+    </select>
+
+    <select id="paintTypeList" resultType="java.lang.String">
+        SELECT DISTINCT
+            mpc.paint_type
+        FROM mes_paint_config mpc
+        WHERE mpc.bool_delete_enum = 0
+        <if test="paintType != null and paintType != ''">
+            AND mpc.paint_type LIKE concat('%', #{paintType}, '%')
+        </if>
+    </select>
+
+</mapper>

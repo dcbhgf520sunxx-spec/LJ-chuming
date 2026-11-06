@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="640" viewBox="0 0 320 640">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="320" height="640" rx="36" fill="#f3f5f8"/>
+  <rect x="12" y="12" width="296" height="616" rx="30" fill="#111827"/>
+  <rect x="24" y="30" width="272" height="580" rx="8" fill="#f5f7fa"/>
+
+  <rect x="24" y="30" width="272" height="34" fill="#111827"/>
+  <text x="58" y="52" font-size="12" fill="#f9fafb" font-family="Arial">09:23</text>
+  <circle cx="252" cy="48" r="3" fill="#f9fafb"/>
+  <circle cx="263" cy="48" r="3" fill="#f9fafb"/>
+  <rect x="273" y="44" width="14" height="8" rx="2" fill="none" stroke="#f9fafb" stroke-width="1.4"/>
+
+  <rect x="24" y="64" width="272" height="52" fill="#111827"/>
+  <text x="36" y="96" font-size="24" fill="#cbd5e1" font-family="Arial">×</text>
+  <text x="128" y="107" font-size="9" fill="#9ca3af" font-family="Arial">xxx.xxx.com</text>
+  <text x="260" y="94" font-size="20" fill="#cbd5e1" font-family="Arial">...</text>
+
+  <rect x="24" y="116" width="272" height="62" fill="#0b84ff"/>
+  <text x="118" y="164" font-size="12" font-weight="600" fill="#e5f1ff" font-family="Arial">溯源查询系统</text>
+
+  <rect x="36" y="194" width="248" height="298" rx="7" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="47" y="208" width="4" height="18" rx="2" fill="#0b84ff"/>
+  <text x="58" y="222" font-size="13" font-weight="700" fill="#111827" font-family="Arial">产品信息：</text>
+  <g font-size="12" fill="#1f2937" font-family="Arial">
+    <text x="48" y="250">项目：</text><text x="90" y="250">XXX</text>
+    <text x="48" y="276">单体：</text><text x="90" y="276">XXX</text>
+    <text x="48" y="302">区域：</text><text x="90" y="302">XXX</text>
+    <text x="48" y="328">编号：</text><text x="90" y="328">XXX</text>
+    <text x="48" y="354">规格：</text><text x="90" y="354">XXX</text>
+    <text x="48" y="380">长度：</text><text x="90" y="380">XXX</text>
+    <text x="48" y="406">材质：</text><text x="90" y="406">XXX</text>
+  </g>
+  <rect x="48" y="422" width="104" height="28" rx="4" fill="#f59e0b"/>
+  <text x="80" y="441" font-size="12" font-weight="700" fill="#ffffff" font-family="Arial">二维图纸</text>
+  <rect x="168" y="422" width="104" height="28" rx="4" fill="#409eff"/>
+  <text x="200" y="441" font-size="12" font-weight="700" fill="#ffffff" font-family="Arial">三维模型</text>
+  <rect x="48" y="462" width="224" height="22" rx="3" fill="#f8fafc" stroke="#e5e7eb"/>
+
+  <rect x="36" y="508" width="248" height="58" rx="7" fill="#ffffff" filter="url(#shadow)"/>
+  <rect x="47" y="526" width="4" height="18" rx="2" fill="#0b84ff"/>
+  <text x="58" y="540" font-size="13" font-weight="700" fill="#111827" font-family="Arial">生产信息</text>
+  <text x="48" y="558" font-size="12" fill="#8b95a1" font-family="Arial">*暂无数据</text>
+  <rect x="118" y="586" width="84" height="5" rx="3" fill="#111827"/>
+</svg>

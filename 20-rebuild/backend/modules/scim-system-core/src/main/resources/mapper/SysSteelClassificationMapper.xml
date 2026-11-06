@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysSteelClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysSteelClassification">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, basic_class, sort
+    </sql>
+
+    <resultMap id="steelMap" type="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassificationDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+        <result property="basicClass" column="basic_class"/>
+        <result property="productClassificationEnum" column="product_classification_enum"/>
+
+        <collection property="links" ofType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassificationMatchDTOParam">
+            <result property="keyword" column="keyword"/>
+            <result property="specIndex" column="spec_index"/>
+        </collection>
+
+        <collection property="classifyLinks" ofType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassifyLinkDTO">
+            <result property="classifyId" column="classify_id"/>
+            <result property="classifyName" column="classify_name"/>
+            <result property="path" column="path"/>
+        </collection>
+        <collection column="classify_id" property="boundFinalClassifyIds" ofType="long">
+            <result column="classify_id"/>
+        </collection>
+        <collection column="matching_name" property="steelClassNames" ofType="string">
+            <result column="matching_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="listSteel" resultMap="steelMap">
+        SELECT s.id,
+               s.name,
+               s.sort,
+               s.basic_class,
+               s.product_classification_enum,
+               sm.keyword,
+               sm.spec_index,
+               sc.classify_id,
+               sc.classify_name,
+               sc.path,
+               matchName.matching_name
+        FROM sys_steel_classification s
+                 LEFT JOIN sys_steel_classification_match sm ON sm.steel_id = s.id and sm.bool_delete_enum = 0
+                 LEFT JOIN sys_steel_classify_link sc ON sc.steel_id = s.id and sc.bool_delete_enum = 0
+                 LEFT JOIN sys_steel_class_spec_name_link matchName ON matchName.steel_id = s.id and matchName.bool_delete_enum = 0
+        where s.bool_delete_enum = 0
+        <if test="classificationIds !=null and classificationIds.size != 0">
+            and s.id IN
+            <foreach collection="classificationIds" item="classificationId" open="(" separator="," close=")">
+                #{classificationId}
+            </foreach>
+        </if>
+        ORDER BY s.sort, s.id
+    </select>
+
+    <select id="listIdsSteel" resultType="java.lang.Long">
+        SELECT s.id
+        FROM sys_steel_classification s
+        LEFT JOIN sys_steel_classification_match sm ON sm.steel_id = s.id and sm.bool_delete_enum = 0
+        LEFT JOIN sys_steel_classify_link sc ON sc.steel_id = s.id and sc.bool_delete_enum = 0
+        LEFT JOIN sys_steel_class_spec_name_link matchName ON matchName.steel_id = s.id and matchName.bool_delete_enum = 0
+        where s.bool_delete_enum = 0
+        <if test="productClassificationEnum != null">
+            and s.product_classification_enum = #{productClassificationEnum}
+        </if>
+        <if test="mesProductEnum != null">
+            and s.mes_product_enum = #{mesProductEnum}
+        </if>
+        <if test="sectionAndNameAndType != null and sectionAndNameAndType != ''">
+            and (s.name like concat('%',#{sectionAndNameAndType},'%')
+            or  sm.keyword like concat('%',#{sectionAndNameAndType},'%'))
+        </if>
+    </select>
+
+
+    <select id="listSteelAndClassify"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassLinkDTO">
+        SELECT steel.id           steel_id,
+               steel.`name`       steel_name,
+               steel.basic_class  basicClassId,
+               link.classify_id   classify_id,
+               link.classify_name classify_name
+        FROM sys_steel_classification steel
+                 LEFT JOIN sys_steel_classify_link link ON steel.id = link.steel_id
+            AND link.bool_delete_enum = 0
+        WHERE steel.bool_delete_enum = 0
+    </select>
+    <resultMap id="steelResult" type="com.hzchum.scim.system.core.api.pojo.dto.config.SteelClassificationProcessConfigDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="partType" column="part_type"/>
+        <result property="matchingNames" column="matching_names"/>
+        <collection property="matchDTOList" ofType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassificationMatchDTO">
+            <result property="steelId" column="steelId"/>
+            <result property="spec" column="spec"/>
+        </collection>
+        <collection property="productProcessLinkList" ofType="com.hzchum.scim.mes.building.core.api.pojo._dto.process.MesBuildingProductProcessLinkDTO">
+            <result property="id" column="linkId"/>
+            <result property="processId" column="process_id"/>
+            <result property="sequence" column="sequence"/>
+            <result property="name" column="linkName"/>
+            <result property="nodeTime" column="node_time"/>
+            <result property="productType" column="product_type"/>
+            <result property="type" column="type"/>
+        </collection>
+    </resultMap>
+    <select id="findSteelConfigList" resultMap="steelResult">
+        select
+            sc.id,
+            sc.part_type,
+            sc.matching_names,
+            cd.name,
+            cm.id steelId,
+            cm.keyword spec,
+            pl.id linkId,
+            pl.process_id,
+            pl.sequence,
+            p.name linkName,
+            pl.node_time,
+            p.product_type,
+            p.type
+        from
+            sys_steel_classification sc left join mes_section_warehouse_config_detail cd
+                                                  on sc.section_warehouse_config_id = cd.id and cd.bool_delete_enum = 0
+                                        left join sys_steel_classification_match cm on sc.id = cm.steel_id and cm.bool_delete_enum = 0
+                                        left join mes_building_product_process_link pl on sc.id = pl.class_id and pl.bool_delete_enum = 0 and pl.product_type = 1
+                                        left join mes_building_process p on pl.process_id = p.id and p.bool_delete_enum = 0
+    </select>
+</mapper>

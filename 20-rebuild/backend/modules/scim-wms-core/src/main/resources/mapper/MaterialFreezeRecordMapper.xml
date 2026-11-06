@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MaterialFreezeRecordMapper">
+
+
+    <select id="getNonManualFreezeRecordGroupInfoList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialFreezeRecordDO">
+        SELECT
+        wmfr.freeze_type,
+        wmfr.freeze_source_id,
+        wmfr.freeze_source_sn,
+        MAX(wmfr.frozen_time) AS frozen_time,
+        MAX(wmfr.operator_name) AS operator_name,
+        GROUP_CONCAT(wmfr.id) AS idList
+        FROM wms_material_freeze_record wmfr
+        LEFT JOIN wms_material_freeze wmf ON wmf.id = wmfr.material_freeze_id
+        WHERE wmfr.bool_delete_enum = 0
+        AND wmfr.freeze_type != ${@com.hzchum.scim.wms.core.api.enums.MaterialFreezeTypeEnum@MANUAL.getType()}
+        <if test="freezeTypes != null and freezeTypes.size() > 0">
+            AND wmfr.freeze_type IN
+            <foreach item="item" collection="freezeTypes" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="basicClass != null and basicClass != ''">
+            and wmf.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        GROUP BY
+        wmfr.freeze_type,
+        wmfr.freeze_source_id,
+        wmfr.freeze_source_sn
+    </select>
+    <select id="getManualFreezeRecordGroupInfoList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialFreezeRecordDO">
+        SELECT
+        wmfr.freeze_type,
+            DATE_FORMAT(wmfr.frozen_time, '%Y-%m-%d') AS frozen_time,
+        wmfr.operator_name,
+        GROUP_CONCAT(wmfr.id) AS idList
+        FROM wms_material_freeze_record wmfr
+        LEFT JOIN wms_material_freeze wmf ON wmf.id = wmfr.material_freeze_id
+        WHERE wmfr.bool_delete_enum = 0
+          AND wmfr.freeze_type = ${@com.hzchum.scim.wms.core.api.enums.MaterialFreezeTypeEnum@MANUAL.getType()}
+        <if test="freezeTypes != null and freezeTypes.size() > 0">
+            AND wmfr.freeze_type IN
+            <foreach item="item" collection="freezeTypes" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="basicClass != null and basicClass != ''">
+            and wmf.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        GROUP BY
+            wmfr.freeze_type,
+            DATE_FORMAT(wmfr.frozen_time, '%Y-%m-%d'),
+            wmfr.operator_name
+    </select>
+    <select id="getFreezeRecordDetailsList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialFreeze">
+        SELECT
+        free.material_inventory_id,
+        free.basic_class,
+        free.classify_id,
+        free.total_freeze_types,
+        free.warehouse_type,
+        free.material_is_whole,
+        free.specification,
+        free.bool_party_a,
+        free.project_id,
+        free.warehouse_id,
+        free.theory_thickness,
+        free.brand,
+        free.heat_no_and_batch_no,
+        free.color,
+        free.total_basic_class,
+        free.length,
+        free.thickness,
+        free.width,
+        free.standard_id,
+        free.standard_name,
+        free.monomer_id,
+        free.area_id,
+        free.workshop_id,
+        rec.id,
+        rec.quantity as total_quantity,
+        rec.mete as total_mete
+        FROM wms_material_freeze_record as rec
+        left join wms_material_freeze as free on free.id = rec.material_freeze_id and free.bool_delete_enum = 0
+        where
+        rec.bool_delete_enum = 0
+        <if test="idList != null and idList.size()>0">
+            and rec.id in
+            <foreach collection="idList" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test=" materialIsWhole != null">
+            and free.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test=" workshopId != null">
+            and free.workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and free.warehouse_id = #{warehouseId}
+        </if>
+        <if test=" theoryThickness != null">
+            and free.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and free.thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and free.basic_class = #{ basicClass}
+        </if>
+        <if test=" width != null">
+            and free.width = #{width}
+        </if>
+        <if test=" length != null">
+            and free.length = #{length}
+        </if>
+
+        <if test=" minLength != null">
+            and free.steel_coil_length &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and free.steel_coil_length &lt;= #{maxLength}
+        </if>
+        <if test=" brand != null and brand != ''">
+            and free.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" color != null">
+            and free.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and free.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and free.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and free.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+    </select>
+
+</mapper>

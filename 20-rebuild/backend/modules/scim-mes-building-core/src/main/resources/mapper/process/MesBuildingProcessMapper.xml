@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.process.MesBuildingProcessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProcess">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="report_type" property="reportType" />
+        <result column="inspect_type" property="inspectType" />
+        <result column="type" property="type" />
+        <result column="product_type" property="productType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, report_type, inspect_type, type, product_type
+    </sql>
+    <select id="listByUserId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProcess">
+        <if test="type ==true">
+            SELECT distinct
+            b.process_id id,c.`name`,c.product_type,c.sort
+            FROM
+            mes_building_team_user_link a
+            LEFT JOIN mes_building_team b ON a.team_id=b.id AND  b.bool_delete_enum=FALSE
+            LEFT JOIN mes_building_process c ON b.process_id=c.id and  c.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND c.production_line_type_enum = 1
+            AND a.user_id=#{userId}
+            <if test="taskTypeEnum != null">
+                AND c.product_type &amp;#{taskTypeEnum}
+            </if>
+            order by c.sort ASC
+        </if>
+        <if test="type ==false">
+            SELECT distinct
+            b.process_id id,c.`name`,c.product_type,c.sort
+            FROM
+            mes_building_inspection_team_user_link a
+            LEFT JOIN mes_building_inspection_team b ON a.inspection_team_id=b.id  AND  b.bool_delete_enum=FALSE
+            LEFT JOIN mes_building_process c ON b.process_id=c.id AND  c.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND c.production_line_type_enum = 1
+            AND a.user_id=#{userId}
+            <if test="taskTypeEnum != null">
+                AND c.product_type &amp;#{taskTypeEnum}
+            </if>
+            order by c.sort ASC
+       </if>
+    </select>
+
+    <select id="listByUserId2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProcess">
+        <if test="type ==true">
+            SELECT distinct
+            b.process_id id,c.`name`,c.product_type,c.sort,c.report_type,c.inspect_type
+            FROM
+            mes_building_team_user_link a
+            LEFT JOIN mes_building_team b ON a.team_id=b.id AND  b.bool_delete_enum=FALSE
+            LEFT JOIN mes_building_process c ON b.process_id=c.id and  c.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND c.production_line_type_enum = 1
+            AND a.user_id=#{userId}
+            <if test="taskTypeEnum != null">
+                AND c.product_type &amp;#{taskTypeEnum}
+            </if>
+            order by c.product_type,c.sort,c.`name` ASC
+        </if>
+        <if test="type ==false">
+            SELECT distinct
+            a.process_id id,c.`name`,c.product_type,c.sort
+            FROM
+            mes_inspect_config a
+            LEFT JOIN mes_building_process c ON a.process_id=c.id and  c.bool_delete_enum=FALSE
+            Left join mes_inspect_config_user_link b ON a.id=b.inspect_config_id AND  b.bool_delete_enum=FALSE
+            AND  b.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND c.production_line_type_enum = 1
+            AND b.inspect_user_id=#{userId}
+            <if test="taskTypeEnum != null">
+                AND c.product_type &amp;#{taskTypeEnum}
+            </if>
+            and a.status = 1
+            order by c.product_type,c.sort,c.`name` ASC
+        </if>
+    </select>
+    <select id="listByProductionLineId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProcess">
+        SELECT DISTINCT
+            b.id,
+            b.`name`
+        FROM
+            mes_building_team a
+                LEFT JOIN mes_building_process b ON a.process_id = b.id
+        <where>
+            a.bool_delete_enum = FALSE
+            <if test="productionLineId!=null">
+                AND a.production_line_id =#{productionLineId}
+            </if>
+            <if test="productionLineId!=null">
+                AND b.product_type =#{productType}
+            </if>
+        </where>
+
+    </select>
+    <select id="getWorkshopByProcessList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.process.MesBuildingProcessDTO">
+        SELECT
+            *,
+            CASE
+            product_type
+            WHEN 1 THEN
+            1
+            WHEN 2 THEN
+            3
+            WHEN 16 THEN
+            2
+        END task_type_enum_sort
+        FROM
+            mes_building_process
+        WHERE
+            bool_delete_enum = 0
+          AND id IN (
+            SELECT
+                team.process_id
+            FROM
+                mes_building_workshop workshop
+                    LEFT JOIN mes_building_production_line line ON line.workshop_id = workshop.id AND line.production_line_type_enum=1 and line.bool_delete_enum = 0
+                    LEFT JOIN mes_building_team team ON team.production_line_id = line.id
+                    AND team.bool_delete_enum = 0
+            WHERE
+                workshop.bool_delete_enum = 0
+              AND workshop.id = #{workshopId})
+        ORDER BY
+            task_type_enum_sort ASC,
+            sort ASC
+    </select>
+    <select id="listAssistDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.AppTaskProcessDTO">
+
+        SELECT
+        a.id,
+        COUNT(distinct detail.number) AS quantity,
+        a.STATUS,
+        a.technology_status,
+        a.task_type_enum,
+        a.ask_complete_time,
+        a.product_id,
+        a.sequence,
+        a.project_id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        a.monomer_id 'monomer.id',
+        pm.`name` 'monomer.name',
+        a.area_id 'area.id',
+        pd.`name` 'area.name',
+        a.process_id 'process.id',
+        mbp.name 'process.name',
+        workshop.id 'workshop.id',
+        workshop.`name` 'workshop.name',
+        production_line.id 'production_line.id',
+        production_line.`name` 'production_line.name',
+        aproduction_line.id 'assistProductionLine.id',
+        aproduction_line.`name` 'assistProductionLine.name',
+        gro.id 'group.id',
+        gro.name 'group.name',
+        agroups.id 'assistGroup.id',
+        agroups.name 'assistGroup.name',
+        case a.sequence
+        when 0 THEN 1
+        else 0 end bool_first_process,
+        mbp.report_type report_type,
+        mba.serial_number serial_number
+        FROM  mes_building_assist assist
+        LEFT JOIN mes_building_task_process a ON assist.task_process_id=a.id AND a.bool_delete_enum=FALSE AND a.task_type_enum&amp;#{taskTypeEnum}
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = a.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        LEFT JOIN contract_project cp ON cp.id =a.project_id AND cp.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_task_order task_order on  task_order.id=a.task_order_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id AND pm.bool_delete_enum=FALSE
+        LEFT JOIN plan_area pd ON pd.id =a.area_id AND pd.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_process mbp on mbp.id=a.process_id AND mbp.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_workshop workshop ON a.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON a.production_line_id=production_line.id
+        LEFT JOIN mes_building_groups gro ON a.groups_id=gro.id
+        LEFT JOIN mes_building_groups agroups ON assist.groups_id=agroups.id
+        LEFT JOIN mes_building_production_line aproduction_line ON agroups.production_line_id=aproduction_line.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON a.product_id =mba.id
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON a.product_id =mba.id
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskTypeEnum == 48">
+            LEFT JOIN tech_assemble mba ON a.product_id =mba.id
+        </if>
+
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id
+        </if>
+        <where>
+            assist.id in
+            <foreach collection="assIstIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            and detail.assist_id in
+            <foreach collection="assIstIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            AND assist.bool_finish_enum=0
+            <if test="projectId!=null">
+                AND a.project_id =#{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND a.monomer_id =#{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND a.area_id =#{areaId}
+            </if>
+            <if test="areaBatchId!=null">
+                AND a.area_batch_id =#{areaBatchId}
+            </if>
+            <if test="taskId!=null">
+                AND a.task_id =#{taskId}
+            </if>
+            <if test="serialNumber != null">
+                AND mba.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+        </where>
+        GROUP BY
+        a.id,
+        a.task_type_enum,
+        a.product_id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.process_id,
+        workshop.id,
+        production_line.id,
+        aproduction_line.id,
+        gro.id,
+        agroups.id
+        ORDER BY mba.serial_number,a.ask_complete_time,a.id
+    </select>
+    <select id="listAssistDetail2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.AppTaskProcessDTO">
+
+        SELECT
+        a.id,
+        COUNT(distinct detail.number) AS quantity,
+        a.STATUS,
+        a.technology_status,
+        a.task_type_enum,
+        a.ask_complete_time,
+        a.product_id,
+        a.sequence,
+        a.project_id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        a.monomer_id 'monomer.id',
+        pm.`name` 'monomer.name',
+        a.area_id 'area.id',
+        pd.`name` 'area.name',
+        a.process_id 'process.id',
+        mbp.name 'process.name',
+        workshop.id 'workshop.id',
+        workshop.`name` 'workshop.name',
+        production_line.id 'production_line.id',
+        production_line.`name` 'production_line.name',
+        aproduction_line.id 'assistProductionLine.id',
+        aproduction_line.`name` 'assistProductionLine.name',
+        case a.sequence
+        when 0 THEN 1
+        else 0 end bool_first_process,
+        mbp.report_type report_type,
+        mba.serial_number serial_number
+        FROM  mes_building_assist assist
+        LEFT JOIN mes_building_task_process a ON assist.task_process_id=a.id AND a.bool_delete_enum=FALSE AND a.task_type_enum&amp;#{taskTypeEnum}
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = a.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        LEFT JOIN contract_project cp ON cp.id =a.project_id AND cp.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_task_order task_order on  task_order.id=a.task_order_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id AND pm.bool_delete_enum=FALSE
+        LEFT JOIN plan_area pd ON pd.id =a.area_id AND pd.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_process mbp on mbp.id=a.process_id AND mbp.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_workshop workshop ON a.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON a.production_line_id=production_line.id
+        LEFT JOIN mes_building_production_line aproduction_line ON detail.production_line_id=aproduction_line.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON a.product_id =mba.id
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON a.product_id =mba.id
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskTypeEnum == 48">
+            LEFT JOIN tech_assemble mba ON a.product_id =mba.id
+        </if>
+
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id
+        </if>
+        <where>
+            assist.id in
+            <foreach collection="assIstIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            and detail.assist_id in
+            <foreach collection="assIstIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            AND assist.bool_finish_enum=0
+            <if test="projectId!=null">
+                AND a.project_id =#{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND a.monomer_id =#{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND a.area_id =#{areaId}
+            </if>
+            <if test="areaBatchId!=null">
+                AND a.area_batch_id =#{areaBatchId}
+            </if>
+            <if test="processId!=null">
+                and a.process_id = #{processId}
+            </if>
+            <if test="taskId!=null">
+                AND a.task_id =#{taskId}
+            </if>
+            <if test="serialNumber != null">
+                AND mba.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+        </where>
+        GROUP BY
+        a.id,
+        a.task_type_enum,
+        a.product_id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.process_id,
+        workshop.id,
+        production_line.id,
+        aproduction_line.id
+        ORDER BY mba.serial_number,a.ask_complete_time,a.id
+    </select>
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.record.MesBuildingPrintConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.record.MesBuildingPrintConfig">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="user_id" property="userId" />
+        <result column="weight" property="weight" />
+        <result column="show_production_line" property="showProductionLine" />
+        <result column="show_monomer" property="showMonomer" />
+        <result column="show_area" property="showArea" />
+        <result column="manufacturer_name" property="manufacturerName" />
+        <result column="copies_quantity" property="copiesQuantity" />
+        <result column="print_all" property="printAll" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, user_id, weight, show_production_line, show_monomer, show_area, manufacturer_name, copies_quantity, print_all, type
+    </sql>
+
+</mapper>

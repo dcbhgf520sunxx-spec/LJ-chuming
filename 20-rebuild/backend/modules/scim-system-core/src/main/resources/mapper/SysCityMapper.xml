@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysCityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysCity">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="province_id" property="provinceId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,create_time,update_time,bool_delete_enum,version,
+        name, code, province_id
+    </sql>
+    <select id="findByProvinceId" resultType="com.hzchum.scim.system.core.api.pojo.dto.AddressResponseVO">
+        SELECT id, name
+        FROM sys_city
+        WHERE province_id = #{provinceId}
+          and bool_delete_enum = 0
+    </select>
+
+</mapper>

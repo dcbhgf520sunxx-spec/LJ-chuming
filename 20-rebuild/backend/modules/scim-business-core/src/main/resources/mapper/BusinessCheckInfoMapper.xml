@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessCheckInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessCheckInfo">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="status" property="status"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, status, create_user_id, check_user_id, check_time, remark
+    </sql>
+
+    <select id="listInfo" resultType="com.hzchum.scim.business.core.api.pojo._do.CheckInfoDO">
+        select i.*,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.serial_number 'project.serial_number',
+        p.short_name 'project.short_name',
+        p.project_type,
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        plan.id 'enclosurePlan.id',
+        plan.name 'enclosurePlan.name'
+        from business_check_info i
+        inner join contract_project p on p.id = i.project_id
+        left join plan_monomer m on m.id = i.monomer_id
+        left join enclosure_plan plan on plan.id = i.enclosure_plan_id
+        where i.bool_delete_enum = 0
+        <if test="projectId != null">
+            and i.project_id = #{projectId}
+        </if>
+        <!--        <if test="type != null and type &lt; 16">-->
+        <!--            and i.type = #{type} and i.project_type in (1,8)-->
+        <!--        </if>-->
+        <!--        <if test="type != null and type == 16">-->
+        <!--            and i.type = 1 and i.project_type = 2-->
+        <!--        </if>-->
+        -- 查询结构类型
+        <if test="type != null and type == 1">
+            and i.type = #{type} and (i.project_type &amp; 3) > 0
+        </if>
+        <if test=" type != null and type == 2">
+            and i.type = #{type} and (i.project_type &amp; 3) > 0
+        </if>
+        <if test="type != null and type == 4">
+            and i.type = #{type} and (i.project_type &amp; 8) > 0
+        </if>
+        <if test="type != null and type == 8">
+            and i.type = #{type} and (i.project_type &amp; 64) > 0
+        </if>
+        <if test="status != null">
+            and i.status = #{status}
+        </if>
+        <if test="dateTimeList != null and dateTimeList.size()>0">
+        <if test="dateTimeList[0] != null">
+            AND date_format(i.check_time, '%Y-%m-%d')  &gt;= date_format(#{dateTimeList[0]}, '%Y-%m-%d')
+        </if>
+        <if test="dateTimeList[1] != null">
+            AND date_format(i.check_time, '%Y-%m-%d')  &lt;= date_format(#{dateTimeList[1]}, '%Y-%m-%d')
+        </if>
+        </if>
+        and i.bool_delete_enum = 0
+        order by i.status, i.create_time desc
+    </select>
+
+    <select id="countList" resultType="java.lang.Integer">
+        select ifnull(count(*), 0)
+        from business_check_info
+        where status = 1
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listExcel" resultType="com.hzchum.scim.business.core.api.pojo.dto.BusinessCheckExcelDTO">
+        SELECT
+            CONCAT(cp.serial_number, ' ', cp.short_name) AS project,
+            pm.name AS monomer,
+        <choose>
+            <when test="type == 1">
+                '散发制品' as type_name,
+            </when>
+            <when test="type == 2">
+                '结构制品' as type_name,
+            </when>
+            <when test="type == 4">
+                '围护' as type_name,
+                ep.name AS enclosurePlanName,
+                case b.category
+                    WHEN 2 THEN '压型板'
+                    WHEN 4 THEN '夹芯板'
+                    WHEN 8 THEN '桁架楼承板'
+                    WHEN 16 THEN '压型楼承板'
+                    WHEN 32 THEN '折边件'
+                end as category_name,
+            </when>
+            <when test="type == 8">
+                '配套制品' as type_name,
+                b.quantity AS total_quantity,
+                ROUND(ifnull(b.quantity, 0) * ifnull(bcd.new_unit_price, 0), 3) as total_amount,
+                CASE b.use_property
+                    WHEN 1 THEN '工地'
+                    WHEN 2 THEN '工厂'
+                END AS use_property_name,
+            </when>
+        </choose>
+            bci.remark,
+            bci.create_user_name,
+            bci.create_time,
+            bci.check_user_name,
+            bci.check_time,
+            CASE bci.status
+                WHEN 1 THEN '未审核'
+                WHEN 2 THEN '通过'
+                WHEN 4 THEN '驳回'
+            END AS status,
+            (ifnull(b.total_weight, 0) / 1000) as total_weight,
+            b.*,
+            case bcd.new_pricing_manner
+                when 0 then '重量'
+                when 1 then '长度'
+                when 2 then '面积'
+            end as pricing_manner_name,
+        <if test=" type != 8">
+            case bcd.new_pricing_manner
+            <if test="type != 4">
+                when 0 then ROUND((ifnull(b.total_weight, 0) / 1000) * ifnull(bcd.new_unit_price, 0), 3)
+            </if>
+                when 1 then  ROUND(ifnull(b.total_length, 0) * ifnull(bcd.new_unit_price, 0), 3)
+            <if test="type == 4">
+                when 2 then  ROUND(ifnull(b.total_area, 0) * ifnull(bcd.new_unit_price, 0), 3)
+            </if>
+            end as total_amount,
+        </if>
+            CONCAT(ifnull(bcd.old_unit_price, '未填写'), ' ▶ ', bcd.new_unit_price) as price
+        FROM business_check_detail bcd
+        LEFT JOIN business_check_info bci ON bci.bool_delete_enum = FALSE AND bci.id = bcd.check_info_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = bci.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = bci.monomer_id
+        <choose>
+            <when test="type == 1">
+                inner join business_machine_part b on b.id = bcd.business_id
+            </when>
+            <when test="type == 2">
+                inner join business_artifact b on b.id = bcd.business_id
+            </when>
+            <when test="type == 4">
+                inner join business_enclosure b on b.id = bcd.business_id
+                LEFT JOIN enclosure_plan ep ON ep.bool_delete_enum = FALSE AND ep.id = bci.enclosure_plan_id
+            </when>
+            <when test="type == 8">
+                inner join business_standard_part b on b.id = bcd.business_id
+            </when>
+        </choose>
+        WHERE bcd.bool_delete_enum = FALSE
+        <if test="projectId != null">
+            and bci.project_id = #{projectId}
+        </if>
+        <if test="type != null">
+            and bci.type = #{type} and bci.project_type in (1,2,8)
+        </if>
+    </select>
+
+</mapper>

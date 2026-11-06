@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessPriceTempMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessPriceTemp">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="category" property="category"/>
+        <result column="enclosure_plan_id" property="enclosurePlanId"/>
+        <result column="project_type" property="projectType"/>
+        <result column="type" property="type"/>
+        <result column="business_id" property="businessId"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="pricing_manner" property="pricingManner"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, category, enclosure_plan_id, project_type, type, business_id, unit_price, pricing_manner
+    </sql>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.business.core.api.pojo.dto.BusinessPriceTempDTO">
+        SELECT
+        temp.id,
+        temp.project_type,
+        temp.type,
+        temp.business_id,
+        temp.unit_price,
+        temp.pricing_manner
+        FROM business_price_temp as temp
+        <if test="type == 1">
+            inner JOIN business_machine_part as business
+        </if>
+        <if test="type == 2">
+            inner JOIN business_artifact as business
+        </if>
+        <if test="type == 4">
+            inner JOIN business_enclosure as business
+        </if>
+        <if test="type == 8">
+            inner JOIN business_standard_part as business
+        </if>
+        on business.id = temp.business_id and business.bool_delete_enum = 0
+        where temp.bool_delete_enum = 0
+        <if test="projectId != null">
+            and temp.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and temp.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and temp.area_id = #{areaId}
+        </if>
+        <if test="category != null">
+            and temp.category = #{category}
+        </if>
+        <if test="enclosurePlanId != null">
+            and temp.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="type == 8 and relationType != null">
+            AND temp.relation_type = #{relationType}
+        </if>
+        order by temp.id desc
+    </select>
+
+</mapper>

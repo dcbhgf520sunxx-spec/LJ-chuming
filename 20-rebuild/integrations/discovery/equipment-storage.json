@@ -1,0 +1,676 @@
+{
+  "schemaVersion": 1,
+  "preparedOn": "2026-11-06",
+  "scope": "I05,I06,I14,I15,I16,I17 existing source/config discovery",
+  "constraints": [
+    "No test/build/probe executed; source readback only",
+    "No external network or hardware accessed",
+    "No container/live runtime or user DB changed",
+    "No private endpoint values or secret values included",
+    "Findings are source evidence only; not connectivity or acceptance evidence"
+  ],
+  "integrations": [
+    {
+      "id": "I05",
+      "name": "IoT设备接口",
+      "evidenceScope": "static-source-only",
+      "status": "existing-configurable-client-contract-unconfirmed",
+      "configuration": [
+        {
+          "key": "equiment.ip",
+          "source": "Spring @Value; local/business.properties key present; value withheld"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "backend/modules/scim-iot-core/src/main/java/com/hzchum/scim/iot/core/service/impl/equipment/EquimentServiceImpl.java",
+          "symbol": "EquimentServiceImpl",
+          "lines": "34-35,38-294",
+          "protocol": "HTTP(S) REST via RequestUtils",
+          "routes": [
+            {
+              "method": "POST",
+              "path": "/equipment/DeviceLongRangeApi/deviceTypeRead"
+            },
+            {
+              "method": "POST",
+              "path": "/equipment/DeviceLongRangeApi/ameterFindStatistics"
+            },
+            {
+              "method": "POST",
+              "path": "/equipment/DeviceLongRangeApi/gasFindStatistics"
+            },
+            {
+              "method": "GET",
+              "path": "/equipment/DeviceLongRangeApi/syncCorporationStructrureInfo"
+            },
+            {
+              "method": "GET",
+              "path": "/equipment/DeviceLongRangeApi/syncDeviceInfo"
+            },
+            {
+              "method": "GET",
+              "path": "/equipment/DeviceLongRangeApi/findNow"
+            },
+            {
+              "method": "GET",
+              "path": "/equipment/DeviceLongRangeApi/syncEquipmentTypeInfo"
+            },
+            {
+              "method": "GET",
+              "path": "/deviceApi/deviceLongRange/findDeviceBaseInfoById"
+            },
+            {
+              "method": "POST",
+              "path": "/deviceApi/deviceLongRange/addDeviceWeldingTask"
+            },
+            {
+              "method": "GET",
+              "path": "/deviceApi/deviceLongRange/findDeviceWeldingTaskRealDataById"
+            }
+          ]
+        },
+        {
+          "source": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/screen/ScreenUpServiceImpl.java",
+          "symbol": "EquimentService caller",
+          "lines": "caller identified; exact method/route pending"
+        },
+        {
+          "source": "backend/modules/scim-plan-core/src/main/java/com/hzchum/scim/plan/core/biz/impl/TechCappCraftProductTaskBizImpl.java",
+          "symbol": "EquimentService caller",
+          "lines": "caller identified; exact method/route pending"
+        }
+      ],
+      "contracts": {
+        "statisticsParameters": [
+          "equipmentId",
+          "prodLineId",
+          "startTime",
+          "endTime",
+          "abscissa",
+          "gasType"
+        ],
+        "weldingTaskParameters": [
+          "bizId",
+          "bizType",
+          "currentLowerLimit",
+          "currentUpperLimit",
+          "deviceId",
+          "voltageLowerLimit",
+          "voltageUpperLimit",
+          "weldingGunCode"
+        ],
+        "response": "generic data envelope; welding calls require code 000000"
+      },
+      "minimumPreparation": [
+        "retain equiment.ip spelling; provide configuration template without live target",
+        "obtain per-route request/response and authentication requirements; no new protocol adapter established"
+      ],
+      "externalMaterials": [
+        "approved base URL and network allowlist",
+        "API version/authentication specification",
+        "device/production-line identifier mapping",
+        "energy/PLC/welding success/error response samples",
+        "separate writable welding-task test permission"
+      ],
+      "unknown": [
+        "active deployed endpoint and auth",
+        "producer units/timezone/epoch semantics",
+        "retry/timeout contract",
+        "whether legacy sync methods have active public endpoints"
+      ]
+    },
+    {
+      "id": "I06",
+      "name": "地磅",
+      "evidenceScope": "static-source-only",
+      "status": "per-device-db-configurable-contract-unconfirmed",
+      "configuration": [
+        {
+          "key": "weighing_scale_equipment_info",
+          "fields": [
+            "device_id",
+            "device_name",
+            "company_name",
+            "factory_id",
+            "workshop_id",
+            "url",
+            "status",
+            "docking_method",
+            "cmc",
+            "remark"
+          ],
+          "source": "backend/modules/scim-iot-core-api/src/main/java/com/hzchum/scim/iot/core/api/pojo/_doModel/equipment/WeighingScaleEquipmentInfo.java:19-80"
+        },
+        {
+          "key": "wagonBalance.companyName",
+          "source": "WeighingScaleEquipmentInfoServiceImpl:39-42"
+        },
+        {
+          "key": "chum.config.companyName",
+          "source": "WeighingScaleEquipmentInfoServiceImpl:39-42"
+        },
+        {
+          "key": "chum.config.url",
+          "source": "WeighingScaleEquipmentRunner:28-29; legacy seed only"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/cargoList/CargoListMaterialController.java",
+          "symbol": "licensePlateList/materialInput",
+          "lines": "39-122",
+          "localRoutes": [
+            "GET /api/app/material/license/plate/list",
+            "GET /api/app/material/input/list",
+            "GET /api/app/material/device/list",
+            "GET /api/app/material/page",
+            "PUT /api/app/material/status"
+          ],
+          "external": "HttpUtil.post(one.getUrl(), map), endpoint from per-device DB row",
+          "parameters": [
+            "deviceId",
+            "startTime",
+            "endTime",
+            "type",
+            "plateNum"
+          ],
+          "response": "EquimentrepVO code 0; carNumber mapped to plateNum; weight mapped to roughWeight/tareWeight in materialInput"
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/WeighingScaleEquipmentRunner.java",
+          "symbol": "run",
+          "lines": "20-29,34-208",
+          "facts": [
+            "class lacks @Component in inspected source; not presumed active",
+            "contains company/device-specific legacy seeds, DTU/UDP metadata, one hardcoded private URL at line 185; value withheld",
+            "would remove old rows and seed rows if explicitly wired; do not execute as preparation"
+          ]
+        }
+      ],
+      "frontEnd": [
+        "frontend-recovered/src/views/ship-manage/pack-and-ship/weighbridge-management/index.vue.js identifies MES management UI; metadata management must not be claimed as third-party connectivity"
+      ],
+      "minimumPreparation": [
+        "prepare an offline per-device mapping worksheet/JSON with URL placeholders",
+        "do not seed or mutate user DB",
+        "do not rewrite DTU/UDP hardware protocol: this client currently speaks HTTP to gateway"
+      ],
+      "externalMaterials": [
+        "gateway API base/complete URL",
+        "device MID and company/factory/workshop mapping",
+        "docking method definition and request/response samples",
+        "tare/gross/net weight units and precision",
+        "vehicle identification and latest-reading time rules",
+        "gateway network/authentication and hardware vendor responsibility"
+      ],
+      "unknown": [
+        "current per-device values (DB not read)",
+        "actual hardware protocol beyond stored DTU/UDP metadata",
+        "whether optional deviceId/inOutType are always supplied by live client",
+        "gateway supports list and single-object return shape"
+      ]
+    },
+    {
+      "id": "I14",
+      "name": "阿里云OSS",
+      "evidenceScope": "static-source-only",
+      "status": "prepared-source-cloud-url-configurable-not-built-or-tested",
+      "configuration": [
+        {
+          "keys": [
+            "endpoint",
+            "accessKeyId",
+            "accessKeySecret",
+            "bucketName",
+            "ljaps.storage.local",
+            "chum.config.filePath",
+            "ljaps.storage.public-base-url"
+          ],
+          "source": "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java:28-39"
+        },
+        {
+          "keys": [
+            "LJAPS_OSS_ENDPOINT",
+            "LJAPS_OSS_ACCESS_KEY_ID",
+            "LJAPS_OSS_ACCESS_KEY_SECRET",
+            "LJAPS_OSS_BUCKET_NAME"
+          ],
+          "source": "OssUtils.java:178-186; standalone main only, includes ACL write; do not execute as probe"
+        },
+        {
+          "key": "LJAPS_OSS_PUBLIC_BASE_URL",
+          "source": "requested deployment-template binding owned by root; not a direct OssUtils @Value"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java",
+          "symbol": "openClient/uploadFile/deleteFile/downLoad/closeClient",
+          "lines": "28-41,55-145,186-208 (prepared source; pre-change baseline retained privately)",
+          "facts": [
+            "local true avoids OSS openClient and preserves existing local storage handling and /files/oss/<key> return",
+            "cloud OSS client still consumes existing endpoint/accessKeyId/accessKeySecret/bucketName properties",
+            "prepared change: both cloud upload return values call remoteObjectUrl before SDK calls; optional ljaps.storage.public-base-url supports public/custom path prefix; absent value derives bucket domain from configured service endpoint",
+            "HTTP(S) base URL rejects userinfo/query/fragment; endpoint fallback rejects paths; key/ACL/signature/response type unchanged",
+            "URL construction does not assert that a private Bucket is publicly readable; Bucket/download access policy must be supplied separately"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-plan-core/src/main/java/com/hzchum/scim/plan/core/service/impl/TechDrawingServiceImpl.java",
+          "symbol": "OssUtils injection and drawing uploads/deletes",
+          "lines": "185;874-875;1705,1770,1867;2291-2293;2395-2460;3609-3610;4566-4582;4931-4947;5834-5957;6670-6834;7112-7113"
+        },
+        {
+          "source": "backend/modules/scim-plan-core/src/main/java/com/hzchum/scim/plan/core/biz/impl/TechMachinePartBizImpl.java",
+          "symbol": "OssUtils upload",
+          "lines": "75,426-427"
+        },
+        {
+          "source": "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/biz/impl/scheduling/MesBuildingMachinePartSchedulingBizImpl.java",
+          "symbol": "OssUtils scheduling PDF upload",
+          "lines": "184-201,1623-1625"
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/cut/lantek/Oss.java",
+          "symbol": "upFile",
+          "lines": "13-26",
+          "facts": [
+            "separate Spring component with configurable credentials but hardcoded vendor endpoint/URL format",
+            "active caller not yet located; do not refactor solely because helper exists"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/cut/lantek/CutController.java",
+          "symbol": "legacy DXF import path",
+          "lines": "555-564",
+          "facts": [
+            "hardcoded credential literals and cloud endpoint exist; secret values deliberately omitted",
+            "active HTTP route/caller not established; do not run or refactor indiscriminately"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-scm-core/src/main/java/com/hzchum/scim/scm/core/service/ApplyPurchaseServiceImpl.java",
+          "symbol": "DingTalk temporary OSS upload path",
+          "lines": "2299-2304",
+          "facts": [
+            "uses temporary endpoint/credentials provider in DingTalk upload; separate integration contract"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/CutTaskProjectServiceImpl.java",
+          "symbol": "setPlateReport",
+          "lines": "631-699",
+          "localRoute": "POST /api/radan/setPlantReport (RadanController:66-68)",
+          "facts": [
+            "active callback constructs several hardcoded cloud download URLs for vendor-generated outputs; not OSS SDK upload helper",
+            "upstream artifact storage ownership differs from application upload Bucket; configure via I11/I12 vendor contract if changed"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-cut-core/src/main/java/com/hzchum/scim/cut/core/service/impl/NestCutPlateServiceImpl.java",
+          "symbol": "getPlateReport",
+          "lines": "101-146",
+          "localRoute": "POST /api/nesting/setPlantReport (NestingController:27-29)",
+          "facts": [
+            "active callback constructs hardcoded cloud paths for gCode/PDF/surplus images; not OSS SDK upload helper",
+            "has endpoint/accessKeyId/accessKeySecret properties at 82-87 but no SDK upload call established in inspected method",
+            "do not substitute the application Bucket for vendor-produced result URLs"
+          ]
+        }
+      ],
+      "minimumPreparation": [
+        "root keeps ljaps.storage.local explicitly true by default",
+        "single active shared OssUtils cloud URL construction prepared; no cloud activation",
+        "request LJAPS_OSS_PUBLIC_BASE_URL and Bucket access-policy agreement for real cloud test",
+        "keep cut/lantek/Oss and legacy import code unchanged without active caller evidence; record vendor result URL boundaries under I11/I12",
+        "never use standalone main ACL mutation as probe"
+      ],
+      "externalMaterials": [
+        "bucket/region/endpoint",
+        "public/custom access domain or signed URL policy",
+        "least-privilege credentials delivered privately",
+        "CORS/ACL and key-prefix policy",
+        "upload/download/delete sample objects and cleanup permission"
+      ],
+      "unknown": [
+        "private target and bucket settings not read or validated",
+        "signed/private download semantics",
+        "cloud permissions and actual round-trip unavailable",
+        "prepared source has not been compiled or tested"
+      ],
+      "preparedModification": {
+        "source": "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java",
+        "backupMetadata": "integrations/discovery/equipment-storage-backup.json",
+        "beforeSha256": "8d31f169de8e6ec479694dfc880d4b43713e0e6ff3ef4b34b9e13c728d80af08",
+        "afterSha256": "ed8028aa68d639ec47624adf743b27b9b1dbcd4fbde8a618dfa22d83ee49c365",
+        "probe": "integrations/probes/OssPublicBaseUrlProbe.java",
+        "probeState": "prepared-not-executed",
+        "probeScope": "reserved .invalid hosts; reflection invokes URL builder only; no OSS client/storage call"
+      }
+    },
+    {
+      "id": "I15",
+      "name": "独立招采/bidding",
+      "evidenceScope": "static-source-only",
+      "status": "named-datasource-present-external-entry-unlocated",
+      "configuration": [
+        {
+          "key": "spring.datasource.dynamic.datasource.bidding.*",
+          "source": "@DS(bidding) found; actual property binding/config not yet located; no DB read"
+        },
+        {
+          "key": "window external iframe/entry configuration",
+          "source": "not yet located; unknown"
+        },
+        {
+          "keys": [
+            "menu.redirect",
+            "menu.path",
+            "menu.iframe",
+            "menu.is_tripartite"
+          ],
+          "source": "frontend source menu response contract; physical table field mapping apart from redirect pending"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/service/impl/ProjectTenderingServiceImpl.java",
+          "symbol": "ProjectTenderingServiceImpl",
+          "lines": "74-76",
+          "facts": [
+            "@DS(bidding)"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/biz/impl/ProjectTenderingBizImpl.java",
+          "symbol": "ProjectTenderingBizImpl",
+          "lines": "92-93",
+          "facts": [
+            "@DS(bidding)"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/service/impl/MessageTemplateServiceImpl.java",
+          "symbol": "MessageTemplateServiceImpl",
+          "lines": "28-30",
+          "facts": [
+            "@DS(master), so not all bidding module work belongs to named bidding DB"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/service/impl/TenderNoticeImpl.java",
+          "symbol": "TenderNoticeImpl",
+          "lines": "18-20",
+          "facts": [
+            "@DS(master)"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bid/ProjectTenderingApi.java",
+          "symbol": "ProjectTenderingApi",
+          "lines": "42-204",
+          "localRoutes": [
+            "/api/bidding/tendering/save",
+            "/api/bidding/tendering/all",
+            "/api/bidding/tendering/detail/{id}",
+            "/api/bidding/tendering/material/detail/export/{id}",
+            "/api/bidding/tendering/material/project/export/{id}",
+            "/api/bidding/tendering/update",
+            "/api/bidding/tendering/projectProgress",
+            "/api/bidding/tendering/check",
+            "/api/bidding/tendering/modify/time",
+            "/api/bidding/tendering/save/supplier",
+            "/api/bidding/tendering/get/manually/{id}",
+            "/api/bidding/tendering/evaluation/{id}",
+            "/api/bidding/tendering/detail/supplier",
+            "/api/bidding/tendering/evaluation/bid",
+            "/api/bidding/tendering/all/overview",
+            "/api/bidding/tendering/bid/type"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bid/BiddingSupplierApi.java",
+          "symbol": "BiddingSupplierApi",
+          "lines": "28-84",
+          "baseRoute": "/api/bidding/supplier"
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bid/SubjectApi.java",
+          "symbol": "SubjectApi",
+          "lines": "21-40",
+          "baseRoute": "/api/bidding/subject"
+        },
+        {
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bid/QiniuController.java",
+          "symbol": "QiniuController",
+          "lines": "20-41",
+          "baseRoute": "/api/file",
+          "facts": [
+            "file subflow uses separate Qiniu integration; not OSS equivalence"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/home-page/module/system-app.vue.js",
+          "symbol": "system-app menu mapping and navigation",
+          "lines": "16-30",
+          "facts": [
+            "iframe && !isTripartite menu entries use redirect as path",
+            "external entries navigate with window.location.href except explicit newWindow entries",
+            "path containing /device appends remembered LAST_DEVICE_PATH, not presumed SSO token"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/home-page/module/third-app.vue.js",
+          "symbol": "third-app menu mapping and navigation",
+          "lines": "17-32",
+          "facts": [
+            "iframe && isTripartite menu entries use redirect and window.open with noopener,noreferrer"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/pojo/_do/Menu.java",
+          "symbol": "Menu.redirect",
+          "lines": "116-121",
+          "facts": [
+            "persistent redirect field; current row values not read"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/login/menu/index.vue.js",
+          "symbol": "login menu selection",
+          "lines": "17",
+          "facts": [
+            "iframe menu opens redirect via window.open"
+          ]
+        }
+      ],
+      "minimumPreparation": [
+        "document named datasource contract without creating or changing DB",
+        "obtain independent system entry/iframe source and SSO contract",
+        "CSP frame-src opt-in allowlist needed for external frame; default self retained",
+        "menu iframe flag also marks external navigation; do not assert every menu uses embedded iframe. External full-page/new-window destinations do not use frame-src; embedded flows require explicit frame-src."
+      ],
+      "externalMaterials": [
+        "approved external entry URL and allowed frame origins",
+        "named bidding datasource URL/driver/schema/user/password privately",
+        "schema version and read/write scope",
+        "tenant/UUID and supplier mapping",
+        "SSO/token/cookie and iframe X-Frame-Options/frame-ancestors policies",
+        "Qiniu callback/download requirements if bidding file path used"
+      ],
+      "unknown": [
+        "actual current external menu row and independent bidding target not read",
+        "named datasource exact deployment binding not validated from private config",
+        "external service account/SSO protocol",
+        "menu entry label-to-bidding route mapping not confirmed"
+      ]
+    },
+    {
+      "id": "I16",
+      "name": "独立设备系统入口",
+      "evidenceScope": "static-source-only",
+      "status": "menu-driven-external-navigation-configurable-materials-pending",
+      "configuration": [
+        {
+          "key": "entry URL / frontend runtime key",
+          "source": "unknown; do not equate equiment.ip API base with browser entry URL"
+        },
+        {
+          "keys": [
+            "menu.redirect",
+            "menu.path",
+            "menu.iframe",
+            "menu.is_tripartite"
+          ],
+          "source": "frontend source menu response contract; physical table field mapping apart from redirect pending"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "frontend-recovered/src/shared/segments/037.fragment.js",
+          "symbol": "s_ IOT enum",
+          "lines": "3",
+          "facts": [
+            "IOT label is 设备管理系统; value 2; STEEL label is 钢结构管理系统（PLM）"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/home-page/module/system-app.vue.js",
+          "symbol": "system-app menu mapping and navigation",
+          "lines": "16-30",
+          "facts": [
+            "iframe && !isTripartite menu entries use redirect as path",
+            "external entries navigate with window.location.href except explicit newWindow entries",
+            "path containing /device appends remembered LAST_DEVICE_PATH, not presumed SSO token"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/home-page/module/third-app.vue.js",
+          "symbol": "third-app menu mapping and navigation",
+          "lines": "17-32",
+          "facts": [
+            "iframe && isTripartite menu entries use redirect and window.open with noopener,noreferrer"
+          ]
+        },
+        {
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/pojo/_do/Menu.java",
+          "symbol": "Menu.redirect",
+          "lines": "116-121",
+          "facts": [
+            "persistent redirect field; current row values not read"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/views/login/menu/index.vue.js",
+          "symbol": "login menu selection",
+          "lines": "17",
+          "facts": [
+            "iframe menu opens redirect via window.open"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/shared/segments/001.fragment.js",
+          "symbol": "v2",
+          "lines": "116-118",
+          "facts": [
+            "shared runtime export M used by system-app returns ci.get(LAST_DEVICE_PATH); no token contract established"
+          ]
+        }
+      ],
+      "minimumPreparation": [
+        "record independent browser entry origin, route, authentication/callback and frame policy",
+        "use explicit opt-in CSP frame-src; retain self default",
+        "keep IoT API connectivity I05 separate from browser entry I16",
+        "menu iframe flag also marks external navigation; do not assert every menu uses embedded iframe. External full-page/new-window destinations do not use frame-src; embedded flows require explicit frame-src."
+      ],
+      "externalMaterials": [
+        "approved entry URL",
+        "SSO/redirect/callback/cookie rules",
+        "tenant/user mapping",
+        "X-Frame-Options/frame-ancestors permission or required new-window flow",
+        "CSP allowed frame/connect origins"
+      ],
+      "unknown": [
+        "actual current menu row and external URL not read",
+        "independent device SSO/authentication contract",
+        "client/server route reachability",
+        "other embedded iframe entry paths not yet tied specifically to device system"
+      ]
+    },
+    {
+      "id": "I17",
+      "name": "LODOP实体打印",
+      "evidenceScope": "static-source-only",
+      "status": "host-adapter-required-no-client-os-verified",
+      "configuration": [
+        {
+          "key": "window.LJAPS_PRINT_ADAPTER.getPrinter",
+          "source": "frontend-recovered/src/runtime/printing.js:1-3,42-53",
+          "contract": "host must inject explicit adapter before print; import does not probe network/devices"
+        }
+      ],
+      "callPaths": [
+        {
+          "source": "frontend-recovered/src/runtime/printing.js",
+          "symbol": "getConfiguredPrinter/hasConfiguredPrinter/requirePrintResult/showReportPreview",
+          "lines": "1-59",
+          "facts": [
+            "getConfiguredPrinter awaits adapter.getPrinter(); minimum validates PRINT_INIT and SET_PRINT_MODE",
+            "false driver return rejected; report iframe preview does not prove physical print"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/shared/segments/070.fragment.js",
+          "symbol": "FNe/qNe/QNe/Gd/JNe/XNe/Jb/$Ne/Xb",
+          "lines": "31-34,53-63,68-227",
+          "facts": [
+            "FNe delegates rebuildGetConfiguredPrinter; qNe obtains adapter then PRINT_INIT/SET_PRINT_MODE",
+            "actual print paths use PRINT/PREVIEW/PRINT_DESIGN and printer enumeration GET_PRINTER_COUNT/GET_PRINTER_NAME",
+            "CLODOP path uses CVERSION and On_Return callbacks plus PRINT_STATUS_OK/PRINT_STATUS_EXIST for result mode",
+            "legacy a6 user-agent branch exists at 12-30; it does not establish supported macOS driver",
+            "legacy download prompt exists at 224-227; no bundled verified client installer identified"
+          ]
+        },
+        {
+          "source": "frontend-recovered/src/shared/imports.fragment.js",
+          "symbol": "printing runtime imports",
+          "lines": "221",
+          "facts": [
+            "getConfiguredPrinter imported as rebuildGetConfiguredPrinter from runtime/printing.js"
+          ]
+        },
+        {
+          "source": "frontend-recovered/index.html",
+          "symbol": "Content-Security-Policy",
+          "lines": "1",
+          "facts": [
+            "baseline CSP uses self for connect/script and self/blob for frame; external adapter/local service origins require explicit opt-in allowlist",
+            "active getConfiguredPrinter does not inject a script or choose a localhost port"
+          ]
+        }
+      ],
+      "minimumPreparation": [
+        "provide host adapter injection file/template and document load order; do not merely link download",
+        "declare adapter script origin plus connect/script origins explicitly only when enabled; do not guess localhost ports",
+        "do not auto-probe/install/start local print client",
+        "retain visible unconfigured state until actual adapter installed"
+      ],
+      "externalMaterials": [
+        "vendor-approved operating system/browser/client version matrix",
+        "actual installer and verified download source/license",
+        "printer model/driver/default paper label size",
+        "local service protocol/host/ports/certificate and CSP needed by chosen adapter",
+        "adapter getPrinter implementation and script injection placement",
+        "physical print acceptance operator and success/error/cancel/result callback samples"
+      ],
+      "unknown": [
+        "current machine client availability",
+        "macOS support (not established from inspected source)",
+        "actual localhost port (not established from active source)",
+        "adapter injection bootstrap (not found)",
+        "physical print result"
+      ]
+    }
+  ]
+}

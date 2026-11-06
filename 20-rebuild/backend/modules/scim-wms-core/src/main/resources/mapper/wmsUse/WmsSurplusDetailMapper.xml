@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsSurplusDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._doModel.wmsUse.WmsSurplusDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="use_status" property="useStatus" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="basic_class" property="basicClass" />
+        <result column="classify_id" property="classifyId" />
+        <result column="classify_name" property="classifyName" />
+        <result column="specification" property="specification" />
+        <result column="material_is_whole" property="materialIsWhole" />
+        <result column="warehouse_type" property="warehouseType" />
+        <result column="project_id" property="projectId" />
+        <result column="surplus_project_id" property="surplusProjectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="quantity" property="quantity" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="theory_thickness" property="theoryThickness" />
+        <result column="one_theory_weight" property="oneTheoryWeight" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="color" property="color" />
+        <result column="measure_unit" property="measureUnit" />
+        <result column="accounting_precision" property="accountingPrecision" />
+        <result column="accounting_unit" property="accountingUnit" />
+        <result column="unit_net" property="unitNet" />
+        <result column="mete" property="mete" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="factory_id" property="factoryId" />
+        <result column="weight_measurement_mode" property="weightMeasurementMode" />
+        <result column="tax_rate" property="taxRate" />
+        <result column="invoice_type" property="invoiceType" />
+        <result column="remark" property="remark" />
+        <result column="weighted_average_spec" property="weightedAverageSpec" />
+        <result column="standard_id" property="standardId" />
+        <result column="standard_name" property="standardName" />
+        <result column="section_steel_weight" property="sectionSteelWeight" />
+        <result column="barcode" property="barcode" />
+        <result column="surplus_quantity" property="surplusQuantity" />
+        <result column="surplus_mete" property="surplusMete" />
+        <result column="surplus_id" property="surplusId" />
+        <result column="surplus_serial_number" property="surplusSerialNumber" />
+        <result column="amount" property="amount" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="amount_excluding_vat" property="amountExcludingVat" />
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVat" />
+        <result column="input_vat" property="inputVat" />
+        <result column="surplus_type" property="surplusType" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="material_id" property="materialId" />
+        <result column="unit_price_no_freight" property="unitPriceNoFreight" />
+        <result column="unit_price_excluding_vat_no_freight" property="unitPriceExcludingVatNoFreight" />
+        <result column="amount_no_freight" property="amountNoFreight" />
+        <result column="amount_excluding_vat_no_freight" property="amountExcludingVatNoFreight" />
+        <result column="input_vat_no_freight" property="inputVatNoFreight" />
+        <result column="workshop_id" property="workshopId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, use_status, serial_number, basic_class, classify_id, classify_name, specification, material_is_whole, warehouse_type, project_id, surplus_project_id, monomer_id, area_id, bool_party_a, quantity, length, width, thickness, theory_thickness, one_theory_weight, brand, heat_no_and_batch_no, color, measure_unit, accounting_precision, accounting_unit, unit_net, mete, warehouse_id, factory_id, weight_measurement_mode, tax_rate, invoice_type, remark, weighted_average_spec, standard_id, standard_name, section_steel_weight, barcode, surplus_quantity, surplus_mete, surplus_id, surplus_serial_number, amount, unit_price, amount_excluding_vat, unit_price_excluding_vat, input_vat, surplus_type, applicant_name, review_status, material_id, unit_price_no_freight, unit_price_excluding_vat_no_freight, amount_no_freight, amount_excluding_vat_no_freight, input_vat_no_freight, workshop_id
+    </sql>
+
+</mapper>

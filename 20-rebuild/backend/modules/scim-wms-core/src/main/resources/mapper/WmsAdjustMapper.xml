@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsAdjustMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsAdjust">
+        <id column="id" property="id"/>
+    </resultMap>
+    <select id="getCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM `wms_adjust`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsAdjust">
+        SELECT
+        wa.*
+        FROM
+        wms_adjust wa
+        LEFT JOIN wms_inbound wi ON wa.inbound_id = wi.id
+        where
+        wa.bool_delete_enum = 0
+        <if test="reviewStatus != null">
+            and wa.review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and wi.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wi.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="inboundTime != null and inboundTime.size()>0">
+            <if test="inboundTime[0] != null">
+                and wi.review_time &gt; #{inboundTime[0]}
+            </if>
+            <if test="inboundTime[1] != null">
+                and wi.review_time &lt; #{inboundTime[1]}
+            </if>
+        </if>
+        <if test=" supplierId != null ">
+            and wi.supplier_id = #{supplierId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wi.project_ids is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wi.project_ids IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},wi.project_ids)
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wi.purchase_SN like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+            and wi.license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+        and wi.license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+
+        <if test="adjustSerialNumber != null and adjustSerialNumber != '' ">
+            and wa.serial_number like CONCAT('%', #{adjustSerialNumber},'%')
+        </if>
+
+        <if test=" operatorName != null and  operatorName != ''">
+            and wa.applicant_name like CONCAT('%', #{operatorName},'%')
+        </if>
+        <if test=" workshopIds != null and workshopIds.size() > 0">
+            and wid.workshop_id in
+            <foreach collection="workshopIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="inboundWay != null">
+            and wi.inbound_way = #{inboundWay}
+        </if>
+    </select>
+
+
+</mapper>

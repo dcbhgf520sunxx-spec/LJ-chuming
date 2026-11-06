@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.SupplierMapper">
+
+
+    <select id="getCountByDate" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM scm_supplier
+        WHERE bool_delete_enum = false
+          AND date_format(create_time, '%Y-%m-%d') = date_format(NOW(), '%Y-%m-%d')
+    </select>
+
+
+    <select id="selectPayableOnSupplier" resultType="com.hzchum.scim.scm.core.api.pojo.dto.SupplierPayableSummaryDTO">
+        SELECT
+        ss.id as supplier_id,
+        ss.name as supplier_name,
+        ss.supplier_classification
+        FROM scm_supplier AS ss
+        WHERE ss.bool_delete_enum = 0
+        <if test="supplierName != null and supplierName != ''">
+            and ss.name like concat('%',#{supplierName},'%')
+        </if>
+        <if test="supplierClassification != null">
+            and ss.supplier_classification &amp; #{supplierClassification} > 0
+        </if>
+    </select>
+
+    <select id="getList" resultType="com.hzchum.scim.scm.core.api.pojo._do.Supplier">
+        SELECT
+       *
+        FROM scm_supplier
+        WHERE bool_delete_enum = 0
+          <if test="basicClass != null">
+            and supplier_classification &amp; #{basicClass} &gt; 0
+          </if>
+        order by create_time desc
+    </select>
+</mapper>

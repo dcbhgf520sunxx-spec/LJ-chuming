@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_manage.MesProductionWageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesProductionWage">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="product_id" property="productId" />
+        <result column="product_type" property="productType" />
+        <result column="number" property="number" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="process_id" property="processId" />
+        <result column="team_id" property="teamId" />
+        <result column="team_leader_name" property="teamLeaderName" />
+        <result column="inbound_quantity" property="inboundQuantity" />
+        <result column="measurement_manner" property="measurementManner" />
+        <result column="warehouse_record_id" property="warehouseRecordId" />
+        <result column="inbound_time" property="inboundTime" />
+        <result column="produce_team_report_id" property="produceTeamReportId" />
+        <result column="produce_team_report_time" property="produceTeamReportTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, product_id, product_type, number, workshop_id, process_id, team_id, team_leader_name, inbound_quantity, measurement_manner, warehouse_record_id, inbound_time, produce_team_report_id, produce_team_report_time
+    </sql>
+
+    <select id="dateRangeSummary" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesWageStatisticsYearSummaryDTO">
+        SELECT
+            (SUM(IFNULL(mpw.total_net_weight, 0)) / 1000) AS total_inbound_quantity,
+            SUM(IFNULL(mpw.total_wage, 0)) AS total_salary
+        FROM mes_production_wage mpw
+        WHERE mpw.bool_delete_enum = FALSE
+          AND mpw.bool_confirm = TRUE
+          AND DATE_FORMAT(mpw.inbound_time, '%Y-%m-%d') BETWEEN #{startDate} AND #{endDate}
+        <if test="workshopId != null">
+            and mpw.workshop_id = #{workshopId}
+        </if>
+        <if test="projectId != null">
+            and mpw.project_id = #{projectId}
+        </if>
+    </select>
+
+    <select id="monthSummaryList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesWageStatisticsMonthSummaryDTO">
+        SELECT
+            this_month.*,
+            IFNULL(lastMonth.yield, 0) AS last_month_yield,
+            IFNULL(lastMonth.money, 0) AS last_month_money,
+            mbw.name AS workshop_name,
+            mbp.name as process_name
+        FROM (
+                 SELECT
+                     mpw.workshop_id,
+                     mpw.process_id,
+                     mpw.team_leader_name,
+                     mbt.organization_type as team_organization_type,
+                     (SUM(IFNULL(mpw.yield, 0)) / 1000) AS yield,
+                     SUM(IFNULL(mpw.total_wage, 0)) AS money
+                 FROM mes_production_wage mpw
+                 left join mes_building_team mbt on mbt.bool_delete_enum = FALSE and mbt.id = mpw.team_id
+                 WHERE mpw.bool_delete_enum = FALSE
+                   AND mpw.bool_confirm = TRUE
+                   AND DATE_FORMAT(mpw.inbound_time, '%Y-%m-%d') BETWEEN #{startDate} AND #{endDate}
+                 <if test="workshopId != null">
+                     and mpw.workshop_id = #{workshopId}
+                 </if>
+                 <if test="projectId != null">
+                     and mpw.project_id = #{projectId}
+                 </if>
+                 GROUP BY mpw.workshop_id, mpw.process_id, mpw.team_leader_name, mbt.organization_type
+             ) this_month
+        LEFT JOIN (
+                      SELECT
+                          mpw.workshop_id,
+                          mpw.process_id,
+                          mpw.team_leader_name,
+                          mbt.organization_type as team_organization_type,
+                          (SUM(IFNULL(mpw.yield, 0)) / 1000) AS yield,
+                          SUM(IFNULL(mpw.total_wage, 0)) AS money
+                      FROM mes_production_wage mpw
+                      left join mes_building_team mbt on mbt.bool_delete_enum = FALSE and mbt.id = mpw.team_id
+                      WHERE mpw.bool_delete_enum = FALSE
+                        AND mpw.bool_confirm = TRUE
+                        AND DATE_FORMAT(mpw.inbound_time, '%Y-%m-%d') BETWEEN #{lastMonthStartDate} AND #{lastMonthEndDate}
+                      <if test="workshopId != null">
+                          and mpw.workshop_id = #{workshopId}
+                      </if>
+                      GROUP BY mpw.workshop_id, mpw.process_id, mpw.team_leader_name, mbt.organization_type
+                  ) lastMonth ON lastMonth.workshop_id = this_month.workshop_id AND
+                                 lastMonth.process_id = this_month.process_id AND
+                                 lastMonth.team_leader_name = this_month.team_leader_name
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = FALSE AND mbw.id = this_month.workshop_id
+        LEFT JOIN mes_building_process mbp on mbp.bool_delete_enum = FALSE and mbp.id = this_month.process_id
+    </select>
+
+    <select id="reverseInferenceModePage" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesProductionWageReverseInferenceModeDTO">
+        SELECT
+            mpw.id,
+            mpw.project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            mpw.monomer_id,
+            pm.name AS monomer_name,
+            mpw.area_id,
+            pa.name AS area_name,
+            CASE mpw.product_type
+                WHEN 2 THEN artifact_type.classification_name
+                WHEN 16 THEN assemble_type.name
+                WHEN 1 THEN machine_part_type.name
+            end as type_name,
+            IFNULL(mpw.inbound_quantity, 0) * IFNULL(mpw.product_net_weight, 0) AS total_net_weight,
+            mpw.product_name,
+            mpw.product_serial_number,
+            mpw.product_specification,
+            mpw.product_material,
+            IFNULL(mpw.inbound_quantity, 0) AS inbound_quantity,
+            mpw.wage,
+            mpw.total_wage,
+            mpw.wage_statistics_mode,
+            mpw.measurement_manner,
+            mpw.measurement_quantity,
+            mpw.process_id,
+            mbp.name as process_name
+        FROM mes_production_wage mpw
+        LEFT JOIN contract_project cp ON cp.id = mpw.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = mpw.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = mpw.area_id
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = FALSE AND mbp.id = mpw.process_id
+        LEFT JOIN sys_structure_classification artifact_type ON artifact_type.bool_delete_enum = FALSE AND mpw.product_type = 2 AND artifact_type.id = mpw.product_class_id
+        LEFT JOIN sys_assemble_config assemble_type ON assemble_type.bool_delete_enum = FALSE AND mpw.product_type = 16 AND assemble_type.id = mpw.product_class_id
+        LEFT JOIN sys_steel_classification machine_part_type ON machine_part_type.bool_delete_enum = FALSE AND mpw.product_type = 1 AND machine_part_type.id = mpw.product_class_id
+        WHERE mpw.bool_delete_enum = FALSE
+          AND mpw.bool_confirm = TRUE
+          and mpw.workshop_id = #{workshopId}
+          and mpw.process_id = #{processId}
+          and mpw.team_leader_name = #{teamLeaderName}
+          and date_format(mpw.inbound_time, '%Y-%m-%d') BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+</mapper>

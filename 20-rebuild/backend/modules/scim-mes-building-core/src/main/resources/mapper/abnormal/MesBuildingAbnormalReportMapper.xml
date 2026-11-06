@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.abnormal.MesBuildingAbnormalReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.abnormal.MesBuildingAbnormalReport">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="abnormal_id" property="abnormalId" />
+        <result column="product_id" property="productId" />
+        <result column="product_type" property="productType" />
+        <result column="quantity" property="quantity" />
+        <result column="report_id" property="reportId" />
+        <result column="type" property="type" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, abnormal_id, product_id, product_type, quantity, report_id, type, user_id
+    </sql>
+    <select id="abonrmalChangeReport"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.AbnormalChangeReportDO">
+        <choose>
+            <when test="type!=1">
+                SELECT
+                a.id,
+                c.user_name,
+                a.quantity,
+                date(b.create_time) complete_time,
+                b.process_id,
+                date(task.ask_complete_time) ask_complete_time,
+                a.report_type,
+                process.`name`  process_name,
+                factory.id 'factory.id',
+                factory.`name` 'factory.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name'
+                FROM
+                mes_building_abnormal_report a
+                LEFT JOIN mes_building_produce_team_report b ON a.report_id = b.id
+                LEFT JOIN mes_building_task task ON b.task_id=task.id
+                LEFT JOIN mes_building_process process ON b.process_id = process.id
+                LEFT JOIN mes_building_team_user_link c ON b.team_id = c.team_id AND c.bool_leader_enum = 1 AND c.bool_delete_enum = 0
+                LEFT JOIN mes_building_factory factory ON factory.id=task.factory_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id=task.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id=task.production_line_id
+                WHERE a.abnormal_id=#{abnormalId} AND a.bool_delete_enum=0
+            </when>
+            <otherwise>
+                SELECT
+                a.id,
+                a.quantity,
+                date(task.ask_complete_time) ask_complete_time,
+                factory.id,
+                factory.`name`,
+                workshop.id,
+                workshop.`name`,
+                production_line.id,
+                production_line.`name`
+                FROM
+                mes_building_abnormal_report a
+                LEFT JOIN mes_building_task task ON a.report_id=task.id
+                LEFT JOIN mes_building_factory factory ON factory.id=task.factory_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id=task.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id=task.production_line_id
+                WHERE
+                a.abnormal_id =#{abnormalId}
+                AND a.bool_delete_enum = 0
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ProjectUserLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.ProjectUserLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="project_id" property="projectId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        id, project_id, user_id
+    </sql>
+
+
+    <select id="listByProjectIdAndUserName" resultType="com.hzchum.scim.system.core.api.pojo.dto.ProjectUserLinkDTO">
+        SELECT
+        u.id,
+        u.name,
+        d.id AS deptId,
+        d.name AS deptName
+
+        FROM sys_user as u
+        INNER JOIN sys_project_user_link as pul ON pul.user_id = u.id and u.bool_delete_enum = 0 and pul.bool_delete_enum = 0
+        LEFT JOIN sys_department as d ON u.department_id = d.id and d.bool_delete_enum = 0
+
+        WHERE pul.project_id = #{projectId}
+
+        <if test="username != null and username != ''">
+            AND u.name LIKE concat('%',#{username},'%')
+        </if>
+
+        ORDER BY d.name,u.id
+    </select>
+
+    <select id="listByUserIdAndProjectId" resultType="com.hzchum.scim.system.core.api.pojo._do.ProjectUserLink">
+        SELECT id,
+        project_id,
+        user_id,
+        create_time
+        FROM sys_project_user_link
+        WHERE bool_delete_enum = 0
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+
+    </select>
+
+    <select id="selectCompanyValueByCode" resultType="java.lang.String">
+        select value
+        from sys_config
+        where code = #{code}
+          AND bool_delete_enum = 0
+    </select>
+
+</mapper>

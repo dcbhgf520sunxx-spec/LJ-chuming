@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.InventoryUseRecordMapper">
+    
+    <resultMap id="getDetailDTOList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.InventoryUseRecordDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="data_id"/>
+            <result property="serialNumber" column="use_order_serial_number"/>
+            <result property="receiptType" column="use_type"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getDetailDTOList" resultMap="getDetailDTOList">
+        select wiur.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName,
+               wc.name classifyName,
+               ww.id           wwId,
+               ww.name         wwName
+        from wms_inventory_use_record wiur
+                 left join contract_project p on p.id = wiur.project_id
+                 left join wms_workshop mbf on wiur.workshop_id = mbf.id
+                 left join wms_warehouse ww on ww.id = wiur.warehouse_id
+                 left join wms_classification wc on wiur.classify_id = wc.id
+        where wiur.bool_delete_enum = 0
+          and wiur.inventory_use_statistics_id = #{id}
+          and wiur.embody_type = #{formType}
+          and wiur.create_time &gt;= #{startTime}
+          <if test="endTime != null">
+              and wiur.create_time &lt;= #{endTime}
+          </if>
+    </select>
+    <select id="getDetailDTOListNew"
+            resultMap="getDetailDTOList">
+        select wiur.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName,
+               wc.name classifyName,
+               ww.id           wwId,
+               ww.name         wwName
+        from wms_inventory_use_record wiur
+            left join contract_project p on p.id = wiur.project_id
+            left join wms_workshop mbf on wiur.workshop_id = mbf.id
+            left join wms_warehouse ww on ww.id = wiur.warehouse_id
+            left join wms_classification wc on wiur.classify_id = wc.id
+        where wiur.bool_delete_enum = 0
+          and wiur.inventory_use_statistics_id in
+              <foreach collection="ids" item="id" open="(" separator="," close=")">
+                  #{id}
+              </foreach>
+          and wiur.embody_type = #{formType}
+          and wiur.create_time &gt;= #{startTime}
+        <if test="endTime != null">
+            and wiur.create_time &lt;= #{endTime}
+        </if>
+    </select>
+</mapper>

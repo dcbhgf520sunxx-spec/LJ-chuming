@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechMachinePartMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechMachinePart">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="bool_status_enum" property="boolStatusEnum"/>
+        <result column="relation_type" property="relationType"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="material" property="material"/>
+        <result column="quantity" property="quantity"/>
+        <result column="net_weight" property="netWeight"/>
+        <result column="total_net_weight" property="totalNetWeight"/>
+        <result column="gross_weight" property="grossWeight"/>
+        <result column="total_gross_weight" property="totalGrossWeight"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="user_id" property="userId"/>
+        <result column="used_quantity" property="usedQuantity"/>
+        <result column="produced_quantity" property="producedQuantity"/>
+        <result column="drawing_number" property="drawingNumber"/>
+        <result column="thick" property="thick"/>
+        <result column="path" property="path"/>
+        <result column="nesting_state" property="nestingState"/>
+        <result column="area_type" property="areaType"/>
+        <result column="bool_abnormal_enum" property="boolAbnormalEnum"/>
+        <result column="bool_scheduling_enum" property="boolSchedulingEnum"/>
+        <result column="bool_nest_enum" property="boolNestEnum"/>
+        <result column="spec_prefix" property="specPrefix"/>
+        <result column="bool_process" property="boolProcess"/>
+        <result column="bool_have_hole" property="boolHaveHole"/>
+        <result column="hole_number" property="holeNumber"/>
+        <result column="bool_send_directly" property="boolSendDirectly"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name,project_id, monomer_id, area_id, bool_status_enum, relation_type,serial_number, specification, length, material, quantity, net_weight,
+        total_net_weight, gross_weight, total_gross_weight, type, user_id, remark, used_quantity, produced_quantity, drawing_number, thick, path, nesting_state, area_type,
+        bool_abnormal_enum, bool_scheduling_enum, bool_nest_enum, spec_prefix, bool_process, bool_have_hole, hole_number, bool_send_directly
+    </sql>
+
+    <select id="listSimpleByMonomerId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.MachinePartSimpleDTO">
+        SELECT DISTINCT
+        m.monomer_id,
+        m.name,
+        m.serial_number,
+        m.specification,
+        m.length,
+        m.material,
+        m.net_weight,
+        m.gross_weight,
+        m.drawing_number
+        FROM
+        `tech_machine_part` AS m
+        WHERE
+        m.bool_delete_enum = 0
+        AND m.monomer_id = #{monomerId}
+        <if test="serialNumber != null and serialNumber != ''">
+            AND m.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        AND m.relation_type = 2
+        ORDER BY
+        m.serial_number ASC
+    </select>
+
+
+    <select id="listMachinePartByArtifactId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechMachinePartDTO">
+        select
+        mp.*,
+        ampl.quantity link_quantity,
+        ampl.artifact_id,
+        ampl.id linkId
+        from tech_artifact_machine_part_link as ampl,
+        tech_machine_part as mp
+        where ampl.machine_part_id = mp.id
+        and ampl.bool_delete_enum = 0
+        and mp.bool_delete_enum = 0
+        and ampl.artifact_id = #{artifactId}
+        <if test="serialNumber!= null and serialNumber != ''">
+            and mp.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        and mp.quantity > 0
+        order by mp.bool_send_directly desc, mp.id asc
+    </select>
+
+    <select id="listMachinePartByArtifactIds"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechMachinePartDTO">
+        select
+        mp.*,ampl.quantity link_quantity,ampl.artifact_id,ampl.id linkId
+        from tech_artifact_machine_part_link as ampl,
+        tech_machine_part as mp
+        where ampl.machine_part_id = mp.id
+        and ampl.bool_delete_enum = 0
+        and mp.bool_delete_enum = 0
+        <!--and mp.relation_type=2-->
+        <if test="artifactIds != null and artifactIds.size() != 0">
+            and ampl.artifact_id in
+            <foreach collection="artifactIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectListByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.MachinePartResponseDTO">
+        SELECT b.*,
+        b.monomer_id 'monomer.id',
+        m.name 'monomer.name',
+        b.area_id 'area.id',
+        a.name 'area.name'
+        FROM tech_machine_part as b
+        INNER JOIN sys_steel_classification ssc ON b.steel_id = ssc.id AND ssc.bool_delete_enum = 0 AND ssc.basic_class in(1,2)
+        left join plan_monomer m on b.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area a on b.area_id = a.id and a.bool_delete_enum = 0
+        where b.bool_delete_enum = 0
+        <if test="projectId != null">
+            and b.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and b.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and b.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            and b.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="status != null">
+            AND b.bool_status_enum = #{status}
+        </if>
+        <if test="type != null">
+            And b.type = #{type}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND b.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND b.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND b.material = #{material}
+        </if>
+        <if test="thick != null and thick != ''">
+            AND b.thick = #{thick}
+        </if>
+        <choose>
+            <when test="steelPlateTypeEnum != null">
+                AND b.steel_plate_type_enum = #{steelPlateTypeEnum}
+            </when>
+        </choose>
+        order by b.bool_send_directly desc, b.id asc
+    </select>
+
+    <select id="selectListByConditionExport" resultType="com.hzchum.scim.plan.core.api.pojo.dto.MachinePartResponseExportDTO">
+        SELECT b.*,
+        b.monomer_id monomerId,
+        m.name monomerName,
+        b.area_id areaId,
+        a.name areaName,
+        batch.name areaBatchName
+        FROM tech_machine_part as b
+        INNER JOIN sys_steel_classification ssc ON b.steel_id = ssc.id AND ssc.bool_delete_enum = 0 AND ssc.basic_class in (1,2)
+        left join plan_monomer m on b.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area a on b.area_id = a.id and a.bool_delete_enum = 0
+        left join plan_area_batch batch on b.area_batch_id = batch.id and batch.bool_delete_enum = 0
+        where b.bool_delete_enum = 0
+        <if test="projectId != null">
+            and b.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and b.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and b.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            and b.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="status != null">
+            AND b.bool_status_enum = #{status}
+        </if>
+        <if test="type != null">
+            And b.type = #{type}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND b.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND b.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND b.material = #{material}
+        </if>
+        <if test="thick != null and thick != ''">
+            AND b.thick = #{thick}
+        </if>
+        <choose>
+            <when test="steelPlateTypeEnum != null">
+                AND b.steel_plate_type_enum = #{steelPlateTypeEnum}
+            </when>
+        </choose>
+        order by b.bool_send_directly desc, b.id asc
+    </select>
+
+
+    <select id="sumMeteByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProductMeteDTO">
+        select ifnull(sum(quantity),0) quantity,
+        ifnull(sum(total_net_weight),0) mete,
+        ifnull(sum(total_gross_weight),0) mete_two
+        from tech_machine_part
+        where bool_delete_enum = 0
+        and relation_type in (2, 16)
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="sumMeteGroupByMonomerId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        ifnull(sum(a.quantity), 0) quantity,
+        ROUND( ifnull( sum( a.surface_area * a.quantity ), 0 ) / 1000000, 4 ) AS total_area,
+        ifnull(sum(a.total_net_weight), 0) total_net_weight,
+        ifnull(sum(a.total_gross_weight), 0) total_gross_weight
+        from tech_machine_part a
+        inner join plan_monomer m on m.id = a.monomer_id and m.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON a.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND
+            link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+        and a.relation_type in (2, 16)
+        and a.project_id = #{projectId}
+        group by m.id, m.name
+    </select>
+
+    <select id="sumMeteGroupByAreaId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select
+        d.`id` 'area.id',
+        d.`name` 'area.name',
+        ifnull(sum(a.quantity), 0) quantity,
+        ROUND( ifnull( sum( a.surface_area * a.quantity ), 0 ) / 1000000, 4 ) AS total_area,
+        ifnull(sum(a.total_net_weight), 0) total_net_weight,
+        ifnull(sum(a.total_gross_weight), 0) total_gross_weight
+        from tech_machine_part a
+        inner join plan_area d on d.id = a.area_id and d.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON a.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND
+            link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+        and a.relation_type in (2, 16)
+        and a.monomer_id = #{monomerId}
+        group by d.id, d.name
+    </select>
+
+    <select id="selectByIdIgnoreDelete" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechMachinePart">
+        select *
+        from tech_machine_part
+        where id = #{id}
+    </select>
+
+    <select id="selectByArtifactId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechMachinePartDTO">
+
+         SELECT
+         a.*
+         FROM
+         (
+         SELECT mp.id,
+               mp.bool_status_enum,
+                18 relation_type,
+                mp.structure_type,
+                mp.name,
+               mp.serial_number,
+               mp.specification,
+               mp.length,
+               16 productType,
+               mp.material,
+               mp.net_weight,
+               mp.gross_weight,
+               mp.drawing_number,
+               mp.user_id,
+               mp.net_weight * a.quantity * ampl.quantity                                 AS total_net_weight,
+               mp.gross_weight * a.quantity * ampl.quantity                               AS total_gross_weight,
+               mp.surface_area / 1000000                                                     surface_area,
+               mp.surface_area * a.quantity * ampl.quantity / 1000000                     AS  totalSurfaceArea,
+               (select name from sys_user where bool_delete_enum = 0 and id = mp.user_id) AS user_name,
+               a.quantity * ampl.quantity                                                 AS quantity,
+               ampl.remark,
+               mp.bool_scheduling_enum,
+               mp.bool_process,
+               false bool_have_hole,
+               0 hole_number,
+               mp.bool_send_directly
+        FROM tech_assemble_detail AS ampl
+                 INNER JOIN tech_assemble AS mp ON ampl.assemble_id = mp.id AND mp.bool_delete_enum = 0
+                 INNER JOIN tech_artifact AS a ON ampl.artifact_id = a.id AND mp.bool_delete_enum = 0
+        WHERE ampl.artifact_id = #{artifactId}
+          AND ampl.bool_delete_enum = 0
+        union all
+        SELECT mp.id,
+               mp.bool_status_enum,
+               mp.relation_type,
+               mp.structure_type,
+               mp.name,
+               mp.serial_number,
+               mp.specification,
+               mp.length,
+               1 productType,
+               mp.material,
+               mp.net_weight,
+               mp.gross_weight,
+               mp.drawing_number,
+               mp.user_id,
+               mp.net_weight * a.quantity * ampl.quantity                                 AS total_net_weight,
+               mp.gross_weight * a.quantity * ampl.quantity                               AS total_gross_weight,
+               mp.surface_area / 1000000                                                     surface_area,
+               mp.surface_area * a.quantity * ampl.quantity  / 1000000                    AS totalSurfaceArea,
+               (select name from sys_user where bool_delete_enum = 0 and id = mp.user_id) AS user_name,
+               a.quantity * ampl.quantity                                                 AS quantity,
+               ampl.remark,
+               mp.bool_scheduling_enum,
+               mp.bool_process,
+               mp.bool_have_hole,
+               mp.hole_number,
+               mp.bool_send_directly
+        FROM tech_artifact_machine_part_link AS ampl
+                 INNER JOIN tech_machine_part AS mp ON ampl.machine_part_id = mp.id AND mp.bool_delete_enum = 0 AND
+                                                       mp.relation_type IN (2)
+                 INNER JOIN tech_artifact AS a ON ampl.artifact_id = a.id AND mp.bool_delete_enum = 0
+        WHERE ampl.artifact_id = #{artifactId}
+          AND ampl.bool_delete_enum = 0
+         ) a order by  a.bool_send_directly desc,  a.productType desc
+
+
+    </select>
+
+    <select id="selectOneByPrefix" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechMachinePart">
+        SELECT *
+        FROM `tech_machine_part`
+        WHERE bool_delete_enum = 0
+        AND steel_id = #{steelId}
+        <if test="specPrefix != null and specPrefix !=''">
+            AND spec_prefix = #{specPrefix}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="selectByProjectId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.building.ComponentCrderInformationDTO">
+        SELECT sc.NAME                             classificationName,
+               sc.id                               classificationId,
+               ta.material                         material,
+               IFNULL(sum(ta.quantity), 0)         quantity,
+               IFNULL(sum(ta.total_net_weight), 0) totalNetWeight,
+               IFNULL(SUM(total_gross_weight), 0)  totalGrossWeight
+        FROM (
+                 SELECT steel_id,
+                        material,
+                        SUM(quantity)           quantity,
+                        SUM(total_net_weight)   total_net_weight,
+                        SUM(total_gross_weight) total_gross_weight
+                 FROM tech_machine_part
+                 WHERE project_id = #{projectId}
+                   AND bool_delete_enum = 0
+                   AND relation_type IN (2, 16)
+                 GROUP BY steel_id,
+                          material
+             ) AS ta
+                 LEFT JOIN sys_steel_classification AS sc ON ta.steel_id = sc.id
+            AND sc.bool_delete_enum = 0
+        GROUP BY sc.NAME,
+                 ta.material,
+                 sc.id
+        ORDER BY sc.name ASC
+
+
+    </select>
+
+    <select id="selectSummary" resultType="com.hzchum.scim.plan.core.api.pojo.dto.MachinePartSummaryDTO">
+        SELECT
+        <if test="projectId != null">
+            m.project_id,
+        </if>
+        <if test="monomerId != null">
+            m.monomer_id,
+        </if>
+        <if test="areaId != null">
+            m.area_id,
+        </if>
+        <if test="areaBatchId != null">
+            m.area_batch_id,
+        </if>
+        m.thick,
+        m.material,
+        SUM( m.quantity ) quantity,
+        SUM( m.total_net_weight ) total_net_weight
+        FROM
+        `tech_machine_part` m
+        INNER JOIN sys_steel_classification ssc ON m.steel_id = ssc.id AND ssc.bool_delete_enum = 0 AND ssc.basic_class in(1,2)
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON m.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND
+            link.deepened_person_id = #{userId}
+        </if>
+        WHERE
+        m.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND m.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND m.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND m.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            AND m.area_batch_id = #{areaBatchId}
+        </if>
+        <choose>
+            <when test="steelPlateTypeEnum != null">
+                AND m.steel_plate_type_enum = #{steelPlateTypeEnum}
+            </when>
+        </choose>
+        GROUP BY
+        <if test="projectId != null">
+            m.project_id,
+        </if>
+        <if test="monomerId != null">
+            m.monomer_id,
+        </if>
+        <if test="areaId != null">
+            m.area_id,
+        </if>
+        <if test="areaBatchId != null">
+            m.area_batch_id,
+        </if>
+        thick,
+        m.material
+        HAVING thick IS NOT NULL
+        ORDER BY thick ASC
+    </select>
+
+    <select id="selectSummaryExport" resultType="com.hzchum.scim.plan.core.api.pojo.dto.MachinePartSummaryExportDTO">
+        SELECT
+        m.id,
+        cp.name as projectname,
+        cp.id AS projectid,
+        m.thick,
+        pa.`name` AS areaname,
+        pa.id AS areaid,
+        batch.id AS areaBatchId,
+        batch.name AS areaBatchName,
+        pm.name AS monomername,
+        pm.id AS monomerid,
+        m.relation_type,
+        m.material,
+        m.quantity AS quantity,
+        m.total_net_weight AS total_net_weight
+        FROM
+        tech_machine_part m
+        INNER JOIN sys_steel_classification ssc ON m.steel_id = ssc.id
+        INNER JOIN contract_project	cp ON cp.id = m.project_id
+        INNER JOIN plan_area pa ON pa.id = m.area_id
+        INNER JOIN plan_monomer pm ON m.monomer_id = pm.id
+        INNER JOIN plan_area_batch batch ON m.area_batch_id = batch.id
+        AND ssc.bool_delete_enum = 0
+        AND ssc.basic_class in(1,2)
+        WHERE
+        m.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND m.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND m.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND m.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            AND m.area_batch_id = #{areaBatchId}
+        </if>
+        <choose>
+            <when test="steelPlateTypeEnum != null">
+                AND m.steel_plate_type_enum = #{steelPlateTypeEnum}
+            </when>
+        </choose>
+        HAVING thick IS NOT NULL
+        ORDER BY thick ASC
+    </select>
+
+    <select id="selectAssembleByArtifactId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechMachinePartDTO">
+        SELECT mp.id,
+               mp.serial_number,
+               mp.specification,
+               mp.length,
+               16                                                                            productType,
+               18                                                                            relationType,
+               mp.material,
+               mp.net_weight,
+               0                                                                             gross_weight,
+               mp.drawing_number,
+               mp.user_id,
+               mp.net_weight * ar.quantity * ampl.quantity                                AS total_net_weight,
+               0                                                                          AS total_gross_weight,
+               mp.surface_area / 1000000                                                     surface_area,
+               (SELECT NAME FROM sys_user WHERE bool_delete_enum = 0 AND id = mp.user_id) AS user_name,
+               ar.quantity * ampl.quantity                                                AS quantity,
+               mp.remark,
+               mp.bool_scheduling_enum,
+               mp.bool_process,
+               mp.bool_send_directly
+        FROM tech_assemble_detail AS ampl
+                 INNER JOIN tech_assemble AS mp ON ampl.assemble_id = mp.id AND mp.bool_delete_enum = 0
+                 INNER JOIN tech_artifact AS ar ON ampl.artifact_id = ar.id AND ar.bool_delete_enum = 0
+
+        WHERE ampl.artifact_id = #{artifactId}
+          AND ampl.bool_delete_enum = 0
+        ORDER BY mp.bool_send_directly DESC,
+                 mp.id ASC
+    </select>
+    <select id="listAllByArtifactIds" resultType="com.hzchum.scim.plan.core.api.pojo.dto.SendPurlinDTO">
+
+        select
+        ampl.artifact_id 'id',
+        ampl.machine_part_id 'assembleOrPartid',
+        ampl.quantity 'scale',
+        mp.produced_quantity 'producedQuantity',
+        (mp.produced_quantity-mp.used_quantity )DIV ampl.quantity 'complete'
+        from tech_artifact_machine_part_link as ampl,
+        tech_machine_part as mp
+        where ampl.machine_part_id = mp.id
+        and ampl.bool_delete_enum = 0
+        AND mp.bool_process=1
+        and mp.bool_delete_enum = 0
+        <if test="artifactIds != null and artifactIds.size() != 0">
+            and ampl.artifact_id in
+            <foreach collection="artifactIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="sumTnventoryTon" resultType="java.math.BigDecimal">
+        select round(sum((ifnull(a.quantity, 0) * ifnull(a.net_weight, 0)) / 1000), 2) as ton
+        from tech_machine_part a
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+    </select>
+
+</mapper>

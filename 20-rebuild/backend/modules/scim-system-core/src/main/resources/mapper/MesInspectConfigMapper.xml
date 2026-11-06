@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesInspectConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfig">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="task_type_enum" property="taskTypeEnum" />
+        <result column="artifact_type" property="artifactType" />
+        <result column="process_id" property="processId" />
+        <result column="inspect_type" property="inspectType" />
+        <result column="first_inspect_rate" property="firstInspectRate" />
+        <result column="inspect_method" property="inspectMethod" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, workshop_id, task_type_enum, hierarchy_type, process_id, inspect_type, first_inspect_rate, inspect_method
+    </sql>
+    <select id="findTeamIdByInspectUserId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeamUserLink">
+            SELECT
+                ul.team_id,
+                ul.user_name
+            FROM
+                mes_inspect_config c
+                    LEFT JOIN mes_inspect_config_team_link tl ON c.id = tl.inspect_config_id
+                    LEFT JOIN mes_building_team_user_link ul on tl.team_id = ul.team_id and ul.bool_leader_enum = 1
+                    LEFT JOIN mes_inspect_config_user_link cul on c.id = cul.inspect_config_id
+            WHERE
+                c.bool_delete_enum = 0
+                and tl.bool_delete_enum = 0
+                and ul.bool_delete_enum = 0
+                and c.status = 1
+                and  cul.inspect_user_id = #{inpectUserid}
+    </select>
+    <select id="findAllConfig"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesInspectConfigDTO">
+        select
+            con.*,
+            wk.id 'workshopId',
+            wk.name 'workshopName',
+            pro.id 'processId',
+            pro.name 'processName',
+            pro.product_type 'process.productType'
+        from mes_inspect_config con left join mes_building_workshop wk on con.workshop_id = wk.id and wk.bool_delete_enum = 0
+        left join mes_building_process pro on con.process_id = pro.id and pro.bool_delete_enum = 0
+        where con.bool_delete_enum = 0
+        <if test = "workshopId != null">
+            and con.workshop_id = #{workshopId}
+        </if>
+        <if test = "processId != null">
+            and con.process_id = #{processId}
+        </if>
+        <if test = "status != null">
+            and con.status = #{status}
+        </if>
+        <if test = "mesProductEnum != null">
+            and con.mes_product_enum = #{mesProductEnum}
+        </if>
+    </select>
+    <select id="queryInspectConfig" resultType="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfig">
+        SELECT
+            con.*
+        FROM
+            mes_inspect_config con
+                LEFT JOIN mes_inspect_config_team_link ctlink ON con.id = ctlink.inspect_config_id
+                AND ctlink.bool_delete_enum = 0
+                LEFT JOIN mes_inspect_classification_config_link cclink ON con.id = cclink.inspect_config_id
+                AND cclink.bool_delete_enum = 0
+        WHERE
+            con.bool_delete_enum = 0
+            and con.status = 1
+          AND con.workshop_id = #{workshopId}
+          AND con.process_id = #{processId}
+          AND ctlink.team_id = #{teamId}
+          AND cclink.classification_id = #{classId}
+    </select>
+    <select id="selectCurrentUserIsInspectUser" resultType="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfig">
+        SELECT
+            con.*
+        FROM
+            mes_inspect_config con
+                LEFT JOIN mes_inspect_classification_config_link cclink ON con.id = cclink.inspect_config_id
+                AND cclink.bool_delete_enum = 0
+                Left Join mes_inspect_config_user_link cul ON con.id = cul.inspect_config_id
+        WHERE
+            con.bool_delete_enum = 0
+            and con.status = 1
+          AND con.workshop_id = #{workshopId}
+          AND con.process_id = #{processId}
+          AND cul.inspect_user_id = #{userId}
+          AND cclink.classification_id = #{classId}
+    </select>
+    <select id="findInspectByUserIdAndProcessId"
+            resultType="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfig">
+        select con.*
+        from mes_inspect_config con
+        left join mes_inspect_config_user_link cul on con.id = cul.inspect_config_id and cul.bool_delete_enum = 0
+        left join mes_inspect_config_team_link tl on con.id = tl.inspect_config_id and tl.bool_delete_enum = 0
+        where con.bool_delete_enum = 0
+        and con.process_id = #{processId}
+        <!--        and con.workshop_id = #{workshopId}-->
+        <if test="artifactType != null">
+            and  con.artifact_type = #{artifactType}
+        </if>
+        <if test="id != null">
+            and con.id != #{id}
+        </if>
+        <if test="mesProductEnum != null">
+            and con.mes_product_enum = #{mesProductEnum}
+        </if>
+        and cul.inspect_user_id in
+        <foreach collection="inspectUserIds" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+        and tl.team_id in
+        <foreach collection="teamLink" item="team" open="(" close=")" separator=",">
+            #{team}
+        </foreach>
+    </select>
+
+    <select id="queryInspectConfigByCondition" resultMap="BaseResultMap">
+        select con.*
+        from mes_inspect_config con
+                 left join mes_inspect_config_team_link teamLink on con.id = teamLink.inspect_config_id and teamLink.bool_delete_enum = 0
+                 left join mes_inspect_classification_config_link classLink on con.id = classLink.inspect_config_id  and classLink.bool_delete_enum = 0
+        where con.bool_delete_enum = 0
+        and con.workshop_id = #{config.workshopId}
+        and con.task_type_enum = #{config.taskTypeEnum}
+        and con.process_id = #{config.processId}
+        and teamLink.team_id = #{teamId}
+        and classLink.classification_id  = #{classId}
+    </select>
+
+
+    <select id="queryAllInspectConfigList" resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesInspectConfigBasicDTO">
+        SELECT
+            con.id,
+            con.process_id,
+            ctlink.team_id,
+            cclink.classification_id
+        FROM
+            mes_inspect_config con
+                LEFT JOIN mes_inspect_config_team_link ctlink ON con.id = ctlink.inspect_config_id
+                AND ctlink.bool_delete_enum = 0
+                LEFT JOIN mes_inspect_classification_config_link cclink ON con.id = cclink.inspect_config_id
+                AND cclink.bool_delete_enum = 0
+        WHERE
+            con.bool_delete_enum = 0
+          and con.status = 1
+    </select>
+</mapper>

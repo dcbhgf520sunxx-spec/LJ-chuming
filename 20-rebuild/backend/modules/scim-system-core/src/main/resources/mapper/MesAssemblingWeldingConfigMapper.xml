@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesAssemblingWeldingConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesAssemblingWeldingConfig">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact" property="artifact"/>
+        <result column="artifact_type_id" property="artifactTypeId"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="process" property="process"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, artifact_classification_id, pricing_manner, process, measurement_manner
+    </sql>
+
+    <resultMap id="MesAssemblingWeldingConfigDTOMap" type="com.hzchum.scim.system.core.api.pojo.dto.MesAssemblingWeldingConfigDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact_type_id" property="artifactTypeId"/>
+        <result column="artifact" property="artifact"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="process" property="process"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="artifact_type_name" property="artifactTypeName"/>
+        <collection property="processList" ofType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+            <result column="process_id" property="id"/>
+            <result column="process_name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo_COUNT" resultType="int">
+        SELECT
+            count(0)
+        FROM mes_assembling_welding_config
+        WHERE bool_delete_enum = FALSE
+    </select>
+
+    <select id="listInfo" resultMap="MesAssemblingWeldingConfigDTOMap">
+        SELECT
+            mawc.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_assembling_welding_config mawc
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mawc.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mawc.process) > 0
+        WHERE mawc.bool_delete_enum = FALSE
+    </select>
+
+    <select id="detailById" resultMap="MesAssemblingWeldingConfigDTOMap">
+        SELECT
+            mawc.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_assembling_welding_config mawc
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mawc.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mawc.process) > 0
+        WHERE mawc.bool_delete_enum = FALSE AND mawc.id = #{id}
+    </select>
+
+    <select id="listInfoByIds" resultMap="MesAssemblingWeldingConfigDTOMap">
+        SELECT
+        mawc.*,
+        ssc.classification_name as artifact_type_name,
+        mbp.id             AS process_id,
+        mbp.name           AS process_name
+        FROM mes_assembling_welding_config mawc
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mawc.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mawc.process) > 0
+        WHERE mawc.bool_delete_enum = FALSE
+        <if test="idList != null and idList.size() > 0">
+            AND mawc.id in (
+            <foreach collection="idList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+</mapper>

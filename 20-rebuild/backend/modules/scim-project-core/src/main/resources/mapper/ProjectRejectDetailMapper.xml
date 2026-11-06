@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectRejectDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectRejectDetail">
+        <id column="id" property="id" />
+        <result column="received_date" property="receivedDate" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="purchase_id" property="purchaseId" />
+        <result column="purchase_sn" property="purchaseSn" />
+        <result column="received_user_name" property="receivedUserName" />
+        <result column="product_type" property="productType" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, received_date, supplier_id, purchase_id, purchase_sn, received_user_name, product_type, project_id, monomer_id, area_id
+    </sql>
+    <select id="getProjectRejectDetailList" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectRejectDetailDTO">
+        select
+        a.*,
+        ap.id as 'batch.id',
+        ap.name as 'batch.name',
+        p.id as 'project.id',
+        p.name as 'project.name',
+        p.short_name as 'project.shortName',
+        p.serial_number as 'project.serialNumber',
+        ss.id as 'supplier.id',
+        ss.name as 'supplier.name',
+        pm.id as 'monomer.id',
+        pm.name as 'monomer.name',
+        pa.id as 'area.id',
+        pa.name as 'area.name'
+        FROM project_reject_detail as a
+        LEFT JOIN contract_project p ON p.id = a.project_id
+        left join scm_supplier as ss on a.supplier_id = ss.id
+        left join plan_monomer as pm on a.monomer_id = pm.id
+        left join plan_area as pa on a.area_id = pa.id
+        left join enclosure_plan as ap on a.enclosure_plan_id = ap.id
+        where a.bool_delete_enum = 0
+        and a.review_status = 2
+        <if test="projectId!=null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND a.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="productType!=null">
+            and a.product_type = #{productType}
+        </if>
+        <if test="rejectSn!=null and rejectSn!=''">
+            and a.reject_sn like concat('%',#{rejectSn},'%')
+        </if>
+        <if test="purchaseSn!=null and purchaseSn!=''">
+            and a.purchase_sn like concat('%',#{purchaseSn},'%')
+        </if>
+        <if test="supplierName!=null and supplierName!=''">
+            and ss.name like concat('%',#{supplierName},'%')
+        </if>
+        <if test="monomerOrArea!=null and monomerOrArea!=''">
+            and (pm.name like concat('%',#{monomerOrArea},'%') or pa.name like concat('%',#{monomerOrArea},'%') or ap.name like concat('%',#{monomerOrArea},'%'))
+        </if>
+        <if test="name!=null and name!=''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+        <if test="specification!=null and specification!=''">
+            and a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test=" reviewerName != null and reviewerName !=''">
+            and a.reviewer_name like concat('%',#{reviewerName},'%')
+        </if>
+        <if test=" applicantName != null and applicantName !=''">
+            and a.applicant_name like concat('%',#{applicantName},'%')
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and DATE_FORMAT(a.review_time,'%Y-%m-%d') >= DATE_FORMAT(#{reviewTime[0]},'%Y-%m-%d')
+            </if>
+            <if test="reviewTime[1] != null">
+                and DATE_FORMAT(a.review_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{reviewTime[1]},'%Y-%m-%d')
+            </if>
+        </if>
+        order by a.id desc
+    </select>
+</mapper>

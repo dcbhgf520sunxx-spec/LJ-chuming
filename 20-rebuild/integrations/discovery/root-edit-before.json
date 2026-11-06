@@ -1,0 +1,14 @@
+[
+  {
+    "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/ShrPersonnelOrganizationServierImpl.java",
+    "beforeSHA256": "6f0fbd6c68f7091f04b1a5b25003a59c2c133cca52a379a0bf6ba70ed8cd4ad7"
+  },
+  {
+    "path": "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/OaBusinessProcessServiceImpl.java",
+    "beforeSHA256": "6cfb8dd7b0d58eddfac825520ffc992b037d08c45eec2b9cf07610f89d9ae513"
+  },
+  {
+    "path": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/MessagePushUtil.java",
+    "beforeSHA256": "f496a0b5bc6a13c303f34e87767925c9cc25d1a62affd8551b39b6cb2af8c70c"
+  }
+]

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmProjectInformationConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationConfig">
+        <id column="id" property="id" />
+        <result column="project_information_config_enum" property="projectInformationConfigEnum" />
+        <result column="name" property="name" />
+        <result column="sort" property="sort" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_information_config_enum, name, sort
+    </sql>
+
+</mapper>

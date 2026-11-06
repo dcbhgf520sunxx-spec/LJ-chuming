@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesPartProcessConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesPartProcessConfig">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="product_category_type" property="productCategoryType" />
+        <result column="part_prod_mode" property="partProdMode" />
+    </resultMap>
+
+    <resultMap id="ResultMap" type="com.hzchum.scim.system.core.api.pojo.dto.config.MesPartProcessConfigDTO">
+        <id column="id" property="id" />
+        <result column="product_category_type" property="productCategoryType" />
+        <result column="part_prod_mode" property="partProdMode" />
+        <collection property="processConfigLinkList"
+                    ofType="com.hzchum.scim.system.core.api.pojo.dto.config.MesPartProcessConfigLinkDTO">
+            <result property="id" column="linkId"/>
+            <result property="processId" column="processId"/>
+            <result property="processName" column="processName"/>
+        </collection>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_category_type, part_prod_mode
+    </sql>
+    <select id="listInfo" resultMap="ResultMap">
+        select c.id,
+               c.product_category_type,
+               c.part_prod_mode,
+               cl.id         linkId,
+               cl.process_id processId,
+               pro.name      processName
+        from mes_part_process_config c
+                 left join mes_part_process_config_link cl on c.id = cl.process_config_id
+                 left join mes_building_process pro on cl.process_id = pro.id
+    </select>
+
+</mapper>

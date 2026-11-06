@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectConstructionLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectConstructionLog">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="construction_date" property="constructionDate"/>
+        <result column="morning_weather" property="morningWeather"/>
+        <result column="afternoon_weather" property="afternoonWeather"/>
+        <result column="morning_wind" property="morningWind"/>
+        <result column="afternoon_wind" property="afternoonWind"/>
+        <result column="morning_temperature" property="morningTemperature"/>
+        <result column="afternoon_temperature" property="afternoonTemperature"/>
+        <result column="construction_desc" property="constructionDesc"/>
+        <result column="machine_work_desc" property="machineWorkDesc"/>
+        <result column="group_work_desc" property="groupWorkDesc"/>
+        <result column="quality_inspection_desc" property="qualityInspectionDesc"/>
+        <result column="safety_inspection_desc" property="safetyInspectionDesc"/>
+        <result column="site_important_event" property="siteImportantEvent"/>
+        <result column="existing_problem_desc" property="existingProblemDesc"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="manager_id" property="managerId"/>
+        <result column="manager_name" property="managerName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, construction_date, morning_weather, afternoon_weather, morning_wind, afternoon_wind, morning_temperature, afternoon_temperature, construction_desc, machine_work_desc, group_work_desc, quality_inspection_desc, safety_inspection_desc, site_important_event, existing_problem_desc, user_id, user_name, manager_id, manager_name
+    </sql>
+
+    <select id="selectLogList" resultType="com.hzchum.scim.project.core.api.pojo._do.ProjectConstructionLog">
+        SELECT *
+        FROM `project_construction_log`
+        WHERE bool_delete_enum = 0
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(construction_date, '%Y-%m') = #{yearMonth}
+        </if>
+        <if test="day != null and day != ''">
+            AND DATE_FORMAT(construction_date, '%d') = #{day}
+        </if>
+        ORDER BY construction_date ASC
+    </select>
+
+</mapper>

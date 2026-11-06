@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.TransferDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TransferDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="transfer_id" property="transferId"/>
+        <result column="material_inventory_id" property="materialInventoryId"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="source_project_id" property="sourceProjectId"/>
+        <result column="source_workshop_id" property="sourceWorkshopId"/>
+        <result column="source_warehouse_id" property="sourceWarehouseId"/>
+        <result column="transfer_type" property="transferType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="remark" property="remark"/>
+        <result column="mete" property="mete"/>
+        <result column="bool_borrow" property="boolBorrow"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVat"/>
+        <result column="input_vat" property="inputVat"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+standard_id,
+        standard_name,
+        id, transfer_id, material_inventory_id, classify_id, source_project_id, source_workshop_id, source_warehouse_id, transfer_type, quantity, remark, mete, weighted_average_price, price_excluding_VAT, bool_borrow, type, basic_class, specification, length, width, thickness, brand, heat_no_and_batch_no, color, amount, amount_excluding_vat, input_vat, invoice_type, material_is_whole, tax_rate, theory_thickness
+    </sql>
+
+    <resultMap id="getTransferDetailList" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.TransferDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="weighted_average_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="input_vat" property="inputVAT"/>
+        <result column="invoice_type" property="invoiceType"/>
+<!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="real_time" property="realTime"/>
+        <association property="transferReceipt" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.TransferDO">
+            <id column="wtId" property="id"/>
+            <result column="wtSN" property="serialNumber"/>
+            <result column="transfer_type" property="transferType"/>
+            <result column="transfer_create_type" property="transferCreateType"/>
+            <result column="wtfName" property="applicantName"/>
+            <result column="wtrName" property="reviewerName"/>
+            <result column="review_time" property="transferTime"/>
+            <result column="wtcTime" property="createTime"/>
+            <result column="wtrTime" property="reviewTime"/>
+            <association property="borrowProject" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                <id property="id" column="pid3"/>
+                <result property="name" column="pn3"/>
+                <result property="serialNumber" column="pSN3"/>
+                <result property="shortName" column="psName3"/>
+            </association>
+            <association property="source"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+                <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                    <id property="id" column="pid"/>
+                    <result property="name" column="pn"/>
+                    <result property="serialNumber" column="pSN"/>
+                    <result property="shortName" column="psName"/>
+                </association>
+                <association property="workshop"
+                             javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="mbfId"/>
+                    <result property="name" column="mbfName"/>
+                </association>
+                <association property="warehouse"
+                             javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="wwId"/>
+                    <result property="name" column="wwName"/>
+                </association>
+            </association>
+            <association property="direction"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+                <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                    <id property="id" column="pid2"/>
+                    <result property="name" column="pn2"/>
+                    <result property="serialNumber" column="pSN2"/>
+                    <result property="shortName" column="psName2"/>
+                </association>
+                <association property="workshop"
+                             javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="mbfId2"/>
+                    <result property="name" column="mbfName2"/>
+                </association>
+                <association property="warehouse"
+                             javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="wwId2"/>
+                    <result property="name" column="wwName2"/>
+                </association>
+            </association>
+        </association>
+        <association property="outboundReceipt" javaType="com.hzchum.scim.contract.core.api.pojo.dto.BriefIdAndSNDTO">
+            <id column="outId" property="id"/>
+            <result column="outSn" property="serialNumber"/>
+        </association>
+    </resultMap>
+    <select id="getTransferDetailList" resultMap="getTransferDetailList">
+        select
+        wtd.*,
+        wt.id wtId,
+        wt.serial_number wtSN,
+        wt.applicant_name wtfName,
+        wt.reviewer_name wtrName,
+        wt.review_time,
+        wt.create_time wtcTime,
+        CASE WHEN wt.transfer_create_type is null THEN 1
+        ELSE wt.transfer_create_type END as transfer_create_type,
+        wt.party_a_borrow_id wtpaId,
+        wt.borrow_project_id wtbpId,
+        wt.direction_project_id wtdpid,
+        wt.direction_workshop_id wtdfid,
+        wt.direction_warehouse_id wtdwid,
+        wt.outbound_id outId,
+        wt.outbound_sn outSn,
+        p3.id pid3,
+        p3.short_name psName3,
+        p3.serial_number pSN3,
+        p3.name pn3,
+        p2.id pid2,
+        p2.short_name psName2,
+        p2.serial_number pSN2,
+        p2.name pn2,
+        mbf2.id mbfId2,
+        mbf2.name mbfName2,
+        ww2.id wwId2,
+        ww2.name wwName2,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_transfer_detail wtd
+        left join wms_transfer wt on wt.id = wtd.transfer_id
+        left join contract_project p on p.id = wtd.source_project_id
+        left join wms_workshop mbf on wtd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+        left join contract_project p2 on p2.id = wt.direction_project_id
+        left join contract_project p3 on p3.id = wt.borrow_project_id
+        left join wms_workshop mbf2 on wt.direction_workshop_id = mbf2.id
+        left join wms_warehouse ww2 on ww2.id = wt.direction_warehouse_id
+        where
+        wtd.bool_delete_enum = 0
+        and wt.review_status = 2
+        <if test="basicClass != null ">
+            and wtd.basic_class = #{basicClass}
+        </if>
+            <if test="orderSupplyType == 2 ">
+                and wtd.bool_party_a = 1
+            </if>
+        <if test="orderSupplyType == 1 ">
+            and wtd.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wtd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="workshopId != null ">
+            and (wtd.source_workshop_id = #{workshopId} or wt.direction_workshop_id = #{workshopId})
+        </if>
+        <if test="warehouseId != null ">
+            AND wtd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test="sourceProjectId != null ">
+            AND wtd.source_project_id = #{sourceProjectId}
+        </if>
+        <if test="directionProjectId != null ">
+            AND wt.direction_project_id = #{directionProjectId}
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wt.review_time &gt; #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wt.review_time &lt; #{reviewTime[1]}
+            </if>
+        </if>
+        <if test="realTime != null and realTime.size()>0">
+            <if test="realTime[0] != null">
+                and wtd.real_time &gt; #{realTime[0]}
+            </if>
+            <if test="realTime[1] != null">
+                and wtd.real_time &lt; #{realTime[1]}
+            </if>
+        </if>
+        <if test="transferSN != null and transferSN != '' ">
+            and wt.serial_number like CONCAT('%', #{transferSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wt.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wt.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wtd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" width != null">
+            and wtd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wtd.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wtd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wtd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wtd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wtd.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wtd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wtd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wtd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wtd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="transferType != null and transferType != ''">
+            AND wt.transfer_type = #{transferType}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wtd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="transferCreateType != null ">
+            <choose>
+                <when test="transferCreateType == 1">
+                    and (wt.transfer_create_type =  1 or wt.transfer_create_type is null)
+                </when>
+                <when test="transferCreateType == 2">
+                    and wt.transfer_create_type = 2
+                </when>
+            </choose>
+        </if>
+        <if test="outboundSn != null and outboundSn != '' ">
+            and wt.outbound_sn like CONCAT('%', #{outboundSn},'%')
+        </if>
+    </select>
+
+
+    <resultMap id="getDtoById" type="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+
+    </resultMap>
+    <select id="getDtoById" resultMap="getDtoById">
+        select p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName,
+               ww.id           wwId,
+               ww.name         wwName
+        from wms_transfer_detail wtd
+                 left join contract_project p on p.id = wtd.source_project_id
+                 left join wms_workshop mbf on wtd.source_workshop_id = mbf.id
+                 left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+        where wtd.bool_delete_enum = 0
+          and wtd.transfer_id = #{id}
+    </select>
+
+    <select id="getA" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TransferDetail">
+        select *
+        from wms_transfer_detail
+        where bool_delete_enum = 0
+        <if test="basicClass != null ">
+            and basic_class = #{basicClass}
+        </if>
+        <if test="workshopId != null ">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test="warehouseId != null ">
+            AND warehouse_id = #{warehouseId}
+        </if>
+        <if test="materialIsWhole != null ">
+            AND material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and review_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and review_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" color != null and color != ''">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand like CONCAT('%',#{brand},'%')
+        </if>
+
+        <if test="TransferIds != null and TransferIds.size()>0">
+            and transfer_id in
+            <foreach collection="TransferIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <resultMap id="getReturn" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.TransferBuyInDTO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="weighted_average_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="input_vat" property="inputVAT"/>
+        <result column="invoice_type" property="invoiceType"/>
+<!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="wa" property="applicantName"/>
+        <result column="review_time" property="reviewTime"/>
+        <association property="transfer" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="wtid"/>
+            <result property="serialNumber" column="wsn"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getReturn" resultMap="getReturn">
+        select
+        wtd.*,
+        wt.id wtid,
+        wt.review_time,
+        wt.serial_number wsn,
+        wt.applicant_name wa,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from
+        wms_transfer_detail wtd
+        left join wms_transfer wt on wtd.transfer_id = wt.id
+        left join contract_project p on p.id = wtd.source_project_id
+        left join wms_workshop mbf on wtd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+        where
+        wtd.bool_delete_enum = 0
+        and wt.review_status = 2
+        and wt.transfer_type = 4
+        <if test=" workshopId != null">
+            and wtd.source_workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and wtd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectId != null">
+            and wtd.source_project_id = #{projectId}
+        </if>
+        <if test=" basicClass != null">
+            and wtd.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="materialIsWhole != null ">
+            AND wtd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wtd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and wtd.classify_id = #{classifyId}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and wtd.create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wtd.create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test=" width != null">
+            and wtd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wtd.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wtd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wtd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wtd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wtd.thickness = #{thickness}
+        </if>
+        <if test=" color != null and color != ''">
+            and wtd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wtd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wtd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wtd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="workshopIds != null and workshopIds.size > 0">
+            and wtd.source_workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <resultMap id="getByTrId" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        <id column="id" property="id" />
+        <result column="basic_class" property="basicClass" />
+        <result column="classify_id" property="classifyId" />
+        <result column="specification" property="specification" />
+        <result column="quantity" property="quantity" />
+        <result column="thickness" property="thickness" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="mete" property="mete" />
+        <result column="color" property="color" />
+        <result column="unit_net" property="unitNet" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_VAT" property="amountExcludingVAT" />
+        <result column="input_VAT" property="inputVAT" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="remark" property="remark"/>
+
+        <result column="wmu" property="measureUnit" />
+        <result column="wmp" property="measurePrecision" />
+        <result column="wau" property="accountingUnit" />
+        <result column="wap" property="accountingPrecision" />
+
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+
+        <!--    申购单编号    <result column="standard_name" property=""/>-->
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid" />
+            <result property="name" column="pn" />
+            <result property="serialNumber" column="pSN" />
+            <result property="shortName" column="psName" />
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId" />
+            <result property="name" column="mbfName" />
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId" />
+            <result property="name" column="wwName" />
+        </association>
+    </resultMap>
+    <select id="getByTrId" resultMap="getByTrId" >
+        select
+            wtd.*,
+            p.id pid,
+            p.short_name psName,
+            p.serial_number pSN,
+            p.name pn,
+            pm.name                  pmName,
+            pa.name                  paName,
+            mbf.id mbfId,
+            mbf.name mbfName,
+            wm.measure_unit wmu,
+            wm.measure_precision wmp,
+            wm.accounting_unit wau,
+            wm.accounting_precision wap,
+            ww.id wwId,
+            ww.name wwName
+        from wms_transfer_detail wtd
+                 left join contract_project p on p.id = wtd.source_project_id
+                 left join wms_workshop mbf on wtd.source_workshop_id = mbf.id
+                 left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+                 left join wms_measure wm on wm.classification_id = wtd.classify_id
+                 left join plan_monomer pm on pm.id = wtd.source_monomer_id
+                 left join plan_area pa on pa.id = wtd.source_area_id
+        where wtd.bool_delete_enum = 0 and wtd.transfer_id = #{id}
+    </select>
+
+    <resultMap id="getDownLoadDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="specification" property="specification"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="wrt" property="reviewTime"/>
+        <result column="wtSN" property="serialNumber"/>
+        <result column="dpName" property="directionProjectName"/>
+        <result column="spName" property="projectName"/>
+        <result column="wtType" property="transferType"/>
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+        <result column="pm2Name" property="directionMonomerName" />
+        <result column="pa2Name" property="directionAreaName" />
+        <result column="warehouseName" property="warehouseName"/>
+        <result column="directionWareHouseName" property="directionWareHouseName"/>
+        <result column="outSN" property="outboundSn"/>
+        <result column="unit_price" property="unitPrice" />
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_VAT" property="amountExcludingVat" />
+        <result column="input_VAT" property="inputVat" />
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="classification_id" property="classificationId"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+        </association>
+    </resultMap>
+    <select id="getDownLoadDetail" resultMap="getDownLoadDetail">
+        select
+        wtd.*,
+        wc.name classifyName,
+        wt.review_time wrt,
+        wm.*,
+        p.short_name spName,
+        p2.short_name dpName,
+        p.name spName,
+        p2.name dpName,
+        pm.name                  pmName,
+        pa.name                  paName,
+        pm2.name                  pm2Name,
+        pa2.name                  pa2Name,
+        wt.transfer_type wtType,
+        wt.serial_number wtSN,
+        wt.outbound_sn  outSN,
+        ww.name warehouseName,
+        wwh.name directionWareHouseName
+        from wms_transfer_detail wtd
+        left join wms_transfer wt on wt.id = wtd.transfer_id
+        left join contract_project p on p.id = wtd.source_project_id
+        left join contract_project p2 on p2.id = wt.direction_project_id
+        left join wms_classification wc on wtd.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wtd.classify_id
+        left join plan_monomer pm on pm.id = wtd.source_monomer_id
+        left join plan_area pa on pa.id = wtd.source_area_id
+        left join plan_monomer pm2 on pm2.id = wt.direction_monomer_id
+        left join plan_area pa2 on pa2.id = wt.direction_area_id
+        left join wms_warehouse ww on ww.id=wtd.source_warehouse_id
+        left join wms_warehouse wwh on wwh.id=wt.direction_warehouse_id
+        where
+        wtd.bool_delete_enum = 0
+        and wt.review_status = 2
+        <if test="param.realTime != null and param.realTime.size()>0">
+            <if test="param.realTime[0] != null">
+                and wtd.real_time &gt; #{param.realTime[0]}
+            </if>
+            <if test="param.realTime[1] != null">
+                and wtd.real_time &lt; #{param.realTime[1]}
+            </if>
+        </if>
+        <if test="param.reviewTime != null and param.reviewTime.size()>0">
+            <if test="param.reviewTime[0] != null">
+                and wt.review_time &gt; #{param.reviewTime[0]}
+            </if>
+            <if test="param.reviewTime[1] != null">
+                and wt.review_time &lt; #{param.reviewTime[1]}
+            </if>
+        </if>
+        <if test="transferType != null ">
+            and wtd.transfer_type = #{transferType}
+        </if>
+        <if test="param.basicClass != null ">
+            and wtd.basic_class = #{param.basicClass}
+        </if>
+        <if test="param.orderSupplyType == 2 ">
+            and wtd.bool_party_a = 1
+        </if>
+        <if test="param.orderSupplyType == 1 ">
+            and wtd.bool_party_a = 0
+        </if>
+
+        <if test="param.workshopId != null ">
+            and wtd.source_workshop_id = #{param.workshopId}
+        </if>
+        <if test="param.warehouseId != null ">
+            AND wtd.source_warehouse_id = #{param.warehouseId}
+        </if>
+        <if test="param.sourceProjectId != null ">
+            AND wtd.source_project_id = #{param.sourceProjectId}
+        </if>
+        <if test="param.directionProjectId != null ">
+            AND wt.direction_project_id = #{param.directionProjectId}
+        </if>
+
+        <if test="param.transferSN != null and param.transferSN != '' ">
+            and wt.serial_number like CONCAT('%', #{param.transferSN},'%')
+        </if>
+        <if test=" param.operatorName != null and  param.operatorName != ''">
+            and (wt.applicant_name like CONCAT('%', #{param.operatorName},'%')
+            or wt.reviewer_name like CONCAT('%', #{param.operatorName},'%'))
+        </if>
+        <if test="param.classifyIds != null and param.classifyIds.size()>0">
+            and wtd.classify_id in
+            <foreach collection="param.classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="param.classifyIds == null and  param.classifyId != null">-->
+<!--            and wtd.classify_id = #{param.classifyId}-->
+<!--        </if>-->
+        <if test=" param.width != null">
+            and wtd.width = #{param.width}
+        </if>
+        <if test=" param.length != null">
+            and wtd.length = #{param.length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" param.minLength != null">
+            and wtd.quantity &gt;= #{param.minLength}
+        </if>
+        <if test=" param.maxLength != null">
+            and wtd.quantity &lt;= #{param.maxLength}
+        </if>
+        <if test=" param.theoryThickness != null">
+            and wtd.theory_thickness = #{param.theoryThickness}
+        </if>
+        <if test=" param.thickness != null">
+            and wtd.thickness = #{param.thickness}
+        </if>
+        <if test=" param.color != null">
+            and wtd.color like CONCAT('%', #{param.color},'%')
+        </if>
+        <if test=" param.specification != null and param.specification != ''">
+            and wtd.specification like CONCAT('%', #{param.specification},'%')
+        </if>
+        <if test=" param.heatNoAndBatchNo != null and param.heatNoAndBatchNo != ''">
+            and wtd.heat_no_and_batch_no like CONCAT('%', #{param.heatNoAndBatchNo},'%')
+        </if>
+        <if test="param.brand != null and param.brand != ''">
+            AND wtd.brand like CONCAT('%',#{param.brand},'%')
+        </if>
+        <if test="param.sourceWorkshopIds != null and param.sourceWorkshopIds.size > 0">
+            and wtd.source_workshop_id in
+            <foreach collection="param.sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="param.transferCreateType != null ">
+            <choose>
+                <when test="param.transferCreateType == 1">
+                    and (wt.transfer_create_type =  1 or wt.transfer_create_type is null)
+                </when>
+                <when test="param.transferCreateType == 2">
+                    and wt.transfer_create_type = 2
+                </when>
+            </choose>
+        </if>
+        <if test="param.outboundSn != null and param.outboundSn != '' ">
+            and wt.outbound_sn like CONCAT('%', #{param.outboundSn},'%')
+        </if>
+        order by wtd.id desc
+    </select>
+    <select id="getReturnExcel" resultMap="getReturn">
+        select
+        wtd.*,
+        wt.id wtid,
+        wt.review_time,
+        wt.serial_number wsn,
+        wt.applicant_name wa,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from
+        wms_transfer_detail wtd
+        left join wms_transfer wt on wtd.transfer_id = wt.id
+        left join contract_project p on p.id = wtd.source_project_id
+        left join wms_workshop mbf on wtd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+        where
+        wtd.bool_delete_enum = 0
+        and wt.review_status = 2
+        and wt.transfer_type = 4
+        <if test=" workshopId != null">
+            and wtd.source_workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and wtd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectId != null">
+            and wtd.source_project_id = #{projectId}
+        </if>
+        <if test=" basicClass != null">
+            and wtd.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="materialIsWhole != null ">
+            AND wtd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wtd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and wtd.classify_id = #{classifyId}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and wtd.create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wtd.create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test=" width != null">
+            and wtd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wtd.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wtd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wtd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wtd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wtd.thickness = #{thickness}
+        </if>
+        <if test=" color != null and color != ''">
+            and wtd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wtd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wtd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wtd.brand like CONCAT('%',#{brand},'%')
+        </if>
+    </select>
+    <resultMap id="TransferDetailDOCount" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.TransferDetailDO">
+        <result column="quantityCount" property="quantityCount"/>
+        <result column="meteCount" property="meteCount"/>
+        <result column="amountCount" property="amountCount"/>
+        <result column="amountExcludingVatCount" property="amountExcludingVatCount"/>
+    </resultMap>
+    <select id="getTransferDetailListCount" resultMap="TransferDetailDOCount">
+        select
+        sum(wtd.quantity) as quantityCount,
+        sum(wtd.mete) as meteCount,
+        sum(wtd.amount) as amountCount,
+        sum(wtd.amount_excluding_VAT) as amountExcludingVatCount
+        from wms_transfer_detail wtd
+        left join wms_transfer wt on wt.id = wtd.transfer_id
+        left join contract_project p on p.id = wtd.source_project_id
+        left join wms_warehouse ww on ww.id = wtd.source_warehouse_id
+        left join contract_project p2 on p2.id = wt.direction_project_id
+        left join contract_project p3 on p3.id = wt.borrow_project_id
+        left join wms_warehouse ww2 on ww2.id = wt.direction_warehouse_id
+        where
+        wtd.bool_delete_enum = 0
+        and wt.review_status = 2
+        <if test="basicClass != null ">
+            and wtd.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wtd.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wtd.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wtd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wtd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test="sourceProjectId != null ">
+            AND wtd.source_project_id = #{sourceProjectId}
+        </if>
+        <if test="directionProjectId != null ">
+            AND wt.direction_project_id = #{directionProjectId}
+        </if>
+        <if test="realTime != null and realTime.size()>0">
+            <if test="realTime[0] != null">
+                and wtd.real_time &gt; #{realTime[0]}
+            </if>
+            <if test="realTime[1] != null">
+                and wtd.real_time &lt; #{realTime[1]}
+            </if>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wt.review_time &gt; #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wt.review_time &lt; #{reviewTime[1]}
+            </if>
+        </if>
+        <if test="transferSN != null and transferSN != '' ">
+            and wt.serial_number like CONCAT('%', #{transferSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wt.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wt.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wtd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wtd.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test=" width != null">
+            and wtd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wtd.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wtd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wtd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wtd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wtd.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wtd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wtd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wtd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wtd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wtd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="transferCreateType != null ">
+            <choose>
+                <when test="transferCreateType == 1">
+                    and (wt.transfer_create_type =  1 or wt.transfer_create_type is null)
+                </when>
+                <when test="transferCreateType == 2">
+                    and wt.transfer_create_type = 2
+                </when>
+            </choose>
+        </if>
+        <if test="outboundSn != null and outboundSn != '' ">
+            and wt.outbound_sn like CONCAT('%', #{outboundSn},'%')
+        </if>
+    </select>
+</mapper>

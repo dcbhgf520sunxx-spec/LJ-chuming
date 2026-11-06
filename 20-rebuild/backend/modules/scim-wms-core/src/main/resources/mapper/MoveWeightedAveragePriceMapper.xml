@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MoveWeightedAveragePriceMapper">
+
+    <select id="getPrice" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveWeightedAveragePrice">
+        select
+        *
+        from
+        wms_move_weighted_average_price
+        where
+        bool_delete_enum = 0
+        and bool_party_a = #{boolPartyA}
+        <if test="basicClass != null">
+            and basic_class = #{basicClass}
+        </if>
+        <if test="classifyId != null">
+            and classify_id = #{ classifyId}
+        </if>
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            and project_id is null
+        </if>
+        <if test="weightedAverageSpec != null  and weightedAverageSpec != ''">
+            and specification = #{weightedAverageSpec}
+        </if>
+        <if test="weightedAverageSpec == null  ">
+            and specification is null
+        </if>
+        <if test="thickness != null ">
+            and thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            and thickness is null
+        </if>
+        <if test="standardId != null ">
+            and standard_id = #{standardId}
+        </if>
+        <if test="standardId == null ">
+            and standard_id is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            and heat_no_and_batch_no is null
+        </if>
+        <if test="color != null and color != ''">
+            and color = #{color}
+        </if>
+        <if test="color == null ">
+            and color is null
+        </if>
+        <if test="brand != null and brand != '' ">
+            and brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            and brand is null
+        </if>
+        <if test="unitNet != null ">
+            and unit_net = #{unitNet}
+        </if>
+        <if test="unitNet == null ">
+            and unit_net is null
+        </if>
+        <!--        <if test="taxRate != null ">-->
+        <!--            AND tax_rate = #{taxRate}-->
+        <!--        </if>-->
+        <!--        <if test="taxRate == null ">-->
+        <!--            AND tax_rate is null-->
+        <!--        </if>-->
+    </select>
+
+    <resultMap id="getById" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.StatisticsDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="thickness" property="thickness"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="brand" property="brand"/>
+        <!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+    </resultMap>
+    <select id="getById" resultMap="getById">
+        select wmap.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName
+        from wms_move_weighted_average_price wmap
+                 left join contract_project p on p.id = wmap.project_id
+        where wmap.id = #{id}
+    </select>
+</mapper>

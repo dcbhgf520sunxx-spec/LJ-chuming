@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.notification.SysPushNotificationRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.notification.SysPushNotificationRecord">
+        <id column="id" property="id" />
+        <result column="operational_module_type_enum" property="operationalModuleTypeEnum" />
+        <result column="notification_type_enum" property="notificationTypeEnum" />
+        <result column="project_id" property="projectId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, operational_module_type_enum, notification_type_enum, trigger_mode_type_enum, push_date, is_push, project_id
+    </sql>
+
+
+    <select id="getRecodeDetail" resultType="com.hzchum.scim.system.core.api.pojo.dto.notification.SysPushAppDetailsDTO">
+        SELECT
+        record.id AS recordId,
+        record.operational_module_type_enum,
+        record.notification_type_enum,
+        record.project_id,
+        user_link.id AS userLinkId,
+        user_link.user_id,
+        user_link.serial_number,
+        user_link.push_time,
+        user_link.content_details
+        FROM
+        sys_push_notification_record record
+        LEFT JOIN sys_push_notification_user_link user_link ON record.id = user_link.sys_push_notification_record_id
+        WHERE
+        record.bool_delete_enum = FALSE
+        <if test="operationalModuleType != null and operationalModuleType != ''">
+            AND record.operational_module_type_enum = #{operationalModuleType}
+        </if>
+        <if test="content != null and content != ''">
+            AND user_link.content_details LIKE CONCAT('%', #{content}, '%')
+        </if>
+        <if test="startDate != null">
+            AND DATE(user_link.push_time) &gt;= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE(user_link.push_time) &lt;= DATE(#{endDate})
+        </if>
+        <if test="userId != null and userId != ''">
+            AND user_link.user_id = #{userId}
+        </if>
+        ORDER BY
+        user_link.push_time DESC
+    </select>
+
+</mapper>

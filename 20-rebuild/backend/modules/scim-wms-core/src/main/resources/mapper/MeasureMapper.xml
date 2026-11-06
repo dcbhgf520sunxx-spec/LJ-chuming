@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.MeasureMapper">
+    <update id="updateSteel">
+        UPDATE wms_measure
+        SET bool_quality_testing = 1
+        WHERE classification_id = #{id}
+    </update>
+    <update id="deleteTestingClassify">
+        UPDATE wms_measure SET bool_quality_testing = 0
+            where
+            <if test="ids != null and ids.size()>0">
+                classification_id in
+                <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+    </update>
+
+    <select id="initGetMeasure" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+        SELECT
+            wm.*
+        FROM
+            wms_measure wm
+                INNER JOIN wms_classification wc ON wc.id = wm.classification_id
+        WHERE
+            wc.bool_last_enum = 1
+          AND wc.bool_delete_enum = 0
+          AND wm.measure_unit IS NULL
+          AND wm.measure_precision IS NULL
+          AND wm.accounting_unit IS NULL
+          AND wm.accounting_precision IS NULL;
+    </select>
+    <select id="selectSonList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+        SELECT
+            *
+        FROM
+            wms_measure wm
+                INNER JOIN wms_classification wc ON wc.id = wm.classification_id
+        WHERE
+            wc.bool_delete_enum = 0
+                AND (
+                wc.bool_last_enum = 1
+                    AND wm.accounting_unit IS NULL
+                    AND wm.accounting_precision IS NULL
+                    AND wm.measure_unit IS NULL
+                    AND wm.measure_precision IS NULL
+                    AND FIND_IN_SET( #{classificationId}, wc.path )
+                    AND wc.id != #{classificationId}
+                )
+           OR (wm.use_parent_id = #{classificationId})
+    </select>
+    <select id="getMeasureDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.MeasureDTO">
+        SELECT
+            wm.*,
+            wu.symbol unitSymbol,
+            wu.type unitType,
+            wu.bool_system unitBoolSystem
+        FROM
+            wms_measure wm
+        LEFT JOIN wms_unit wu ON wu.name = wm.accounting_unit
+        WHERE wm.bool_delete_enum = 0
+        <if test="classifyIds != null and classifyIds.size() > 0">
+            AND wm.classification_id IN
+            <foreach collection="classifyIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>

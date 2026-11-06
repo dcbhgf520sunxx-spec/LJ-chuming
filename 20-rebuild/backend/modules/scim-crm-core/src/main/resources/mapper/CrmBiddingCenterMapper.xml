@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmBiddingCenterMapper">
+
+
+    <select id="getCrmTenderList" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmTenderListDTO">
+        select project.*,
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+            project.business_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.business_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            project.business_crm_project_bid_status as crmProjectBidStatus,
+            project.business_project_bid_manager_user_id as projectInformantUserIds,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+            project.technology_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.technology_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            project.technology_crm_project_bid_status as crmProjectBidStatus,
+            project.technology_project_bid_manager_user_id as projectInformantUserIds,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@TYPE_OF_PERFORMANCE_BOND.getType()">
+            project.devise_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.devise_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            project.devise_crm_project_bid_status as crmProjectBidStatus,
+            project.devise_project_bid_manager_user_id as projectInformantUserIds,
+        </if>
+        enter.business_name as crmEnterpriseWarehousingName,
+        project_config.name as structureTypeConfigurationName,
+        dept.name as departmentName
+        from crm_project_information_warehousing as project
+        left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum =0
+        left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum =0
+        left join crm_project_information_config as project_config on project_config.id =
+        project.structure_type_configuration_id and project_config.bool_delete_enum =0
+        <!--        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">-->
+        <!--            left join sys_user as s_user on s_user.id = project.business_project_bid_manager_user_id and-->
+        <!--            s_user.bool_delete_enum =0-->
+        <!--        </if>-->
+        <!--        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">-->
+        <!--            left join sys_user as s_user on s_user.id = project.technology_project_bid_manager_user_id and-->
+        <!--            s_user.bool_delete_enum =0-->
+        <!--        </if>-->
+        <!--        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@TYPE_OF_PERFORMANCE_BOND.getType()">-->
+        <!--            left join sys_user as s_user on s_user.id = project.devise_project_bid_manager_user_id and-->
+        <!--            s_user.bool_delete_enum =0-->
+        <!--        </if>-->
+        <where>
+            project.bool_delete_enum =0
+            <if test="startDate != null">
+                and date(project.informant_date_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(project.informant_date_time) &lt;= date(#{endDate})
+            </if>
+            <if test="countryId != null">
+                and project.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null">
+                and project.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and project.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and project.region_id = #{regionId}
+            </if>
+            <if test="structureTypeConfigurationId != null ">
+                and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+            </if>
+            <if test="departmentId != null">
+                and project.department_id = #{departmentId}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and project.project_name like concat('%',#{projectName},'%')
+            </if>
+            <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+            </if>
+            <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                and project.id in
+                <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                <choose>
+                    <when test="crmCanLookDeptIds.contains(0L)">
+                        and (project.information_operator_dept_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                        or project.information_operator_user_id = #{userId})
+                    </when>
+                    <otherwise>
+                        and project.information_operator_dept_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                -- 只查看自己的内容
+                and project.information_operator_user_id = #{userId}
+            </if>
+        </where>
+        order by project.informant_date_time desc
+    </select>
+    <select id="getMyCrmTenderList" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmMyTenderListDTO">
+        select project.*,
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+            project.business_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.business_crm_project_bid_status as crmProjectBidStatus,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+            project.technology_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.technology_crm_project_bid_status as crmProjectBidStatus,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@TYPE_OF_PERFORMANCE_BOND.getType()">
+            project.devise_project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.devise_crm_project_bid_status as crmProjectBidStatus,
+        </if>
+        enter.business_name as crmEnterpriseWarehousingName,
+        project_config.name as structureTypeConfigurationName,
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+            project.business_project_bid_manager_user_id as projectBidManagerUserName,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+            project.technology_project_bid_manager_user_id as projectBidManagerUserName,
+        </if>
+        <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@TYPE_OF_PERFORMANCE_BOND.getType()">
+            project.devise_project_bid_manager_user_id as projectBidManagerUserName,
+        </if>
+        dept.name as departmentName
+        from crm_project_information_warehousing as project
+        left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum =0
+        left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum =0
+        left join crm_project_information_config as project_config on project_config.id =
+        project.structure_type_configuration_id and project_config.bool_delete_enum =0
+        <where>
+            project.bool_delete_enum =0
+            <if test="startDate != null">
+                and date(project.informant_date_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(project.informant_date_time) &lt;= date(#{endDate})
+            </if>
+            <if test="countryId != null">
+                and project.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null">
+                and project.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and project.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and project.region_id = #{regionId}
+            </if>
+            <if test="structureTypeConfigurationId != null ">
+                and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+            </if>
+            <if test="departmentId != null">
+                and project.department_id = #{departmentId}
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and project.project_name like concat('%',#{projectName},'%')
+            </if>
+            <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+            </if>
+            <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                and project.id in
+                <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                AND FIND_IN_SET(#{userId},project.business_project_bid_manager_user_id) > 0
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                AND FIND_IN_SET(#{userId},project.technology_project_bid_manager_user_id) > 0
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@TYPE_OF_PERFORMANCE_BOND.getType()">
+                AND FIND_IN_SET(#{userId},project.devise_project_bid_manager_user_id) > 0
+            </if>
+        </where>
+        order by project.informant_date_time desc
+    </select>
+    <select id="getCrmTenderListCustom" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmTenderListDTOV2">
+
+        <if test="crmTenderRequirementTypeEnum == 9">
+            select project.*,
+            4 as crmTenderRequirementTypeEnum,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            record.structural_design_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            from crm_apply_structural_design_bidding_record as record
+            left join crm_project_information_warehousing as project
+            on record.crm_project_information_warehousing_id = project.id
+            left join crm_enterprise_warehousing as enter
+            on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+            left join sys_department as dept
+            on dept.id = project.department_id and dept.bool_delete_enum = 0
+            left join crm_project_information_config as project_config
+            on project_config.id = project.structure_type_configuration_id and project_config.bool_delete_enum = 0
+            <where>
+                project.bool_delete_enum =0
+                and record.crm_check_status_enum = 2
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                    <choose>
+                        <when test="crmCanLookDeptIds.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+
+            union all
+
+            select project.*,
+            5 as crmTenderRequirementTypeEnum,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            record.deep_design_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            from crm_apply_deep_design_bidding_record as record
+            left join crm_project_information_warehousing as project
+            on record.crm_project_information_warehousing_id = project.id
+            left join crm_enterprise_warehousing as enter
+            on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+            left join sys_department as dept
+            on dept.id = project.department_id and dept.bool_delete_enum = 0
+            left join crm_project_information_config as project_config
+            on project_config.id = project.structure_type_configuration_id and project_config.bool_delete_enum = 0
+            <where>
+                project.bool_delete_enum =0
+                and record.crm_check_status_enum = 2
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                    <choose>
+                        <when test="crmCanLookDeptIds.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+            order by informant_date_time desc
+        </if>
+        <if test="crmTenderRequirementTypeEnum != 9">
+            select project.*,
+            record.create_time as commission_time,
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                record.crm_special_bubmission_status_enum as crmSpecialBubmissionStatusEnum,
+            </if>
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                1 as crmTenderRequirementTypeEnum,
+                record.business_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                2 as crmTenderRequirementTypeEnum,
+                record.id as crmApplyTechnologyBiddingRecordId,
+                record.technology_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                4 as crmTenderRequirementTypeEnum,
+                record.structural_design_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                5 as crmTenderRequirementTypeEnum,
+                record.deep_design_project_bid_manager_actual_finish_date as projectBidManagerActualFinishDate,
+            </if>
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                from crm_apply_business_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                from crm_apply_technology_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                from crm_apply_structural_design_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                from crm_apply_deep_design_bidding_record as record
+            </if>
+            left join crm_project_information_warehousing as project on record.crm_project_information_warehousing_id =
+            project.id
+            left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+            enter.bool_delete_enum =0
+            left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum =0
+            left join crm_project_information_config as project_config on project_config.id =
+            project.structure_type_configuration_id and project_config.bool_delete_enum =0
+            <where>
+                record.crm_check_status_enum = 2
+                <if test="crmSpecialBubmissionStatusEnum != null">
+                    and record.crm_special_bubmission_status_enum = #{crmSpecialBubmissionStatusEnum}
+                </if>
+                <if test="crmSettlementBusinessTypeEnum != null">
+                    and record.crm_settlement_business_type_enum = #{crmSettlementBusinessTypeEnum}
+                </if>
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="cStartDate != null">
+                    and date(record.create_time) >= date(#{cStartDate})
+                </if>
+                <if test="cEndDate != null">
+                    and date(record.create_time) &lt;= date(#{cEndDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                    <choose>
+                        <when test="crmCanLookDeptIds.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+            <choose>
+                <when test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                    order by record.create_time desc
+                </when>
+                <otherwise>
+                    order by project.informant_date_time desc
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+    <select id="getMyCrmTenderListCustom"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmMyTenderListDTOV2">
+
+        <if test="crmTenderRequirementTypeEnum == 9">
+            select project.*,
+            4 as crmTenderRequirementTypeEnum,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            from crm_apply_structural_design_bidding_record as record
+            left join crm_project_information_warehousing as project
+            on record.crm_project_information_warehousing_id = project.id
+            left join crm_enterprise_warehousing as enter
+            on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+            left join sys_department as dept
+            on dept.id = project.department_id and dept.bool_delete_enum = 0
+            left join crm_project_information_config as project_config
+            on project_config.id = project.structure_type_configuration_id and project_config.bool_delete_enum = 0
+            <where>
+                project.bool_delete_enum =0
+                and record.crm_check_status_enum = 2
+                and find_in_set(#{currentUserId}, project_bid_manager_user_id) > 0
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+            </where>
+
+            union all
+
+            select project.*,
+            5 as crmTenderRequirementTypeEnum,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            from crm_apply_deep_design_bidding_record as record
+            left join crm_project_information_warehousing as project
+            on record.crm_project_information_warehousing_id = project.id
+            left join crm_enterprise_warehousing as enter
+            on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+            left join sys_department as dept
+            on dept.id = project.department_id and dept.bool_delete_enum = 0
+            left join crm_project_information_config as project_config
+            on project_config.id = project.structure_type_configuration_id and project_config.bool_delete_enum = 0
+            <where>
+                project.bool_delete_enum =0
+                and record.crm_check_status_enum = 2
+                and find_in_set(#{currentUserId}, project_bid_manager_user_id) > 0
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+            </where>
+            order by informant_date_time desc
+        </if>
+        <if test="crmTenderRequirementTypeEnum != 9">
+            select project.*,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            record.crm_project_bid_status as crmProjectBidStatus,
+            record.project_bid_manager_user_id as projectInformantUserIds,
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                1 as crmTenderRequirementTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                2 as crmTenderRequirementTypeEnum,
+                record.id as crmApplyTechnologyBiddingRecordId,
+                record.crm_special_bubmission_status_enum as crmSpecialBubmissionStatusEnum,
+                record.crm_settlement_business_type_enum as crmSettlementBusinessTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                4 as crmTenderRequirementTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                5 as crmTenderRequirementTypeEnum,
+            </if>
+            enter.business_name as crmEnterpriseWarehousingName,
+            project_config.name as structureTypeConfigurationName,
+            dept.name as departmentName
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                from crm_apply_business_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                from crm_apply_technology_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                from crm_apply_structural_design_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                from crm_apply_deep_design_bidding_record as record
+            </if>
+            left join crm_project_information_warehousing as project on record.crm_project_information_warehousing_id =
+            project.id
+            left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+            enter.bool_delete_enum =0
+            left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum =0
+            left join crm_project_information_config as project_config on project_config.id =
+            project.structure_type_configuration_id and project_config.bool_delete_enum =0
+            <where>
+                find_in_set(#{currentUserId}, project_bid_manager_user_id) > 0
+                <if test="crmSpecialBubmissionStatusEnum != null">
+                    and record.crm_special_bubmission_status_enum = #{crmSpecialBubmissionStatusEnum}
+                </if>
+                <if test="startDate != null">
+                    and date(project.informant_date_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(project.informant_date_time) &lt;= date(#{endDate})
+                </if>
+                <if test="countryId != null">
+                    and project.country_id = #{countryId}
+                </if>
+                <if test="provinceId != null">
+                    and project.province_id = #{provinceId}
+                </if>
+                <if test="cityId != null">
+                    and project.city_id = #{cityId}
+                </if>
+                <if test="regionId != null">
+                    and project.region_id = #{regionId}
+                </if>
+                <if test="structureTypeConfigurationId != null ">
+                    and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+                </if>
+                <if test="departmentId != null">
+                    and project.department_id = #{departmentId}
+                </if>
+                <if test="projectName != null and projectName != '' ">
+                    and project.project_name like concat('%',#{projectName},'%')
+                </if>
+                <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                    and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+                </if>
+                <if test="projectInformantUserName != null and projectInformantUserName != '' ">
+                    and project.informant_user_name like concat('%',#{projectInformantUserName},'%')
+                </if>
+            </where>
+            order by project.informant_date_time desc
+        </if>
+    </select>
+    <select id="archivesManagementListCustom"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.ArchivesManagementListDTOV2">
+        <if test="crmTenderRequirementTypeEnum != null and crmTenderRequirementTypeEnum == 9">
+            select
+            project.id as crmProjectInformationWarehousingId,
+            4 as crmTenderRequirementTypeEnum,
+            project.informant_date_time as createTime,
+            dept.name as departmentName,
+            project.project_name as projectName,
+            record.informant_user_name as applyForBidReporterName,
+            record.project_bid_manager_user_id as headOfCommerceIds,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.serial_number as serialNumber
+            from crm_apply_structural_design_bidding_record as record
+            left join crm_project_information_warehousing as project on record.crm_project_information_warehousing_id =
+            project.id
+            left join sys_user as user_a on user_a.id = record.informant_user_id
+            left join sys_department as dept on dept.id = project.department_id
+            <where>
+                record.crm_check_status_enum = 2
+                <if test="startDate != null and endDate != null">
+                    and project.create_time between #{startDate} and #{endDate}
+                </if>
+                <if test="serialNumber != null and serialNumber != '' ">
+                    and project.serial_number like concat('%',#{serialNumber},'%')
+                </if>
+                <if test="applyForBidReporterName != null and applyForBidReporterName != '' ">
+                    and user_a.name like concat('%',#{applyForBidReporterName},'%')
+                </if>
+                <if test="userIds != null and userIds.size() > 0">
+                    and project.informant_user_id in
+                    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                        #{userId}
+                    </foreach>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId != null and crmCanLookInfoDeptIdsByModuleAndUserId.size() > 0">
+                    <choose>
+                        <when test="crmCanLookInfoDeptIdsByModuleAndUserId.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId == null and crmCanLookInfoDeptIdsByModuleAndUserId.size()=0 ">
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+
+            union all
+
+            select
+            project.id as crmProjectInformationWarehousingId,
+            5 as crmTenderRequirementTypeEnum,
+            project.informant_date_time as createTime,
+            dept.name as departmentName,
+            project.project_name as projectName,
+            record.informant_user_name as applyForBidReporterName,
+            record.project_bid_manager_user_id as headOfCommerceIds,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.serial_number as serialNumber
+            from crm_apply_deep_design_bidding_record as record
+            left join crm_project_information_warehousing as project on record.crm_project_information_warehousing_id =
+            project.id
+            left join sys_user as user_a on user_a.id = record.informant_user_id
+            left join sys_department as dept on dept.id = project.department_id
+            <where>
+                record.crm_check_status_enum = 2
+                <if test="startDate != null and endDate != null">
+                    and project.create_time between #{startDate} and #{endDate}
+                </if>
+                <if test="serialNumber != null and serialNumber != '' ">
+                    and project.serial_number like concat('%',#{serialNumber},'%')
+                </if>
+                <if test="applyForBidReporterName != null and applyForBidReporterName != '' ">
+                    and user_a.name like concat('%',#{applyForBidReporterName},'%')
+                </if>
+                <if test="userIds != null and userIds.size() > 0">
+                    and project.informant_user_id in
+                    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                        #{userId}
+                    </foreach>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId != null and crmCanLookInfoDeptIdsByModuleAndUserId.size() > 0">
+                    <choose>
+                        <when test="crmCanLookInfoDeptIdsByModuleAndUserId.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId == null and crmCanLookInfoDeptIdsByModuleAndUserId.size()=0 " >
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+            order by createTime desc
+        </if>
+        <if test="crmTenderRequirementTypeEnum != null and crmTenderRequirementTypeEnum != 9">
+            select
+            project.id as crmProjectInformationWarehousingId,
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                1 as crmTenderRequirementTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                2 as crmTenderRequirementTypeEnum,
+                record.id as crmApplyTechnologyBiddingRecordId,
+                record.crm_special_bubmission_status_enum as crmSpecialBubmissionStatusEnum,
+                record.crm_settlement_business_type_enum as crmSettlementBusinessTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                4 as crmTenderRequirementTypeEnum,
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                5 as crmTenderRequirementTypeEnum,
+            </if>
+            project.create_time as createTime,
+            dept.name as departmentName,
+            project.project_name as projectName,
+            record.informant_user_name as applyForBidReporterName,
+            record.project_bid_manager_user_id as headOfCommerceIds,
+            record.project_bid_manager_finish_date as projectBidManagerFinishDate,
+            project.serial_number as serialNumber
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@BIDDING_METHOD.getType()">
+                from crm_apply_business_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@SETTLEMENT_METHOD.getType()">
+                from crm_apply_technology_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@STRUCTURAL_DESIGN_TARGET.getType()">
+                from crm_apply_structural_design_bidding_record as record
+            </if>
+            <if test="crmTenderRequirementTypeEnum == @com.hzchum.scim.crm.core.api.enums.CrmTenderRequirementTypeEnum@DEEPENING_THE_DESIGN_STANDARD.getType()">
+                from crm_apply_deep_design_bidding_record as record
+            </if>
+            left join crm_project_information_warehousing as project on record.crm_project_information_warehousing_id =
+            project.id
+            left join sys_user as user_a on user_a.id = record.informant_user_id
+            left join sys_department as dept on dept.id = project.department_id
+            <where>
+                record.crm_check_status_enum = 2
+                <if test="crmSettlementBusinessTypeEnum != null">
+                    and record.crm_settlement_business_type_enum = #{crmSettlementBusinessTypeEnum}
+                </if>
+                <if test="startDate != null and endDate != null">
+                    and project.create_time between #{startDate} and #{endDate}
+                </if>
+                <if test="serialNumber != null and serialNumber != '' ">
+                    and project.serial_number like concat('%',#{serialNumber},'%')
+                </if>
+                <if test="applyForBidReporterName != null and applyForBidReporterName != '' ">
+                    and user_a.name like concat('%',#{applyForBidReporterName},'%')
+                </if>
+                <if test="userIds != null and userIds.size() > 0">
+                    and project.informant_user_id in
+                    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                        #{userId}
+                    </foreach>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId != null and crmCanLookInfoDeptIdsByModuleAndUserId.size() > 0">
+                    <choose>
+                        <when test="crmCanLookInfoDeptIdsByModuleAndUserId.contains(0L)">
+                            and (project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                            or project.information_operator_user_id = #{currentUserId})
+                        </when>
+                        <otherwise>
+                            and project.information_operator_dept_id IN
+                            <foreach collection="crmCanLookInfoDeptIdsByModuleAndUserId" item="deptId" open="(" separator="," close=")">
+                                #{deptId}
+                            </foreach>
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="crmCanLookInfoDeptIdsByModuleAndUserId == null and crmCanLookInfoDeptIdsByModuleAndUserId.size()=0 ">
+                    and project.information_operator_user_id = #{currentUserId}
+                </if>
+            </where>
+            order by project.create_time desc
+        </if>
+    </select>
+</mapper>

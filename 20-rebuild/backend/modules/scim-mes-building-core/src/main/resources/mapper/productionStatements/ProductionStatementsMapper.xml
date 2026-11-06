@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.productionStatements.ProductionStatementsMapper">
+
+
+    <!-- 通用查询结果列 -->
+    <select id="artifactlistByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.productionStatements.ArtifactProductionStatementsDO">
+        SELECT
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.area_id 'district.id',
+        a.factory_id 'factory.id',
+        a.workshop_id 'workshop.id',
+        a.production_line_id 'production_line.id',
+        a.team_id,
+        DATE_FORMAT( a.create_time, '%Y/%m/%d' ) date,
+        SUM( a.quantity ) quantity,
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.contract_no',
+        pm.`name` 'monomer.name',
+        pd.`name` 'district.name',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        mbpl.`name` 'production_line.name',
+        ta.`name` `name`,
+        ta.serial_number,
+        ta.net_weight,
+        ta.gross_weight,
+        ta.material,
+        ta.drawing_number,
+        ta.length,
+        ta.surface_area,
+        ta.specification,
+        ta.net_weight*a.quantity total_net_weight,
+        ta.gross_weight*a.quantity total_gross_weight
+        FROM
+        mes_building_complete a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        AND cp.bool_delete_enum =
+        FALSE LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        AND pm.bool_delete_enum =
+        FALSE LEFT JOIN plan_area pd ON pd.id = a.area_id
+        AND pd.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_factory mbf ON mbf.id = a.factory_id
+        AND mbf.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_workshop mbw ON mbw.id = a.workshop_id
+        AND mbw.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_production_line mbpl ON mbpl.id = a.production_line_id
+        AND mbpl.bool_delete_enum = FALSE
+        LEFT JOIN tech_artifact ta ON a.product_id=ta.id AND ta.bool_delete_enum=FALSE
+        WHERE
+        a.bool_delete_enum=FALSE AND
+        a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        <if test="projectId !=null ">
+            AND a.project_id=#{projectId}
+        </if>
+        <if test="monomerId !=null ">
+            AND a.monomer_id=#{monomerId}
+        </if>
+        <if test="areaId !=null ">
+            AND a.area_id=#{areaId}
+        </if>
+        <if test="factoryId !=null ">
+            AND a.factory_id=#{factoryId}
+        </if>
+        <if test="workshopId !=null ">
+            AND a.workshop_id=#{workshopId}
+        </if>
+        <if test="productionLineId !=null ">
+            AND a.productionLine_id=#{productionLineId}
+        </if>
+        <if test="name !=null ">
+            AND ta.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber !=null ">
+            AND ta.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="material !=null ">
+            AND ta.material like concat('%',#{material},'%')
+        </if>
+        <if test="specification !=null ">
+            AND ta.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="satrtDate !=null ">
+            AND a.create_time > date(#{satrtDate})
+        </if>
+        <if test="endDate !=null ">
+            AND a.create_time &lt; date(#{endDate})
+        </if>
+        GROUP BY
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.factory_id,
+        a.workshop_id,
+        a.production_line_id,
+        DATE_FORMAT(
+        a.create_time,
+        '%Y-%m%-%d'
+        )
+    </select>
+    <select id="enclosurelistByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.productionStatements.EnclosureProductionStatementsDO">
+        SELECT a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.area_id 'district.id',
+        a.factory_id 'factory.id',
+        a.workshop_id 'workshop.id',
+        a.production_line_id 'production_line.id',
+        a.team_id,
+        DATE_FORMAT( a.create_time, '%Y/%m/%d' ) date,
+        SUM( a.quantity ) quantity,
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.contract_no',
+        pm.`name` 'monomer.name',
+        pd.`name` 'district.name',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        mbpl.`name` 'production_line.name',
+        ta.`name` `name`,
+        ta.serial_number,
+        ta.material,
+        ta.width,
+        ta.length,
+        ta.category,
+        ta.plate,
+        ta.length*a.quantity total_net_length,
+        ta.length*ta.width*a.quantity total_area
+        FROM
+        mes_building_complete a
+        LEFT JOIN contract_project cp
+        ON cp.id = a.project_id
+        AND cp.bool_delete_enum =
+        FALSE LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        AND pm.bool_delete_enum =
+        FALSE LEFT JOIN plan_area pd ON pd.id = a.area_id
+        AND pd.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_factory mbf ON mbf.id = a.factory_id
+        AND mbf.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_workshop mbw ON mbw.id = a.workshop_id
+        AND mbw.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_production_line mbpl ON mbpl.id = a.production_line_id
+        AND mbpl.bool_delete_enum = FALSE
+        LEFT JOIN tech_enclosure ta ON a.product_id=ta.id AND ta.bool_delete_enum= FALSE
+        WHERE
+        a.bool_delete_enum= FALSE
+        AND
+        a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        <if test="projectId !=null ">
+            AND a.project_id=#{projectId}
+        </if>
+        <if test="monomerId !=null ">
+            AND a.monomer_id=#{monomerId}
+        </if>
+        <if test="areaId !=null ">
+            AND a.area_id=#{areaId}
+        </if>
+        <if test="factoryId !=null ">
+            AND a.factory_id=#{factoryId}
+        </if>
+        <if test="workshopId !=null ">
+            AND a.workshop_id=#{workshopId}
+        </if>
+        <if test="productionLineId !=null ">
+            AND a.productionLine_id=#{productionLineId}
+        </if>
+        <if test="name !=null ">
+            AND ta.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber !=null ">
+            AND ta.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="plate !=null ">
+            AND ta.plate like concat('%',#{plate},'%')
+        </if>
+        <if test="category !=null ">
+            <if test="category ==24 ">
+                AND ta.category in (1,3)
+            </if>
+            <if test="category !=24 ">
+                AND ta.category = #{category}
+            </if>
+        </if>
+        <if test="satrtDate !=null ">
+            AND a.create_time > date(#{satrtDate})
+        </if>
+        <if test="endDate !=null ">
+            AND a.create_time &lt; date(#{endDate})
+        </if>
+        GROUP BY
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.factory_id,
+        a.workshop_id,
+        a.production_line_id,
+        DATE_FORMAT(
+        a.create_time,
+        '%Y-%m%-%d'
+        )
+    </select>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysEnclosureDictionaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysEnclosureDictionary">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="label" property="label"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="sort" property="sort"/>
+        <result column="type" property="type"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        version,
+        bool_delete_enum,
+        id, label, name, remark, sort, type,code
+    </sql>
+
+    <select id="listAllEnclosure" resultType="com.hzchum.scim.system.core.api.pojo.dto.SysDictionaryDetailDTO">
+        SELECT *
+        FROM sys_enclosure_dictionary
+        where type = #{type}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listCodes" resultType="com.hzchum.scim.system.core.api.pojo.dto.SysTrussFloorPlateCodeDTO">
+        SELECT code, status, sort
+        FROM sys_enclosure_dictionary
+        where type = 8
+          and bool_delete_enum = 0
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        group by code, status, sort
+        order by sort asc
+    </select>
+
+
+    <select id="listByNameAndLabelLike" resultType="com.hzchum.scim.system.core.api.pojo.dto.SysEnclosureDictionaryDTO">
+        SELECT *
+        FROM sys_enclosure_dictionary
+        where name = #{name}
+        and type = #{type}
+        and bool_delete_enum = 0
+        <if test="label != null and label != ''">
+            AND label LIKE concat('%',#{label},'%')
+        </if>
+        ORDER BY sort
+    </select>
+
+
+    <select id="getByNameAndLabel" resultType="com.hzchum.scim.system.core.api.pojo._do.SysEnclosureDictionary">
+        SELECT *
+        FROM sys_enclosure_dictionary
+        where name = #{name}
+          AND label = #{label}
+          and type = #{type}
+          and bool_delete_enum = 0
+    </select>
+
+
+    <select id="getSort" resultType="com.hzchum.scim.system.core.api.pojo._do.SysEnclosureDictionary">
+        SELECT ifnull(MAX(ed.sort + 1), 1) sort
+        FROM sys_enclosure_dictionary ed
+        where ed.name = #{name}
+          and ed.type = #{type}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listByCode" resultType="com.hzchum.scim.system.core.api.pojo.dto.SysEnclosureDictionaryDTO">
+        select *
+        from sys_enclosure_dictionary
+        where type = #{type}
+          and code = #{code}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listByTypeAndName" resultType="string">
+        select label
+        from sys_enclosure_dictionary
+        where type = #{type}
+          and name = #{name}
+          and bool_delete_enum = 0
+    </select>
+
+
+</mapper>

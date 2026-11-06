@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.projectKanban.MesBuildingPaintingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.projectKanban.MesBuildingPainting">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="name" property="name" />
+        <result column="material" property="material" />
+        <result column="painting_type" property="paintingType" />
+        <result column="surface_area" property="surfaceArea" />
+        <result column="change_area" property="changeArea" />
+        <result column="paint_category" property="paintCategory" />
+        <result column="thickness" property="thickness" />
+        <result column="volume_solids" property="volumeSolids" />
+        <result column="loss" property="loss" />
+        <result column="measure" property="measure" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, name, material, painting_type, surface_area, change_area, paint_category, thickness, volume_solids, loss, measure
+    </sql>
+    <select id="paintingList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.projectKanban.PaintingDO">
+        SELECT
+            SUM(a.surface_area) surface_area,
+        a.NAME,
+        a.material,
+        a.project_id,
+        a.monomer_id,
+        b.painting_type,
+        b.change_area,
+        b.paint_category,
+        b.thickness,
+        b.volume_solids,
+        b.loss,
+        b.measure
+        FROM
+            tech_artifact a
+                LEFT JOIN mes_building_painting b ON a.`name`=b.`name` AND a.material=b.material AND b.painting_type=#{paintingType} AND b.project_id=a.project_id
+        <where>
+                a.project_id=#{projectId}
+                AND a.monomer_id=#{monomerId}
+                AND a.bool_delete_enum=FALSE
+        </where>
+        GROUP BY 	a.NAME,
+        a.project_id,
+        a.monomer_id,
+        a.material,
+        b.painting_type,
+        b.change_area,
+        b.paint_category,
+        b.thickness,
+        b.volume_solids,
+        b.loss,
+        b.measure
+    </select>
+
+</mapper>

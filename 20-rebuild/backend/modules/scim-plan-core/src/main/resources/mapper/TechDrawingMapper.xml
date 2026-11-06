@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechDrawingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechDrawing">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="number" property="number"/>
+        <result column="data_type" property="dataType"/>
+        <result column="product_type" property="productType"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_path" property="filePath"/>
+        <result column="create_user_id" property="createUserId"/>
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, file_name, monomer_id, project_id, serial_number,number,data_type, product_type, create_user_id, file_path, cloud_path
+    </sql>
+
+    <select id="getByMonomerIdAndTypeAndSerialNumber" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechDrawing">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tech_drawing
+        WHERE bool_delete_enum = 0
+        AND monomer_id = #{monomerId}
+        AND data_type = #{dataType}
+        <if test="areaId != null">
+            AND area_id = #{areaId}
+        </if>
+        <if test="productType != null">
+            AND product_type = #{productType}
+        </if>
+        <if test="number != null">
+            AND number = #{number}
+        </if>
+        <if test="number == null">
+            AND number is null
+        </if>
+        AND serial_number = #{serialNumber}
+
+    </select>
+
+    <select id="getByProjectIdAndTypeAndSerialNumber" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechDrawing">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tech_drawing
+
+        WHERE bool_delete_enum = 0
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        AND monomer_id = #{monomerId}
+        AND data_type = #{dataType}
+        AND product_type = #{productType}
+        AND serial_number = #{serialNumber}
+    </select>
+
+    <select id="listByConditions" resultType="com.hzchum.scim.plan.core.api.pojo.dto.DrawingDTO">
+        SELECT
+        d.*,
+        cp.id as 'project.id',
+        cp.name as 'project.name',
+        cp.short_name as 'project.short_name',
+        cp.serial_number as 'project.serialNumber',
+        m.id as 'monomer.id',
+        m.name as 'monomer.name',
+        u.name as createUserName
+        FROM tech_drawing as d
+        LEFT JOIN sys_user as u ON u.id = d.create_user_id
+        left join contract_project as cp on d.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer as m on d.monomer_id = m.id and m.bool_delete_enum = 0
+        where d.bool_delete_enum = 0
+        and u.bool_delete_enum = 0
+        and cp.bool_delete_enum = 0
+
+        <if test="projectId != null">
+            AND d.project_id = #{projectId}
+        </if>
+
+        <if test="monomerId != null">
+            AND d.monomer_id = #{monomerId}
+        </if>
+
+        <if test="serialNumber != null and serialNumber != ''">
+            AND d.serial_number LIKE CONCAT('%',#{serialNumber},'%')
+        </if>
+
+        <if test="fileName != null and fileName != ''">
+            AND d.file_name LIKE CONCAT('%',#{fileName},'%')
+        </if>
+
+        <if test="dataType != null">
+            AND d.data_type = #{dataType}
+        </if>
+
+        <if test="productType != null">
+            AND d.product_type = #{productType}
+        </if>
+
+        <if test="projectType != null">
+            AND d.project_type = #{projectType}
+        </if>
+
+    </select>
+    <select id="getArtifactDwg"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.drawing.ProductDrawingsSummaryDTO">
+        <choose>
+            <when test="(projectType &amp; 3) > 0">
+                SELECT
+                mon.id monomerId,
+                mon.`name` monomerName,
+                #{projectId} projectId,
+                #{productType} productType,
+                #{dataType} dataType,
+                IFNULL( SUM( art.quantity ), 0 ) quantity ,
+                IFNULL( SUM( IF ( ISNULL(dra.id ) , 0, art.quantity )), 0 ) drawingQuantity,
+                IFNULL( SUM( IF ( ISNULL(weld.id ) , 0, art.quantity )), 0 ) productWeldQuantity
+                FROM
+                plan_monomer mon
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    LEFT JOIN tech_artifact art ON mon.id = art.monomer_id
+                    AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType() or productType == 48">
+                    LEFT JOIN tech_assemble art ON mon.id = art.monomer_id
+                    AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part art ON mon.id = art.monomer_id
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum = #{steelPlateTypeEnum}
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum in (1, 2)
+                    </if>
+                </if>
+                LEFT JOIN tech_capp_craft_card_product_welding weld ON weld.monomer_id = mon.id
+                LEFT JOIN tech_drawing dra ON dra.monomer_id = mon.id
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND art.initial_serial_number = dra.serial_number
+                </if>
+                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.serial_number = art.serial_number
+                </if>
+                AND dra.bool_delete_enum = 0 AND dra.data_type=#{dataType}
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()and dataType == 2">
+                    AND dra.product_type is null
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+                    AND dra.product_type = #{productType}
+                </if>
+                WHERE
+                mon.bool_delete_enum = 0
+                AND mon.project_id = #{projectId}
+                <if test="monomerId != null">
+                    AND mon.id = #{monomerId}
+                </if>
+                GROUP BY
+                mon.id
+                ORDER BY monomerId ASC
+            </when>
+        </choose>
+    </select>
+    <select id="findDwg"
+            resultType="string">
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+                SELECT
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.initial_serial_number serialNumber
+                </if>
+                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.serial_number serialNumber
+                </if>
+                FROM
+                plan_monomer mon
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    LEFT JOIN tech_artifact art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    LEFT JOIN tech_assemble art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part art ON mon.id = art.monomer_id
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum = #{steelPlateTypeEnum}
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum in (1, 2, 4)
+                    </if>
+                </if>
+                left join plan_area area on art.area_id = area.id and area.bool_delete_enum = 0
+                INNER JOIN tech_drawing dra ON dra.monomer_id = mon.id
+                AND dra.bool_delete_enum = 0 AND dra.data_type=#{dataType}
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.serial_number = art.initial_serial_number
+                </if>
+                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.serial_number = art.serial_number
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()and dataType == 2">
+                    AND dra.product_type is null
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+                    AND dra.product_type = #{productType}
+                </if>
+                WHERE
+                mon.bool_delete_enum = 0
+                AND mon.project_id = #{projectId}
+                <if test="monomerId != null">
+                    and mon.id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    and art.area_id = #{areaId}
+                </if>
+                <if test="areaBatchId != null">
+                    and art.area_batch_id = #{areaBatchId}
+                </if>
+            </when>
+        </choose>
+    </select>
+    <select id="contrast"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.drawing.AreaDrawingDetailsDTO">
+        <choose>
+            <when test="projectType &amp; 3 > 0">
+                SELECT
+                a.projectId projectId,
+                a.monomer_id monomerId,
+                mon.`name` monomerName,
+                a.area_id areaId,
+                are.`name` areaName,
+                #{productType} productType,
+                #{dataType} dataType,
+                a.productId productId,
+                a.quantity quantity,
+                a.serialNumber serialNumber,
+                a.specification specification,
+                IF(COUNT( dra.id )=0,0,1) sign
+                FROM
+                (
+                SELECT
+                art.specification specification,
+                art.project_id projectId,
+                #{productType} productType,
+                art.area_id,
+                art.monomer_id,
+                IFNULL( art.quantity, 0 ) quantity,
+                art.id productId,
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.initial_serial_number serialNumber
+                </if>
+                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.serial_number serialNumber
+                </if>
+                FROM
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    tech_artifact art
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    tech_assemble art
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    tech_machine_part art
+                </if>
+                WHERE
+                <if test="projectId != null">
+                    art.project_id = #{projectId}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.steel_plate_type_enum = #{steelPlateTypeEnum} AND art.product_classification_enum = 8
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.steel_plate_type_enum in (1,2) AND art.product_classification_enum = 8
+                    </if>
+                </if>
+                <if test="monomerId != null">
+                    AND art.monomer_id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    and art.area_id = #{areaId}
+                </if>
+                <if test="areaBatchId != null">
+                    and art.area_batch_id = #{areaBatchId}
+                </if>
+                <if test="serialNumber != null">
+                    AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+                </if>
+                AND art.bool_delete_enum = 0
+                ) a
+                LEFT JOIN tech_drawing dra ON dra.bool_delete_enum = 0 AND dra.serial_number = a.serialNumber
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType == 2">
+                    AND dra.product_type IS NULL
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="dataType != null">
+                    AND dra.data_type=#{dataType}
+                </if>
+                <if test="monomerId != null">
+                    AND dra.monomer_id = #{monomerId}
+                </if>
+                <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+                    AND dra.area_id = #{areaId}
+                </if>
+                LEFT JOIN plan_monomer mon ON a.monomer_id=mon.id AND mon.bool_delete_enum=0
+                LEFT JOIN plan_area are ON a.area_id=are.id AND are.bool_delete_enum=0
+                LEFT JOIN sys_user su ON su.id=dra.create_user_id and su.bool_delete_enum=0
+                <where>
+                    <if test = "userName != null">
+                        su.name LIKE concat('%', #{userName}, '%')
+                    </if>
+                    <if test="sign != null">
+                        <if test="sign == 1">
+                            and (dra.serial_number IS NOT NULL
+                            <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                                or  !(RIGHT(a.serialNumber, 1) BETWEEN '0' AND '9')
+                            </if>
+                            )
+                        </if>
+                        <if test="sign == 0">
+                            and !(dra.serial_number IS NOT NULL
+                            <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                                or  !(RIGHT(a.serialNumber, 1) BETWEEN '0' AND '9')
+                            </if>
+                            )
+                        </if>
+                    </if>
+                </where>
+                GROUP BY
+                a.serialNumber,
+                a.productId
+                ORDER BY
+                sign ASC,
+                monomerId ASC,
+                productId ASC,
+                areaId ASC
+            </when>
+        </choose>
+    </select>
+
+    <select id="getArtifactDeepDwg"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.drawing.ProductDrawingsSummaryDTO">
+
+    </select>
+    <select id="selectByType" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechDrawingDTO">
+        SELECT
+        dra.id id,
+        dra.serial_number serialNumber,
+        dra.data_type dataType,
+        dra.create_user_id createUserId,
+        dra.update_time updateTime,
+        dra.create_time createTime,
+        sse.`name` createUserName
+        FROM
+        tech_drawing dra
+        LEFT JOIN sys_user sse ON sse.id = dra.create_user_id
+        WHERE
+        dra.bool_delete_enum = 0
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type = #{dataType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+            and dataType!=@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+         and dataType==@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type IS NULL
+        </if>
+        <if test="serialNumbers != null">
+            AND dra.serial_number IN
+            <foreach collection="serialNumbers" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+
+        </if>
+        <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+            AND dra.area_id = #{areaId}
+        </if>
+        ORDER BY
+        dra.update_time DESC
+    </select>
+    <select id="InstructionLink"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.drawing.InstructionLinkDTO">
+        SELECT
+        a.projectId projectId ,
+        a.monomer_id monId,
+        mon.`name` monName,
+        a.area_id areaId,
+        are.`name` areaName,
+        #{productType} productType,
+        #{dataType} dataType,
+        a.productId productId,
+        a.quantity quantity,
+        a.serialNumber serialNumber,
+        a.specification specification,
+        a.`NAME`,
+        IF(COUNT( dra.id )=0,0,1) sign
+        FROM
+        (
+        SELECT
+        art.specification specification,
+        art.project_id projectId,
+        #{productType} productType,
+        art.area_id,
+        art.monomer_id,
+        IFNULL( art.quantity, 0 ) quantity,
+        art.id productId,
+        art.serial_number serialNumber,
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            class.classification_name name
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            class.name name
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            class.name name
+        </if>
+        FROM
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact art
+            LEFT JOIN sys_structure_classification class ON class.bool_delete_enum=0 AND art.structure_class_id=class.id
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            tech_assemble art
+            LEFT JOIN sys_assemble_config class ON class.bool_delete_enum=0 AND art.assemble_config_id=class.id
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part art
+            LEFT JOIN
+            sys_steel_classification class ON class.bool_delete_enum=0 AND class.id=art.steel_id
+        </if>
+        WHERE
+        <if test="projectId != null">
+            art.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND art.area_id=#{areaId}
+        </if>
+        <if test="serialNumber != null">
+            AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        AND art.bool_delete_enum = 0
+        ) a
+        LEFT JOIN process_instruction_link dra ON dra.bool_delete_enum = 0
+        AND dra.serial_number = a.serialNumber
+        <if test="productType != null">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type=#{dataType}
+        </if>
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="drawingid != null">
+            AND dra.drawing_id = #{drawingid}
+        </if>
+        LEFT JOIN plan_monomer mon ON a.monomer_id=mon.id AND mon.bool_delete_enum=0
+        LEFT JOIN plan_area are ON a.area_id=are.id AND are.bool_delete_enum=0
+        GROUP BY
+        a.serialNumber,
+        a.productId
+        ORDER BY
+        sign asc
+
+
+    </select>
+    <select id="selectMachDrawing"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.PicturePathDTO">
+        SELECT
+        par.id productId,
+        dra.id drwaingId,
+        dra.picture_path picturePath
+        FROM
+        tech_machine_part par
+        LEFT JOIN tech_drawing dra ON par.monomer_id = dra.monomer_id
+        AND par.serial_number = dra.serial_number
+        AND ISNULL( dra.product_type )
+        AND dra.data_type = 2
+        AND dra.bool_delete_enum=0
+        <if test="drawingMatchRange != null and drawingMatchRange == 1">
+            AND par.area_id = dra.area_id
+        </if>
+        WHERE par.bool_delete_enum=0
+        <if test="machinePartIds != null and machinePartIds.size() != 0">
+            AND par.id IN
+            <foreach collection="machinePartIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="bridgeSelectMachDrawing"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.PicturePathDTO">
+        SELECT
+        par.id productId,
+        dra.id drwaingId,
+        dra.picture_path picturePath
+        FROM
+        bridge_tech_machine_part par
+        LEFT JOIN tech_drawing dra ON par.monomer_id = dra.monomer_id
+        AND par.serial_number = dra.serial_number
+        AND dra.product_type=4
+        AND dra.data_type = 2
+        AND dra.bool_delete_enum=0
+        WHERE par.bool_delete_enum=0
+        <if test="machinePartIds != null and machinePartIds.size() != 0">
+            AND par.id IN
+            <foreach collection="machinePartIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getArtifactV2Dwg"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.drawing.ProductDrawingsSummaryDTO">
+        <choose>
+            <when test="(projectType &amp; 3) > 0">
+                SELECT
+                area.id areaId,
+                area.`name` areaName,
+                monomer.`id` monomerId,
+                monomer.`name` monomerName,
+                #{projectId} projectId,
+                #{productType} productType,
+                #{dataType} dataType,
+                IFNULL( SUM( art.quantity ), 0 ) quantity ,
+                IFNULL( SUM( IF ( ISNULL(dra.id ) , 0, art.quantity )), 0 ) drawingQuantity
+                FROM
+                plan_area area
+                LEFT JOIN plan_monomer monomer on monomer.id = area.monomer_id and monomer.bool_delete_enum = 0
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part art ON area.id = art.area_id
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum = #{steelPlateTypeEnum}
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum in (1, 2)
+                    </if>
+                </if>
+                LEFT JOIN tech_drawing dra ON dra.area_id = area.id
+                AND dra.serial_number = art.serial_number
+                AND dra.bool_delete_enum = 0 AND dra.data_type=#{dataType}
+
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()and dataType == 2">
+                    AND dra.product_type is null
+                </if>
+                WHERE
+                area.bool_delete_enum = 0
+                AND area.project_id = #{projectId}
+                <if test="monomerId != null">
+                    AND area.monomer_id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    AND area.id = #{areaId}
+                </if>
+                GROUP BY
+                area.id
+                ORDER BY monomerId ASC
+            </when>
+        </choose>
+    </select>
+    <select id="weldContrast" resultType="com.hzchum.scim.plan.core.api.pojo.dto.mark.WeldDetailsDTO">
+        SELECT
+        a.projectId projectId,
+        a.monomer_id monomerId,
+        mon.`name` monomerName,
+        a.area_id areaId,
+        are.`name` areaName,
+        #{productType} productType,
+        #{dataType} dataType,
+        a.productId productId,
+        a.quantity quantity,
+        a.serialNumber serialNumber,
+        a.specification specification,
+        IF(COUNT( dra.id )=0,0,1) sign
+        FROM
+        (
+        SELECT
+        art.specification specification,
+        art.project_id projectId,
+        #{productType} productType,
+        art.area_id,
+        art.monomer_id,
+        IFNULL( art.quantity, 0 ) quantity,
+        art.id productId,
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            art.initial_serial_number serialNumber
+        </if>
+        <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            art.serial_number serialNumber
+        </if>
+        FROM
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact art
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            tech_assemble art
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part art
+        </if>
+        WHERE
+        <if test="projectId != null">
+            art.project_id = #{projectId}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            <if test="steelPlateTypeEnum != null">
+                AND art.steel_plate_type_enum = #{steelPlateTypeEnum} AND art.product_classification_enum = 8
+            </if>
+            <if test="steelPlateTypeEnum == null">
+                AND art.steel_plate_type_enum in (1,2) AND art.product_classification_enum = 8
+            </if>
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and art.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null">
+            AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        AND art.bool_delete_enum = 0
+        ) a
+        LEFT JOIN tech_capp_craft_card_product_welding dra ON dra.bool_delete_enum = 0 AND dra.serial_number = a.serialNumber
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType == 2">
+            AND dra.product_type IS NULL
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type=#{dataType}
+        </if>
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+            AND dra.area_id = #{areaId}
+        </if>
+        LEFT JOIN plan_monomer mon ON a.monomer_id=mon.id AND mon.bool_delete_enum=0
+        LEFT JOIN plan_area are ON a.area_id=are.id AND are.bool_delete_enum=0
+        LEFT JOIN sys_user su ON su.id=dra.create_user_id and su.bool_delete_enum=0
+        <where>
+            <if test = "userName != null">
+                su.name LIKE concat('%', #{userName}, '%')
+            </if>
+            <if test="sign != null">
+                <if test="sign == 1">
+                    and dra.serial_number IS NOT NULL
+                </if>
+                <if test="sign == 0">
+                    and dra.serial_number IS NULL
+                </if>
+            </if>
+        </where>
+        GROUP BY
+        a.serialNumber,
+        a.productId
+        ORDER BY
+        sign ASC,
+        monomerId ASC,
+        productId ASC,
+        areaId ASC
+    </select>
+    <select id="selectWeldByType"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechCappCraftCardProductWeldingDTO">
+        SELECT
+        dra.id id,
+        dra.serial_number serialNumber,
+        dra.data_type dataType,
+        dra.create_user_id createUserId,
+        dra.update_time updateTime,
+        dra.create_time createTime,
+        sse.`name` createUserName
+        FROM
+        tech_capp_craft_card_product_welding dra
+        LEFT JOIN sys_user sse ON sse.id = dra.create_user_id
+        WHERE
+        dra.bool_delete_enum = 0
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type = #{dataType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+            and dataType!=@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+         and dataType==@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type IS NULL
+        </if>
+        <if test="serialNumbers != null">
+            AND dra.serial_number IN
+            <foreach collection="serialNumbers" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+
+        </if>
+        <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+            AND dra.area_id = #{areaId}
+        </if>
+        ORDER BY
+        dra.update_time DESC
+    </select>
+    <select id="findWeld" resultType="java.lang.String">
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+                SELECT
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.initial_serial_number serialNumber
+                </if>
+                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    art.serial_number serialNumber
+                </if>
+                FROM
+                plan_monomer mon
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    LEFT JOIN tech_artifact art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    LEFT JOIN tech_assemble art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part art ON mon.id = art.monomer_id
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum = #{steelPlateTypeEnum}
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum in (1, 2, 4)
+                    </if>
+                </if>
+                left join plan_area area on art.area_id = area.id and area.bool_delete_enum = 0
+                LEFT JOIN tech_capp_craft_card_product_welding dra ON dra.monomer_id = mon.id AND dra.serial_number = art.serial_number
+                AND dra.bool_delete_enum = 0 AND dra.data_type=#{dataType}
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()and dataType == 2">
+                    AND dra.product_type is null
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+                    AND dra.product_type = #{productType}
+                </if>
+                WHERE
+                mon.bool_delete_enum = 0
+                AND mon.project_id = #{projectId}
+                <if test="monomerId != null">
+                    and mon.id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    and art.area_id = #{areaId}
+                </if>
+            </when>
+        </choose>
+    </select>
+    <select id="weldMapContrast" resultType="com.hzchum.scim.plan.core.api.pojo.dto.WeldMapDetailsDTO">
+        SELECT
+        a.projectId projectId,
+        a.monomer_id monomerId,
+        mon.`name` monomerName,
+        a.area_id areaId,
+        are.`name` areaName,
+        #{productType} productType,
+        #{dataType} dataType,
+        a.productId productId,
+        a.quantity quantity,
+        a.serialNumber serialNumber,
+        a.specification specification,
+        IF(COUNT( dra.id )=0,0,1) sign
+        FROM
+        (
+        SELECT
+        art.specification specification,
+        art.project_id projectId,
+        #{productType} productType,
+        art.area_id,
+        art.monomer_id,
+        IFNULL( art.quantity, 0 ) quantity,
+        art.id productId,
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            art.initial_serial_number serialNumber
+        </if>
+        <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            art.serial_number serialNumber
+        </if>
+        FROM
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact art
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            tech_assemble art
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part art
+        </if>
+        WHERE
+        <if test="projectId != null">
+            art.project_id = #{projectId}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+            <if test="steelPlateTypeEnum != null">
+                AND art.steel_plate_type_enum = #{steelPlateTypeEnum} AND art.product_classification_enum = 8
+            </if>
+            <if test="steelPlateTypeEnum == null">
+                AND art.steel_plate_type_enum in (1,2) AND art.product_classification_enum = 8
+            </if>
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and art.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null">
+            AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        AND art.bool_delete_enum = 0
+        ) a
+        LEFT JOIN tech_capp_craft_card_product_welding_map dra ON dra.bool_delete_enum = 0 AND dra.serial_number = a.serialNumber
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType == 2">
+            AND dra.product_type IS NULL
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type=#{dataType}
+        </if>
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+            AND dra.area_id = #{areaId}
+        </if>
+        LEFT JOIN plan_monomer mon ON a.monomer_id=mon.id AND mon.bool_delete_enum=0
+        LEFT JOIN plan_area are ON a.area_id=are.id AND are.bool_delete_enum=0
+        LEFT JOIN sys_user su ON su.id=dra.create_user_id and su.bool_delete_enum=0
+        <where>
+            <if test = "userName != null">
+                su.name LIKE concat('%', #{userName}, '%')
+            </if>
+            <if test="sign != null">
+                <if test="sign == 1">
+                    and dra.serial_number IS NOT NULL
+                </if>
+                <if test="sign == 0">
+                    and dra.serial_number IS NULL
+                </if>
+            </if>
+        </where>
+        GROUP BY
+        a.serialNumber,
+        a.productId
+        ORDER BY
+        sign ASC,
+        monomerId ASC,
+        productId ASC,
+        areaId ASC
+    </select>
+    <select id="findWeldMap" resultType="java.lang.String">
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+                SELECT
+                dra.file_name fileName
+                <!--                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">-->
+                <!--                    art.initial_serial_number serialNumber-->
+                <!--                </if>-->
+                <!--                <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">-->
+                <!--                    art.serial_number serialNumber-->
+                <!--                </if>-->
+                FROM
+                plan_monomer mon
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    LEFT JOIN tech_artifact art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    LEFT JOIN tech_assemble art ON mon.id = art.monomer_id AND art.bool_delete_enum = 0
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part art ON mon.id = art.monomer_id
+                    <if test="steelPlateTypeEnum != null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum = #{steelPlateTypeEnum}
+                    </if>
+                    <if test="steelPlateTypeEnum == null">
+                        AND art.bool_delete_enum = 0 AND art.steel_plate_type_enum in (1, 2, 4)
+                    </if>
+                </if>
+                left join plan_area area on art.area_id = area.id and area.bool_delete_enum = 0
+                LEFT JOIN tech_capp_craft_card_product_welding_map dra ON dra.monomer_id = mon.id AND dra.serial_number = art.serial_number
+                AND dra.bool_delete_enum = 0 AND dra.data_type=#{dataType}
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+                    AND dra.product_type = #{productType}
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()and dataType == 2">
+                    AND dra.product_type is null
+                </if>
+                <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType() and dataType != 2">
+                    AND dra.product_type = #{productType}
+                </if>
+                WHERE
+                mon.bool_delete_enum = 0
+                AND mon.project_id = #{projectId}
+                <if test="monomerId != null">
+                    and mon.id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    and art.area_id = #{areaId}
+                </if>
+                <if test="serialNumbers != null and serialNumbers.size() > 0">
+                    and art.serial_number in
+                    <foreach collection="serialNumbers" item="serialNumber" index="index" separator=","
+                             open="(" close=")">
+                        #{serialNumber}
+                    </foreach>
+                </if>
+            </when>
+        </choose>
+    </select>
+    <select id="selectWeldMapByType"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechCappCraftCardProductWeldingMapDTO">
+        SELECT
+        dra.id id,
+        dra.serial_number serialNumber,
+        dra.data_type dataType,
+        dra.create_user_id createUserId,
+        dra.update_time updateTime,
+        dra.create_time createTime,
+        sse.`name` createUserName
+        FROM
+        tech_capp_craft_card_product_welding_map dra
+        LEFT JOIN sys_user sse ON sse.id = dra.create_user_id
+        WHERE
+        dra.bool_delete_enum = 0
+        <if test="monomerId != null">
+            AND dra.monomer_id = #{monomerId}
+        </if>
+        <if test="dataType != null">
+            AND dra.data_type = #{dataType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ARTIFACT.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+            and dataType!=@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type = #{productType}
+        </if>
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@MACHINE_PART.getType()
+         and dataType==@com.hzchum.scim.plan.core.api.enums.TechDataTypeEnum@NC_DRAWING.getType()">
+            AND dra.product_type IS NULL
+        </if>
+        <if test="serialNumbers != null">
+            AND dra.serial_number IN
+            <foreach collection="serialNumbers" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+
+        </if>
+        <if test="drawingMatchRange == 1 and  areaId != null and dataType == 2 and  productType == 1">
+            AND dra.area_id = #{areaId}
+        </if>
+        ORDER BY
+        dra.update_time DESC
+    </select>
+
+
+</mapper>

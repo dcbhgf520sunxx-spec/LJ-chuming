@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmWinningContractWarehousingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmWinningContractWarehousing">
+        <id column="id" property="id"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="informant_user_id" property="informantUserId"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="informant_date_time" property="informantDateTime"/>
+        <result column="project_name" property="projectName"/>
+        <result column="crm_project_information_warehousing_id" property="crmProjectInformationWarehousingId"/>
+        <result column="amount" property="amount"/>
+        <result column="structure_type_configuration_id" property="structureTypeConfigurationId"/>
+        <result column="area_of_structure" property="areaOfStructure"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="quantity_work" property="quantityWork"/>
+        <result column="structural_remark" property="structuralRemark"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="quality_guarantee_deposit" property="qualityGuaranteeDeposit"/>
+        <result column="quality_guarantee_deposit_remark" property="qualityGuaranteeDepositRemark"/>
+        <result column="party_a_name" property="partyAName"/>
+        <result column="party_a_person_name" property="partyAPersonName"/>
+        <result column="party_a_phone" property="partyAPhone"/>
+        <result column="party_b_name" property="partyBName"/>
+        <result column="party_b_person_name" property="partyBPersonName"/>
+        <result column="party_b_phone" property="partyBPhone"/>
+        <result column="party_c_name" property="partyCName"/>
+        <result column="party_c_person_name" property="partyCPersonName"/>
+        <result column="party_c_phone" property="partyCPhone"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , create_user_id, informant_user_id, department_id, informant_date_time, project_name, crm_project_information_warehousing_id, amount, structure_type_configuration_id, area_of_structure, tax_rate, quantity_work, structural_remark, start_date, end_date, quality_guarantee_deposit, quality_guarantee_deposit_remark, party_a_name, party_a_person_name, party_a_phone, party_b_name, party_b_person_name, party_b_phone, party_c_name, party_c_person_name, party_c_phone, payment_method, attachment_ids, remark
+    </sql>
+    <select id="getContractList"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmWinningContractWarehousingPageDTO">
+        select win.id as id,
+        win.informant_date_time as informantDateTime,
+        project.serial_number as serialNumber,
+        project.project_name as projectName,
+        enter.business_name as crmEnterpriseWarehousingName,
+        project.estimated_cost as estimatedCost,
+        project.crm_project_schedule_type_enum as crmProjectScheduleTypeEnum,
+        project.id as crmProjectInformationWarehousingId,
+        project_config_a.name as structureTypeConfigurationName,
+        project_config_b.name as projectLevelConfigName,
+        depart.name as departmentName,
+        suser.name as informantUserName,
+        CASE project.crm_project_schedule_type_enum
+        WHEN 8 THEN
+        '已中标'
+        WHEN 5 THEN
+        '进行中'
+        WHEN 10 THEN
+        '未中标'
+        ELSE
+        ''
+        END AS crmProjectScheduleTypeEnumName,
+        project.validity_of_registration as validityOfRegistration
+        from crm_project_information_warehousing as project
+        left join crm_winning_contract_warehousing as win
+        on win.crm_project_information_warehousing_id = project.id and win.bool_delete_enum = 0
+        left join crm_enterprise_warehousing as enter
+        on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_a
+        on win.structure_type_configuration_id = project_config_a.id and
+        project_config_a.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_b
+        on project.project_level_config_id = project_config_b.id and
+        project_config_b.bool_delete_enum = 0
+        left join sys_department as depart on depart.id = win.department_id and depart.bool_delete_enum = 0
+        left join sys_user as suser on suser.id = win.informant_user_id and suser.bool_delete_enum = 0
+        <where>
+            project.bool_delete_enum = 0
+            and project.crm_project_schedule_type_enum in (8,5,10)
+            <if test="crmProjectScheduleTypeEnum != null">
+                and project.crm_project_schedule_type_enum = #{crmProjectScheduleTypeEnum}
+            </if>
+            <if test="startDate != null">
+                and DATE_FORMAT(win.informant_date_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                and DATE_FORMAT(win.informant_date_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and project.project_name like concat('%',#{projectName},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != '' ">
+                and project.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != '' ">
+                and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                <choose>
+                    <when test="crmCanLookDeptIds.contains(0L)">
+                        and (project.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                        or project.informant_user_id = #{userId})
+                    </when>
+                    <otherwise>
+                        and project.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                -- 只查看自己的内容
+                and project.informant_user_id = #{userId}
+            </if>
+            <if test="condition != null and condition != '' ">
+                and (
+                project.project_name like concat('%',#{condition},'%')
+                or project.serial_number like concat('%',#{condition},'%')
+                or enter.business_name like concat('%',#{condition},'%')
+                )
+            </if>
+            <if test="tenderRequirement != null and tenderRequirement.size() != 0">
+                and
+                <foreach collection="tenderRequirement" item="tr" open="(" separator="and" close=")">
+                    <if test="tr == 1">
+                        EXISTS (
+                        select 1 from crm_apply_business_bidding_record a where a.crm_project_information_warehousing_id = project.id
+                        and a.crm_check_status_enum = 2
+                        and a.bool_delete_enum = FALSE
+                        )
+                    </if>
+                    <if test="tr == 2">
+                        EXISTS (
+                        select 1 from crm_apply_technology_bidding_record a where a.crm_project_information_warehousing_id = project.id
+                        and a.crm_check_status_enum = 2
+                        and a.bool_delete_enum = FALSE
+                        )
+                    </if>
+                    <if test="tr == 4">
+                        EXISTS (
+                        select 1 from crm_apply_structural_design_bidding_record a where a.crm_project_information_warehousing_id = project.id
+                        and a.crm_check_status_enum = 2
+                        and a.bool_delete_enum = FALSE
+                        )
+                    </if>
+                    <if test="tr == 5">
+                        EXISTS (
+                        select 1 from crm_apply_deep_design_bidding_record a where a.crm_project_information_warehousing_id = project.id
+                        and a.crm_check_status_enum = 2
+                        and a.bool_delete_enum = FALSE
+                        )
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        order by win.create_time desc
+    </select>
+    <select id="getSpecialProgramsList"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmSpecialProgramsDTO">
+        select win.id as id,
+        win.informant_date_time as informantDateTime,
+        -- win.reporting_status as reportingStatus,
+        win.reporting_status as reportingStatus,
+        win.construction_organization_reporting_status as constructionOrganizationReportingStatus,
+        win.construction_calculation_reporting_status as constructionCalculationReportingStatus,
+        win.animation_reporting_status as animationReportingStatus,
+        win.innovation_reporting_status as innovationReportingStatus,
+        win.construction_support_service_reporting_status as constructionSupportServiceReportingStatus,
+        project.serial_number as serialNumber,
+        project.project_name as projectName,
+        enter.business_name as crmEnterpriseWarehousingName,
+        project.estimated_cost as estimatedCost,
+        project.id as crmProjectInformationWarehousingId,
+        project_config_a.name as structureTypeConfigurationName,
+        project_config_b.name as projectLevelConfigName,
+        depart.name as departmentName,
+        suser.name as informantUserName,
+        '已中标' as crmProjectScheduleTypeEnumName,
+        project.validity_of_registration as validityOfRegistration
+        from crm_winning_contract_warehousing as win
+        left join crm_project_information_warehousing as project
+        on win.crm_project_information_warehousing_id = project.id and project.bool_delete_enum = 0
+        left join crm_enterprise_warehousing as enter
+        on enter.id = project.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_a
+        on win.structure_type_configuration_id = project_config_a.id and
+        project_config_a.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_b
+        on project.project_level_config_id = project_config_b.id and
+        project_config_b.bool_delete_enum = 0
+        left join sys_department as depart on depart.id = win.department_id and depart.bool_delete_enum = 0
+        left join sys_user as suser on suser.id = win.informant_user_id and suser.bool_delete_enum = 0
+        <where>
+            win.bool_delete_enum = 0
+            -- 未提报
+            <if test="crmSubmissionStatusEnum != null and crmSubmissionStatusEnum == 2">
+                and win.reporting_status = 0
+                and win.construction_organization_reporting_status = 0
+            </if>
+            -- 已提报
+            <if test="crmSubmissionStatusEnum != null and crmSubmissionStatusEnum == 1">
+                and win.reporting_status = 1
+                and win.construction_organization_reporting_status = 1
+            </if>
+            -- 部分提报
+            <if test="crmSubmissionStatusEnum != null and crmSubmissionStatusEnum == 3">
+                and (
+                (win.reporting_status = 1 and win.construction_organization_reporting_status = 0)
+                or
+                (win.reporting_status = 0 and win.construction_organization_reporting_status = 1)
+                )
+            </if>
+            <if test="startDate != null">
+                and DATE_FORMAT(win.informant_date_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                and DATE_FORMAT(win.informant_date_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and project.project_name like concat('%',#{projectName},'%')
+            </if>
+            <if test="projectNumber != null and projectNumber != '' ">
+                and project.serial_number like concat('%',#{projectNumber},'%')
+            </if>
+            <if test="reportingStatus != null">
+                and win.reporting_status = #{reportingStatus}
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                <choose>
+                    <when test="crmCanLookDeptIds.contains(0L)">
+                        and (win.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                        or win.informant_user_id = #{currentUserId}
+                    </when>
+                    <otherwise>
+                        and win.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                -- 只查看自己的内容
+                and win.informant_user_id = #{currentUserId}
+            </if>
+        </where>
+        order by win.create_time desc
+    </select>
+
+</mapper>

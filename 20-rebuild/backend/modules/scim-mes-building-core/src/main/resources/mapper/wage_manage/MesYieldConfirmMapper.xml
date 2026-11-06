@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_manage.MesYieldConfirmMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesYieldConfirm">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="process_id" property="processId"/>
+        <result column="team_id" property="teamId"/>
+        <result column="produce_team_report_id" property="produceTeamReportId"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_id" property="productId"/>
+        <result column="contract_project_wage_config_id" property="contractProjectWageConfigId"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="old_measure_quantity" property="oldMeasureQuantity"/>
+        <result column="new_measure_quantity" property="newMeasureQuantity"/>
+        <result column="old_quota_price" property="oldQuotaPrice"/>
+        <result column="new_quota_price" property="newQuotaPrice"/>
+        <result column="wage" property="wage"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="operate_date" property="operateDate"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, workshop_id, process_id, team_id, produce_team_report_id, contract_project_id, monomer_id, area_id, product_type, product_id, contract_project_wage_config_id, measure_unit, old_measure_quantity, new_measure_quantity, old_quota_price, new_quota_price, wage, operator_id, operator_name, operate_date
+    </sql>
+
+
+
+    <!--<select id="unauditedWorkshopProcessTeamList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmWorkshopProcessTeamDTO">
+        SELECT
+        t1.workshop_id,
+        t1.process_id,
+        t1.team_id,
+        mbw.name AS workshop_name,
+        mbp.name AS process_name,
+        mbtul.user_name AS team_leader_user_name,
+        t1.inspection_quantity,
+        mbp.product_type
+        FROM (
+        SELECT
+            tmbwr.workshop_id,
+            mbptr.process_id,
+            mbptr.team_id,
+            SUM(IFNULL(mbptr.inspection_quantity, 0)) AS inspection_quantity
+        FROM mes_building_produce_team_report mbptr
+        INNER JOIN (
+            SELECT mbwr.product_id, mbwr.number, mbwr.workshop_id
+            FROM mes_building_warehouse_record mbwr
+            WHERE mbwr.bool_delete_enum = FALSE AND mbwr.product_type = 2 AND mbwr.type = 1
+            <choose>
+                <when test="yearMonthDaySelect == 1">
+                    AND date_format(mbwr.create_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+                </when>
+                <when test="yearMonthDaySelect == 2">
+                    AND date_format(mbwr.create_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+                </when>
+                <when test="yearMonthDaySelect == 3">
+                    AND date_format(mbwr.create_time, '%Y') = date_format(#{selectedDate}, '%Y')
+                </when>
+            </choose>
+        ) tmbwr ON tmbwr.product_id = mbptr.product_id AND tmbwr.number = mbptr.number
+        WHERE mbptr.bool_delete_enum = FALSE AND mbptr.task_type_enum = 2
+            AND NOT EXISTS (SELECT 1 FROM mes_yield_confirm myc WHERE myc.bool_delete_enum = FALSE AND myc.produce_team_report_id = mbptr.id)
+        <if test="workshopId != null">
+            AND tmbwr.workshop_id = #{workshopId}
+        </if>
+        <if test="processId != null">
+            AND mbptr.process_id = #{processId}
+        </if>
+        GROUP BY tmbwr.workshop_id, mbptr.process_id, mbptr.team_id
+        UNION ALL
+        SELECT
+            tmbwr.workshop_id,
+            mbptr.process_id,
+            mbptr.team_id,
+            SUM(IFNULL(mbptr.inspection_quantity, 0)) AS inspection_quantity
+        FROM mes_building_produce_team_report mbptr
+        LEFT JOIN mes_building_task_number_link mbtnl ON mbtnl.bool_delete_enum = FALSE AND mbtnl.assemble_id = mbptr.product_id AND mbtnl.assemble_number = mbptr.number
+        INNER JOIN (
+            SELECT mbwr.product_id, mbwr.number, mbwr.workshop_id
+            FROM mes_building_warehouse_record mbwr
+            WHERE mbwr.bool_delete_enum = FALSE AND mbwr.product_type = 2 AND mbwr.type = 1
+            <choose>
+                <when test="yearMonthDaySelect == 1">
+                    AND date_format(mbwr.create_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+                </when>
+                <when test="yearMonthDaySelect == 2">
+                    AND date_format(mbwr.create_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+                </when>
+                <when test="yearMonthDaySelect == 3">
+                    AND date_format(mbwr.create_time, '%Y') = date_format(#{selectedDate}, '%Y')
+                </when>
+            </choose>
+        ) tmbwr ON tmbwr.product_id = mbtnl.artifact_id AND tmbwr.number = mbtnl.artifact_number
+        WHERE mbptr.bool_delete_enum = FALSE AND mbptr.task_type_enum = 16
+            AND NOT EXISTS(SELECT 1 FROM mes_yield_confirm myc WHERE myc.bool_delete_enum = FALSE AND myc.produce_team_report_id = mbptr.id)
+        <if test="workshopId != null">
+            AND tmbwr.workshop_id = #{workshopId}
+        </if>
+        <if test="processId != null">
+            AND mbptr.process_id = #{processId}
+        </if>
+        GROUP BY tmbwr.workshop_id, mbptr.process_id, mbptr.team_id
+        ) t1
+        LEFT JOIN mes_building_workshop mbw ON mbw.id = t1.workshop_id
+        LEFT JOIN mes_building_process mbp ON t1.process_id = mbp.id
+        LEFT JOIN mes_building_team_user_link mbtul
+        ON mbtul.team_id = t1.team_id AND mbtul.bool_leader_enum = 1 AND mbtul.bool_delete_enum = FALSE
+        WHERE mbp.product_type IN (2, 16) and mbp.type != 2
+    </select>-->
+    <select id="unauditedWorkshopProcessTeamList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmWorkshopProcessTeamDTO">
+        SELECT
+            t.*,
+            mbw.name AS workshop_name,
+            mbp.name AS process_name,
+            mbp.product_type
+        FROM (
+                 SELECT
+                     workshop_id,
+                     process_id,
+                     team_leader_name,
+                     SUM(IFNULL(yield_quantity, 0)) AS total_quantity
+                 FROM mes_production_wage
+                 WHERE bool_delete_enum = FALSE
+                   AND bool_confirm = FALSE
+                 <choose>
+                     <when test="yearMonthDaySelect == 1">
+                         AND date_format(inbound_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+                     </when>
+                     <when test="yearMonthDaySelect == 2">
+                         AND date_format(inbound_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+                     </when>
+                     <when test="yearMonthDaySelect == 3">
+                         AND date_format(inbound_time, '%Y') = date_format(#{selectedDate}, '%Y')
+                     </when>
+                 </choose>
+                 <if test="workshopId != null">
+                     AND workshop_id = #{workshopId}
+                 </if>
+                 <if test="processId != null">
+                     AND process_id = #{processId}
+                 </if>
+                 GROUP BY workshop_id, process_id, team_leader_name
+             ) t
+        LEFT JOIN mes_building_workshop mbw ON mbw.id = t.workshop_id
+        LEFT JOIN mes_building_process mbp ON t.process_id = mbp.id
+    </select>
+
+    <!--<select id="unauditedList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmDTO">
+        SELECT
+        mbptr.id,
+        tmbwr.workshop_id,
+        mbptr.process_id,
+        mbptr.team_id,
+        mbptr.id AS produce_team_report_id,
+        cp.id AS contract_project_id,
+        cp.serial_number AS project_serial_number,
+        cp.name AS project_name,
+        tp.monomer_id,
+        pm.name AS monomer_name,
+        tp.area_id,
+        pa.name AS area_name,
+        mbptr.create_time AS reporting_time,
+        mbptr.task_type_enum AS product_type,
+        tp.id AS product_id,
+        tp.serial_number AS product_serial_number,
+        tp.specification AS product_specification,
+        mbptr.inspection_quantity,
+        tp.quantity AS product_quantity,
+        tp.net_weight AS product_net_weight,
+        tp.length AS product_length,
+        <if test="productType == 16">
+            tp.assemble_config_id,
+        </if>
+        <if test="productType == 1">
+            tp.thick,
+            tp.steel_id,
+        </if>
+        tp.name AS product_name,
+        tp.spec_prefix AS product_spec_prefix,
+        mbptr.number AS number
+        FROM mes_building_produce_team_report mbptr
+        <choose>
+            &lt;!&ndash; 构件 &ndash;&gt;
+            <when test="productType == 2">
+                LEFT JOIN tech_artifact tp ON tp.id = mbptr.product_id and tp.bool_delete_enum = FALSE
+                INNER JOIN (
+                    SELECT mbwr.product_id, mbwr.number, mbwr.workshop_id
+                    FROM mes_building_warehouse_record mbwr
+                    WHERE mbwr.bool_delete_enum = FALSE AND mbwr.product_type = 2 AND mbwr.type = 1
+                    <choose>
+                        <when test="yearMonthDaySelect == 1">
+                            AND date_format(mbwr.create_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+                        </when>
+                        <when test="yearMonthDaySelect == 2">
+                            AND date_format(mbwr.create_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+                        </when>
+                        <when test="yearMonthDaySelect == 3">
+                            AND date_format(mbwr.create_time, '%Y') = date_format(#{selectedDate}, '%Y')
+                        </when>
+                    </choose>
+                ) tmbwr ON tmbwr.product_id = mbptr.product_id AND tmbwr.number = mbptr.number
+            </when>
+            &lt;!&ndash; 部件 &ndash;&gt;
+            <when test="productType == 16">
+                LEFT JOIN tech_assemble tp ON tp.id = mbptr.product_id and tp.bool_delete_enum = FALSE
+                LEFT JOIN mes_building_task_number_link mbtnl ON mbtnl.bool_delete_enum = FALSE AND (mbtnl.assemble_id = mbptr.product_id AND mbtnl.assemble_number = mbptr.number)
+                INNER JOIN (
+                    SELECT mbwr.product_id, mbwr.number, mbwr.workshop_id
+                    FROM mes_building_warehouse_record mbwr
+                    WHERE mbwr.bool_delete_enum = FALSE AND mbwr.product_type = 2 AND mbwr.type = 1
+                    <choose>
+                        <when test="yearMonthDaySelect == 1">
+                            AND date_format(mbwr.create_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+                        </when>
+                        <when test="yearMonthDaySelect == 2">
+                            AND date_format(mbwr.create_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+                        </when>
+                        <when test="yearMonthDaySelect == 3">
+                            AND date_format(mbwr.create_time, '%Y') = date_format(#{selectedDate}, '%Y')
+                        </when>
+                    </choose>
+                ) tmbwr ON tmbwr.product_id = mbtnl.artifact_id AND tmbwr.number = mbtnl.artifact_number
+            </when>
+            &lt;!&ndash; 零件 &ndash;&gt;
+            <when test="productType == 1">
+                LEFT JOIN tech_machine_part tp ON tp.id = mbptr.product_id and tp.bool_delete_enum = FALSE
+            </when>
+        </choose>
+        LEFT JOIN contract_project cp ON cp.id = tp.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = tp.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = tp.area_id
+        WHERE mbptr.bool_delete_enum = FALSE
+        AND NOT EXISTS(SELECT 0 FROM mes_yield_confirm myc WHERE myc.bool_delete_enum = FALSE AND myc.produce_team_report_id = mbptr.id)
+        AND tmbwr.workshop_id = #{workshopId}
+        AND mbptr.process_id = #{processId}
+        AND mbptr.team_id = #{teamId}
+        AND mbptr.task_type_enum = #{productType}
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%' + projectName + '%'"/>
+            and (cp.name like #{projectNameLike} or cp.serial_number like #{projectNameLike})
+        </if>
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            <bind name="productSerialNumberLike" value="'%' + productSerialNumber + '%'"/>
+            and tp.serial_number like #{productSerialNumberLike}
+        </if>
+    </select>-->
+    <select id="unauditedList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmDTO">
+        SELECT
+            mpw.*,
+            cp.serial_number AS project_serial_number,
+            cp.name AS project_name,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            <choose>
+                <when test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                    type.classification_name AS type_name,
+                </when>
+                <when test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()
+                    or productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                    type.name AS type_name,
+                </when>
+            </choose>
+            ifnull(mpw.yield_quantity, 0) as quantity
+        FROM mes_production_wage mpw
+        LEFT JOIN contract_project cp ON cp.id = mpw.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = mpw.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = mpw.area_id
+        <choose>
+            <when test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN sys_structure_classification type ON type.bool_delete_enum = FALSE AND type.id = mpw.product_class_id
+            </when>
+            <when test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN sys_assemble_config type ON type.bool_delete_enum = FALSE AND type.id = mpw.product_class_id
+            </when>
+            <when test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN sys_steel_classification type ON type.bool_delete_enum = FALSE AND type.id = mpw.product_class_id
+            </when>
+        </choose>
+        WHERE mpw.bool_delete_enum = FALSE
+          AND mpw.bool_confirm = FALSE
+          AND mpw.workshop_id = #{workshopId}
+          AND mpw.process_id = #{processId}
+          AND mpw.team_leader_name = #{teamLeaderName}
+          AND mpw.product_process_type = #{productType}
+        <choose>
+            <when test="yearMonthDaySelect == 1">
+                AND date_format(mpw.inbound_time, '%Y-%m-%d') = date_format(#{selectedDate}, '%Y-%m-%d')
+            </when>
+            <when test="yearMonthDaySelect == 2">
+                AND date_format(mpw.inbound_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+            </when>
+            <when test="yearMonthDaySelect == 3">
+                AND date_format(mpw.inbound_time, '%Y') = date_format(#{selectedDate}, '%Y')
+            </when>
+        </choose>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%' + projectName + '%'"/>
+            and (cp.name like #{projectNameLike} or cp.serial_number like #{projectNameLike})
+        </if>
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            <bind name="productSerialNumberLike" value="'%' + productSerialNumber + '%'"/>
+            and mpw.product_serial_number like #{productSerialNumberLike}
+        </if>
+    </select>
+
+    <select id="auditedWorkshopProcessTeamList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmWorkshopProcessTeamDTO">
+        SELECT
+        t1.workshop_id,
+        t1.process_id,
+        t1.team_id,
+        t1.inspection_quantity,
+        t1.totalWage,
+        mbw.name AS workshop_name,
+        mbp.name AS process_name,
+        mbtul.user_name AS team_leader_user_name,
+        mbp.product_type
+        FROM (
+        SELECT
+        myc.workshop_id,
+        myc.process_id,
+        myc.team_id,
+        SUM(IFNULL(mbptr.inspection_quantity, 0)) AS inspection_quantity,
+        SUM(myc.wage) AS totalWage
+        FROM mes_yield_confirm myc
+        LEFT JOIN mes_building_produce_team_report mbptr ON mbptr.bool_delete_enum = FALSE AND mbptr.id = myc.produce_team_report_id
+        LEFT JOIN mes_contract_project_statistics_config_link mcpscl ON mcpscl.bool_delete_enum = FALSE AND mcpscl.contract_project_id = myc.contract_project_id
+        WHERE myc.bool_delete_enum = FALSE
+        <if test="statisticsModeEnum != null">
+            AND mcpscl.statistics_mode = #{statisticsModeEnum}
+        </if>
+        <if test="workshopId != null">
+            AND myc.workshop_id = #{workshopId}
+        </if>
+        <if test="selectedDate != null">
+            AND date_format(myc.reporting_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+        </if>
+        GROUP BY myc.workshop_id, myc.process_id, myc.team_id
+        ) t1
+        LEFT JOIN mes_building_workshop mbw ON mbw.id = t1.workshop_id
+        LEFT JOIN mes_building_process mbp ON t1.process_id = mbp.id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.team_id = t1.team_id AND mbtul.bool_leader_enum = 1 AND
+        mbtul.bool_delete_enum = FALSE
+    </select>
+
+    <select id="auditedWorkshopProcessTeamUniversalConfigurationList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmWorkshopProcessTeamDTO">
+        SELECT
+        t1.workshop_id,
+        t1.process_id,
+        t1.team_id,
+        t1.inspection_quantity,
+        t1.totalWage,
+        mbw.name AS workshop_name,
+        mbp.name AS process_name,
+        mbtul.user_name AS team_leader_user_name,
+        mbp.product_type
+        FROM (
+        SELECT
+        myc.workshop_id,
+        myc.process_id,
+        myc.team_id,
+        SUM(IFNULL(mbptr.inspection_quantity, 0)) AS inspection_quantity,
+        SUM(myc.wage) AS totalWage
+        FROM mes_yield_confirm myc
+        LEFT JOIN mes_building_produce_team_report mbptr ON mbptr.bool_delete_enum = FALSE AND mbptr.id = myc.produce_team_report_id
+        WHERE myc.bool_delete_enum = FALSE
+        <if test="workshopId != null">
+            AND myc.workshop_id = #{workshopId}
+        </if>
+        <if test="selectedDate != null">
+            AND date_format(myc.reporting_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+        </if>
+        GROUP BY myc.workshop_id, myc.process_id, myc.team_id
+        ) t1
+        LEFT JOIN mes_building_workshop mbw ON mbw.id = t1.workshop_id
+        LEFT JOIN mes_building_process mbp ON t1.process_id = mbp.id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.team_id = t1.team_id AND mbtul.bool_leader_enum = 1 AND
+        mbtul.bool_delete_enum = FALSE
+    </select>
+
+
+    <select id="auditedList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmDTO">
+        SELECT
+            myc.*,
+            cp.name AS project_name,
+            cp.serial_number AS project_serial_number,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            <if test="productType == 2">
+                CASE myc.product_type
+                WHEN 8 THEN tsp.specification
+                ELSE tp.specification
+                END AS product_specification,
+                CASE myc.product_type
+                WHEN 8 THEN tsp.name
+                ELSE tp.name
+                END AS product_name,
+                CASE myc.product_type
+                WHEN 8 THEN mcpbsl.type
+                ELSE mcpwc.type_name
+                END AS type_name,
+            </if>
+            <if test="productType != 2">
+                tp.specification AS product_specification,
+                tsp.name AS product_name,
+                mcpwc.type_name AS type_name,
+            </if>
+            tp.serial_number AS product_serial_number
+        FROM mes_yield_confirm myc
+        LEFT JOIN contract_project cp ON cp.id = myc.contract_project_id
+        LEFT JOIN plan_monomer pm ON pm.id = myc.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = myc.area_id
+        <choose>
+            <!-- 构件 -->
+            <when test="productType == 2">
+                LEFT JOIN (select
+                mcpawcl.id,
+                mac.classification as type_name
+                FROM mes_contract_project_assembling_welding_config_link mcpawcl
+                LEFT JOIN mes_artifact_classification mac ON mac.id = mcpawcl.artifact_classification_id
+                WHERE mcpawcl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id and myc.product_type = 2
+                LEFT JOIN tech_artifact as tp ON tp.id = myc.product_id and myc.product_type = 2
+                LEFT JOIN mes_contract_project_bolt_sleeve_link mcpbsl
+                    on mcpbsl.bool_delete_enum = FALSE
+                           and mcpbsl.id = myc.contract_project_wage_config_id and myc.product_type = 8
+                left join tech_standard_part tsp on tsp.id = myc.product_id and myc.product_type = 8
+            </when>
+            <!-- 部件 -->
+            <when test="productType == 16">
+                LEFT JOIN (select
+                mcpgwcl.id,
+                sac.name as type_name
+                from mes_contract_project_group_welding_config_link mcpgwcl
+                LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+                WHERE mcpgwcl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id
+                LEFT JOIN tech_assemble as tp ON tp.id = myc.product_id
+            </when>
+            <!-- 零件 -->
+            <when test="productType == 1">
+                LEFT JOIN (select
+                mcplocl.id,
+                ssc.name as type_name
+                FROM mes_contract_project_laying_off_config_link mcplocl
+                LEFT JOIN sys_steel_classification ssc ON ssc.id = mcplocl.steel_classification_id
+                WHERE mcplocl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id
+                LEFT JOIN tech_machine_part as tp ON tp.id = myc.product_id
+            </when>
+        </choose>
+        WHERE myc.bool_delete_enum = FALSE
+        <if test="workshopId != null">
+            AND myc.workshop_id = #{workshopId}
+        </if>
+        <if test="processId != null">
+            AND myc.process_id = #{processId}
+        </if>
+        <if test="teamId != null">
+            AND myc.team_id = #{teamId}
+        </if>
+        <if test="selectedDate != null">
+            AND date_format(myc.reporting_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+        </if>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%' + projectName + '%'"/>
+            AND (cp.name LIKE #{projectNameLike} or cp.serial_number LIKE #{projectNameLike})
+        </if>
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            <bind name="productSerialNumberLike" value="'%' + productSerialNumber + '%'"/>
+            AND tp.serial_number LIKE #{productSerialNumberLike}
+        </if>
+    </select>
+
+    <select id="auditedUniversalConfigurationList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesYieldConfirmDTO">
+        SELECT
+            myc.*,
+            cp.name AS project_name,
+            cp.serial_number AS project_serial_number,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            <if test="productType == 2">
+                CASE myc.product_type
+                WHEN 8 THEN tsp.specification
+                ELSE tp.specification
+                END AS product_specification,
+                CASE myc.product_type
+                WHEN 8 THEN tsp.name
+                ELSE tp.name
+                END AS product_name,
+                CASE myc.product_type
+                WHEN 8 THEN mcpbsl.type
+                ELSE mcpwc.type_name
+                END AS type_name,
+            </if>
+            <if test="productType != 2">
+                tp.specification AS product_specification,
+                tp.name AS product_name,
+                mcpwc.type_name AS type_name,
+            </if>
+            tp.serial_number AS product_serial_number
+        FROM mes_yield_confirm myc
+        LEFT JOIN contract_project cp ON cp.id = myc.contract_project_id
+        LEFT JOIN plan_monomer pm ON pm.id = myc.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = myc.area_id
+        <choose>
+            <!-- 构件 -->
+            <when test="productType == 2">
+                LEFT JOIN (select
+                mcpawcl.id,
+                mac.classification as type_name
+                FROM mes_assembling_welding_config mcpawcl
+                LEFT JOIN mes_artifact_classification mac ON mac.id = mcpawcl.artifact_classification_id and mac.bool_delete_enum = FALSE
+                WHERE mcpawcl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id and myc.product_type = 2
+                LEFT JOIN tech_artifact as tp ON tp.id = myc.product_id and myc.product_type = 2 and tp.bool_delete_enum = FALSE
+                LEFT JOIN mes_bolt_sleeve mcpbsl on mcpbsl.bool_delete_enum = FALSE and mcpbsl.id = myc.contract_project_wage_config_id and myc.product_type = 8
+                left join tech_standard_part tsp on tsp.id = myc.product_id and myc.product_type = 8
+            </when>
+            <!-- 部件 -->
+            <when test="productType == 16">
+                LEFT JOIN (select
+                mcpgwcl.id,
+                sac.name as type_name
+                from mes_group_welding_config mcpgwcl
+                LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id and sac.bool_delete_enum = FALSE
+                WHERE mcpgwcl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id
+                LEFT JOIN tech_assemble as tp ON tp.id = myc.product_id and tp.bool_delete_enum = FALSE
+            </when>
+            <!-- 零件 -->
+            <when test="productType == 1">
+                LEFT JOIN (select
+                mcplocl.id,
+                ssc.name as type_name
+                FROM mes_contract_project_laying_off_config_link mcplocl
+                LEFT JOIN sys_steel_classification ssc ON ssc.id = mcplocl.steel_classification_id and ssc.bool_delete_enum = FALSE
+                WHERE mcplocl.bool_delete_enum = FALSE) mcpwc ON mcpwc.id = myc.contract_project_wage_config_id
+                LEFT JOIN tech_machine_part as tp ON tp.id = myc.product_id and tp.bool_delete_enum = FALSE
+            </when>
+        </choose>
+        WHERE myc.bool_delete_enum = FALSE
+        <if test="workshopId != null">
+            AND myc.workshop_id = #{workshopId}
+        </if>
+        <if test="processId != null">
+            AND myc.process_id = #{processId}
+        </if>
+        <if test="teamId != null">
+            AND myc.team_id = #{teamId}
+        </if>
+        <if test="selectedDate != null">
+            AND date_format(myc.reporting_time, '%Y-%m') = date_format(#{selectedDate}, '%Y-%m')
+        </if>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%' + projectName + '%'"/>
+            AND (cp.name LIKE #{projectNameLike} or cp.serial_number LIKE #{projectNameLike})
+        </if>
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            <bind name="productSerialNumberLike" value="'%' + productSerialNumber + '%'"/>
+            AND tp.serial_number LIKE #{productSerialNumberLike}
+        </if>
+    </select>
+
+    <select id="getTotalInboundQuantity" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.ApportionReportDataDTO">
+        SELECT
+            all_month.month_value,
+            ifnull(t1.totalInboundQuantity, 0) as total_inbound_quantity
+        FROM (
+                 SELECT
+                     1 AS month_value
+                 UNION ALL
+                 SELECT
+                     2 AS month_value
+                 UNION ALL
+                 SELECT
+                     3 AS month_value
+                 UNION ALL
+                 SELECT
+                     4 AS month_value
+                 UNION ALL
+                 SELECT
+                     5 AS month_value
+                 UNION ALL
+                 SELECT
+                     6 AS month_value
+                 UNION ALL
+                 SELECT
+                     7 AS month_value
+                 UNION ALL
+                 SELECT
+                     8 AS month_value
+                 UNION ALL
+                 SELECT
+                     9 AS month_value
+                 UNION ALL
+                 SELECT
+                     10 AS month_value
+                 UNION ALL
+                 SELECT
+                     11 AS month_value
+                 UNION ALL
+                 SELECT
+                     12 AS month_value
+             ) all_month
+        LEFT JOIN (
+            SELECT
+              MONTH(mbwr.create_time) AS current_month,
+              SUM(IFNULL(mbwr.quantity, 0) * IFNULL(ta.net_weight, 0) / 1000) AS totalInboundQuantity
+            FROM mes_building_warehouse_record mbwr
+            LEFT JOIN tech_artifact ta ON ta.id = mbwr.product_id and ta.bool_delete_enum = FALSE
+            WHERE mbwr.bool_delete_enum = FALSE
+            AND mbwr.type = 1
+            AND mbwr.product_type = 2
+            AND YEAR(mbwr.create_time) = #{year}
+            <if test="workshopId != null">
+                AND mbwr.workshop_id = #{workshopId}
+            </if>
+            GROUP BY current_month
+        ) t1 ON all_month.month_value = t1.current_month
+    </select>
+
+    <select id="getCost" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.ApportionReportDataDTO">
+        SELECT
+            lt.current_month as month_value,
+            mcpoal.type as typeName,
+            SUM(lt.totalNetWeight * IFNULL(mcpoal.price, 0)) AS cost
+        FROM mes_contract_project_other_apportionment_link mcpoal
+        LEFT JOIN (
+                      SELECT
+                          MONTH(mbptr.create_time) AS current_month,
+                          mbptr.process_id AS processId,
+                          ta.project_id AS projectId,
+                          SUM(IFNULL(mbptr.inspection_quantity, 0) * IFNULL(ta.net_weight, 0) / 1000) AS totalNetWeight
+                      FROM mes_building_produce_team_report mbptr
+                      LEFT JOIN tech_artifact ta ON ta.id = mbptr.product_id
+                      WHERE mbptr.bool_delete_enum = FALSE
+                                AND mbptr.task_type_enum = 2
+                                AND YEAR (mbptr.create_time) = #{year}
+        GROUP BY current_month, ta.project_id, mbptr.process_id
+            ) lt
+        ON lt.processId = mcpoal.process_id AND lt.projectId = mcpoal.contract_project_id
+        WHERE mcpoal.bool_delete_enum = FALSE AND mcpoal.status = true
+        GROUP BY lt.current_month, mcpoal.type
+    </select>
+
+    <select id="getCurrencyCost" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.ApportionReportDataDTO">
+        SELECT
+            lt.current_month as month_value,
+            moa.type AS type_name,
+            SUM((lt.totalNetWeight / moa.inventory_quantity) * moa.price) AS cost
+        FROM mes_other_apportionment moa
+        LEFT JOIN (
+                      SELECT
+                          MONTH(mbwr.create_time) AS current_month,
+                          mbwr.workshop_id,
+                          SUM(IFNULL(mbwr.quantity, 0) * IFNULL(ta.net_weight, 0) / 1000) AS totalNetWeight
+                      FROM mes_building_warehouse_record mbwr
+                      LEFT JOIN tech_artifact ta ON ta.id = mbwr.product_id
+                      WHERE mbwr.bool_delete_enum = FALSE
+                        AND mbwr.product_type = 2
+                        AND mbwr.type = 1
+                        AND YEAR (mbwr.create_time) = #{year}
+                        <if test="workshopId != null">
+                            AND mbwr.workshop_id = #{workshopId}
+                        </if>
+                      GROUP BY current_month, mbwr.workshop_id
+            ) lt ON lt.workshop_id = moa.workshop_id
+        WHERE moa.bool_delete_enum = FALSE AND moa.status = true
+        GROUP BY lt.current_month, moa.type
+    </select>
+
+
+</mapper>

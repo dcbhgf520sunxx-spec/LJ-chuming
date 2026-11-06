@@ -1,0 +1,5 @@
+const e = [{ key: "paymentEnumName", label: "付款类型" }, { key: "projectName", label: "项目" }, { key: "projectManagerName", label: "项目经理" }, { key: "supplierName", label: "供应商" }, { key: "initiatorName", label: "创建人" }, { key: "contractNumber", label: "采购合同号" }], a = [{ key: "createTime", label: "创建日期" }, { key: "projectManagerName", label: "项目负责人" }, { key: "basicClass", label: "物料类型" }, { key: "amount", label: "合同额" }, { key: "supplierName", label: "供应商" }, { key: "contractSignBodyName", label: "签约主体" }, { key: "projectIncome", label: "项目累计收入" }, { key: "projectExpenditure", label: "项目累计支出" }, { key: "collectionSummary", label: "总结余", labelSlot: true, label_key: "collectionSummary_label" }, { key: "contractExpenditure", label: "本合同累计支出" }, { key: "contractCollectionSummary", label: "本项目结余", labelSlot: true, label_key: "contractCollectionSummary_label" }, { key: "personalCredit", label: "个人授信" }, { key: "paymentAmount", label: "本次申请金额" }, { key: "capital", label: "大写" }, { key: "paymentReasonId", label: "付款事由" }, { key: "paymentBank", label: "付款银行" }, { key: "paymentBankAccount", label: "账户" }, { key: "attachmentId", label: "附件" }];
+export {
+  e as h,
+  a as s
+};

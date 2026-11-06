@@ -1,0 +1,39 @@
+import { inject as m } from "vue";
+import { computed as L } from "vue";
+import { resolveComponent as f } from "vue";
+import { resolveDirective as U } from "vue";
+import { openBlock as k } from "vue";
+import { createBlock as F } from "vue";
+import { withCtx as s } from "vue";
+import { createVNode as l } from "vue";
+import { createElementVNode as c } from "vue";
+import { toDisplayString as r } from "vue";
+import { withDirectives as M } from "vue";
+import { mergeProps as R } from "vue";
+import { unref as p } from "vue";
+import { reactive as q } from "vue";
+import { ElTableColumn as B } from "element-plus";
+import { ElTooltip as D } from "element-plus";
+import { ElInput as E } from "element-plus";
+import { aw as T, aI as z, b as H } from "../../../../../../../../shared/runtime.js";
+const A = { __name: "gas", props: { maxHeight: { type: Number } }, setup(d, { expose: _ }) {
+  const n = m("crud").form, u = m("matSpecRef"), g = L(() => ({ classifyId: [{ required: true, message: "请选择物料种类", trigger: "change" }], materialSnNew: [{ required: true, message: "请选择材料编码", trigger: "blur" }] })), { tableValidate: b, wrongCellMask: y, cleanUpData: N } = T({ rules: g, errorMsg: "请修正【气体清单】中标红的信息" });
+  function h(e) {
+    return q({ uid: z(), materialSn: e.sn, specificationLabels: e.specificationLabels, classifySerialNumber: e.classify.serialNumber, serialNumber: e.serialNumber, classifyId: e.classify.id, classifyFullPathId: e.classify.fullPathId, classifyFullName: e.classify.fullName, classifyName: e.classify.name, classifyParentFullName: e.classify.parentFullName, basicClass: e.classify.basicClass, specification: e.spec, specificationNew: e.spec, specificationName: e.spec, specificationMap: e.specKV, measureUnit: e.classify.measureUnit, accountingUnit: e.classify.accountingUnit, accountingPrecision: e.classify.accountingPrecision, measurePrecision: e.classify.measurePrecision, materialSnNew: e.materialSnNew });
+  }
+  function S(e, i, t) {
+    u.value ? u.value.delListItem(e, i) : n.gasList.splice(i, 1);
+  }
+  function v() {
+    if (H(n.gasList)) return true;
+    const { validResult: e, dealList: i } = b(n.gasList);
+    return e && N(i), e;
+  }
+  return _({ rowInit: h, validate: v }), (e, i) => {
+    const t = B, x = D, C = E, P = f("common-button"), V = f("common-table"), I = U("empty-text");
+    return k(), F(V, R({ "cell-class-name": p(y), data: p(n).gasList, "max-height": d.maxHeight, "show-empty-symbol": false, stripe: false, "return-source-data": "", "row-key": "uid" }, e.$attrs), { default: s(() => [l(t, { align: "center", label: "序号" }, { default: s(({ $index: a }) => [c("span", null, r(a + 1), 1)]), _: 1 }), l(t, { align: "center", label: "编号", prop: "serialNumber" }, { default: s(({ row: a }) => [c("span", null, r(a.serialNumber), 1)]), _: 1 }), l(t, { align: "center", label: "物料名称", prop: "classifyName", "show-overflow-tooltip": "" }, { default: s(({ row: a }) => [l(x, { content: a.classifyParentFullName, disabled: !a.classifyParentFullName, "show-after": 500, placement: "top" }, { default: s(() => [M(c("span", null, null, 512), [[I, a.classifyName]])]), _: 2 }, 1032, ["content", "disabled"])]), _: 1 }), l(t, { align: "center", label: "规格", prop: "specification" }, { default: s(({ row: a }) => [c("span", null, r(a.specificationName), 1)]), _: 1 }), l(t, { align: "center", label: "材料编码", prop: "materialSnNew" }, { default: s(({ row: a }) => [l(C, { modelValue: a.materialSnNew, "onUpdate:modelValue": (o) => a.materialSnNew = o, modelModifiers: { trim: true }, maxlength: "20", placeholder: "材料编码", size: "default" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), l(t, { align: "center", fixed: "right", label: "操作" }, { default: s(({ row: a, $index: o }) => [l(P, { icon: "el-icon-delete", size: "default", type: "danger", onClick: (j) => S(a.materialSn, o, a) }, null, 8, ["onClick"])]), _: 1 })]), _: 1 }, 16, ["cell-class-name", "data", "max-height"]);
+  };
+} };
+export {
+  A as default
+};

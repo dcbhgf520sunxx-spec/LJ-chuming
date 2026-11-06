@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmBiddingPlatformWarehousingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmBiddingPlatformWarehousing">
+        <id column="id" property="id"/>
+        <result column="informant_user_id" property="informantUserId"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="informant_date_time" property="informantDateTime"/>
+        <result column="bidding_platform_name" property="biddingPlatformName"/>
+        <result column="reason_for_registration" property="reasonForRegistration"/>
+        <result column="country_id" property="countryId"/>
+        <result column="country_name" property="countryName"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="province_name" property="provinceName"/>
+        <result column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+        <result column="region_id" property="regionId"/>
+        <result column="region_name" property="regionName"/>
+        <result column="address" property="address"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <!--        <result column="media_type" property="mediaType" />-->
+        <result column="acceptance_addres" property="acceptanceAddress"/>
+        <result column="deadline_for_acceptance_time" property="deadlineForAcceptanceTime"/>
+        <result column="cost" property="cost"/>
+        <result column="remark" property="remark"/>
+        <result column="approve_record_id" property="approveRecordId"/>
+        <result column="create_user_id" property="createUserId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , informant_user_id, department_id, informant_date_time, bidding_platform_name, reason_for_registration, country_id, country_name, province_id, province_name, city_id, city_name, region_id, region_name, address, attachment_ids,
+--         media_type,
+         acceptance_addres, deadline_for_acceptance_time, cost, remark, approve_record_id, create_user_id
+    </sql>
+    <select id="getCrmBiddingPlatformWarehousingPage"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmBiddingPlatformWarehousingPageDTO">
+        select
+        bidding_platform.*,
+        enter.country_id as countryId,
+        enter.address as address,
+        enter.country_name as countryName,
+        enter.province_id as provinceId,
+        enter.province_name as provinceName,
+        enter.city_id as cityId,
+        enter.city_name as cityName,
+        enter.region_id as regionId,
+        enter.region_name as regionName,
+        bidding_platform.attachment_ids as attachmentIdsList,
+        enter.business_name as crmEnterPriseWarehousingName,
+        project.project_name as crmprojectInformationWarehousingName,
+        enter.business_phone as businessPhone,
+        user_a.name as createUserName,
+        <if test="checkRecord != null and checkRecord == 1">
+            bidding_platform.create_time as createDateTime,
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            bidding_platform.informant_date_time as createDateTime,
+        </if>
+        user_b.name as informantUserName
+        from crm_bidding_platform_warehousing as bidding_platform
+        left join crm_enterprise_warehousing as enter on bidding_platform.crm_enterprise_warehousing_id = enter.id and
+        enter.bool_delete_enum = 0
+        left join crm_project_information_warehousing as project on project.id =
+        bidding_platform.crm_project_information_warehousing_id and project.bool_delete_enum = 0
+        left join sys_user as user_a on user_a.id = bidding_platform.create_user_id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on user_b.id = bidding_platform.informant_user_id and user_b.bool_delete_enum = 0
+        left join crm_basics_config as basics_config_a on enter.unit_property_allocation_config_id = basics_config_a.id
+        and basics_config_a.bool_delete_enum = 0
+        left join crm_basics_config as basics_config_b on enter.unit_class_configuration_id = basics_config_b.id and
+        basics_config_b.bool_delete_enum = 0
+        left join crm_basics_config as basics_config_c on enter.unit_reputation_allocation_config_id =
+        basics_config_c.id and basics_config_c.bool_delete_enum = 0
+        left join crm_basics_config as basics_config_d on enter.industry_configuration_id =
+        basics_config_d.id and basics_config_d.bool_delete_enum = 0
+        <where>
+            bidding_platform.bool_delete_enum = 0
+            <if test="crmCheckStatusEnum != null">
+                and bidding_platform.crm_check_status_enum = #{crmCheckStatusEnum}
+            </if>
+            <if test="checkRecord != null">
+                and bidding_platform.crm_record_type_enum = #{checkRecord}
+            </if>
+            <if test="checkRecord != null and checkRecord == 1">
+                <if test="startDate != null">
+                    and DATE_FORMAT(bidding_platform.create_time, '%Y-%m-%d') &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE_FORMAT(bidding_platform.create_time, '%Y-%m-%d') &lt;= #{endDate}
+                </if>
+            </if>
+            <if test="checkRecord != null and checkRecord == 2">
+                <if test="startDate != null">
+                    and DATE_FORMAT(bidding_platform.informant_date_time, '%Y-%m-%d') &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE_FORMAT(bidding_platform.informant_date_time, '%Y-%m-%d') &lt;= #{endDate}
+                </if>
+            </if>
+            <if test="countryId != null">
+                and bidding_platform.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null">
+                and bidding_platform.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and bidding_platform.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and bidding_platform.region_id = #{regionId}
+            </if>
+            <if test="unitPropertyAllocationConfigId != null">
+                and basics_config_a.id = #{unitPropertyAllocationConfigId}
+            </if>
+            <if test="unitClassConfigurationId != null">
+                and basics_config_b.id = #{unitClassConfigurationId}
+            </if>
+            <if test="unitReputationAllocationConfigId != null">
+                and basics_config_c.id = #{unitReputationAllocationConfigId}
+            </if>
+            <if test="industryConfigurationId != null">
+                and basics_config_d.id = #{industryConfigurationId}
+            </if>
+            <if test="biddingPlatformName != null and biddingPlatformName != '' ">
+                and bidding_platform.bidding_platform_name like concat('%',#{biddingPlatformName},'%')
+            </if>
+            <if test="informantUserName != null and informantUserName != ''">
+                and user_b.user_name like concat('%',#{informantUserName},'%')
+            </if>
+        </where>
+        <if test="checkRecord != null and checkRecord == 1">
+            order by bidding_platform.create_time desc
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            order by bidding_platform.informant_date_time desc
+        </if>
+    </select>
+
+</mapper>

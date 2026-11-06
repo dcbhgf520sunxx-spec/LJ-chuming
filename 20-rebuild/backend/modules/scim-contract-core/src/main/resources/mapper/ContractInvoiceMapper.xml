@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractInvoiceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractInvoice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="invoice_amount" property="invoiceAmount"/>
+        <result column="invoice_unit_id" property="invoiceUnitId"/>
+        <result column="invoice_unit" property="invoiceUnit"/>
+        <result column="collection_unit" property="collectionUnit"/>
+        <result column="invoice_date" property="invoiceDate"/>
+        <result column="invoice_no" property="invoiceNo"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax" property="tax"/>
+<!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="written_by_id" property="writtenById"/>
+        <result column="written_by_name" property="writtenByName"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="auditor_name" property="auditorName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="remark" property="remark"/>
+        <result column="source" property="source"/>
+        <result column="attachments" property="attachments"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, invoice_amount, invoice_unit_id, invoice_unit, collection_unit, invoice_date, invoice_no, invoice_type, tax, tax_rate, written_by_id, written_by_name,
+        audit_status, auditor_id, auditor_name, audit_time, remark, source, attachments
+    </sql>
+
+    <select id="listByCondition" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractInvoiceDTO">
+        <choose>
+            <when test="type != null">
+                SELECT
+                cio.*,
+                cp.contract_amount,
+                cp.business_type,
+                cio.project_id AS 'project.id',
+                cp.NAME AS 'project.name',
+                cp.short_name AS 'project.shortName',
+                cp.serial_number AS 'project.serialNumber',
+                cio.contract_waste_id AS 'contract_waste.id',
+                cw.serial_number AS 'contract_waste.serial_number',
+                cw.purchaser AS 'contract_waste.purchaser'
+                FROM contract_invoice AS cio
+                LEFT JOIN contract_project AS cp ON cio.project_id = cp.id AND cio.type = 1
+                LEFT JOIN sys_project_user_link AS pul ON cp.id = pul.project_id AND pul.bool_delete_enum = 0
+                LEFT JOIN contract_waste AS cw on cio.contract_waste_id = cw.id and cio.type = 2
+                LEFT JOIN sys_branch_company as bc on bc.id = cio.invoice_unit_id
+                WHERE cio.bool_delete_enum = 0
+                and cio.type = #{type}
+
+                <if test="type == 1 and userId != null">
+                    and pul.user_id = #{userId}
+                </if>
+
+                <if test="type == 1 and projectId != null">
+                    and cio.project_id = #{projectId}
+                </if>
+
+                <if test="type == 2 and contractWasteId != null">
+                    and cio.contract_waste_id = #{contractWasteId}
+                </if>
+
+                <if test="invoiceUnitId != null">
+                    and cio.invoice_unit_id = #{invoiceUnitId}
+                </if>
+
+                <if test="startDate != null">
+                    and cio.invoice_date &gt;= #{startDate}
+                </if>
+
+                <if test="endDate != null">
+                    and cio.invoice_date &lt;= #{endDate}
+                </if>
+
+                <if test="auditStatus != null">
+                    and cio.audit_status = #{auditStatus}
+                </if>
+
+                <if test="type == 1 and name != null and name != ''">
+                    and (cp.name like concat('%',#{name},'%') or cp.short_name like concat('%',#{name},'%'))
+                </if>
+
+                <if test="type == 2 and name != null and name != ''">
+                    and cw.purchaser like concat('%',#{name},'%')
+                </if>
+
+                <if test="type == 1 and businessType != null ">
+                    and cp.business_type = #{businessType}
+                </if>
+
+                <if test="contractSignBodyName != null and contractSignBodyName != ''">
+                    and bc.name like concat('%',#{contractSignBodyName},'%')
+                </if>
+                GROUP BY cio.id
+                ORDER BY cio.audit_status ASC, cio.invoice_date DESC, cio.id DESC
+            </when>
+
+            <otherwise>
+                SELECT
+                temp.*
+                FROM
+                ( SELECT
+                cio.*,
+                cp.contract_amount,
+                cp.business_type,
+                cio.project_id AS 'project.id',
+                cp.name AS 'project.name',
+                cp.short_name AS 'project.shortName',
+                cp.serial_number AS 'project.serialNumber',
+                cio.contract_waste_id AS 'contract_waste.id',
+                cw.serial_number AS 'contract_waste.serial_number',
+                cw.purchaser AS 'contract_waste.purchaser'
+                FROM contract_invoice AS cio
+                LEFT JOIN contract_project AS cp ON cio.project_id = cp.id AND cio.type = 1
+                LEFT JOIN sys_project_user_link AS pul ON cp.id = pul.project_id AND pul.bool_delete_enum = 0
+                LEFT JOIN contract_waste AS cw on cio.contract_waste_id = cw.id and cio.type = 2
+                LEFT JOIN sys_branch_company as bc on bc.id = cio.invoice_unit_id
+                WHERE cio.bool_delete_enum = 0
+                and cio.type = 1
+
+                <if test="projectId != null">
+                    and cio.project_id = #{projectId}
+                </if>
+
+                <if test="invoiceUnitId != null">
+                    and cio.invoice_unit_id = #{invoiceUnitId}
+                </if>
+
+                <if test="startDate != null">
+                    and cio.invoice_date &gt;= #{startDate}
+                </if>
+
+                <if test="endDate != null">
+                    and cio.invoice_date &lt;= #{endDate}
+                </if>
+
+                <if test="auditStatus != null">
+                    and cio.audit_status = #{auditStatus}
+                </if>
+
+                <if test="name != null and name != ''">
+                    and (cp.name like concat('%',#{name},'%') or cp.short_name like concat('%',#{name},'%'))
+                </if>
+
+<!--                <if test="businessType != null">-->
+<!--                    and cp.business_type = #{businessType}-->
+<!--                </if>-->
+
+                <if test="contractSignBodyName != null and contractSignBodyName != ''">
+                    and bc.name like concat('%',#{contractSignBodyName},'%')
+                </if>
+                GROUP BY cio.id
+                UNION ALL
+                SELECT
+                cio.*,
+                cp.contract_amount,
+                cp.business_type,
+                cio.project_id AS 'project.id',
+                cp.name AS 'project.name',
+                cp.short_name AS 'project.shortName',
+                cp.serial_number AS 'project.serialNumber',
+                cio.contract_waste_id AS 'contract_waste.id',
+                cw.serial_number AS 'contract_waste.serial_number',
+                cw.purchaser AS 'contract_waste.purchaser'
+                FROM contract_invoice AS cio
+                LEFT JOIN contract_project AS cp ON cio.project_id = cp.id AND cio.type = 1
+                LEFT JOIN sys_project_user_link AS pul ON cp.id = pul.project_id AND pul.bool_delete_enum = 0
+                LEFT JOIN contract_waste AS cw on cio.contract_waste_id = cw.id and cio.type = 2
+                LEFT JOIN sys_branch_company as bc on bc.id = cio.invoice_unit_id
+                WHERE cio.bool_delete_enum = 0
+                and cio.type = 2
+                <if test="contractWasteId != null">
+                    and cio.contract_waste_id = #{contractWasteId}
+                </if>
+
+                <if test="invoiceUnitId != null">
+                    and cio.invoice_unit_id = #{invoiceUnitId}
+                </if>
+                <if test="startDate != null">
+                    and cio.invoice_date &gt;= #{startDate}
+                </if>
+
+                <if test="endDate != null">
+                    and cio.invoice_date &lt;= #{endDate}
+                </if>
+
+                <if test="auditStatus != null">
+                    and cio.audit_status = #{auditStatus}
+                </if>
+
+                <if test="name != null and name != ''">
+                    and cw.purchaser like concat('%',#{name},'%')
+                </if>
+
+                <if test="contractSignBodyName != null and contractSignBodyName != ''">
+                    and bc.name like concat('%',#{contractSignBodyName},'%')
+                </if>
+                GROUP BY cio.id
+                ) AS temp
+                ORDER BY temp.invoice_date DESC, temp.id DESC
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="selectInvoiceAmount" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(sum(invoice_amount),0)
+        FROM contract_invoice
+        WHERE bool_delete_enum = 0
+        <if test="auditStatus != null">
+            AND audit_status = #{auditStatus}
+        </if>
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+
+    </select>
+
+
+    <select id="selectSumOutTax" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM(tax),0)
+        FROM contract_invoice
+        WHERE bool_delete_enum = 0
+
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+
+        <if test="auditStatus != null">
+            and audit_status = #{auditStatus}
+        </if>
+    </select>
+
+    <select id="selectIncomeAndExpenses" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractInvoice">
+        select * from contract_invoice
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="remark != null">
+            and remark like concat('%',#{remark},'%')
+        </if>
+        <if test="collectionMode != null">
+            and invoice_type = #{collectionMode}
+        </if>
+        <if test="startDate != null">
+            and collection_date &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and collection_date &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+    </select>
+
+</mapper>

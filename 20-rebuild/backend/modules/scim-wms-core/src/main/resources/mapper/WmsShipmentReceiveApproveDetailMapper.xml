@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsShipmentReceiveApproveDetailMapper">
+
+    <select id="selectPassListByDetailId"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsShipmentReceiveApproveDetail">
+        SELECT
+            wsrad.*
+        FROM wms_shipment_receive_approve_detail wsrad
+        LEFT JOIN wms_shipment_receive_approve wsra ON wsra.id = wsrad.shipment_receive_approve_id and wsra.bool_delete_enum = 0
+        WHERE
+            wsrad.bool_delete_enum = 0
+        and wsrad.detail_id = #{detailId}
+        and wsra.review_status = 2
+    </select>
+</mapper>

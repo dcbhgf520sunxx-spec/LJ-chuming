@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.audit.ContractAuditLedgerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.audit.ContractAuditLedger">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="payment_enum" property="paymentEnum" />
+        <result column="filing_date" property="filingDate" />
+        <result column="oa_number" property="oaNumber" />
+        <result column="initiator_id" property="initiatorId" />
+        <result column="contract_id" property="contractId" />
+        <result column="contract_number" property="contractNumber" />
+        <result column="project_id" property="projectId" />
+        <result column="project_manager_id" property="projectManagerId" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="apply_amount" property="applyAmount" />
+        <result column="payment_amount" property="paymentAmount" />
+        <result column="written_by_id" property="writtenById" />
+        <result column="submit_date" property="submitDate" />
+        <result column="audit_status_enum" property="auditStatusEnum" />
+        <result column="actually_pay_amount" property="actuallyPayAmount" />
+        <result column="payment_type" property="paymentType" />
+        <result column="payment_date" property="paymentDate" />
+        <result column="voucher_number" property="voucherNumber" />
+        <result column="attachment_id" property="attachmentId" />
+        <result column="approve_id" property="approveId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        id, payment_enum, filing_date, oa_number, project_type, initiator_id, contract_id, contract_number, project_id, project_manager_id, supplier_id, apply_amount, payment_amount, written_by_id, submit_date, scope_of_audit, audit_status_enum, actually_pay_amount, paymentType, payment_date, voucher_number, attachment_id, approve_id
+    </sql>
+
+    <select id="getAuditList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.audit.AuditUserDTO">
+        SELECT
+        b.check_user_id AS userId,
+        sus.name AS userName,
+        b.decision AS approveResult,
+        b.flow_type AS approveType,
+        b.arrival_time AS arriveTime,
+        b.approve_time AS approveTime,
+        b.opinion AS approveOpinion
+        FROM
+        `wms_approve_record` a
+        LEFT JOIN wms_approve_record_detail b ON a.serial_number = b.approve_record_serial_number
+        AND b.bool_delete_enum = 0
+        LEFT JOIN sys_user sus ON b.check_user_id = sus.id
+        AND sus.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="auditId != null">
+            and a.id = #{auditId}
+        </if>
+
+    </select>
+
+    <select id="getById" resultType="com.hzchum.scim.contract.core.api.pojo._do.audit.ContractAuditLedger">
+        SELECT *
+        FROM contract_audit_ledger
+        WHERE id = #{auditId}
+    </select>
+
+    <select id="update" resultType="java.lang.Boolean">
+        update contract_audit_ledger
+        set bool_delete_enum = 0
+        where id = #{id}
+    </select>
+
+
+</mapper>

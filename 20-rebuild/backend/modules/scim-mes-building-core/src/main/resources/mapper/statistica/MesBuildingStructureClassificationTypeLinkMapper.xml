@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.statistica.MesBuildingStructureClassificationTypeLinkMapper">
+
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.statistica.MesBuildingStructureClassificationTypeLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact_type_id" property="artifactTypeId"/>
+        <result column="structure_classification_id" property="structureClassificationId"/>
+        <result column="min_numerical" property="minNumerical"/>
+        <result column="max_numerical" property="maxNumerical"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,update_time,bool_delete_enum,version,
+        id, artifact_type_id, structure_classification_id, min_numerical, max_numerical
+    </sql>
+
+    <!-- 查询MES构件-组铆焊配置 -->
+    <resultMap id="statisticaMap" type="com.hzchum.scim.mes.building.core.api.pojo._do.statistica.MesBuildingStructureClassificationTypeLinkDO">
+        <id column="id" property="id"/>
+        <result column="classification_name" property="classificationName"/>
+        <result column="classificationId" property="classificationId"/>
+        <result column="min_numerical" property="minNumerical"/>
+        <result column="max_numerical" property="maxNumerical"/>
+        <collection property="crossSectionPrefix" ofType="string" javaType="List">
+            <!-- 这里使用构造方法注入，String 没有属性-->
+            <constructor>
+                <arg column="spec_prefix"/>
+            </constructor>
+        </collection>
+        <collection property="structureProcessPriceList" ofType="com.hzchum.scim.mes.building.core.api.pojo._do.statistica.MesBuildingStructureProcessPriceDO">
+            <result column="processPriceId" property="id"/>
+            <result column="processId" property="processId"/>
+            <result column="process_link_id" property="processLinkId"/>
+            <result column="wage_quota_type" property="wageQuotaType"/>
+            <result column="price" property="price"/>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getArtifactRivetWeldConfig" resultMap="statisticaMap">
+    SELECT
+    sctl.id,
+    sctl.min_numerical,
+    sctl.max_numerical,
+    ssc.classification_name,
+    ssc.id AS classificationId,
+    mbsp.price,
+    mbsp.wage_quota_type,
+    link.id AS process_link_id,
+    mbsp.id AS processPriceId,
+    link.process_id AS processId,
+    mbp.name,
+    ss.spec_prefix
+    from mes_building_structure_classification_type_link AS sctl
+    LEFT JOIN sys_structure_classification AS ssc on ssc.id = sctl.structure_classification_id and ssc.bool_delete_enum = 0
+    LEFT JOIN mes_building_product_process AS mbpp on mbpp.type_id = sctl.structure_classification_id and mbpp.product_type = 2 and mbpp.bool_delete_enum = 0
+    LEFT JOIN mes_building_product_process_link  AS link ON link.product_process_id = mbpp.id AND link.bool_delete_enum = 0
+    LEFT JOIN mes_building_structure_process_price AS mbsp ON mbsp.structure_type_link_id = sctl.id AND  mbsp.process_id = link.process_id
+    LEFT JOIN mes_building_process AS mbp on mbp.id = link.process_id and mbp.bool_delete_enum = 0
+    LEFT JOIN sys_structure_spec as ss on ssc.id = ss.structure_classification_id and ss.bool_delete_enum = 0
+    WHERE sctl.artifact_type_id = #{id} and sctl.bool_delete_enum = 0
+    </select>
+</mapper>

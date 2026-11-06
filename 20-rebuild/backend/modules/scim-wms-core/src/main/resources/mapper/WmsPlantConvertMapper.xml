@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsPlantConvertMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsPlantConvert">
+        <id column="id" property="id" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+    </sql>
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsPlantConvert">
+        select
+        *
+        from
+        wms_plant_convert
+        where
+        bool_delete_enum = 0
+        <if test=" basicClass != null">
+            and  basic_class = #{basicClass}
+        </if>
+        <if test=" receiptSerialNumber != null and receiptSerialNumber!=''">
+            and receipt_serial_number = #{receiptSerialNumber}
+        </if>
+
+        <if test="operatorName != null and operatorName != ''">
+            and reviewer_name like CONCAT('%', #{operatorName},'%')
+        </if>
+        <if test="projectId != null and projectId!=''" >
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="taskOrderNumber != null and taskOrderNumber!=''">
+            and find_in_set(#{taskOrderNumber},task_order_number)
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.factory.MesBuildingFactoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingFactory">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="tag_color" property="tagColor"/>
+        <result column="bool_enabled_enum" property="boolEnabledEnum"/>
+        <result column="branch_company_id" property="branchCompanyId"/>
+        <result column="sort" property="sort"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, short_name, tag_color, bool_enabled_enum, sort, remark
+    </sql>
+    <select id="listFactoryUser" resultType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+        select id, name
+        from mes_building_factory
+        where id in (select distinct t.factory_id
+                     from mes_building_team t
+                              inner join mes_building_team_user_link tu on tu.team_id = t.id
+                     where t.bool_delete_enum = 0
+                       and tu.bool_delete_enum = 0
+                       and tu.user_id = #{currentUserId})
+          and bool_delete_enum = 0
+    </select>
+    <select id="getFactoryById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingFactory">
+        select *
+        from mes_building_factory
+        where id = #{factoryId}
+    </select>
+</mapper>

@@ -1,0 +1,2090 @@
+[
+  {
+    "module": "pangu-swagger",
+    "path": "com/hzchum/pangu/swagger/config/Knife4jConfig.java",
+    "original_module": "BOOT-INF/lib/pangu-swagger-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c4d562893717d8a8fdbd9e589338992024ddb2be94a7a3f3e2cd30960f1623cc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c4d562893717d8a8fdbd9e589338992024ddb2be94a7a3f3e2cd30960f1623cc"
+  },
+  {
+    "module": "pangu-redis",
+    "path": "com/hzchum/pangu/redis/config/RedisConfig.java",
+    "original_module": "BOOT-INF/lib/pangu-redis-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7b6e2d68a006c9cca3f4a11274a4826b354df773c09ed154e6af0804ccfc43c9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7b6e2d68a006c9cca3f4a11274a4826b354df773c09ed154e6af0804ccfc43c9"
+  },
+  {
+    "module": "pangu-redis",
+    "path": "com/hzchum/pangu/redis/config/RedisProperties.java",
+    "original_module": "BOOT-INF/lib/pangu-redis-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9366d35a456238d893daa8aae8986f12f70c970c20619e53289cb9f1f7579548",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9366d35a456238d893daa8aae8986f12f70c970c20619e53289cb9f1f7579548"
+  },
+  {
+    "module": "pangu-redis",
+    "path": "com/hzchum/pangu/redis/util/RedisLockerUtil.java",
+    "original_module": "BOOT-INF/lib/pangu-redis-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cb37c070a9ab9dd6bdefbb21117266c2c7be4ac34499eda7dd85ce0fd6542cb0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cb37c070a9ab9dd6bdefbb21117266c2c7be4ac34499eda7dd85ce0fd6542cb0"
+  },
+  {
+    "module": "pangu-redis",
+    "path": "com/hzchum/pangu/redis/util/StringRedisUtil.java",
+    "original_module": "BOOT-INF/lib/pangu-redis-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cf432fdb2c48085953455978d3532e31911d70dfbe7493b25d2df7196e295c2f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cf432fdb2c48085953455978d3532e31911d70dfbe7493b25d2df7196e295c2f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/biz/CommonTokenBiz.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "45bec9a33f017f9ca997f0e268e6df58d191b88219bd2ba7ff3a3d015472d40b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "45bec9a33f017f9ca997f0e268e6df58d191b88219bd2ba7ff3a3d015472d40b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/biz/sync/SyncAppBiz.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "20ca179cd4e43e5ca4cc661629d9c298edd94a6fa676a8c931325bec7768a2ef",
+    "adjustments": [],
+    "rebuilt_source_sha256": "20ca179cd4e43e5ca4cc661629d9c298edd94a6fa676a8c931325bec7768a2ef"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/ConfigProperties.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2e3c62cfd6da787ffd3b863a496a437fd3b0e27eef38a8cec93f65dc8c4bb33a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2e3c62cfd6da787ffd3b863a496a437fd3b0e27eef38a8cec93f65dc8c4bb33a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/DDProperties.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "70142e56c1347fb20b442466155d9d3e2984994bc49f829061c6b8db872552dc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "70142e56c1347fb20b442466155d9d3e2984994bc49f829061c6b8db872552dc"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/GdMapConfigProperties.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8c2341ebd7ab1f5a7b53855305bdf481238fb8c6cf678b58468f611efca47c60",
+    "adjustments": [],
+    "rebuilt_source_sha256": "8c2341ebd7ab1f5a7b53855305bdf481238fb8c6cf678b58468f611efca47c60"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/RedisKeyCommon.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a35c0183b25a554a1ea5d574f465ddc78ba81134984ec8f4d6a987b5f1c7b5d7",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a35c0183b25a554a1ea5d574f465ddc78ba81134984ec8f4d6a987b5f1c7b5d7"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/WeChatAppConfigProperties.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cd4a2c905c53f6999ffe3452fee014e095f3e7df7dfce62ce108196e8c44259f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cd4a2c905c53f6999ffe3452fee014e095f3e7df7dfce62ce108196e8c44259f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/WebSocketConfig.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "1832a232a6a775e513d1c80fb8e20cbd568d428ea16acef81a3ee48560768ffc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "1832a232a6a775e513d1c80fb8e20cbd568d428ea16acef81a3ee48560768ffc"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/WebSocketServer.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "5ecc6761abded4ae14ece5ae27b4d1917f6920ca6ff94713751255a30d30dbfd",
+    "adjustments": [],
+    "rebuilt_source_sha256": "5ecc6761abded4ae14ece5ae27b4d1917f6920ca6ff94713751255a30d30dbfd"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/config/ZhongNanOaProperties.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f1832729923b4356234df100cd7926bbbd65c8bf141aee390646e6dfae13b61f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f1832729923b4356234df100cd7926bbbd65c8bf141aee390646e6dfae13b61f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/constant/CommonStrConstants.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "faeb28dc3b72c990ff44d458d31dfe23b5f3fa301807d2228b96ffd7e6216264",
+    "adjustments": [],
+    "rebuilt_source_sha256": "faeb28dc3b72c990ff44d458d31dfe23b5f3fa301807d2228b96ffd7e6216264"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/constant/RegexStrConstants.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "15ed61739c0ff059f0355549d626d94f14a1acdfb7bd6c5203173dd1ee865d1f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "15ed61739c0ff059f0355549d626d94f14a1acdfb7bd6c5203173dd1ee865d1f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/constants/RedisCommonConstants.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fc3b397a223e3eb4a776afd048ae9ff68e406daec6b26102378949293ac2b2c9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fc3b397a223e3eb4a776afd048ae9ff68e406daec6b26102378949293ac2b2c9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/controller/SystemController.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d71a23d61079aa883c55cecc6d5236ea3f1a7814f2dad81b928d89fbdb6fe963",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d71a23d61079aa883c55cecc6d5236ea3f1a7814f2dad81b928d89fbdb6fe963"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/AggregateTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "21514919e209bc4165e5644d4e618a9753b9959068da310603b61bf82504e24d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "21514919e209bc4165e5644d4e618a9753b9959068da310603b61bf82504e24d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveFlowOperationEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "93bdc7bbd91732ac4196132d7db5fd9095431e972e22703c5559b108e06fe256",
+    "adjustments": [],
+    "rebuilt_source_sha256": "93bdc7bbd91732ac4196132d7db5fd9095431e972e22703c5559b108e06fe256"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveFlowStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "0c8fb4495dbcdf208b07abcb5a49b8e661dfb8b857804aa874889b363bde2b6c",
+    "adjustments": [],
+    "rebuilt_source_sha256": "0c8fb4495dbcdf208b07abcb5a49b8e661dfb8b857804aa874889b363bde2b6c"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveInstanceStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f318018a8db1d0af91d7fe4c18d711106043fdc68cd578a634d9dafe2ddc66b6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f318018a8db1d0af91d7fe4c18d711106043fdc68cd578a634d9dafe2ddc66b6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveObjectTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d145831da6379cf4a00176a2ec3723d5840f0e96be8b04c0ad039e1cd8e26fc3",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d145831da6379cf4a00176a2ec3723d5840f0e96be8b04c0ad039e1cd8e26fc3"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveProcessTypeEnumV2.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "af9622bbe638af6b00ad7cda284382b00c5a9bab9af115dd4348482bf7262746",
+    "adjustments": [],
+    "rebuilt_source_sha256": "af9622bbe638af6b00ad7cda284382b00c5a9bab9af115dd4348482bf7262746"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveRecordStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b68918390ddffa9476b87cd2e4993e286baebb2029865233e2c92564ddea6069",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b68918390ddffa9476b87cd2e4993e286baebb2029865233e2c92564ddea6069"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveSourceEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b4a163d2e5f860d51d35e59f7054682ab6afd1817a20bde58218a33c7fa037bb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b4a163d2e5f860d51d35e59f7054682ab6afd1817a20bde58218a33c7fa037bb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ApproveTemplateVersionsFlowEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9cd41021d20e37930873f3546353b3e899b793450cc8ecabc6b8d868c6fea6ee",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9cd41021d20e37930873f3546353b3e899b793450cc8ecabc6b8d868c6fea6ee"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/AssistEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "84f491f4dc9c18ba55777e301f52ba64845b6dd1e3d4f37c8399013d034a0143",
+    "adjustments": [],
+    "rebuilt_source_sha256": "84f491f4dc9c18ba55777e301f52ba64845b6dd1e3d4f37c8399013d034a0143"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/AttachmentTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c837a09b4147539a2968c2e1a9715ea3a9bdd5bbc380a22734ce4f157664659a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c837a09b4147539a2968c2e1a9715ea3a9bdd5bbc380a22734ce4f157664659a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/AuditStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c02b0948cc779a8d801448af4b27f8623dbded3b2f4809509831900700a66b89",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c02b0948cc779a8d801448af4b27f8623dbded3b2f4809509831900700a66b89"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/BoolStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c6acef1749d2acf0f1e115b86a0a2a24dfa9f5f7970f945d63056310eab28150",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c6acef1749d2acf0f1e115b86a0a2a24dfa9f5f7970f945d63056310eab28150"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/BranchAttributeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b61db31cabe23754633984651e5776cb3563e263397bb7f5d1803cdbca715eb6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b61db31cabe23754633984651e5776cb3563e263397bb7f5d1803cdbca715eb6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/BranchCompanyLevelEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "26687d58f4e247c6fff042c9c7ac6cc314b38384219a90df1e0f936108ca3de7",
+    "adjustments": [],
+    "rebuilt_source_sha256": "26687d58f4e247c6fff042c9c7ac6cc314b38384219a90df1e0f936108ca3de7"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ChangeTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "139cb00805fb716108c6f9dda8b8d63936bb75faaf1c1bbe199ca6e51c5e1c3f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "139cb00805fb716108c6f9dda8b8d63936bb75faaf1c1bbe199ca6e51c5e1c3f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/CheckStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "15d429962a777356b2132aa8179196ac28ddae93528609c63c3544a5b773531b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "15d429962a777356b2132aa8179196ac28ddae93528609c63c3544a5b773531b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/CodingTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b05e2d66fe251f1d3c7d81e3a95151f73941ab0fca26a8d5f93fcd6f03a67b55",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b05e2d66fe251f1d3c7d81e3a95151f73941ab0fca26a8d5f93fcd6f03a67b55"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ComparisonOperatorEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "1f11b35da556f3d6ca02706d1225dadbd397f0abdb6a3b9b6d6d9b50f2ea3aee",
+    "adjustments": [],
+    "rebuilt_source_sha256": "1f11b35da556f3d6ca02706d1225dadbd397f0abdb6a3b9b6d6d9b50f2ea3aee"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/CreateTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c39a998c06eb6f0a3f7bc420bb866ad0a1a8aad51ccc658e86fc299e81bb0cf4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c39a998c06eb6f0a3f7bc420bb866ad0a1a8aad51ccc658e86fc299e81bb0cf4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/EmployeeCategoryEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "22bcfe8a9930fc58e62c3ec36cd2186d7ce7979f65cafa807115fc56980f101a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "22bcfe8a9930fc58e62c3ec36cd2186d7ce7979f65cafa807115fc56980f101a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/EnableEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "949f677efb6e5a53412081fdc96588b06a2c3aaf3e83308da546d378ae5ddbf8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "949f677efb6e5a53412081fdc96588b06a2c3aaf3e83308da546d378ae5ddbf8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/EventHandleStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "4e02197a9e18582512043fa0e5841ac31bc4f38a13597ef8c9bd3261500a7b41",
+    "adjustments": [],
+    "rebuilt_source_sha256": "4e02197a9e18582512043fa0e5841ac31bc4f38a13597ef8c9bd3261500a7b41"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ExcelEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "be793b29150b2150e1dce7a0c09160703243d7d9acb713f254b15fddd67c9c19",
+    "adjustments": [],
+    "rebuilt_source_sha256": "be793b29150b2150e1dce7a0c09160703243d7d9acb713f254b15fddd67c9c19"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/FunctionTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "0b867425e8350660521a34e32da8f42129f3b4694fbed2b421dd3b645a0529c1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "0b867425e8350660521a34e32da8f42129f3b4694fbed2b421dd3b645a0529c1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/GdKeyTypeMapEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "018e262f201764ecb816254601c49cee5d90a8b1bbaffee379e4f39fffcbc624",
+    "adjustments": [],
+    "rebuilt_source_sha256": "018e262f201764ecb816254601c49cee5d90a8b1bbaffee379e4f39fffcbc624"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/HandleMethodEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "72c616b03887507f1fe90573f43edc70387c9749f18ef3225f10f7908e11f037",
+    "adjustments": [],
+    "rebuilt_source_sha256": "72c616b03887507f1fe90573f43edc70387c9749f18ef3225f10f7908e11f037"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/InformTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "38608af0fd212a01f02d4e90026c9c274d6e6705bf09f30b298792004e2873d5",
+    "adjustments": [],
+    "rebuilt_source_sha256": "38608af0fd212a01f02d4e90026c9c274d6e6705bf09f30b298792004e2873d5"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/MesProductEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "11f1cd7baa5402ba0dbb25c8f7ef78e00941210ba74cebad9c9c68574fa51157",
+    "adjustments": [],
+    "rebuilt_source_sha256": "11f1cd7baa5402ba0dbb25c8f7ef78e00941210ba74cebad9c9c68574fa51157"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ModuleTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "15a149511497986feb441fd0e9fe7750449e2b7f8bd02fd22770cbf6da342953",
+    "adjustments": [],
+    "rebuilt_source_sha256": "15a149511497986feb441fd0e9fe7750449e2b7f8bd02fd22770cbf6da342953"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/NationEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f440dc56e1a7ffde0d392d663765e68da92518935c7ab903fc8111806ddfd639",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f440dc56e1a7ffde0d392d663765e68da92518935c7ab903fc8111806ddfd639"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/NestingTaskModeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "06257395066295034088e9d882e4cc04bf85d04889bdc3d298f5ce446f0032a1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "06257395066295034088e9d882e4cc04bf85d04889bdc3d298f5ce446f0032a1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/OldCheckStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ae166aeb7f6a04788e8d7d2ba0c317bd4fa90c0a44c08f93939ea65926fc598e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ae166aeb7f6a04788e8d7d2ba0c317bd4fa90c0a44c08f93939ea65926fc598e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/OutboundTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "26c059176365291c69ff12747a0cefad88bafdead184afaceac0abbf539fef8e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "26c059176365291c69ff12747a0cefad88bafdead184afaceac0abbf539fef8e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/PaintingTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "40b408a98b260ab9c91ba7da5e933ae6b7d1c1480e54651797eb9efdf2b5a258",
+    "adjustments": [],
+    "rebuilt_source_sha256": "40b408a98b260ab9c91ba7da5e933ae6b7d1c1480e54651797eb9efdf2b5a258"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ProductClassificationEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f84c402dad1bec0bcb5b35c1dc27fd98b4dd5a7a2fd6a4e05c08149094533892",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f84c402dad1bec0bcb5b35c1dc27fd98b4dd5a7a2fd6a4e05c08149094533892"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ProductSectionNameEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "4b0d6488d48836dcb1aaeafb7a0a324d513999c8cc3acf6018e0038ea3bf3d1b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "4b0d6488d48836dcb1aaeafb7a0a324d513999c8cc3acf6018e0038ea3bf3d1b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ProductTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "49638c94f9833fb278a2d0ecc7134faa63ccfa0081b83c1d45a57a02c325dde1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "49638c94f9833fb278a2d0ecc7134faa63ccfa0081b83c1d45a57a02c325dde1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ProjectAttributeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a25799158259e5edb5a760b7904d127013f443151a0a0d40095929550d93fc05",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a25799158259e5edb5a760b7904d127013f443151a0a0d40095929550d93fc05"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ProjectTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ed65976fbd455d5840803c2c45d36b4c2143546cd346225911c16307fb13b5a3",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ed65976fbd455d5840803c2c45d36b4c2143546cd346225911c16307fb13b5a3"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/RangeActionEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "28cc2eaa12353964c470a350e4a2456e6222279b4d608879acb5a3f5ffb9bebb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "28cc2eaa12353964c470a350e4a2456e6222279b4d608879acb5a3f5ffb9bebb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/RawMaterialLossEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6d8958d8fb14df170ac51de8d322ba7f88b817e242c80396be2c9ea77d9427d9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6d8958d8fb14df170ac51de8d322ba7f88b817e242c80396be2c9ea77d9427d9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ReadStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "50af7243438fa128e513b628bf7e4d71dd77ed847b842afc3a6d0d1d0bf7e23b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "50af7243438fa128e513b628bf7e4d71dd77ed847b842afc3a6d0d1d0bf7e23b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/RedisKeyConstants.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "17d0b7a7fb0db275b4c41d986ab01a8a25972ee9b57cc4023dd975f8735191a3",
+    "adjustments": [],
+    "rebuilt_source_sha256": "17d0b7a7fb0db275b4c41d986ab01a8a25972ee9b57cc4023dd975f8735191a3"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ResultEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a2aa52750fe0d564862db580ebe599f2cd5666b277319d3f9477fbae96c434f4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a2aa52750fe0d564862db580ebe599f2cd5666b277319d3f9477fbae96c434f4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ReturnProductStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "445bb056eff44327ca9f8ae0609c8ca09e27876e2cab29b277353fc6c03783cb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "445bb056eff44327ca9f8ae0609c8ca09e27876e2cab29b277353fc6c03783cb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/ReviewStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "923798add58715ae10ef77751378b08f4fa0f88c4e29e398418d9577488ee599",
+    "adjustments": [],
+    "rebuilt_source_sha256": "923798add58715ae10ef77751378b08f4fa0f88c4e29e398418d9577488ee599"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/SkipPageEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "63ae082cf81d7a484b271c8233cfa92db4358ebeea5ef438347b560b7fe8dd71",
+    "adjustments": [],
+    "rebuilt_source_sha256": "63ae082cf81d7a484b271c8233cfa92db4358ebeea5ef438347b560b7fe8dd71"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/SourceEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ee9126763be8113b1a9c2c472b5d8ae1c5d6e14e50bd9ef6eba4269d1f97f032",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ee9126763be8113b1a9c2c472b5d8ae1c5d6e14e50bd9ef6eba4269d1f97f032"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/SteelPlateTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "1b1311cadfaf2b1a23dd56aacd4f7476510a3c65d02dc99e5d3afb0d1c754f82",
+    "adjustments": [],
+    "rebuilt_source_sha256": "1b1311cadfaf2b1a23dd56aacd4f7476510a3c65d02dc99e5d3afb0d1c754f82"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/SubcontractTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "30fa6b1246905ec729df6eb91aa41342cf95acd28c1a6fa9a7438b86b002e057",
+    "adjustments": [],
+    "rebuilt_source_sha256": "30fa6b1246905ec729df6eb91aa41342cf95acd28c1a6fa9a7438b86b002e057"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/TableNameTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cf83c027e44277e456e4d7759263601f184b20333d31fad04b807ad784ee8a31",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cf83c027e44277e456e4d7759263601f184b20333d31fad04b807ad784ee8a31"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/UseEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d61ac10798855e5338855f73a5f0fd920d2890bff45af3c2935af8fc112a70bb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d61ac10798855e5338855f73a5f0fd920d2890bff45af3c2935af8fc112a70bb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/WageQuotaTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "52fe2ed5ea81d986d2f13bee5e324dc4e427ed20ced0e4f3fe21a126e43c8d0e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "52fe2ed5ea81d986d2f13bee5e324dc4e427ed20ced0e4f3fe21a126e43c8d0e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/WarehouseNumberModeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "520e90eb2cc3489f826303594dd73e86e58f2377382952d5fc7ff4e7421bab06",
+    "adjustments": [],
+    "rebuilt_source_sha256": "520e90eb2cc3489f826303594dd73e86e58f2377382952d5fc7ff4e7421bab06"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/WasteHandleMethodEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "13e5688d3629a19e12ad918d5eee18cffe8709cbbb7657fe3c3a44c5e210f55a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "13e5688d3629a19e12ad918d5eee18cffe8709cbbb7657fe3c3a44c5e210f55a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/WeightTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b58e8536ac7a4f5840f95a17c2c6ed961f4a91b010d7f07204461d12008252aa",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b58e8536ac7a4f5840f95a17c2c6ed961f4a91b010d7f07204461d12008252aa"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OAResultWorkFlowStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "0f5ae1fc0149cb094db6fa9e5a8f69924050e4caa88258ca3bcb38c536b8427d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "0f5ae1fc0149cb094db6fa9e5a8f69924050e4caa88258ca3bcb38c536b8427d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OAWorkFlowFinishEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "be2c286dade14e5c7377d125d1dde4b4c3910e66f9b80147cebf6788004549f8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "be2c286dade14e5c7377d125d1dde4b4c3910e66f9b80147cebf6788004549f8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OaBusinessTypeEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9a9ac9261739fca2b1aee26d3a2a4a07db1ab0fe69a648233b1b1fa96a421ee0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9a9ac9261739fca2b1aee26d3a2a4a07db1ab0fe69a648233b1b1fa96a421ee0"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OaPositionNameEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "31d1f23165f045dbce505c6da5d7551e25ecaef61ad0c92eb656f51089df9957",
+    "adjustments": [],
+    "rebuilt_source_sha256": "31d1f23165f045dbce505c6da5d7551e25ecaef61ad0c92eb656f51089df9957"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OaUserStatusEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f585e0e83839619f8366a9ab8d77e1775b4ce873f315b9bed1efe3e024e9192a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f585e0e83839619f8366a9ab8d77e1775b4ce873f315b9bed1efe3e024e9192a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/enums/oa/OaWorkflowNameEnum.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "eea8cd20d8b2fb57c037b43988e07dab200646a229d9417005b93f71fdbf3cfb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "eea8cd20d8b2fb57c037b43988e07dab200646a229d9417005b93f71fdbf3cfb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/listener/EasyExcelListener.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9b8ed581f74ae05a0e16b0d3a45e123164557f58865ecd16aba8207f9dd438f6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9b8ed581f74ae05a0e16b0d3a45e123164557f58865ecd16aba8207f9dd438f6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/Attachment.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e4eabbf9ac2410c20c7d9bb13da300b39f3860902cb31e882caa2798e1204a2f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e4eabbf9ac2410c20c7d9bb13da300b39f3860902cb31e882caa2798e1204a2f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/Backups.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3c850bee0177ce17d550a37575cc9c73ac07ffd1bda3a447f1b2457bd05d9711",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3c850bee0177ce17d550a37575cc9c73ac07ffd1bda3a447f1b2457bd05d9711"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/CommonApp.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a7d1d42e6e62866dc97c71c9f7543edc49e55f2049a1870a5ae9b43dc4deaf89",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a7d1d42e6e62866dc97c71c9f7543edc49e55f2049a1870a5ae9b43dc4deaf89"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/CommonAppKey.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a3046ba9798cc86359c4778d91232a8c83bc3a76da351192fd5c85b237ad9254",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a3046ba9798cc86359c4778d91232a8c83bc3a76da351192fd5c85b237ad9254"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsApproveFlowOperation.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "07267f1770e359de25f0dcc5238d60e986d55d06889064556b821399da0de2ce",
+    "adjustments": [],
+    "rebuilt_source_sha256": "07267f1770e359de25f0dcc5238d60e986d55d06889064556b821399da0de2ce"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsApproveRecord.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e535f26c4ccf210a935c465337cf127995600428c71b51f91d593d924ebc7733",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e535f26c4ccf210a935c465337cf127995600428c71b51f91d593d924ebc7733"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsApproveRecordDetail.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "0bb9166b9e7035266cc325bc14630f6a32dffb96e7617448f50343805297ffde",
+    "adjustments": [],
+    "rebuilt_source_sha256": "0bb9166b9e7035266cc325bc14630f6a32dffb96e7617448f50343805297ffde"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsApproveTemplateVersions.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "07eee78e2d11327112b716322b912cd95c78618210f5f6644c646e533f0affd6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "07eee78e2d11327112b716322b912cd95c78618210f5f6644c646e533f0affd6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsApproveTemplateVersionsFlow.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "433567612020e28bf25acb712d92dcc2ee452a01aeffac7379afba4e680c5c0e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "433567612020e28bf25acb712d92dcc2ee452a01aeffac7379afba4e680c5c0e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/WmsInformMsg.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "983ad990b49a694ff75b5393b6f46d3b6ee30bab416c57310a31c71381d5be71",
+    "adjustments": [],
+    "rebuilt_source_sha256": "983ad990b49a694ff75b5393b6f46d3b6ee30bab416c57310a31c71381d5be71"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/_do/zhongnanoa/OaUserInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "367d7928dc92357fa18991fe9a4e7500584812e06b0f303d25141d0dc1405e7d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "367d7928dc92357fa18991fe9a4e7500584812e06b0f303d25141d0dc1405e7d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ApproveInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d9d4ba93dfe8997a6c3824e7af92bfe178d5fe40cdd94668a2558f1c90997bbc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d9d4ba93dfe8997a6c3824e7af92bfe178d5fe40cdd94668a2558f1c90997bbc"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ApproveUserInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "964e7e1627d02e506f32ad7dae0faf9debd913a8df3cdce2a159fed0c506f940",
+    "adjustments": [],
+    "rebuilt_source_sha256": "964e7e1627d02e506f32ad7dae0faf9debd913a8df3cdce2a159fed0c506f940"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ArtifactBaseInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ea6b2cf4bac8a68a8c66c89e48a0997f6a9e9d46d97d327b11c3cd89337ca88a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ea6b2cf4bac8a68a8c66c89e48a0997f6a9e9d46d97d327b11c3cd89337ca88a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/CargoListProductLinkPriceDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e4c426e7f7c1ae329c92442f09dfcf854aa7f87a1fbae28eff63d07f7beea53d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e4c426e7f7c1ae329c92442f09dfcf854aa7f87a1fbae28eff63d07f7beea53d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ChangeInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8c4f537fc846f46054e247e05bd96142ecad3556a38635fc137380ec964c1aaa",
+    "adjustments": [],
+    "rebuilt_source_sha256": "8c4f537fc846f46054e247e05bd96142ecad3556a38635fc137380ec964c1aaa"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ClassificationCheckDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9bb9bb99c69eb9ea17467b1b738e85ed8bef7ad19ef076371a65c6834d9f0a54",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9bb9bb99c69eb9ea17467b1b738e85ed8bef7ad19ef076371a65c6834d9f0a54"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/CommonValue.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ae3766f33cce0834b11f1f7ca73691360ec1c440ca6ab46d053d0d617386fa0e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ae3766f33cce0834b11f1f7ca73691360ec1c440ca6ab46d053d0d617386fa0e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/DictionaryInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9b2e6c6d2a84e8f4cd7ffc0d6bf3b2d04f463e99600759cb4b72dace321790d4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9b2e6c6d2a84e8f4cd7ffc0d6bf3b2d04f463e99600759cb4b72dace321790d4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/EnclosureBaseInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "75cfd09417b990ffd549c4336d3805a1d0a89f06e2a5492f287203aa550fb78d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "75cfd09417b990ffd549c4336d3805a1d0a89f06e2a5492f287203aa550fb78d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/FormComponentValue.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e823ccb9be5e5676119df4cc651870d486669f14bdc2b4096b9f11533eb78f78",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e823ccb9be5e5676119df4cc651870d486669f14bdc2b4096b9f11533eb78f78"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/IdAndNameDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "970844169d717c9b0862c63a38e9cf74567a20af57b5830c56087d3bd9f98555",
+    "adjustments": [],
+    "rebuilt_source_sha256": "970844169d717c9b0862c63a38e9cf74567a20af57b5830c56087d3bd9f98555"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/IdsStatusDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "81f2c8764caeba6fdef8c4f99e7ca08aceeb86b8f65e87f4ebc846f3207b3ecb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "81f2c8764caeba6fdef8c4f99e7ca08aceeb86b8f65e87f4ebc846f3207b3ecb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/KevMeteDO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "378f70775a7f0654910f9c12329d8c05c5ce5805eba883e0f6bcad7306f26618",
+    "adjustments": [],
+    "rebuilt_source_sha256": "378f70775a7f0654910f9c12329d8c05c5ce5805eba883e0f6bcad7306f26618"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/MonomerAndArea.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "bf77524a88c598356c107cd8ae76896f9fb1e4a7d4265ef1ff38231801f2fec1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "bf77524a88c598356c107cd8ae76896f9fb1e4a7d4265ef1ff38231801f2fec1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/MonthAmountInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "01f38a6ab656d3b93d5859beba3fc4efc760956931d767a07651672b95947a93",
+    "adjustments": [],
+    "rebuilt_source_sha256": "01f38a6ab656d3b93d5859beba3fc4efc760956931d767a07651672b95947a93"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/MonthMeteInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b0b098513a08709177f8e598ec460d061b764e7944192c215da94adcab569de0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b0b098513a08709177f8e598ec460d061b764e7944192c215da94adcab569de0"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/MonthTimeRange.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "69c8319ca5007c14c05ad942f1943ea37d49c05b2657f524d2fbfb696670f773",
+    "adjustments": [],
+    "rebuilt_source_sha256": "69c8319ca5007c14c05ad942f1943ea37d49c05b2657f524d2fbfb696670f773"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/NameInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "4fb974887fdbe7f654d1377750d501dd34ded6097817fe4690543abd92223bcc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "4fb974887fdbe7f654d1377750d501dd34ded6097817fe4690543abd92223bcc"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ProductInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f1402cc52b0e3617ec856575e52953e8c874d2ce52469100e4b2235f9b848158",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f1402cc52b0e3617ec856575e52953e8c874d2ce52469100e4b2235f9b848158"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ProjectAmountInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7fa76e26e816bb9cf88992ab6e2170670829cfae557bece13fdca94c575551de",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7fa76e26e816bb9cf88992ab6e2170670829cfae557bece13fdca94c575551de"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ProjectInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "48471fdcb241003b1f2addb299dce9ccaf3168c1f0c615d504245109c73b91d8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "48471fdcb241003b1f2addb299dce9ccaf3168c1f0c615d504245109c73b91d8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ProjectMeteInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "eed808c10ce53d4847d79dfab34052d376f7718f31535e5c2f5697f4a8bd4276",
+    "adjustments": [],
+    "rebuilt_source_sha256": "eed808c10ce53d4847d79dfab34052d376f7718f31535e5c2f5697f4a8bd4276"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ProjectMonthMeteInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f58630a051aed099392ce0b03268b9ae716c78edb481c16f9460e9f0f49b9965",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f58630a051aed099392ce0b03268b9ae716c78edb481c16f9460e9f0f49b9965"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/ShowInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b76bc34bfe4e8115673116f93d9d56a0d04ceb880db57b1409219dd4142ae783",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b76bc34bfe4e8115673116f93d9d56a0d04ceb880db57b1409219dd4142ae783"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/SupplierInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "96ab8b3ecba59166036a229b0b6f2ef04552e4c877d34fb904c40a5eb3d8f989",
+    "adjustments": [],
+    "rebuilt_source_sha256": "96ab8b3ecba59166036a229b0b6f2ef04552e4c877d34fb904c40a5eb3d8f989"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/TaskChangeInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "29e95c0374273d999a48aa5353f39285f27cd4473afe21efff995954847e873d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "29e95c0374273d999a48aa5353f39285f27cd4473afe21efff995954847e873d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/common/TechStandardPartBaseInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2e926cebd35bd2b4a5ad13605704845e136bfab30eeb906004da5eb93afb34b1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2e926cebd35bd2b4a5ad13605704845e136bfab30eeb906004da5eb93afb34b1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/AnhuanExposureDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "12e590387d988dfa4b61ff2066426052f472f4878a5e4be0fb49386682af2730",
+    "adjustments": [],
+    "rebuilt_source_sha256": "12e590387d988dfa4b61ff2066426052f472f4878a5e4be0fb49386682af2730"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/AreaTreeDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "dc7d3dec2c92d65f3351a1158e15822751d507105b0d005e761216d03ff65f43",
+    "adjustments": [],
+    "rebuilt_source_sha256": "dc7d3dec2c92d65f3351a1158e15822751d507105b0d005e761216d03ff65f43"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/AttachmentDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d3bf59ff9a08ee34d43b7f30c0695d651a27ff8d097754e82375eda46551ed3a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d3bf59ff9a08ee34d43b7f30c0695d651a27ff8d097754e82375eda46551ed3a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/BasicClassMeteAndAmountDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "5ab9fd89253a54ab88b8308f0eb17cbe128d66fb0e2d18d1a5007d82b5b91eb8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "5ab9fd89253a54ab88b8308f0eb17cbe128d66fb0e2d18d1a5007d82b5b91eb8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/BriefClassDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e59069dcef3a4dcb9aa7c567605b46d67a1e141844351e9f47d8dcb29aafe3a8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e59069dcef3a4dcb9aa7c567605b46d67a1e141844351e9f47d8dcb29aafe3a8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/CheckDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d07bd3ea309bbd50318f2e3b885766f905128343e637f5a30407ecdd5bb73408",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d07bd3ea309bbd50318f2e3b885766f905128343e637f5a30407ecdd5bb73408"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/CommonIdNameDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "1513e5d2dc58e3eb4c68301292dd4e1a3ecf11cc49420097700b79d122680e1f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "1513e5d2dc58e3eb4c68301292dd4e1a3ecf11cc49420097700b79d122680e1f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/CostSummaryDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d9567db4493274967cd789655f8ccbac3ef358d30082bd66c81392c0e5dc2671",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d9567db4493274967cd789655f8ccbac3ef358d30082bd66c81392c0e5dc2671"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/CostSummaryValueDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7a916ed1bb42cd70ea1921852b410e13ff82ca8aadfa857cf09ccb3a0279cf55",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7a916ed1bb42cd70ea1921852b410e13ff82ca8aadfa857cf09ccb3a0279cf55"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/DateQuantityDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "105a86bac050336db8197cac8329eb7806b8efd0886df4ccd6559656ce7299df",
+    "adjustments": [],
+    "rebuilt_source_sha256": "105a86bac050336db8197cac8329eb7806b8efd0886df4ccd6559656ce7299df"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/DepartmentDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "bb61f5a96d2487b7a6135fa2c2572b79ed2ee609e7acc81d80dbfba32f89b672",
+    "adjustments": [],
+    "rebuilt_source_sha256": "bb61f5a96d2487b7a6135fa2c2572b79ed2ee609e7acc81d80dbfba32f89b672"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/IDAndQuantityDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "062adb165ddbff092f5edd4f0e3e13bcf4bd5313fb955a2d09c988f3e6b81dc4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "062adb165ddbff092f5edd4f0e3e13bcf4bd5313fb955a2d09c988f3e6b81dc4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/MesBuildingLinkCommonDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2ba084e85a306c1b73dd98b89da5d670f483219ffc3670992da099f251c42886",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2ba084e85a306c1b73dd98b89da5d670f483219ffc3670992da099f251c42886"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/MonomerTreeDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "5e1c6184546ad7d77586a9078cee8aa42a7b93b2438b4c5024a4fdd72b51df2c",
+    "adjustments": [],
+    "rebuilt_source_sha256": "5e1c6184546ad7d77586a9078cee8aa42a7b93b2438b4c5024a4fdd72b51df2c"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/MountMessageDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d59f96873cae5367b823410b053e9c166af7cf4619941e795ea6807b16ac56d5",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d59f96873cae5367b823410b053e9c166af7cf4619941e795ea6807b16ac56d5"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/NumberInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b873f1735b545f7708b5618b2a70fc4c8406d2590503f72192cd24f5c9e44832",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b873f1735b545f7708b5618b2a70fc4c8406d2590503f72192cd24f5c9e44832"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/OldCheckDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "da062c502d9dfcbd2fbe6259b6ca5ccfab11decf17129bdee1fd7245f124ae73",
+    "adjustments": [],
+    "rebuilt_source_sha256": "da062c502d9dfcbd2fbe6259b6ca5ccfab11decf17129bdee1fd7245f124ae73"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/ProjectImportDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e5c5f3668e4cb19be5b55b5f621261873aa18386cb84cd2fbef08756f47fdfdd",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e5c5f3668e4cb19be5b55b5f621261873aa18386cb84cd2fbef08756f47fdfdd"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/ProjectProductInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "69278092e1ad256098c59fd953d59cb9de7ecaa5a62d9f71578f87513044d113",
+    "adjustments": [],
+    "rebuilt_source_sha256": "69278092e1ad256098c59fd953d59cb9de7ecaa5a62d9f71578f87513044d113"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/ProjectProductProcessDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e698c1495e641a8da3dc53394923c8e2cc06c9691853d2e62ec6378f40378899",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e698c1495e641a8da3dc53394923c8e2cc06c9691853d2e62ec6378f40378899"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/ProjectsTreeDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2e42d6142861298793aae4b1b8d26d32fe0a53ccac6b6fe897f2d36a74398dfd",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2e42d6142861298793aae4b1b8d26d32fe0a53ccac6b6fe897f2d36a74398dfd"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/TwoQuantityDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "616f4f75ad01700b245c0ec895f9b9eb14eedd0dc49a0579ee3b29dfa543674e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "616f4f75ad01700b245c0ec895f9b9eb14eedd0dc49a0579ee3b29dfa543674e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveFlowDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c272b1258d69ecb357bb78007f470bfdcaa5b109259f073ad2991e4f06881292",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c272b1258d69ecb357bb78007f470bfdcaa5b109259f073ad2991e4f06881292"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveFlowOperationDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "86b9ff7fa8c3ca9a34b844e341380d419b5e4f4e26f96aff38480d820bbd7478",
+    "adjustments": [],
+    "rebuilt_source_sha256": "86b9ff7fa8c3ca9a34b844e341380d419b5e4f4e26f96aff38480d820bbd7478"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveRecordDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f38180aeec3af79ea6e85d67a37cdbf8d1fc871f24156ef283682b00a2e9d81e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f38180aeec3af79ea6e85d67a37cdbf8d1fc871f24156ef283682b00a2e9d81e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveRecordDetailDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ca50b063ff23cb903bbecff15fdbec9dc34709bf8072a4db87b2ee859197113c",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ca50b063ff23cb903bbecff15fdbec9dc34709bf8072a4db87b2ee859197113c"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveRecordFlowDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f8906723d47e5890c40cb4b04ae63aa7f6f6d5507bc8ea4c0192d94bcc176c67",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f8906723d47e5890c40cb4b04ae63aa7f6f6d5507bc8ea4c0192d94bcc176c67"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveTemplateDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "dbc8e9ecd1d20cbecf86a9e6a4c3c88ea5a003eb34869add81c09c481e5c7faa",
+    "adjustments": [],
+    "rebuilt_source_sha256": "dbc8e9ecd1d20cbecf86a9e6a4c3c88ea5a003eb34869add81c09c481e5c7faa"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveTemplateVersionsDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "36ff5529f73d52cbde2593470b3b30bf358ef4e36993f565329523fee6ff7183",
+    "adjustments": [],
+    "rebuilt_source_sha256": "36ff5529f73d52cbde2593470b3b30bf358ef4e36993f565329523fee6ff7183"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsApproveTemplateVersionsFlowDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "746a0518cd6fb07ab012d401291839c1357c4bf6fe4f399217dfce094a6080b4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "746a0518cd6fb07ab012d401291839c1357c4bf6fe4f399217dfce094a6080b4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsInformMsgDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "91c1c58219aaa7870c2e2662b7d9135df3b8e432dc1502917e645512a5a47d55",
+    "adjustments": [],
+    "rebuilt_source_sha256": "91c1c58219aaa7870c2e2662b7d9135df3b8e432dc1502917e645512a5a47d55"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsModuleApproveTemplateDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8992e7262cfc60b8891a700ab45d987e6d2ec037efd411f195ba3113c1bdeb40",
+    "adjustments": [],
+    "rebuilt_source_sha256": "8992e7262cfc60b8891a700ab45d987e6d2ec037efd411f195ba3113c1bdeb40"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/WmsModuleDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cefe11a15731d8caeccddbb8d510748cc3020161b842815293e769a35a3ab707",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cefe11a15731d8caeccddbb8d510748cc3020161b842815293e769a35a3ab707"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/BoChuCutFileConfigDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "57986aa548af439a563da1607a6d6bec6f0397fa2b63f404a7da11f31dcd8961",
+    "adjustments": [],
+    "rebuilt_source_sha256": "57986aa548af439a563da1607a6d6bec6f0397fa2b63f404a7da11f31dcd8961"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/BoChuNestedPlateDetailDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6824ce937a518dc49d1d9464e3582a8375ee2af45838d1fe4505a4fa846573e3",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6824ce937a518dc49d1d9464e3582a8375ee2af45838d1fe4505a4fa846573e3"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/BoChuNestedPlateReportDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "40fc9747e4a2636f7d0ba47ed2e38705e3d5d0b87f894d0e40f056bc1207c486",
+    "adjustments": [],
+    "rebuilt_source_sha256": "40fc9747e4a2636f7d0ba47ed2e38705e3d5d0b87f894d0e40f056bc1207c486"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/BoChuPartDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d5e7b1e66c5967bc2012a6919accc6d7caa4e0de744fd046c2d520a49a6c6eb4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d5e7b1e66c5967bc2012a6919accc6d7caa4e0de744fd046c2d520a49a6c6eb4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/BoChuPartDetailDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "bf363ed72abb3f56f9b396cf00b1845fa7cb9b0db2e9893e3915d8cebd9632d7",
+    "adjustments": [],
+    "rebuilt_source_sha256": "bf363ed72abb3f56f9b396cf00b1845fa7cb9b0db2e9893e3915d8cebd9632d7"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/bochu/PropDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "659feb2ce609dfa5a12f86a8199159601429cfa6631f774e59fcbe048020ab50",
+    "adjustments": [],
+    "rebuilt_source_sha256": "659feb2ce609dfa5a12f86a8199159601429cfa6631f774e59fcbe048020ab50"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/CompositeKey.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3890f4c4e17f563a88a9879da6bdf57590d374f93fccf5f1bc4e93ed05bdede8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3890f4c4e17f563a88a9879da6bdf57590d374f93fccf5f1bc4e93ed05bdede8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/SHRDeptInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "42782e49b9990a9c3507b6623d756330d3e6da3a64deec39e7ccd46525b956fd",
+    "adjustments": [],
+    "rebuilt_source_sha256": "42782e49b9990a9c3507b6623d756330d3e6da3a64deec39e7ccd46525b956fd"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/SHRJobtitleInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fdb449f01387e438e581b0ac0d1a1845790a07e998810c41e8c9194b1482baa8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fdb449f01387e438e581b0ac0d1a1845790a07e998810c41e8c9194b1482baa8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/SHRUserInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "5da60befaa6bdc2c08c2eb40c10b0e1fb4e6929aee68d6b2a7cd1e0dba4453e4",
+    "adjustments": [],
+    "rebuilt_source_sha256": "5da60befaa6bdc2c08c2eb40c10b0e1fb4e6929aee68d6b2a7cd1e0dba4453e4"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanDeptInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fe82aade56207c031ac56220484cda44bc8eb88cd6bfec9a70811f1ac5716863",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fe82aade56207c031ac56220484cda44bc8eb88cd6bfec9a70811f1ac5716863"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanFixedDataDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e5f4b01303833ab622e2540b6b9fdf15f0cef8788b27029fe8f3113b48d68893",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e5f4b01303833ab622e2540b6b9fdf15f0cef8788b27029fe8f3113b48d68893"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanJobtitleInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "45a4a75201ebc543c32498ab203f3ca3fbd2b254f3bd2f02d768465c66a83268",
+    "adjustments": [],
+    "rebuilt_source_sha256": "45a4a75201ebc543c32498ab203f3ca3fbd2b254f3bd2f02d768465c66a83268"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanRequestRecords.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "489b9c326e64fa1cd7a98e704178bda3b8c8a76ed33c55e4ddcc4d5ea56719ba",
+    "adjustments": [],
+    "rebuilt_source_sha256": "489b9c326e64fa1cd7a98e704178bda3b8c8a76ed33c55e4ddcc4d5ea56719ba"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanSegmentInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "25b6211eef5d3031e63c0b28b59fad9110e033cd95ca822afb17565829b65eb0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "25b6211eef5d3031e63c0b28b59fad9110e033cd95ca822afb17565829b65eb0"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanUserInfoDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ecf01fc711afb877e4f4252a23819ee346fb0f6ad2669ebc5e07216b82b2fd95",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ecf01fc711afb877e4f4252a23819ee346fb0f6ad2669ebc5e07216b82b2fd95"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkFlowDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6199df7eb53b03ef5562a63764972463bfc033346d401d282ccd757798669381",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6199df7eb53b03ef5562a63764972463bfc033346d401d282ccd757798669381"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkflowBaseInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9eb9f6bcf0768dca4bd76d86a034312f0404e515cb99b42dd0ba36aaca1547d8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9eb9f6bcf0768dca4bd76d86a034312f0404e515cb99b42dd0ba36aaca1547d8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkflowDetaillBaseInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ab57a206cc8d4b02d3b9e3003da3e19a6eb5ce9ae41e17c662242613fd0f39f9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ab57a206cc8d4b02d3b9e3003da3e19a6eb5ce9ae41e17c662242613fd0f39f9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkflowMainTableInfo.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a5d62fe16bd5b0338e80492af88abb72c35c1981c3935d2ff19f2b46530ce4c8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a5d62fe16bd5b0338e80492af88abb72c35c1981c3935d2ff19f2b46530ce4c8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkflowRequestLogs.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "138914706a289cc20315528afad242b68f95b4c8441911a0db43cd1d6238cf10",
+    "adjustments": [],
+    "rebuilt_source_sha256": "138914706a289cc20315528afad242b68f95b4c8441911a0db43cd1d6238cf10"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dto/oa/ZhongNanWorkflowRequestTableFields.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d247a49ded9a1f92104417f86bd11e369f2eed866f77408a82dea8fc419240ba",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d247a49ded9a1f92104417f86bd11e369f2eed866f77408a82dea8fc419240ba"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/ApprovalParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3f75430075e689c6b7c02c158299c61acc413cd66a82f86c8a8664b16cfe6269",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3f75430075e689c6b7c02c158299c61acc413cd66a82f86c8a8664b16cfe6269"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveFlowOperationDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "239a83932890b6671d5f3c4e089e0e134110091a1702b3543c10cfc32c78d809",
+    "adjustments": [],
+    "rebuilt_source_sha256": "239a83932890b6671d5f3c4e089e0e134110091a1702b3543c10cfc32c78d809"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveOpinionDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "361a8ea78441532f7f46f65f01716ee61559fb910ff19d676bd232b13a6060a6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "361a8ea78441532f7f46f65f01716ee61559fb910ff19d676bd232b13a6060a6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveRecordDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "4de6ef6fb80f6aaca9ef18b3494fd91427a8ac0228acda050243a0cb6954ad09",
+    "adjustments": [],
+    "rebuilt_source_sha256": "4de6ef6fb80f6aaca9ef18b3494fd91427a8ac0228acda050243a0cb6954ad09"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveRecordDetailDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "040afda88a52ec7224eb2fcf7c4bfc1daaed7c3b398912a4d3a1ce4157cb429a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "040afda88a52ec7224eb2fcf7c4bfc1daaed7c3b398912a4d3a1ce4157cb429a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveTemplateDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "81be236042b5ef6a69d8757d47d3f39fbd18c3bf0416822fcc42c255e04db007",
+    "adjustments": [],
+    "rebuilt_source_sha256": "81be236042b5ef6a69d8757d47d3f39fbd18c3bf0416822fcc42c255e04db007"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveTemplateVersionsDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "16e1b69ffe6f7b72ec773dd5d0ad7493c1f1044c1b2bc93e6cf145621e8ebbf1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "16e1b69ffe6f7b72ec773dd5d0ad7493c1f1044c1b2bc93e6cf145621e8ebbf1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/WmsApproveTemplateVersionsFlowDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "35b486e2284699ae6f3a9c31e4343df9925b58654c761b5cf076948c47f0d140",
+    "adjustments": [],
+    "rebuilt_source_sha256": "35b486e2284699ae6f3a9c31e4343df9925b58654c761b5cf076948c47f0d140"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaAllWorkflowRequestListDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a5dac6fc3bbfb8c9f74072aafdbf5338252abc6e884f6b59aa453d5d4381497b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a5dac6fc3bbfb8c9f74072aafdbf5338252abc6e884f6b59aa453d5d4381497b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaAnnualContractDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "80fbeb9219b3ac76ceefd3a5aa4af141c022890d5e554092358dd6a126b9c532",
+    "adjustments": [],
+    "rebuilt_source_sha256": "80fbeb9219b3ac76ceefd3a5aa4af141c022890d5e554092358dd6a126b9c532"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaApproveRecordDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8d7ffd5105ced0507180d600c23cc04bd44592b22ea2cdd9d6315dc1174ea21a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "8d7ffd5105ced0507180d600c23cc04bd44592b22ea2cdd9d6315dc1174ea21a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaArgumentDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "075f3b13786f61bf70007167300a5db3aeeff9b05bb5aa27eb6a7624aac0540c",
+    "adjustments": [],
+    "rebuilt_source_sha256": "075f3b13786f61bf70007167300a5db3aeeff9b05bb5aa27eb6a7624aac0540c"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaAttachmentsDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e761a8178f03e787f584b454f235e32ae03cc24aa7e0e9cc12ca1143057980d9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e761a8178f03e787f584b454f235e32ae03cc24aa7e0e9cc12ca1143057980d9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaDeepenDrawingDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "83610f126b5c6a9d3fbcef50dc21f34e28a41c8dd1888c69040cf7e4b7edbff3",
+    "adjustments": [],
+    "rebuilt_source_sha256": "83610f126b5c6a9d3fbcef50dc21f34e28a41c8dd1888c69040cf7e4b7edbff3"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaDetailDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6f9a2ebd52f254967a991048184cab0f74a672bcf2c739ca26b3353747b442a6",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6f9a2ebd52f254967a991048184cab0f74a672bcf2c739ca26b3353747b442a6"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaPaymentDetailDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b8074c92857cb967864cc9839767f087e8328be275635bdcf7f23e4e3c719e72",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b8074c92857cb967864cc9839767f087e8328be275635bdcf7f23e4e3c719e72"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaProjectBidApplicationDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8cae141a5ac4be2eb1a89785b54dc22a285fd4ceb99c457614423eebce94c1d5",
+    "adjustments": [],
+    "rebuilt_source_sha256": "8cae141a5ac4be2eb1a89785b54dc22a285fd4ceb99c457614423eebce94c1d5"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaProjectInformationRegistrationDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "ea449cbe7883fffa714b461536477afcd956709919242d51ac4e407e9ab75a19",
+    "adjustments": [],
+    "rebuilt_source_sha256": "ea449cbe7883fffa714b461536477afcd956709919242d51ac4e407e9ab75a19"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaProjectPrequalificationDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f4d01512c60e43bf551f4127c1bcd11f4026c036bcd8fb5cbda480cc8e536599",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f4d01512c60e43bf551f4127c1bcd11f4026c036bcd8fb5cbda480cc8e536599"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaProjectTrackingDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d8553673c794f8fa5c1dce2314fc358070f98729b093b31d3bef2f67b8c9eb3e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d8553673c794f8fa5c1dce2314fc358070f98729b093b31d3bef2f67b8c9eb3e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaPurchaseContractDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c822dbb9bec8438203aaf669d558893fe0a142b609be806aa1d968a065b3859f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c822dbb9bec8438203aaf669d558893fe0a142b609be806aa1d968a065b3859f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaPurchasePaymentDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a50c54112e4aeec4e842762c6167e9d95c53b310946cb6542f757d025d064da0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a50c54112e4aeec4e842762c6167e9d95c53b310946cb6542f757d025d064da0"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaPurchaseSettleAccountDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c374c1ebc51b35edce7b948b4647907138e096a492f17c8202f3bb87ac9f9586",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c374c1ebc51b35edce7b948b4647907138e096a492f17c8202f3bb87ac9f9586"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaRevocationDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e4ffbab9258164356a53c44ebf6cd73d632ee36a07b3ae1ad0ce2e81c3b4f210",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e4ffbab9258164356a53c44ebf6cd73d632ee36a07b3ae1ad0ce2e81c3b4f210"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaSupplierPaymentDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e0058fa4499471b68a6e0f693442d4739caf6245d00d717a45d10c26252a2809",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e0058fa4499471b68a6e0f693442d4739caf6245d00d717a45d10c26252a2809"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaSupplierPaymentDataIdDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "b48116bf38b6bbea84548b6de035276e853e53a211f0430cf5ed3c54961c9fff",
+    "adjustments": [],
+    "rebuilt_source_sha256": "b48116bf38b6bbea84548b6de035276e853e53a211f0430cf5ed3c54961c9fff"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/OaWorkflowDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c06260447069a21db1ac17a1c40d7e453544e87981327a8f89546863ecd6ab1d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c06260447069a21db1ac17a1c40d7e453544e87981327a8f89546863ecd6ab1d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/WorkflowDTOParam.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "af0a28a2d0c75d9e0fb7f450c22c351a6b00630e36c0f8d2c98e4f38e2c8f962",
+    "adjustments": [],
+    "rebuilt_source_sha256": "af0a28a2d0c75d9e0fb7f450c22c351a6b00630e36c0f8d2c98e4f38e2c8f962"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/WorkflowRequestTableField.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fabc4c7e13febd341290a97d444c514b83c8c65c5fec0a4312b6105c2083106e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fabc4c7e13febd341290a97d444c514b83c8c65c5fec0a4312b6105c2083106e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/dtoParam/oa/WorkflowRequestTableRecord.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a447f2a09ef9ebd63ed53662632869a0e60b271fae5851ca5cffa6c254ec29fa",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a447f2a09ef9ebd63ed53662632869a0e60b271fae5851ca5cffa6c254ec29fa"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/export/ApproveRecordDetailExportDTO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3adfa19d0a1a87f7603da1e27a93b0db322cf95c131b15ceba817ef264473782",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3adfa19d0a1a87f7603da1e27a93b0db322cf95c131b15ceba817ef264473782"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/ApproveInfoVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a00791300bdbb557347968ae75cf5e588762a0a12d87c5b05b667585a4caff5a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "a00791300bdbb557347968ae75cf5e588762a0a12d87c5b05b667585a4caff5a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/BimArtifactStatusDetailVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c42b74b1d4c68d6d141d3f662ba05aa86fed1266b13e9acb6e5d552e24df3e1e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c42b74b1d4c68d6d141d3f662ba05aa86fed1266b13e9acb6e5d552e24df3e1e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/BimBridgeStatusDetailVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "781ae4b0aa087d005171457ea7d7de4f52dd99f542b54ddf985e97a67c7a4ea8",
+    "adjustments": [],
+    "rebuilt_source_sha256": "781ae4b0aa087d005171457ea7d7de4f52dd99f542b54ddf985e97a67c7a4ea8"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/BimLogisticsLinkVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3301b83ea99fa1da4dd08385884092831e5e36226398ae24e2dd6d775b52693f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3301b83ea99fa1da4dd08385884092831e5e36226398ae24e2dd6d775b52693f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/BimLogisticsVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "db26ca521571c278f50ef1866e7bf91a179c42f387095e23388be39d4df3a82d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "db26ca521571c278f50ef1866e7bf91a179c42f387095e23388be39d4df3a82d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/CargoPackVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "55ddc0058a0019c79da37b19e9e3ba403fa92874de08c397d91ea7aecbdec8bc",
+    "adjustments": [],
+    "rebuilt_source_sha256": "55ddc0058a0019c79da37b19e9e3ba403fa92874de08c397d91ea7aecbdec8bc"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/JobResponseVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d0a4f91893134708574310a43cca61b0e90374b017ef5e0972618184efcdbf41",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d0a4f91893134708574310a43cca61b0e90374b017ef5e0972618184efcdbf41"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/KeyAndSecretVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "3af5ddcbae296d68c52fb3369c989ed4ec86d4af469c07eeafca387ba80facdb",
+    "adjustments": [],
+    "rebuilt_source_sha256": "3af5ddcbae296d68c52fb3369c989ed4ec86d4af469c07eeafca387ba80facdb"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/MesBuildingWIPStatisticsVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "08284871bf168f24515fe3bf12bfcbfb6ccd0af8d680d3bdd72f0af956b55e15",
+    "adjustments": [],
+    "rebuilt_source_sha256": "08284871bf168f24515fe3bf12bfcbfb6ccd0af8d680d3bdd72f0af956b55e15"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/StatisticsPageVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "34b256430c4f0b42c80ddd7b2aa3eac6206ca47df1d483b752b5ef7fee327317",
+    "adjustments": [],
+    "rebuilt_source_sha256": "34b256430c4f0b42c80ddd7b2aa3eac6206ca47df1d483b752b5ef7fee327317"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/UserSimpleResponseVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9e82a018a1af32fbe731677f2eba254e4ec047664a427aa7d6d308ba2e5f83b7",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9e82a018a1af32fbe731677f2eba254e4ec047664a427aa7d6d308ba2e5f83b7"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/pojo/vo/oa/OaimmobilizationDataVO.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fdbb4dee09bbaf49cb0f2f84307287fca49db9808b405f713ca4f1a373e272d9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fdbb4dee09bbaf49cb0f2f84307287fca49db9808b405f713ca4f1a373e272d9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/AttachmentService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "857bd5d72080684568b8ded09e243b6615a099a4401417f2b1927064a2b77f82",
+    "adjustments": [],
+    "rebuilt_source_sha256": "857bd5d72080684568b8ded09e243b6615a099a4401417f2b1927064a2b77f82"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/BackupsService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "383618e164b8e87ea057dbda23cd5357751e27a959d4844b2a89f9bf1efc4507",
+    "adjustments": [],
+    "rebuilt_source_sha256": "383618e164b8e87ea057dbda23cd5357751e27a959d4844b2a89f9bf1efc4507"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/CommonAppKeyService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "75952f369b647c2e03bd0538006a92e85dece0b5dbf00d8b4d7ea46e48ce567d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "75952f369b647c2e03bd0538006a92e85dece0b5dbf00d8b4d7ea46e48ce567d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/CommonAppService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "127e5d2700d0c21658375e1b96e8fd61d68dda42df0d925ce24aa4e94f422d46",
+    "adjustments": [],
+    "rebuilt_source_sha256": "127e5d2700d0c21658375e1b96e8fd61d68dda42df0d925ce24aa4e94f422d46"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveFlowOperationService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6218b41cf2f3a24c444e524174062f6c6b024b59e782bf6d1ce859741f3249c5",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6218b41cf2f3a24c444e524174062f6c6b024b59e782bf6d1ce859741f3249c5"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveRecordDetailService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "321229e40c2c27b36e12f953b3d08bdb9e7f4b63e5d69e23eb50b113a055dc43",
+    "adjustments": [],
+    "rebuilt_source_sha256": "321229e40c2c27b36e12f953b3d08bdb9e7f4b63e5d69e23eb50b113a055dc43"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveRecordService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2f4702535afd680b887ca3534e58fa49975be02faa2619b59d05fdcc0e11a803",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2f4702535afd680b887ca3534e58fa49975be02faa2619b59d05fdcc0e11a803"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveTemplateService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "da825eb472b55b2592a587b7904c84fc6211a9bae78830e56e4675d7b03129c9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "da825eb472b55b2592a587b7904c84fc6211a9bae78830e56e4675d7b03129c9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveTemplateVersionsFlowService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "844163f12f73a80607b43d1c6001f4076136965b1bd1beb19f1fd315f1f7456b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "844163f12f73a80607b43d1c6001f4076136965b1bd1beb19f1fd315f1f7456b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsApproveTemplateVersionsService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "6af9d750380902e99c9681ec1f9a7c36250ceff3e0c9570d1888c467281e7204",
+    "adjustments": [],
+    "rebuilt_source_sha256": "6af9d750380902e99c9681ec1f9a7c36250ceff3e0c9570d1888c467281e7204"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/WmsInformMsgService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "51163daac66c2045e79680cc683ae133624039279103c0397be4fa82644ff316",
+    "adjustments": [],
+    "rebuilt_source_sha256": "51163daac66c2045e79680cc683ae133624039279103c0397be4fa82644ff316"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/sync/SyncAppKeyService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e757f2e0211a038b12a8d5828bc8cf2ebc9543a0511d6ef7e1ad4099aaf89130",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e757f2e0211a038b12a8d5828bc8cf2ebc9543a0511d6ef7e1ad4099aaf89130"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/sync/SyncAppService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c82cc8229db667e45f6368d1dcb0696befcea3328e4ed604d1748d53fa446e93",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c82cc8229db667e45f6368d1dcb0696befcea3328e4ed604d1748d53fa446e93"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/zhongnanoa/OaBusinessProcessService.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "65c6bb2b0cae942f4b1ad27e95525edb5ccfc426029ab12e14f0784b217367f9",
+    "adjustments": [],
+    "rebuilt_source_sha256": "65c6bb2b0cae942f4b1ad27e95525edb5ccfc426029ab12e14f0784b217367f9"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/zhongnanoa/OaPersonnelOrganizationServier.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "0fa60d53f5a7f44ed8ead59b234c90d0c5e5b615b9dc71a396eb272afd252b1f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "0fa60d53f5a7f44ed8ead59b234c90d0c5e5b615b9dc71a396eb272afd252b1f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/zhongnanoa/OaWorkflowResultHandler.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d0e90aa28a8bd43b9b82cdf51c8f512118f9244eb4793c9ef6caa45c2f7b2ec5",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d0e90aa28a8bd43b9b82cdf51c8f512118f9244eb4793c9ef6caa45c2f7b2ec5"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/service/zhongnanoa/ShrPersonnelOrganizationServier.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e916d6af476a737aa11134e487f880320b8bc1d76cf25cac8f8cd13359fb4d7b",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e916d6af476a737aa11134e487f880320b8bc1d76cf25cac8f8cd13359fb4d7b"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "5c235945dadb52ad1b265c6e700d875c3043f37cce2da11038766f62e51cfd59",
+    "adjustments": [
+      "Externalized hardcoded appId to LJAPS_BOCHU_APP_ID; missing environment fails before authentication request",
+      "Externalized hardcoded secret to LJAPS_BOCHU_SECRET; missing environment fails before authentication request"
+    ],
+    "rebuilt_source_sha256": "f9f3aff20b2707ee734b7c572c484cd9db742048456e5cfa3d6284dc2e55db81"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/BeanToMapUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "2e8bf2b2a360ab9b5434f06233b33f25ecc221b00e1b1145f0f26a94e4fc8967",
+    "adjustments": [],
+    "rebuilt_source_sha256": "2e8bf2b2a360ab9b5434f06233b33f25ecc221b00e1b1145f0f26a94e4fc8967"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/BigDecimalSageUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f2278b03892edad819561ccc34f003a752b1079ae324ecba6eea0b268a301275",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f2278b03892edad819561ccc34f003a752b1079ae324ecba6eea0b268a301275"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/ComponentNameUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "1a5d7d5cdf367249f0c37abc549db920d5b80d0b20f2f900b010be8b54557efe",
+    "adjustments": [],
+    "rebuilt_source_sha256": "1a5d7d5cdf367249f0c37abc549db920d5b80d0b20f2f900b010be8b54557efe"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/CurrencyUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7e04442c4dbafc2c2b4c026e0652fac39770ea48173ee18086d4cd3b14fe5958",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7e04442c4dbafc2c2b4c026e0652fac39770ea48173ee18086d4cd3b14fe5958"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/DateTimeUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "c9da14644631c8c1642ce2d66eba5ac1a43f48b751f84da2a16e1a0181e042ae",
+    "adjustments": [],
+    "rebuilt_source_sha256": "c9da14644631c8c1642ce2d66eba5ac1a43f48b751f84da2a16e1a0181e042ae"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/EasyExcelUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "f3ae05fe2c8c389bc498116e7046a31e203d155975c40d3ba85536e4c03a9e06",
+    "adjustments": [],
+    "rebuilt_source_sha256": "f3ae05fe2c8c389bc498116e7046a31e203d155975c40d3ba85536e4c03a9e06"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/ExcelExportStyler.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d00ffc3ecfed0f41f3c36783a4a51606d7769e410e38a1f111828265b442c49a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d00ffc3ecfed0f41f3c36783a4a51606d7769e410e38a1f111828265b442c49a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/ExcelStyleUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d9d5cc8f07ebc3784319c0150cea8b73ebd9953500a7ce8259f3d01eae86e58a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d9d5cc8f07ebc3784319c0150cea8b73ebd9953500a7ce8259f3d01eae86e58a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/GdMapUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7202606bf81a6515e858c3cb6ff93a7b6c41d6fe674f119a9f8ca86180ea451d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7202606bf81a6515e858c3cb6ff93a7b6c41d6fe674f119a9f8ca86180ea451d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/HttpUrlUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "fe5ff8a2d778054645515ccf4e81e6fc6f0a8ddbf22b7fb061badfde9a7f6a5d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "fe5ff8a2d778054645515ccf4e81e6fc6f0a8ddbf22b7fb061badfde9a7f6a5d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/HttpUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9417ba98008b9913a8e9bf214cb9653494b31c5d81ff2c81964fd108c818c0af",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9417ba98008b9913a8e9bf214cb9653494b31c5d81ff2c81964fd108c818c0af"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "a94a8ebf3e2fa426403d88313510a192d81854636be0ae4e03f4bd4707b77ded",
+    "adjustments": [
+      "Externalized hardcoded appKey to LJAPS_JIGUANG_APP_KEY; missing environment fails before authentication request",
+      "Externalized hardcoded masterSecret to LJAPS_JIGUANG_MASTER_SECRET; missing environment fails before authentication request"
+    ],
+    "rebuilt_source_sha256": "9898b486b3882e7fa96b07ddff52c257c18624b065728e52909efc733317aa9f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/JsonCompressionUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "db3112c926724e0c17f73a7ca5160098b2314ecd513cebfd38d4945faac80556",
+    "adjustments": [],
+    "rebuilt_source_sha256": "db3112c926724e0c17f73a7ca5160098b2314ecd513cebfd38d4945faac80556"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/ListPageUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "11ce8bba47240f7e39ac1da3e6f344b1dd70158bd1045c16aed9f66daa4cdf43",
+    "adjustments": [],
+    "rebuilt_source_sha256": "11ce8bba47240f7e39ac1da3e6f344b1dd70158bd1045c16aed9f66daa4cdf43"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/PageUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e4725c7414c60f8ba9af9181395daffca8d23a0a5c61bff529b6521547247890",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e4725c7414c60f8ba9af9181395daffca8d23a0a5c61bff529b6521547247890"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/PoiUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "7cb0ab5b1d07f3281e649e5f13d152b1d1c0861c7dcf90c5c808d786f78349f1",
+    "adjustments": [],
+    "rebuilt_source_sha256": "7cb0ab5b1d07f3281e649e5f13d152b1d1c0861c7dcf90c5c808d786f78349f1"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/QRCodeUtil.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "cdae95718d3eca636190a9d56de6f27f799ad99b9785fec78f0c08ce34125a4a",
+    "adjustments": [],
+    "rebuilt_source_sha256": "cdae95718d3eca636190a9d56de6f27f799ad99b9785fec78f0c08ce34125a4a"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/ZIPUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "9857dcba3364f0b614b91446d99b4387554bd380ce1b9caecb0d30fb2232e4b7",
+    "adjustments": [],
+    "rebuilt_source_sha256": "9857dcba3364f0b614b91446d99b4387554bd380ce1b9caecb0d30fb2232e4b7"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/oa/Const.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "e487468e1c82a0c894a4f9ff53074d3612119c92ea5e5d91126b05b57da855e0",
+    "adjustments": [],
+    "rebuilt_source_sha256": "e487468e1c82a0c894a4f9ff53074d3612119c92ea5e5d91126b05b57da855e0"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/oa/OAFileUtils.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "d2458ceaedf74a5ff2080001103e9e3055a5c91a543878ec4db56e904719034e",
+    "adjustments": [],
+    "rebuilt_source_sha256": "d2458ceaedf74a5ff2080001103e9e3055a5c91a543878ec4db56e904719034e"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/oa/PrivateKeyReader.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "14dcedc81a526c45e674718f7c872eecf580d8bb95a3474e25fe8fe78c4e705f",
+    "adjustments": [],
+    "rebuilt_source_sha256": "14dcedc81a526c45e674718f7c872eecf580d8bb95a3474e25fe8fe78c4e705f"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/oa/PublicKeyReader.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "322c21b019e85c1f5a2bffd61ffa196cdc612014f2dbf3cb039fdc5c2a706f1d",
+    "adjustments": [],
+    "rebuilt_source_sha256": "322c21b019e85c1f5a2bffd61ffa196cdc612014f2dbf3cb039fdc5c2a706f1d"
+  },
+  {
+    "module": "scim-common-core-api",
+    "path": "com/hzchum/scim/common/core/api/utils/oa/RSA.java",
+    "original_module": "BOOT-INF/lib/scim-common-core-api-0.0.1-SNAPSHOT.jar",
+    "original_source_sha256": "8c637654e00c61aaaa4e5779c388f32a1ed29f599c0589bc8cb98a304f8ca3d0",
+    "adjustments": [
+      "Restored String generic types for four raw local List/ArrayList declarations in decrypt and decryptCommon; split yields String[] and only String values are added, preserving statements and control flow"
+    ],
+    "rebuilt_source_sha256": "cf8465d069dd86451f9777de3cfa767a686bd13a138f1c7f0579459123f3c163"
+  }
+]

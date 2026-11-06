@@ -1,0 +1,1515 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MaterialInventoryMapper">
+
+
+    <sql id="getParam">
+        and basic_class &amp; #{basicClass} &gt; 0
+        and classify_id = #{classifyId}
+        and bool_party_a = #{boolPartyA}
+        <if test="standardId != null ">
+            and standard_id = #{standardId}
+        </if>
+        <if test="warehouseId != null ">
+            AND warehouse_id = #{warehouseId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND specification = #{specification}
+        </if>
+        <if test="specification == null ">
+            AND specification is null
+        </if>
+        <if test="length != null ">
+            AND length = #{length}
+        </if>
+        <if test="length == null ">
+            AND length is null
+        </if>
+        <if test="width != null ">
+            AND width = #{width}
+        </if>
+        <if test="width == null ">
+            AND width is null
+        </if>
+        <if test="thickness != null ">
+            AND thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="unitNet != null ">
+            AND unit_net = #{unitNet}
+        </if>
+        <if test="unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            AND brand is null
+        </if>
+        <if test="color != null and color != ''">
+            AND color = #{color}
+        </if>
+        <if test="color == null ">
+            AND color is null
+        </if>
+        <if test="projectId != null and projectId != ''">
+            AND project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            AND project_id is null
+        </if>
+    </sql>
+
+    <select id="getByInboundDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        material_is_whole = 1
+        and bool_delete_enum = 0
+        and warehouse_id = #{warehouseId}
+        and workshop_id = #{workshopId}
+        <include refid="getParam"></include>
+    </select>
+    <select id="getByMoveOutboundDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        material_is_whole = 1
+        and bool_delete_enum = 0
+        -- and factory_id = #{sourceFactoryId}
+        <include refid="getParam"></include>
+    </select>
+
+    <select id="getByMaterial" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        <if test="materialIsWhole != null ">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <include refid="getParam"></include>
+    </select>
+
+    <select id="getByMoveMaterialDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        material_is_whole = 1
+        and bool_delete_enum = 0
+        and warehouse_id = #{directionWarehouseId}
+        and factory_id = #{directionFactoryId}
+        <include refid="getParam"></include>
+    </select>
+
+    <select id="getByTransfer" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        and bool_virtual = 0
+        and material_is_whole = #{m}
+        and warehouse_id = #{d.warehouseId}
+        and workshop_id = #{d.workshopId}
+        and use_status = 0
+        and basic_class = #{d.basicClass}
+        and classify_id = #{d.classifyId}
+        and bool_party_a = #{d.boolPartyA}
+        <!--        <if test="d.taxRate != null ">-->
+        <!--            AND tax_rate = #{d.taxRate}-->
+        <!--        </if>-->
+        <!--        <if test="d.taxRate == null ">-->
+        <!--            AND tax_rate is null-->
+        <!--        </if>-->
+        <if test="d.standardId != null ">
+            and standard_id = #{d.standardId}
+        </if>
+        <if test="d.specification != null and d.specification != ''">
+            AND specification = #{d.specification}
+        </if>
+        <if test="d.specification == null ">
+            AND specification is null
+        </if>
+        <if test="d.length != null ">
+            AND length = #{d.length}
+        </if>
+        <if test="d.length == null ">
+            AND length is null
+        </if>
+        <if test="d.monomerId != null ">
+            AND monomer_id = #{d.monomerId}
+        </if>
+        <if test="d.monomerId == null ">
+            AND monomer_id is null
+        </if>
+        <if test="d.areaId != null ">
+            AND area_id = #{d.areaId}
+        </if>
+        <if test="d.areaId == null ">
+            AND area_id is null
+        </if>
+        <if test="d.width != null ">
+            AND width = #{d.width}
+        </if>
+        <if test="d.width == null ">
+            AND width is null
+        </if>
+        <if test="d.thickness != null ">
+            AND thickness = #{d.thickness}
+        </if>
+        <if test="d.thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="d.unitNet != null ">
+            AND unit_net = #{d.unitNet}
+        </if>
+        <if test="d.unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="d.projectId != null ">
+            AND project_id = #{d.projectId}
+        </if>
+        <if test="d.projectId == null ">
+            AND project_id is null
+        </if>
+        <if test="d.heatNoAndBatchNo != null and d.heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{d.heatNoAndBatchNo}
+        </if>
+        <if test="d.heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="d.brand != null and d.brand != ''">
+            AND brand = #{d.brand}
+        </if>
+        <if test="d.brand == null ">
+            AND brand is null
+        </if>
+        <if test="d.color != null and d.color != ''">
+            AND color = #{d.color}
+        </if>
+        <if test="d.color == null ">
+            AND color is null
+        </if>
+    </select>
+
+    <select id="getByMoveMaterial" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        and bool_virtual = 0
+        and material_is_whole = #{m}
+        and warehouse_id = #{d.warehouseId}
+        and use_status = 0
+        and basic_class = #{d.basicClass}
+        and classify_id = #{d.classifyId}
+        and bool_party_a = #{d.boolPartyA}
+        <if test="d.standardId != null ">
+            and standard_id = #{d.standardId}
+        </if>
+        <if test="d.specification != null and d.specification != ''">
+            AND specification = #{d.specification}
+        </if>
+        <if test="d.specification == null ">
+            AND specification is null
+        </if>
+        <if test="d.length != null ">
+            AND length = #{d.length}
+        </if>
+        <if test="d.length == null ">
+            AND length is null
+        </if>
+        <if test="d.monomerId != null ">
+            AND monomer_id = #{d.monomerId}
+        </if>
+        <if test="d.monomerId == null ">
+            AND monomer_id is null
+        </if>
+        <if test="d.areaId != null ">
+            AND area_id = #{d.areaId}
+        </if>
+        <if test="d.areaId == null ">
+            AND area_id is null
+        </if>
+        <if test="d.width != null ">
+            AND width = #{d.width}
+        </if>
+        <if test="d.width == null ">
+            AND width is null
+        </if>
+        <if test="d.thickness != null ">
+            AND thickness = #{d.thickness}
+        </if>
+        <if test="d.thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="d.unitNet != null ">
+            AND unit_net = #{d.unitNet}
+        </if>
+        <if test="d.unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="d.projectId != null ">
+            AND project_id = #{d.projectId}
+        </if>
+        <if test="d.projectId == null ">
+            AND project_id is null
+        </if>
+        <if test="d.heatNoAndBatchNo != null and d.heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{d.heatNoAndBatchNo}
+        </if>
+        <if test="d.heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="d.brand != null and d.brand != ''">
+            AND brand = #{d.brand}
+        </if>
+        <if test="d.brand == null ">
+            AND brand is null
+        </if>
+        <if test="d.color != null and d.color != ''">
+            AND color = #{d.color}
+        </if>
+        <if test="d.color == null ">
+            AND color is null
+        </if>
+    </select>
+
+    <select id="getRejectMat" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        and basic_class = #{basicClass}
+        and classify_id = #{classifyId}
+        and bool_party_a = 0
+        and use_status = 0
+        and bool_virtual = 0
+        <if test="specification != null and specification != ''">
+            AND specification = #{specification}
+        </if>
+        <if test="specification == null ">
+            AND specification is null
+        </if>
+        <if test="length != null ">
+            AND length = #{length}
+        </if>
+        <if test="length == null ">
+            AND length is null
+        </if>
+        <if test="width != null ">
+            AND width = #{width}
+        </if>
+        <if test="width == null ">
+            AND width is null
+        </if>
+        <if test="thickness != null ">
+            AND thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="unitNet != null ">
+            AND unit_net = #{unitNet}
+        </if>
+        <if test="unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            AND brand is null
+        </if>
+        <if test="color != null and color != ''">
+            AND color = #{color}
+        </if>
+        <if test="color == null ">
+            AND color is null
+        </if>
+        <if test="materialIsWhole != null ">
+            AND material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="materialIsWhole == null ">
+            AND material_is_whole = 1
+        </if>
+    </select>
+
+    <select id="getByMi" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        <if test="materialIsWhole != null ">
+            AND material_is_whole = #{materialIsWhole}
+        </if>
+        <include refid="getParam"></include>
+    </select>
+
+    <select id="getReturnableMaterialInventory"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+
+        SELECT
+        *
+        FROM wms_material_inventory
+        where
+        bool_delete_enum = 0
+        and basic_class = #{basicClass}
+        and classify_id = #{classifyId}
+        and bool_party_a = 0
+        and use_status = 0
+        and bool_virtual = 0
+        and (project_id != #{projectId} or project_id is null)
+        <if test="specification != null and specification != ''">
+            AND specification = #{specification}
+        </if>
+        <if test="specification == null ">
+            AND specification is null
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            AND brand is null
+        </if>
+        <if test="color != null and color != ''">
+            AND color = #{color}
+        </if>
+        <if test="color == null ">
+            AND color is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="thickness != null ">
+            AND thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="minLength != null ">
+            AND length &gt;= #{minLength}
+        </if>
+        <if test="maxLength != null ">
+            AND length &lt;= #{maxLength}
+        </if>
+        <if test="minWidth != null ">
+            AND width &gt;= #{minWidth}
+        </if>
+        <if test="maxWidth != null ">
+            AND width &lt;= #{maxWidth}
+        </if>
+    </select>
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and use_status = 0
+        and bool_virtual = 0
+
+        <if test=" materialIsWhole != null">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="monomerId != null ">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND area_id = #{areaId}
+        </if>
+        <if test=" workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType != null">
+            and warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null and color !='' ">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" brand != null and brand != ''">
+            and brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <!--        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">-->
+        <!--            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')-->
+        <!--        </if>-->
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <!--        <if test="classifyIds == null and  classifyId != null">-->
+        <!--            and classify_id = #{classifyId}-->
+        <!--        </if>-->
+        <if test="split != null and split.size()>0">
+            and heat_no_and_batch_no in
+            <foreach collection="split" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test=" classifyName != null and classifyName !=''">
+            and classify_name like CONCAT('%', #{classifyName},'%')
+        </if>
+        <if test=" boolPartyA != null">
+            and bool_party_a = #{boolPartyA}
+        </if>
+
+    </select>
+
+
+    <select id="getSteelPlateDetailGroupByClassifyName" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+    select
+    *
+    from wms_material_inventory
+    where bool_delete_enum = 0
+    and use_status = 0
+    and bool_virtual = 0
+    and bool_party_a = 0
+    <if test=" basicClass != null">
+        and basic_class &amp; #{ basicClass} &gt; 0
+    </if>
+    <if test="classifyNames != null and classifyNames.size()>0">
+        and (
+        <foreach collection="classifyNames" index="index" item="name" separator=" or ">
+            classify_name like CONCAT('%', #{name},'%')
+        </foreach>
+        )
+    </if>
+    </select>
+
+    <select id="getWapId" resultType="long">
+        select
+        weighted_average_price_id
+        from wms_material_inventory
+        <where>
+            <if test="basicClass != null ">
+                AND basic_class = #{basicClass}
+            </if>
+            <if test="orderSupplyType == 2 ">
+                and bool_party_a = 1
+            </if>
+            <if test="orderSupplyType == 1 ">
+                and bool_party_a = 0
+            </if>
+            <if test="workshopId != null ">
+                AND workshop_id = #{workshopId}
+            </if>
+            <if test="classifyIds != null and classifyIds.size()>0">
+                and classify_id in
+                <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="classifyIds == null and  classifyId != null">
+                and classify_id = #{classifyId}
+            </if>
+            <if test="projectId != null ">
+                AND project_id = #{projectId}
+            </if>
+            <if test=" minLength != null">
+                and quantity &gt;= #{minLength}
+            </if>
+            <if test=" maxLength != null">
+                and quantity &lt;= #{maxLength}
+            </if>
+            <if test="length != null ">
+                AND length = #{length}
+            </if>
+            <if test="width != null ">
+                AND width = #{width}
+            </if>
+            <if test="thickness != null ">
+                AND thickness = #{thickness}
+            </if>
+            <if test=" theoryThickness != null">
+                and theory_thickness = #{theoryThickness}
+            </if>
+            <if test=" color != null">
+                and color like CONCAT('%', #{color},'%')
+            </if>
+            <if test=" specification != null and specification != ''">
+                and specification like CONCAT('%', #{specification},'%')
+            </if>
+            <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+                and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+            </if>
+            <if test="brand != null and brand != ''">
+                AND brand like CONCAT('%',#{brand},'%')
+            </if>
+            <if test="createTime != null ">
+                AND date_format(create_time, '%Y-%m') = date_format(#{createTime}, '%Y-%m')
+            </if>
+            group by weighted_average_price_id
+        </where>
+    </select>
+
+    <update id="updateBoolHasFrozen">
+        UPDATE wms_material_inventory
+        SET bool_has_frozen = #{bool}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getMeteById" resultType="decimal">
+        select sum(mete)
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and classify_id = #{classifyId}
+    </select>
+
+    <select id="getTotalQuantity" resultType="map">
+        select ifnull(sum(mete), 0) as mete
+        , ifnull(sum(quantity), 0) as quantity
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and classify_id = #{classificationId}
+        and workshop_id = #{workshopId}
+        <if test="specification != null and specification != ''">
+            AND specification = #{specification}
+        </if>
+        <if test="specification == null ">
+            AND specification is null
+        </if>
+    </select>
+
+    <select id="getTotalMete" resultType="decimal">
+        select ifnull(sum(mete),0)
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        <if test="thickness">
+            and theory_thickness = #{thickness}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and project_id = #{projectId}
+        and specification = #{spec}
+    </select>
+    <select id="getMaterialMatchInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        SELECT
+        id,
+        basic_class,
+        classify_id,
+        classify_name,
+        specification,
+        material_is_whole,
+        warehouse_type,
+        project_id,
+        bool_party_a,
+        quantity,
+        length,
+        width,
+        thickness,
+        theory_thickness,
+        one_theory_weight,
+        brand,
+        heat_no_and_batch_no,
+        color,
+        measure_unit,
+        accounting_precision,
+        accounting_unit,
+        unit_net,
+        mete,
+        warehouse_id,
+        workshop_id,
+        weight_measurement_mode,
+        remark,
+        standard_id,
+        standard_name,
+        section_steel_weight,
+        bool_has_frozen,
+        bool_need_graphics,
+        graphics_path_drg_link,
+        source_materiel_id
+        FROM
+        wms_material_inventory
+        WHERE bool_delete_enum = 0
+        AND use_status = 0
+        AND basic_class = #{basic_class}
+        AND warehouse_type = #{projectWarehouseType}
+        AND classify_id = #{classify_id}
+        AND specification = #{specification}
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" brand != null">
+            and brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" basic_class == 8">
+            and unit_net = #{unitNet}
+        </if>
+    </select>
+
+    <select id="getMaterialMatchByParam" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        SELECT
+        id,
+        basic_class,
+        classify_id,
+        classify_name,
+        specification,
+        material_is_whole,
+        warehouse_type,
+        project_id,
+        bool_party_a,
+        quantity,
+        length,
+        width,
+        thickness,
+        theory_thickness,
+        one_theory_weight,
+        brand,
+        heat_no_and_batch_no,
+        color,
+        measure_unit,
+        accounting_precision,
+        accounting_unit,
+        unit_net,
+        mete,
+        warehouse_id,
+        workshop_id,
+        weight_measurement_mode,
+        remark,
+        standard_id,
+        standard_name,
+        section_steel_weight,
+        bool_has_frozen,
+        bool_need_graphics,
+        graphics_path_drg_link,
+        source_materiel_id
+        FROM
+        wms_material_inventory
+        WHERE bool_delete_enum = 0
+        AND use_status = 0
+        AND basic_class = #{basicClass}
+        AND warehouse_type = 1
+        AND bool_party_a = 0
+        AND classify_id in
+        <foreach collection="classifyIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        <if test=" basicClass == 1">
+            and thickness = #{specification}
+            and specification = #{material}
+        </if>
+        <if test=" basicClass == 2">
+            and specification = #{specification}
+        </if>
+    </select>
+
+    <resultMap id="getVirtual" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.VirtualMaterialDTO">
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getVirtual" resultMap="getVirtual">
+        select wai.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        FROM
+        wms_material_inventory wai
+        left join contract_project p on p.id = wai.project_id
+        left join wms_workshop mbf on wai.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wai.warehouse_id
+        WHERE wai.bool_delete_enum = 0
+        and wai.bool_virtual = 0
+    </select>
+
+
+    <resultMap id="getTotalInventory" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="thickness" property="thickness"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="mete" property="mete"/>
+        <result column="color" property="color"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="remark" property="remark"/>
+        <result column="weighted_average_spec" property="weightedAverageSpec"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="standardName"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+
+        <result property="monomerName" column="pmName"/>
+        <result property="areaName" column="paName"/>
+
+        <!--    申购单编号    <result column="standard_name" property=""/>-->
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getTotalInventory" resultMap="getTotalInventory">
+        select wmi.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        ww.id wwId,
+        ww.name wwName,
+        pm.name pmName,
+        pa.name paName
+        from wms_material_inventory wmi
+        left join contract_project p on p.id = wmi.project_id
+        left join wms_workshop mbf on wmi.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmi.warehouse_id
+        left join wms_measure wm on wm.classification_id = wmi.classify_id
+        left join plan_monomer pm on pm.id = wmi.monomer_id
+        left join plan_area pa on pa.id = wmi.area_id
+        where wmi.bool_delete_enum = 0
+        and wmi.use_status = 0
+        <if test="ids != null and ids.size()>0">
+            and wmi.classify_id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="basicClass != null">
+            and wmi.basic_class = #{basicClass}
+        </if>
+
+        <if test="orderSupplyType == 2 ">
+            and bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and bool_party_a = 0
+        </if>
+        <if test="workshopIds != null and workshopIds.size()>0">
+            and wmi.workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="specification != null and specification != ''">
+            and wmi.specification like concat('%',#{specification},'%')
+        </if>
+    </select>
+
+    <select id="getTotalInventoryNew"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        select wmi.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        ww.id wwId,
+        ww.name wwName
+        from wms_material_inventory wmi
+        left join contract_project p on p.id = wmi.project_id
+        left join wms_workshop mbf on wmi.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmi.warehouse_id
+        left join wms_measure wm on wm.classification_id = wmi.classify_id
+        where wmi.bool_delete_enum = 0
+        and wmi.use_status = 0
+        <if test="basicClass != null">
+            and wmi.basic_class &amp; ${basicClass} &gt; 0
+        </if>
+        <if test="workshopId != null">
+            and wmi.workshop_id = #{workshopId}
+        </if>
+    </select>
+
+    <resultMap id="getPSIInventoryDetail" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="thickness" property="thickness"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="mete" property="mete"/>
+        <result column="color" property="color"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="remark" property="remark"/>
+        <result column="weighted_average_spec" property="weightedAverageSpec"/>
+        <result column="standard_id" property="standardId"/>
+
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="project_id"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="warehouseId"/>
+            <result property="name" column="warehouseName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="workshopId"/>
+            <result property="name" column="workshopName"/>
+        </association>
+    </resultMap>
+    <select id="getPSIInventoryDetail" resultMap="getPSIInventoryDetail">
+        select
+        wmi.*,
+        ww.id warehouseId,
+        ww.name warehouseName,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        mf.id workshopId,
+        mf.name workshopName
+        from wms_material_inventory wmi
+        left join wms_warehouse ww on wmi.warehouse_id = ww.id
+        left join wms_workshop mf on mf.id = wmi.workshop_id
+        left join wms_measure wm on wm.classification_id = wmi.classify_id
+        where wmi.bool_delete_enum = 0
+        <if test="classifyId != null">
+            and wmi.classify_id = #{classifyId}
+        </if>
+        <if test=" width != null">
+            and wmi.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wmi.length = #{length}
+        </if>
+        <if test=" thickness != null">
+            and wmi.thickness = #{thickness}
+        </if>
+        <if test=" spec != null and spec != ''">
+            and wmi.specification = #{spec}
+        </if>
+    </select>
+    <select id="listInfoForDevice" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        SELECT
+        *
+        FROM
+        wms_material_inventory w
+        LEFT JOIN ( SELECT m.material_inventory_id, SUM( m.total_mete ) AS total_frozen_mete FROM wms_material_freeze m
+        WHERE m.bool_delete_enum=0 GROUP BY m.material_inventory_id ) mf ON w.id = mf.material_inventory_id
+        WHERE
+        bool_delete_enum = 0
+        AND use_status = 0
+        AND bool_virtual = 0
+        <if test=" workshopId != null">
+            and w.workshop_id = #{workshopId}
+        </if>
+
+        <if test=" classifyName != null">
+            and w.classify_name like CONCAT('%', #{classifyName},'%')
+        </if>
+        <if test=" serialNumber != null">
+            and w.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and w.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="warehouseId !=null">
+            and w.warehouse_id=#{warehouseId}
+        </if>
+        AND COALESCE(mf.total_frozen_mete, 0) != COALESCE((SELECT wmi.mete FROM wms_material_inventory wmi WHERE wmi.id
+        = w.id), 0)
+    </select>
+
+    <select id="getPSIInventoryDetailByClassifyIds"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        select
+        wmi.*,
+        ww.id warehouseId,
+        ww.name warehouseName,
+        wm.measure_unit         wmu,
+        wm.measure_precision    wmp,
+        wm.accounting_unit      wau,
+        wm.accounting_precision wap,
+        mf.id workshopId,
+        mf.name workshopName
+        from wms_material_inventory wmi
+        left join wms_warehouse ww on wmi.warehouse_id = ww.id
+        left join wms_workshop mf on mf.id = wmi.workshop_id
+        left join wms_measure wm on wm.classification_id = wmi.classify_id
+        where wmi.bool_delete_enum = 0
+        and wmi.classify_id in
+        <foreach collection="classifyIds" item="classifyId" open="(" separator="," close=")">
+             #{classifyId}
+        </foreach>
+    </select>
+    <select id="listInfoForMes" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and use_status = 0
+        and bool_virtual = 0
+        <if test=" materialIsWhole != null">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="monomerId != null ">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND area_id = #{areaId}
+        </if>
+        <if test=" workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType != null">
+            and warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test=" projectId != null">
+            and ( project_id = #{projectId} or project_id is null )
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" brand != null">
+            and brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+    </select>
+
+    <resultMap id="getByCondition" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="thickness" property="thickness"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="mete" property="mete"/>
+        <result column="color" property="color"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="remark" property="remark"/>
+        <result column="weighted_average_spec" property="weightedAverageSpec"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="warehouseId"/>
+            <result property="name" column="warehouseName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="workshopId"/>
+            <result property="name" column="workshopName"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+    </resultMap>
+    <select id="getByCondition" resultMap="getByCondition">
+        select
+        wmi.*,
+        ww.id warehouseId,
+        ww.name warehouseName,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mk.id workshopId,
+        mk.name workshopName
+        from wms_material_inventory wmi
+        left join contract_project p on p.id = wmi.project_id
+        left join wms_warehouse ww on wmi.warehouse_id = ww.id
+        left join wms_workshop mk on mk.id = wmi.workshop_id
+        left join wms_measure wm on wm.classification_id = wmi.classify_id
+        where wmi.bool_delete_enum = 0
+        and wmi.bool_party_a = 0
+        <if test=" warehouseType != null">
+            and wmi.project_id is null
+        </if>
+        <if test=" classifyId != null">
+            and wmi.classify_id = #{classifyId}
+        </if>
+        <if test=" basicClass != null">
+            and wmi.basic_class = #{basicClass}
+        </if>
+        <if test=" thickness != null">
+            and wmi.thickness = #{thickness}
+        </if>
+        <if test=" spec != null and spec != ''">
+            and wmi.specification = #{spec}
+        </if>
+        ORDER BY wmi.project_id
+    </select>
+
+    <select id="listInfoV2" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and use_status = 0
+        and bool_virtual = 0
+        <if test="ids != null and ids.size > 0">
+            and id in
+            <foreach collection="ids" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="boolPartyA !=null">
+            and bool_party_a = #{boolPartyA}
+        </if>
+
+        <if test=" materialIsWhole != null">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="monomerId != null ">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND area_id = #{areaId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType != null">
+            and warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" brand != null and brand != ''">
+            and brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <!--        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">-->
+        <!--            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')-->
+        <!--        </if>-->
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="split != null and split.size()>0">
+            and heat_no_and_batch_no in
+            <foreach collection="split" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="workshopIds !=null and workshopIds.size>0">
+            and workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="warehouseIds != null and warehouseIds.size > 0">
+            and warehouse_id in
+            <foreach collection="warehouseIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="realtimeInventory" resultType="java.math.BigDecimal">
+        select
+        ifnull(sum(mete),0)
+        from wms_material_inventory
+        where bool_delete_enum = 0
+        and use_status = 0
+        and bool_virtual = 0
+        <if test="boolPartyA !=null">
+            and bool_party_a = #{boolPartyA}
+        </if>
+        <if test=" materialIsWhole != null">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="monomerId != null ">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null ">
+            AND area_id = #{areaId}
+        </if>
+        <if test="workshopIds !=null and workshopIds.size>0">
+            and workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType != null">
+            and warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" brand != null and brand != ''">
+            and brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <!--        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">-->
+        <!--            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')-->
+        <!--        </if>-->
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+        <if test="split != null and split.size()>0">
+            and heat_no_and_batch_no in
+            <foreach collection="split" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+    </select>
+    <select id="getCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM `wms_material_inventory`
+        WHERE bool_delete_enum = 0 AND bool_nest_surplus=true
+          and DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+
+    <select id="nestingDockingList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        SELECT
+        w.*
+        FROM
+        wms_material_inventory w
+        LEFT JOIN (
+        SELECT
+        m.material_inventory_id,
+        SUM(m.total_quantity) AS total_frozen_quantity
+        FROM
+        wms_material_freeze m
+        where m.bool_delete_enum = 0
+        GROUP BY
+        m.material_inventory_id
+        ) mf ON w.id = mf.material_inventory_id
+        WHERE
+        w.use_status = 0
+        AND w.bool_virtual = 0
+        AND w.bool_delete_enum = 0
+        <if test="ids != null and ids.size() > 0 ">
+            and w.id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="basicClass != null">
+            and w.basic_class = #{basicClass}
+        </if>
+        <if test="minThickness != null">
+            and w.thickness >= #{minThickness}
+        </if>
+        <if test=" thickness != null">
+            and w.thickness &lt;= #{thickness}
+        </if>
+        <if test="basicClass != null and basicClass == 1">
+            <if test=" specification != null and specification != ''">
+                and w.specification = #{specification}
+            </if>
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="projectId != null">
+            and w.project_id = #{projectId}
+        </if>
+        <if test="warehouseId != null">
+            and w.warehouse_id = #{warehouseId}
+        </if>
+        <if test="boolPartyA != null">
+            and w.bool_party_a = #{boolPartyA}
+        </if>
+        <if test=" materialIsWhole != null">
+            and w.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="projectWarehouseType != null">
+            and w.warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test="workshopIds != null and workshopIds.size() > 0">
+            and w.workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND COALESCE(mf.total_frozen_quantity, 0) != COALESCE((SELECT wmi.quantity FROM wms_material_inventory wmi WHERE
+        wmi.id = w.id), 0)
+    </select>
+    <select id="getBySurplusDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where bool_delete_enum = 0
+        and warehouse_id = #{warehouseId}
+        and workshop_id = #{workshopId}
+        and material_is_whole = #{materialIsWhole}
+        <include refid="getParam"></include>
+    </select>
+
+    <select id="selectByIdIncludeDel"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select * from wms_material_inventory where id = #{id}
+    </select>
+    <select id="selectAllByIds" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select * from wms_material_inventory where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getByBeginInboundDetail"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialInventory">
+        select
+        *
+        FROM wms_material_inventory
+        where
+        material_is_whole = #{materialIsWhole}
+        and bool_delete_enum = 0
+        and warehouse_id = #{warehouseId}
+        and workshop_id = #{workshopId}
+        <include refid="getParam"></include>
+    </select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmProjectTrackerWireMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectTrackerWire">
+        <id column="id" property="id" />
+        <result column="crm_enterprise_warehousing_id" property="crmEnterpriseWarehousingId" />
+        <result column="name" property="name" />
+        <result column="position" property="position" />
+        <result column="phone" property="phone" />
+        <result column="crm_project_information_warehousing_id" property="crmProjectInformationWarehousingId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, crm_enterprise_warehousing_id, name, position, phone, crm_project_information_warehousing_id
+    </sql>
+
+</mapper>

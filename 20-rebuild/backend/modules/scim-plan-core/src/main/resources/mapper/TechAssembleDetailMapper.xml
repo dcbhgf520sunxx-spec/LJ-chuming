@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechAssembleDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechAssembleDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="assemble_id" property="assembleId"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="quantity" property="quantity"/>
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, assemble_id, artifact_id, quantity
+    </sql>
+
+    <select id="listNestingDetail" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechAssembleSaveNestingDTO">
+        select
+        tsa.id As assembleDetailId,
+        tsa.quantity * artifact.quantity AS assembleQuantity,
+        assemble.id,
+        assemble.project_id,
+        assemble.monomer_id,
+        assemble.area_id,
+        assemble.serial_number,
+        assemble.specification,
+        assemble.length,
+        assemble.material,
+        assemble.net_weight,
+        assemble.spec_prefix,
+        assemble.assemble_config_id,
+        assemble.production_line_type_enum,
+        assemble.bool_process,
+        assemble.bool_main_assemble,
+        assemble.bool_have_nc1 AS boolHaveNC1,
+        artifact.structure_class_id,
+        artifact.serial_number As artifactSerialNumber,
+        artifact.id AS artifactId,
+        ssc.classification_name
+        from  tech_assemble_detail tsa
+        Left Join tech_assemble assemble on assemble.id = tsa.assemble_id and assemble.bool_delete_enum = 0 and assemble.production_line_type_enum = #{productionLineTypeEnum}
+        Left Join tech_artifact artifact on artifact.id = tsa.artifact_id and artifact.bool_delete_enum = 0 and artifact.production_line_type_enum = #{productionLineTypeEnum}
+        LEFT JOIN sys_structure_classification ssc on ssc.id = artifact.structure_class_id
+        where tsa.bool_delete_enum = 0
+        and tsa.id in
+        <foreach collection="ids" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getArtifactPartConvertCounts"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.ArtifactAssociationCount">
+        SELECT td.artifact_id,
+               td.assemble_id                          asseOrPartId,
+               td.quantity,
+               ta.produced_quantity - ta.used_quantity unusedQuantity
+        FROM tech_assemble_detail td
+                 LEFT JOIN tech_assemble ta ON td.assemble_id = ta.id
+        WHERE td.bool_delete_enum = 0
+          AND ta.bool_delete_enum = 0
+          AND ta.bool_process = 1
+        AND td.artifact_id IN
+        <foreach collection="artifactId" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>

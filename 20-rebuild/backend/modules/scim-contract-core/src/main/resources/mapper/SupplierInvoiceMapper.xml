@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.SupplierInvoiceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.SupplierInvoice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="property_type" property="propertyType"/>
+        <result column="order_id" property="orderId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="receive_invoice_date" property="receiveInvoiceDate"/>
+
+        <result column="tax_rate" property="taxRate"/>
+        <result column="invoice_serial_number" property="invoiceSerialNumber"/>
+        <result column="invoice_amount" property="invoiceAmount"/>
+        <result column="written_by_id" property="applyUserId"/>
+        <result column="written_by_name" property="applyUserName"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_user_name" property="auditUserName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="branch_company_id" property="branchCompanyId"/>
+        <result column="branch_company_name" property="branchCompanyName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, property_type, order_id, order_serial_number, basic_class, supplier_id, supplier_name, invoice_type, receive_invoice_date, receive_invoice_unit_id,receive_invoice_unit, invoice_date, invoice_unit, tax, tax_rate, invoice_serial_number, invoice_amount, written_by_id, written_by_name, audit_user_id, audit_user_name, audit_time, audit_status, attachments, remark
+    </sql>
+
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.contract.core.api.pojo._do.SupplierInvoice">
+        select *
+        from contract_supplier_invoice
+        where bool_delete_enum = 0
+        <if test="orderId != null">
+            and order_id = #{orderId}
+        </if>
+        <if test="propertyType != null">
+            and property_type &amp; #{propertyType} > 0
+        </if>
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test="auditStatus != null">
+            and audit_status = #{auditStatus}
+        </if>
+        <if test="startDate != null">
+            and date(receive_invoice_date) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(receive_invoice_date) &lt;= date(#{endDate})
+        </if>
+            order by audit_status, id desc
+    </select>
+
+    <select id="sumInvoiceAmount" resultType="java.math.BigDecimal">
+        select IFNULL(sum(invoice_amount), 0)
+        from contract_supplier_invoice
+        where bool_delete_enum = 0
+        and audit_status = 2
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="propertyType != null">
+            AND property_type &amp; #{propertyType} > 0
+        </if>
+        <if test="startDate != null">
+            AND date(receive_invoice_date) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(receive_invoice_date) &lt;= date(#{endDate})
+        </if>
+    </select>
+
+    <select id="selectSumInvoice" resultType="java.math.BigDecimal">
+        <choose>
+            <when test="propertyType == 1">
+                SELECT IFNULL(SUM(invoice_amount), 0)
+                FROM contract_supplier_invoice as csi
+                    INNER JOIN scm_purchase_order AS spo on csi.order_id = spo.id AND spo.bool_delete_enum = 0
+                WHERE  csi.bool_delete_enum = 0
+                AND  csi.audit_status = 2
+                AND  csi.property_type = 1
+                <if test="orderId != null">
+                    AND csi.order_id = #{orderId}
+                </if>
+                <if test="supplierId != null">
+                    AND csi.supplier_id = #{supplierId}
+                </if>
+                <if test="branchCompanyId != null">
+                    AND csi.branch_company_id = #{branchCompanyId}
+                </if>
+            </when>
+
+            <when test="propertyType == 2">
+                SELECT IFNULL(SUM(invoice_amount), 0)
+                FROM contract_supplier_invoice
+                WHERE bool_delete_enum = 0
+                AND audit_status = 2
+                AND property_type = 2
+
+                <if test="supplierId != null">
+                    AND supplier_id = #{supplierId}
+                </if>
+                <if test="branchCompanyId != null">
+                    AND branch_company_id = #{branchCompanyId}
+                </if>
+            </when>
+
+            <otherwise>
+                select 0.0
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="selectPurchaseInvoiceSum" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM(csi.invoice_amount),0)
+        FROM contract_supplier_invoice AS csi
+        INNER JOIN scm_purchase_order AS spo ON csi.property_type = 1 AND csi.order_id = spo.id AND spo.bool_delete_enum = 0
+        WHERE csi.bool_delete_enum = 0
+        AND csi.audit_status = 2
+        <if test="supplierId != null">
+            AND csi.supplier_id = #{supplierId}
+        </if>
+        <if test="startDate != null">
+           AND spo.create_time &gt;= #{startDate}
+        </if>
+        <if test="startDate != null">
+           AND spo.create_time &lt;= #{endDate}
+        </if>
+    </select>
+
+
+</mapper>

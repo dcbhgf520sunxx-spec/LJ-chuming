@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractExpenseReimburseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractExpenseReimburse">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="reimburse_date" property="reimburseDate"/>
+        <result column="year_month_value" property="yearMonthValue"/>
+        <result column="reimburse_user_id" property="reimburseUserId"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="reimburse_amount" property="reimburseAmount"/>
+        <result column="expense_type_id" property="expenseTypeId"/>
+        <result column="expense_subject_id" property="expenseSubjectId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="written_by_id" property="writtenById"/>
+        <result column="bool_confirm_status" property="boolConfirmStatus"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, reimburse_date, year_month_value, reimburse_user_id, dept_id, reimburse_amount, expense_type_id, expense_subject_id, project_id, written_by_id, bool_confirm_status, remark
+    </sql>
+
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractExpenseReimburseDTO">
+        SELECT
+        er.* ,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        type.`name` expense_type_name,
+        sd.label expense_subject_name,
+        u.name reimburse_user_name,
+        (SELECT name FROM sys_user WHERE bool_delete_enum = 0 AND id = er.written_by_id) written_by_name
+        FROM
+        contract_expense_reimburse er
+        LEFT JOIN sys_user u ON er.reimburse_user_id = u.id AND u.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON er.project_id = cp.id AND cp.bool_delete_enum = 0 AND er.project_id IS NOT NULL
+        LEFT JOIN contract_expense_type type ON er.expense_type_id = type.id
+        LEFT JOIN sys_dictionary sd on er.expense_subject_id = sd.id AND sd.bool_delete_enum = 0
+        WHERE er.bool_delete_enum = 0
+        AND DATE_FORMAT(er.reimburse_date,'%Y') = #{year}
+        <if test="reimburseUserName != null and reimburseUserName != ''">
+            AND u.name like concat('%', #{reimburseUserName}, '%')
+        </if>
+        <if test="expenseTypeId != null">
+            and er.expense_type_id = #{expenseTypeId}
+        </if>
+        <if test="expenseSubjectId != null">
+            and er.expense_subject_id = #{expenseSubjectId}
+        </if>
+        <if test="month != null ">
+            AND er.month = #{month}
+        </if>
+        order by er.id desc
+    </select>
+
+    <select id="selectUnProjectList" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT year_month_value month,
+               sum(reimburse_amount) amount
+        FROM `contract_expense_reimburse`
+        WHERE bool_delete_enum = 0
+          and project_id is null
+          and year_month_value &gt; #{startMonth}
+          and year_month_value &lt;= #{endMonth}
+        group by year_month_value
+        order by year_month_value
+    </select>
+
+    <select id="getSum" resultType="java.util.HashMap">
+        select sum(reimburse_amount) as sumAll from contract_expense_reimburse where year = #{year} and month = #{month}
+    </select>
+
+</mapper>

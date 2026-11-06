@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ManufactureCostMapper">
+
+    <select id="projectList" resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+        SELECT
+            cp.id,
+            cp.serial_number,
+            cp.short_name,
+            CASE cp.settlement_status
+                WHEN 1 THEN 8
+                ELSE cp.status
+            END AS status
+        FROM contract_project cp
+        WHERE cp.bool_delete_enum = 0
+          AND cp.id IN ( SELECT project_id FROM project_branch_company_link WHERE bool_delete_enum = 0 AND branch_company_level &amp; ${@com.hzchum.scim.common.core.api.enums.BranchCompanyLevelEnum@SECONDARY_UNIT.getType()} > 0)
+        <if test="status != null">
+            <if test="status == @com.hzchum.scim.contract.core.api.enums.ProjectStatusEnum@SETTLED.getType()">
+                AND cp.settlement_status = 1
+            </if>
+            <if test="status != @com.hzchum.scim.contract.core.api.enums.ProjectStatusEnum@SETTLED.getType()">
+                AND cp.status = #{status}
+            </if>
+        </if>
+    </select>
+
+    <select id="manufactureCost" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostDTO">
+        SELECT
+            cp.id AS project_id,
+            cp.create_time AS create_time,
+            cp.serial_number AS serial_number,
+            cp.short_name AS project_name,
+            CASE cp.settlement_status
+                WHEN 1 THEN 8
+                ELSE cp.status
+            END AS status
+        FROM contract_project cp
+        WHERE cp.bool_delete_enum = 0
+            AND cp.id IN ( SELECT project_id FROM project_branch_company_link WHERE bool_delete_enum = 0 AND branch_company_level &amp; 2 )
+        <if test="noOrProjectName !=null and noOrProjectName != '' ">
+            and (cp.name like concat('%', #{noOrProjectName}, '%') or cp.serial_number like concat('%', #{noOrProjectName},'%'))
+        </if>
+        <if test="projectId != null">
+            AND cp.id = #{projectId}
+        </if>
+        <if test="year != null">
+            AND DATE_FORMAT(cp.create_time,'%Y') = #{year}
+        </if>
+        <if test="status != null">
+            <if test="status == 8">
+                AND cp.settlement_status = 1
+            </if>
+            <if test="status != 8">
+                AND cp.status = #{status}
+            </if>
+        </if>
+        ORDER BY cp.id DESC
+    </select>
+
+    <select id="structuralProductOutput" resultType="com.hzchum.scim.common.core.api.pojo.dto.CostSummaryValueDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(v_t.product_month_output) AS product_month_output
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+            SELECT
+                DATE_FORMAT( mbc.create_time, '%Y-%m' ) AS `year_month`,
+                SUM( ta.net_weight * mbc.quantity ) / 1000 AS product_month_output
+            FROM mes_building_complete mbc
+            LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+            WHERE mbc.task_type_enum = 2 AND mbc.bool_delete_enum = 0
+            AND mbc.project_id = #{projectId}
+            GROUP BY `year_month`
+        ) v_t ON v_t.`year_month` = ym_t.`year_month`
+    </select>
+
+    <select id="nonMainBusinessIncome" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostNonMainBusinessIncomeDTO">
+        SELECT
+            DATE_FORMAT(mbc.create_time,'%Y-%m') yearMonth,
+            ROUND(IFNULL(SUM(mbc.quantity * ta.net_weight) / 1000, 0), 3) totalOutput
+        FROM
+            mes_building_complete mbc
+        LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+        WHERE
+            mbc.task_type_enum = 2
+        AND mbc.bool_delete_enum = 0
+        AND mbc.project_id = #{projectId}
+        GROUP BY yearMonth
+        ORDER BY yearMonth
+    </select>
+
+    <select id="nonMainBusinessIncomeProject" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostNonMainBusinessIncomeDTO">
+        SELECT
+            ROUND(IFNULL(SUM(mbc.quantity * ta.net_weight) / 1000, 0), 3) AS projectOutput
+        FROM
+            mes_building_complete mbc
+        LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+        WHERE
+            mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        AND mbc.bool_delete_enum = 0
+        AND DATE_FORMAT(mbc.create_time,'%Y-%m') = #{yearMonth}
+    </select>
+
+    <select id="mainBusinessIncome" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostMainBusinessIncomeDTO">
+        SELECT
+            DATE_FORMAT( mbcl.create_time, '%Y-%m' ) yearMonth,
+            ROUND(IFNULL(SUM(mbcl.actual_weight) / 1000, 0), 3) AS totalOutput
+        FROM mes_building_cargo_list mbcl
+        WHERE
+            mbcl.project_id = #{projectId}
+        AND mbcl.status IN (4, 8)
+        AND delivery_status = 1
+        AND mbcl.bool_delete_enum = 0
+        GROUP BY
+            yearMonth
+        ORDER BY
+            yearMonth
+    </select>
+
+
+    <select id="finishedProductScrapLoss" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostFinishedProductScrapLossDTO">
+        SELECT
+            DATE_FORMAT(prpc.create_time, '%Y-%m') AS yearMonth,
+            COALESCE(SUM(prpc.total_amount), 0) AS scrapAmountMoney,
+            COALESCE(SUM(prpc.quantity * COALESCE(cargo_product.net_weight, artifact.net_weight)) / 1000, 0) AS scrapAmount
+        FROM
+            project_return_product_child prpc
+            LEFT JOIN mes_building_cargo_list_product_link cargo_product
+              ON prpc.status = 1 AND cargo_product.id = prpc.cargo_link_id
+              AND cargo_product.product_id = prpc.product_id AND cargo_product.product_type = prpc.product_type
+            LEFT JOIN tech_artifact artifact
+              ON prpc.product_type = 2 AND artifact.id = prpc.product_id AND artifact.project_id = prpc.project_id
+        WHERE
+            prpc.handle_method = 3
+          AND prpc.project_id = #{projectId}
+          AND prpc.bool_delete_enum = 0
+        GROUP BY
+            yearMonth
+        ORDER BY
+            yearMonth
+    </select>
+
+    <select id="transportationCost" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostTransportationDTO">
+        SELECT
+        DATE_FORMAT( mbcl.create_time, '%Y-%m' ) AS yearMonth,
+        ROUND(SUM( mbcl.actual_weight ) / 1000, 3) AS transportAmount,
+        <if test="boolTaxIncluded">
+            ROUND(SUM(mbcl.total_price), 2) AS costMonthTotal,
+            ROUND(SUM(mbcl.total_price ) * 1000 / SUM(mbcl.actual_weight), 2) AS transportCostPerTon
+        </if>
+        <if test="!boolTaxIncluded">
+            ROUND(SUM(mbcl.total_price * 100 / (100 + sp.tax)), 2) AS costMonthTotal,
+            ROUND(SUM(mbcl.total_price * 100 / (100 + sp.tax)) * 1000 / SUM(mbcl.actual_weight), 2) AS
+            transportCostPerTon
+        </if>
+        FROM
+        mes_building_cargo_list mbcl
+        LEFT JOIN mes_building_supplier_price AS sp ON mbcl.supplier_price_id = sp.id
+        WHERE mbcl.STATUS IN (4, 8)
+        AND mbcl.project_id = #{projectId}
+        AND mbcl.bool_delete_enum = 0
+        AND mbcl.total_price != 0
+        GROUP BY yearMonth
+    </select>
+
+    <select id="transportationCostSummary" resultType="com.hzchum.scim.common.core.api.pojo.dto.CostSummaryValueDTO">
+        SELECT
+        ym_t.`year_month`,
+        ROUND(mbcl_t.costMonthTotal) AS cost_month_total
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT( mbcl.create_time, '%Y-%m' ) AS `year_month`,
+        SUM(
+        IF
+        ( mbcl.STATUS IN ( 4, 8 ), mbcl.total_price, 0 )) AS costMonthTotal
+        FROM
+        mes_building_cargo_list mbcl
+        WHERE
+        mbcl.project_id = #{projectId}
+        AND mbcl.bool_delete_enum = 0
+        GROUP BY
+        DATE_FORMAT( mbcl.create_time, '%Y-%m' )
+        ) mbcl_t ON ym_t.`year_month` = mbcl_t.`year_month`
+        ORDER BY
+        ym_t.`year_month`;
+    </select>
+
+    <select id="finishedProductScrapLossSummary" resultType="com.hzchum.scim.common.core.api.pojo.dto.CostSummaryValueDTO">
+        SELECT
+        ym_t.`year_month`,
+        ROUND(prpc_t.costMonthTotal) AS cost_month_total
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT( prpc.create_time, '%Y-%m' ) AS `year_month`,
+        SUM(
+        IFNULL( prpc.total_amount , 0 )) AS costMonthTotal
+        FROM
+        project_return_product_child prpc
+        WHERE
+        prpc.handle_method = 3
+        AND prpc.bool_delete_enum = 0
+        AND prpc.project_id = #{projectId}
+        GROUP BY
+        DATE_FORMAT( prpc.create_time, '%Y-%m' )
+        ) prpc_t ON ym_t.`year_month` = prpc_t.`year_month`
+        ORDER BY
+        ym_t.`year_month`
+    </select>
+
+    <select id="transportationCostExport" resultType="com.hzchum.scim.contract.core.api.pojo.dto.CostTransportationDTO">
+        SELECT
+            months.yearMonth,
+            IFNULL( SUM( mbcl.actual_weight ), 0 ) AS transportAmount,
+            IFNULL( SUM( mbcl.total_price ), 0 ) AS costMonthTotal
+        FROM
+            (${yearMonthBetweenDates}) AS months
+        LEFT JOIN mes_building_cargo_list mbcl ON DATE_FORMAT( mbcl.create_time, '%Y-%m' ) = months.yearMonth
+                AND (mbcl.STATUS = 4 OR mbcl.STATUS = 8)
+                AND mbcl.project_id = #{projectId}
+        GROUP BY months.yearMonth
+    </select>
+
+    <select id="waterElectricityPropertyAmortizationList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(t.total_yield, 5) AS total_yield,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+            ROUND(cwep_t.total_fee, 2) AS total_fee,
+            ROUND(cwep_t.total_fee * ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2), 2) AS amortization_amount
+        FROM (
+            <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+                select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+            </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND EXISTS(
+        select 1 from project_branch_company_link pbcl
+        where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+        and pbcl.branch_company_id = (SELECT s_cp.branch_company_id FROM project_branch_company_link s_cp WHERE s_cp.bool_delete_enum = FALSE AND s_cp.branch_company_level = 2 AND s_cp.project_id = #{projectId} limit 1)
+        and pbcl.project_id = cp.id
+        )
+        GROUP BY mbc.in_year_month_date
+        ) t ON t.year_month = ym_t.year_month
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(cwepf.year_month_date, '%Y-%m') AS `year_month`,
+        SUM(cwepf.total_fee) AS total_fee
+        FROM contract_water_electricity_property_fee cwepf
+        WHERE cwepf.bool_delete_enum = FALSE
+        AND cwepf.audit_status_enum = 2
+        AND cwepf.type IN (<foreach collection="typeList" item="i" separator=",">#{i}</foreach>)
+        GROUP BY DATE_FORMAT(cwepf.year_month_date, '%Y-%m')
+        ) cwep_t ON ym_t.`year_month` = cwep_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="directCostList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ReimbursementCostDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(cwep_t.total_fee, 2) AS total_fee,
+            ROUND(ROUND(cwep_t.total_fee, 2) / ROUND(p_t.yield, 5), 2) AS ton_unit_price
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(crf.reimbursement_date, '%Y-%m') AS `year_month`,
+        SUM(crf.reimbursement_amount) AS total_fee
+        FROM contract_reimbursement_fee crf
+        WHERE crf.bool_delete_enum = FALSE
+        AND crf.project_id IS NOT NULL
+        AND crf.project_id = #{projectId}
+        AND crf.audit_status_enum = 2
+        GROUP BY DATE_FORMAT(crf.reimbursement_date, '%Y-%m')
+        ) cwep_t ON ym_t.`year_month` = cwep_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="amortizationCostList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ReimbursementCostDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(t.total_yield, 5) AS total_yield,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+            ROUND(cwep_t.total_fee, 2) AS total_fee,
+            ROUND(cwep_t.total_fee * ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2), 2) AS amortization_amount
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        GROUP BY mbc.in_year_month_date
+        ) t ON t.year_month = ym_t.year_month
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(crf.reimbursement_date, '%Y-%m') AS `year_month`,
+        SUM(crf.reimbursement_amount) AS total_fee
+        FROM contract_reimbursement_fee crf
+        WHERE crf.bool_delete_enum = FALSE
+        AND crf.project_id IS NULL
+        GROUP BY DATE_FORMAT(crf.reimbursement_date, '%Y-%m')
+        ) cwep_t ON ym_t.`year_month` = cwep_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="factoryDepreciationList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+        ym_t.`year_month`,
+        ROUND(t.total_yield, 5) AS total_yield,
+        ROUND(p_t.yield, 5) AS project_yield,
+        ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+        (
+        SELECT
+        ROUND(SUM(cfad.month_depreciation_amount), 2) AS depreciation_amount
+        FROM contract_fixed_assets_depreciation cfad
+        WHERE cfad.bool_delete_enum = FALSE AND cfad.bool_status = TRUE
+        AND EXISTS(
+        SELECT 1
+        FROM project_branch_company_link s_cp
+        WHERE s_cp.bool_delete_enum = FALSE AND s_cp.branch_company_level = 2
+        AND s_cp.branch_company_id = cfad.branch_company_id
+        AND s_cp.project_id = #{projectId}
+        )
+        AND (DATE_FORMAT(cfad.start_date, '%Y-%m') &lt;= ym_t.`year_month` AND DATE_FORMAT(cfad.end_date, '%Y-%m') >= ym_t.`year_month`)
+        ) AS total_fee
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        GROUP BY mbc.in_year_month_date
+        ) t on t.year_month = ym_t.year_month
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON t.`year_month` = p_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="equipmentDepreciationList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+        ym_t.`year_month`,
+        ROUND(t.total_yield, 5) AS total_yield,
+        ROUND(p_t.yield, 5) AS project_yield,
+        ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+        (
+        SELECT
+        ROUND(SUM(ced.month_depreciation_amount), 2) AS depreciation_amount
+        FROM contract_equipment_depreciation ced
+        WHERE ced.bool_delete_enum = FALSE AND ced.bool_status = TRUE
+        AND (DATE_FORMAT(ced.start_date, '%Y-%m') &lt;= ym_t.`year_month` AND DATE_FORMAT(ced.end_date, '%Y-%m') >= ym_t.`year_month`)
+        ) AS total_fee
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        GROUP BY mbc.in_year_month_date
+        ) t on t.year_month = ym_t.year_month
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON t.`year_month` = p_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="testingFeeList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ReimbursementCostDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(cwep_t.total_fee, 2) AS total_fee,
+            ROUND(ROUND(cwep_t.total_fee, 2) / ROUND(p_t.yield, 5), 2) AS ton_unit_price
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(ctf.pay_date, '%Y-%m') AS `year_month`,
+        SUM(ctf.fee_amount) AS total_fee
+        FROM contract_testing_fee ctf
+        WHERE ctf.bool_delete_enum = FALSE AND ctf.project_id IS NOT NULL
+        AND ctf.audit_status_enum = 2
+        AND EXISTS(
+        SELECT 1
+        FROM project_branch_company_link s_cp
+        WHERE s_cp.bool_delete_enum = FALSE AND s_cp.branch_company_level = 2
+        AND s_cp.branch_company_id = ctf.branch_company_id
+        AND s_cp.project_id = ctf.project_id
+        AND s_cp.project_id = #{projectId}
+        )
+        GROUP BY DATE_FORMAT(ctf.pay_date, '%Y-%m')
+        ) cwep_t ON ym_t.`year_month` = cwep_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="getTotalYieldAndProjectYield" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(IFNULL(t.total_yield, 0), 5) AS total_yield,
+            ROUND(IFNULL(p_t.yield, 0), 5) AS project_yield
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        GROUP BY mbc.in_year_month_date
+        ) t ON t.year_month = ym_t.year_month
+        LEFT JOIN (
+        SELECT
+        mbc.in_year_month_date AS `year_month`,
+        (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+        FROM mes_building_complete mbc
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+        WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+        AND mbc.project_id = #{projectId}
+        GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        ORDER BY ym_t.year_month
+    </select>
+
+    <select id="getsysBranchCompanyByProjectId" resultType="long">
+        select id from sys_branch_company where id = (select contract_sign_body_id from contract_project where id = #{projectId})
+    </select>
+
+    <select id="managerAmortizationList"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(t.total_yield, 5) AS total_yield,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+            ROUND(fee.total_fee, 2) AS total_fee,
+            ROUND(fee.total_fee * ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2), 2) AS amortization_amount
+        FROM (
+            <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+                SELECT DATE_FORMAT(#{i}, '%Y-%m') AS `year_month`
+            </foreach>
+        ) ym_t
+        LEFT JOIN (
+            SELECT
+                mbc.in_year_month_date AS `year_month`,
+                (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+            FROM mes_building_complete mbc
+            LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+            LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+            WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+            GROUP BY mbc.in_year_month_date
+        ) t ON t.year_month = ym_t.year_month
+        LEFT JOIN (
+            SELECT
+                mbc.in_year_month_date AS `year_month`,
+                (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+            FROM mes_building_complete mbc
+            LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+            LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+            WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+                AND mbc.project_id = #{projectId}
+            GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+            SELECT
+                DATE_FORMAT(cwf.fill_in_date, '%Y-%m') AS `year_month`,
+                SUM(cwf.total_wage) AS total_fee
+            FROM contract_wage_fee cwf
+            WHERE cwf.bool_delete_enum = 0
+            AND cwf.audit_status_enum = 2
+            GROUP BY DATE_FORMAT(cwf.fill_in_date, '%Y-%m')
+        ) fee ON fee.year_month = ym_t.`year_month`
+    </select>
+
+    <select id="tempWorkAmortizationList"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostAmortizationDTO">
+        SELECT
+            ym_t.`year_month`,
+            ROUND(t.total_yield, 5) AS total_yield,
+            ROUND(p_t.yield, 5) AS project_yield,
+            ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2) AS proportion,
+            ROUND(fee.total_fee, 2) AS total_fee,
+            ROUND(fee.total_fee * ROUND(ROUND(p_t.yield, 5) / ROUND(t.total_yield, 5), 2), 2) AS amortization_amount
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            SELECT DATE_FORMAT(#{i}, '%Y-%m') AS `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+            SELECT
+                mbc.in_year_month_date AS `year_month`,
+                (SUM(mbc.quantity * ta.net_weight) / 1000) AS total_yield
+            FROM mes_building_complete mbc
+            LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+            LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+            WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+<!--                 AND EXISTS(-->
+<!--                     select 1 from project_branch_company_link pbcl-->
+<!--                     where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2 AND pbcl.project_id = cp.id-->
+<!--                         AND EXISTS (-->
+<!--                             SELECT spbcl.branch_company_id-->
+<!--                             FROM project_branch_company_link spbcl-->
+<!--                             WHERE spbcl.bool_delete_enum = FALSE AND spbcl.branch_company_level = 2-->
+<!--                                 AND pbcl.branch_company_id = spbcl.branch_company_id-->
+<!--                                 AND spbcl.project_id = #{projectId}-->
+<!--                         )-->
+<!--                 )-->
+            GROUP BY mbc.in_year_month_date
+        ) t ON t.year_month = ym_t.year_month
+        LEFT JOIN (
+            SELECT
+                mbc.in_year_month_date AS `year_month`,
+                (SUM(mbc.quantity * ta.net_weight) / 1000) AS yield
+            FROM mes_building_complete mbc
+            LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = mbc.project_id
+            LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbc.product_id AND mbc.task_type_enum = 2
+            WHERE mbc.bool_delete_enum = 0 AND mbc.task_type_enum = 2
+                AND mbc.project_id = #{projectId}
+            GROUP BY mbc.in_year_month_date
+        ) p_t ON ym_t.`year_month` = p_t.`year_month`
+        LEFT JOIN (
+            SELECT
+                DATE_FORMAT(mtw.report_date, '%Y-%m') AS `year_month`,
+                SUM(mtw.calculate_amount) AS total_fee
+            FROM mes_temp_work mtw
+            WHERE mtw.bool_delete_enum = 0
+                AND mtw.project_id IS NULL
+            GROUP BY DATE_FORMAT(mtw.report_date, '%Y-%m')
+        ) fee ON fee.year_month = ym_t.`year_month`
+    </select>
+
+    <select id="productionLaborCostList"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ManufactureCostProductionLaborDTO">
+        SELECT
+            ym_t.`year_month`,
+            fee.process_id,
+            fee.process_name,
+            fee.unit,
+            fee.monthly_yield,
+            fee.total_amount
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            SELECT DATE_FORMAT(#{i}, '%Y-%m') AS `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+            SELECT
+                DATE_FORMAT(mprap.report_date, '%Y-%m') AS `year_month`,
+                mprap.process_id,
+                group_concat(DISTINCT mbp.name) AS process_name,
+                mprap.measure_unit AS unit,
+                sum(mprap.measurement_quantity) AS monthly_yield,
+                sum(mprap.amount) AS total_amount
+            FROM mes_production_reporting_approval_passed mprap
+            LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mprap.process_id
+            WHERE mprap.bool_delete_enum = 0 AND mprap.project_id = #{projectId}
+            GROUP BY DATE_FORMAT(mprap.report_date, '%Y-%m'), mprap.process_id, mprap.measure_unit
+            UNION ALL
+            SELECT
+                DATE_FORMAT(mtw.report_date, '%Y-%m') AS `year_month`,
+                NULL AS process_id,
+                '零工摊销' AS process_name,
+                '时' AS unit,
+                (sum(mtw.work_milliseconds) / 3600000) AS monthly_yield,
+                sum(mtw.calculate_amount) AS total_amount
+            FROM mes_temp_work mtw
+            WHERE mtw.bool_delete_enum = 0 AND mtw.project_id = #{projectId}
+            GROUP BY DATE_FORMAT(mtw.report_date, '%Y-%m')
+        ) fee ON fee.`year_month` = ym_t.`year_month`
+        ORDER BY fee.process_name
+    </select>
+
+</mapper>

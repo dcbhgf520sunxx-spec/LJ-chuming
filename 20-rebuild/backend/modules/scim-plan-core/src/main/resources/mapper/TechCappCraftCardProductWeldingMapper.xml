@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardProductWeldingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardProductWelding">
+        <id column="id" property="id" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="number" property="number" />
+        <result column="project_type" property="projectType" />
+        <result column="data_type" property="dataType" />
+        <result column="product_type" property="productType" />
+        <result column="welding_serial_number" property="weldingSerialNumber" />
+        <result column="create_user_id" property="createUserId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_id, monomer_id, serial_number, number, project_type, data_type, product_type, welding_serial_number, create_user_id
+    </sql>
+
+</mapper>

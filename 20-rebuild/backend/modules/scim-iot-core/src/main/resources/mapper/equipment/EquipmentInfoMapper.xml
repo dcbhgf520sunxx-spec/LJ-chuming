@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.iot.core.mapper.equipment.EquipmentInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.iot.core.api.pojo._doModel.equipment.EquipmentInfo">
+        <id column="id" property="id" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="version" property="version" />
+        <result column="equipment_code" property="equipmentCode" />
+        <result column="equipment_name" property="equipmentName" />
+        <result column="equipment_type_id" property="equipmentTypeId" />
+        <result column="equipment_storage_apply_id" property="equipmentStorageApplyId" />
+        <result column="equipment_serial_number" property="equipmentSerialNumber" />
+        <result column="equipment_model_number" property="equipmentModelNumber" />
+        <result column="equipment_spec" property="equipmentSpec" />
+        <result column="status" property="status" />
+        <result column="use_status" property="useStatus" />
+        <result column="audit_status" property="auditStatus" />
+        <result column="manager_by" property="managerBy" />
+        <result column="receive_by" property="receiveBy" />
+        <result column="receive_department_id" property="receiveDepartmentId" />
+        <result column="area_id" property="areaId" />
+        <result column="buy_time" property="buyTime" />
+        <result column="suppliers" property="suppliers" />
+        <result column="manufacturer" property="manufacturer" />
+        <result column="original_price" property="originalPrice" />
+        <result column="use_life" property="useLife" />
+        <result column="already_used_life" property="alreadyUsedLife" />
+        <result column="depreciation_id" property="depreciationId" />
+        <result column="depreciation_amount" property="depreciationAmount" />
+        <result column="current_price" property="currentPrice" />
+        <result column="create_by" property="createBy" />
+        <result column="update_by" property="updateBy" />
+        <result column="remark" property="remark" />
+        <result column="inside_code" property="insideCode" />
+        <result column="concrete_area" property="concreteArea" />
+        <result column="mid" property="mid" />
+        <result column="fixed_assets_code" property="fixedAssetsCode" />
+        <result column="out_code" property="outCode" />
+        <result column="enter_time" property="enterTime" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="prod_line_id" property="prodLineId" />
+        <result column="station_id" property="stationId" />
+        <result column="is_networking" property="isNetworking" />
+        <result column="ameter_id" property="ameterId" />
+        <result column="gas_meter_id" property="gasMeterId" />
+        <result column="run_type" property="runType" />
+        <result column="maintenance_type" property="maintenanceType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum,
+        create_time,
+        update_time,
+        version,
+        id, equipment_code, equipment_name, equipment_type_id, equipment_storage_apply_id, equipment_serial_number, equipment_model_number, equipment_spec, status, use_status, audit_status, manager_by, receive_by, receive_department_id, area_id, buy_time, suppliers, manufacturer, original_price, use_life, already_used_life, depreciation_id, depreciation_amount, current_price, create_by, update_by, remark, inside_code, concrete_area, mid, fixed_assets_code, out_code, enter_time, workshop_id, prod_line_id, station_id, is_networking, ameter_id, gas_meter_id, run_type, maintenance_type
+    </sql>
+    <delete id="deletetUnBoolen">
+        truncate table equipment_info;
+    </delete>
+
+</mapper>

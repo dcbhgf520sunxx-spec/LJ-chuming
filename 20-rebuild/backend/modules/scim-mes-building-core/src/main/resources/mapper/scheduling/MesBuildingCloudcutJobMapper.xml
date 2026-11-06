@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingCloudcutJobMapper">
+
+    <select id="pageMesBuildingCloudcutJob"
+    parameterType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingCloudcutJobDTO"
+    resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.scheduling.MesBuildingCloudcutJobVO">
+      SELECT
+        mbcj.id,
+        mbcj.cloudcut_name AS cloudcutName,
+        mbcj.workshop_id AS workshopId,
+        mbcj.parent_id AS parentId,
+        mbcj.job_type AS jobType,
+        mbw.name AS workshopName
+      FROM
+        mes_building_cloudcut_job mbcj
+          LEFT JOIN mes_building_workshop mbw ON mbcj.workshop_id = mbw.id AND mbw.bool_delete_enum = 0
+      WHERE
+        mbcj.bool_delete_enum = 0
+      <if test="mesBuildingCloudcutJobDTO.cloudcutName != null and mesBuildingCloudcutJobDTO.cloudcutName != ''">
+          AND mbcj.cloudcut_name LIKE CONCAT('%',#{mesBuildingCloudcutJobDTO.cloudcutName},'%')
+      </if>
+      <if test="mesBuildingCloudcutJobDTO.workshopId != null and mesBuildingCloudcutJobDTO.workshopId != ''">
+          AND mbcj.workshop_id = #{mesBuildingCloudcutJobDTO.workshopId}
+      </if>
+    </select>
+    <select id="teamList" resultType="com.hzchum.scim.mes.building.core.api.pojo.vo.scheduling.MesBuildingCloudcutJobVO">
+      SELECT
+        mbcj.workshop_id AS workshopId,
+        mbw.name AS workshopName
+      FROM
+        mes_building_cloudcut_job mbcj
+          LEFT JOIN mes_building_workshop mbw ON mbcj.workshop_id = mbw.id AND mbw.bool_delete_enum = 0
+      WHERE
+        mbcj.bool_delete_enum = 0
+      GROUP BY mbcj.workshop_id
+    </select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.SubcontractMonomerLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._do.SubcontractMonomerLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="subcontract_order_id" property="subcontractOrderId"/>
+        <result column="subcontract_class_id" property="subcontractClassId"/>
+        <result column="bool_settlement_status" property="boolSettlementStatus"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, subcontract_order_id, subcontract_class_id, bool_settlement_status, monomer_id, project_id, supplier_id, supplier_name
+    </sql>
+
+    <select id="listByCondition" resultType="com.hzchum.scim.scm.core.api.pojo.dto.SubOrderMonomerDTO">
+        SELECT monomer_id,
+               pm.`name` AS monomer_name
+        FROM `scm_subcontract_monomer_link` as sml
+                 LEFT JOIN plan_monomer AS pm
+                           ON sml.monomer_id = pm.id AND pm.bool_delete_enum = 0
+        WHERE sml.bool_delete_enum = 0
+            AND sml.bool_settlement_status = 0
+            AND sml.project_id = #{projectId}
+            AND sml.supplier_id = #{supplierId}
+            AND sml.subcontract_class_id = #{subcontractClassId}
+    </select>
+
+</mapper>

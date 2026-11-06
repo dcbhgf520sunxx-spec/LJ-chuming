@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingProduceInspectionTeamReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingProduceInspectionTeamReport">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="task_id" property="taskId" />
+        <result column="process_id" property="processId" />
+        <result column="scheduling_id" property="schedulingId" />
+        <result column="product_id" property="productId" />
+        <result column="inspection_quantity" property="inspectionQuantity" />
+        <result column="team_id" property="teamId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, process_id, scheduling_id, product_id, product_type,inspection_quantity, team_id, user_id
+    </sql>
+    <select id="inspectionReportSourceList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.report.InspectionReportSourceDO">
+        SELECT
+            report.id,
+            report.create_time date,
+            report.inspection_quantity quantity,
+            report.process_id,
+            report.bool_adopt_enum,
+            report.team_id,
+            user.`name` user_name,
+            leader.`name` leaderName,
+            factory.`name` 'factory.name',
+            workshop.`name` 'workshop.name',
+            production_line.`name` 'production_line.name',
+            process.`name` process_name
+        FROM
+            mes_building_produce_inspection_team_report report
+            LEFT JOIN mes_building_task_process task_process ON report.task_process_id=task_process.id
+            LEFT JOIN mes_building_factory factory ON factory.id=task_process.factory_id
+            LEFT JOIN mes_building_workshop workshop ON workshop.id=task_process.workshop_id
+            LEFT JOIN mes_building_production_line production_line ON production_line.id=task_process.production_line_id
+            LEFT JOIN mes_building_process process ON process.id=report.process_id
+            LEFT JOIN sys_user user ON user.id=report.user_id
+            LEFT JOIN mes_building_team_user_link team_user_link ON team_user_link.team_id=report.team_id  AND team_user_link.bool_delete_enum=FALSE AND team_user_link.bool_leader_enum=TRUE
+            LEFT JOIN sys_user leader ON leader.id=team_user_link.user_id
+        <where>
+            report.bool_delete_enum=FALSE AND report.product_id=#{id} AND report.product_type=#{prodcutType}
+        </where>
+        ORDER BY task_process.sequence
+    </select>
+    <select id="inspectionAnalysisList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.report.InspectionAnalysisDO">
+        SELECT
+            a.`month`,
+            IFNULL( sum( a.inspection_quantity ), 0 ) quantity,
+            IFNULL( sum( a.qhse_quantity ), 0 ) problem_quantity
+        FROM
+            (
+                SELECT
+                    a.`month`,
+                    a.product_id,
+                    max( a.inspection_quantity ) inspection_quantity,
+                    max( a.qhse_quantity ) qhse_quantity
+                FROM
+                    (
+                        SELECT
+                            DATE_FORMAT( report.create_time, "%m" ) `month`,
+                            report.process_id,
+                            report.product_id,
+                            IFNULL( sum( report.inspection_quantity ), 0 ) inspection_quantity,
+                            IFNULL( sum( qhse.qhse_quantity ), 0 ) qhse_quantity
+                        FROM
+                            mes_building_produce_inspection_team_report report
+                                LEFT JOIN mes_building_produce_qhse_team_report qhse ON report.id = qhse.inspection_team_report_id
+                                AND qhse.bool_delete_enum = 0
+                        WHERE
+                            report.bool_delete_enum = 0
+                          AND DATE_FORMAT( report.create_time, "%Y" )= DATE_FORMAT( #{dateTime}, "%Y" )
+                          AND report.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+                        GROUP BY
+                            month,
+                            report.product_id,
+                            report.process_id
+                    ) a
+                GROUP BY
+                    a.`month`,
+                    a.product_id
+            ) a
+        GROUP BY
+            a.`month`
+    </select>
+    <select id="personal" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report.ReportDataDTO">
+        SELECT
+            rep.inspection_quantity quantity,
+            rep.task_type_enum productType,
+            rep.user_id userId,
+            u.name userName,
+            rep.product_id productId,
+            IF( isnull( qhse.id ), 0, 1 ) boolenQhse,
+            CASE
+                rep.task_type_enum
+                WHEN  ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()} THEN
+                    art.net_weight
+                WHEN  ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()} THEN
+                    ass.net_weight
+                END weight
+        FROM
+            mes_building_produce_inspection_team_report rep
+                LEFT JOIN mes_building_qhse_inspection_link qhse ON rep.id = qhse.inspection_report_id
+                AND qhse.bool_delete_enum = 0
+                LEFT JOIN tech_artifact art ON rep.product_id = art.id
+                LEFT JOIN tech_assemble ass ON rep.product_id = ass.id
+                AND ass.bool_delete_enum = 0
+                LEFT JOIN sys_user u ON u.id=rep.user_id AND u.bool_delete_enum=0
+        LEFT JOIN mes_building_task task ON rep.task_id=task.id AND task.bool_delete_enum=0
+        WHERE
+            rep.bool_delete_enum = 0
+        AND art.bool_delete_enum = 0
+        <if test="time!=null">
+            AND rep.in_year_month_date  =  date_format(#{time}, '%Y-%m')
+        </if>
+        <if test="userIds != null and userIds.size() > 0">
+            and rep.user_id in
+            <foreach collection="userIds" open="(" separator="," close=")" item="userId">
+                #{userId}
+            </foreach>
+        </if>
+        <if test="workShopId!=null">
+            AND task.workshop_id=#{workShopId}
+        </if>
+
+    </select>
+    <select id="listInspectionTeamByProcessIdAndProductIdAndType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.projectKanban.InspectionTeamRecourseDTO">
+        SELECT
+            report.team_id,
+            report.inspection_quantity quantity,
+            report.create_time,
+            report.bool_adopt_enum,
+            report.user_id,
+            u.`name` user_name
+        FROM
+            mes_building_produce_inspection_team_report report
+                LEFT JOIN sys_user u ON report.user_id = u.id
+        WHERE
+            report.bool_delete_enum = 0
+          AND report.process_id = #{processId}
+          AND report.product_id = #{productId}
+          AND report.task_type_enum =#{type}
+        ORDER BY report.create_time DESC , report.team_id ASC
+    </select>
+
+    <select id="listInspectionInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.projectKanban.InspectionTeamRecourseDTO">
+        SELECT
+            report.team_id,
+            report.inspection_quantity quantity,
+            report.create_time,
+            report.bool_adopt_enum,
+            report.user_id,
+            report.process_id,
+            u.`name` user_name,
+            gp.id 'groupId',
+                gp.name 'groupName',
+                line.name 'productLineName',
+            taskOrder.order_number
+        FROM
+            mes_building_produce_inspection_team_report report
+                LEFT JOIN sys_user u ON report.user_id = u.id
+                left join mes_building_groups gp on report.group_id = gp.id
+                left join mes_building_production_line line on gp.production_line_id = line.id
+                LEFT JOIN mes_building_task task on task.id = report.task_id and task.bool_delete_enum = 0
+                LEFT JOIN mes_building_task_order taskOrder on taskOrder.id = task.task_order_id and taskOrder.bool_delete_enum = 0
+        WHERE
+            report.bool_delete_enum = 0
+        <if test="processIds != null and processIds.size() != 0">
+        AND report.process_id in
+        <foreach collection="processIds" item="processId" open="(" close=")" separator=",">
+            #{processId}
+        </foreach>
+        </if>
+          AND report.product_id = #{productId}
+          AND report.task_type_enum =#{type}
+        <if test="assitLinesIds != null and assitLinesIds.size > 0">
+            or (report.bool_delete_enum = 0
+            <if test="processIds != null and processIds.size() != 0">
+                AND report.process_id in
+                <foreach collection="processIds" item="processId" open="(" close=")" separator=",">
+                    #{processId}
+                </foreach>
+            </if>
+            AND report.product_id = #{productId}
+            AND report.task_type_enum =#{type}
+            AND report.production_line_id in
+            <foreach collection="assitLinesIds" item="assitLinesId" open="(" close=")" separator=",">
+                #{assitLinesId}
+            </foreach>
+            )
+        </if>
+        ORDER BY report.create_time DESC , report.team_id ASC
+    </select>
+
+    <select id="listInspectionInfoAV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.projectKanban.InspectionTeamRecourseDTO">
+        SELECT
+        report.team_id,
+        report.inspection_quantity quantity,
+        report.create_time,
+        report.bool_adopt_enum,
+        report.user_id,
+        u.`name` user_name,
+        line.name 'productLineName',
+        taskOrder.order_number,
+        report.number
+        FROM
+        mes_building_produce_inspection_team_report report
+        LEFT JOIN sys_user u ON report.user_id = u.id
+        left join mes_building_production_line line on report.production_line_id = line.id
+        LEFT JOIN mes_building_task task on task.id = report.task_id and task.bool_delete_enum = 0
+        LEFT JOIN mes_building_task_order taskOrder on taskOrder.id = task.task_order_id and taskOrder.bool_delete_enum = 0
+        WHERE
+        report.bool_delete_enum = 0
+        AND report.process_id = #{processId}
+        AND report.product_id = #{productId}
+        AND report.task_type_enum =#{type}
+        <if test="assitLinesIds != null and assitLinesIds.size > 0">
+            or (report.bool_delete_enum = 0
+            AND report.process_id = #{processId}
+            AND report.product_id = #{productId}
+            AND report.task_type_enum =#{type}
+            AND report.production_line_id in
+            <foreach collection="assitLinesIds" item="assitLinesId" open="(" close=")" separator=",">
+                #{assitLinesId}
+            </foreach>
+            )
+        </if>
+        ORDER BY report.create_time DESC , report.team_id ASC
+    </select>
+    <select id="listReports"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingProduceInspectionTeamReport">
+        SELECT
+        *
+        FROM
+        mes_building_produce_inspection_team_report
+        WHERE
+        <if test="numberInfoDTOS!=null and numberInfoDTOS.size() != 0">
+            <foreach collection="numberInfoDTOS" item="numberInfo" separator="or" open="(" close=")">
+                ( product_id= #{numberInfo.productId}
+
+
+
+
+                and number=#{numberInfo.number})
+            </foreach>
+        </if>
+        and bool_delete_enum = 0
+        and task_type_enum=#{taskType}
+    </select>
+
+    <select id="findInspectCount"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingInspectCountDTO">
+        SELECT
+        cp.serial_number 'project.serialNumber',
+        cp.short_name 'project.shortName',
+        pm.`name` monomerName,
+        area.`name` areaName,
+        pro.task_type_enum,
+<!--        CASE-->
+<!--        pro.task_type_enum-->
+<!--        WHEN 2 THEN-->
+        art.serial_number,
+<!--        WHEN 16 THEN-->
+<!--        ass.serial_number-->
+<!--        END serial_number,-->
+        itr.task_process_id 'taskProcessId',
+        itr.number 'number',
+        itr.inspection_quantity,
+        tulink.user_name,
+        shop.`name` 'workshopName',
+        itr.report_time 'passageTime',
+        itr.update_time,
+        su.name inspectUserName
+        FROM
+        mes_building_produce_inspection_team_report itr
+        LEFT JOIN mes_building_task_process pro ON itr.task_process_id = pro.id
+        LEFT JOIN contract_project cp ON pro.project_id = cp.id
+        AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer pm ON pro.monomer_id = pm.id
+        AND pm.bool_delete_enum = 0
+        LEFT JOIN plan_area area ON pro.area_id = area.id
+        AND area.bool_delete_enum = 0
+        LEFT JOIN tech_artifact art ON pro.product_id = art.id
+        AND art.bool_delete_enum = 0
+        AND pro.task_type_enum = 2
+<!--        LEFT JOIN tech_assemble ass ON pro.product_id = ass.id-->
+<!--        AND ass.bool_delete_enum = 0-->
+<!--        AND pro.task_type_enum = 16-->
+        LEFT JOIN mes_building_workshop shop ON pro.workshop_id = shop.id
+        AND shop.bool_delete_enum = 0
+        LEFT JOIN mes_building_process pss ON itr.process_id = pss.id
+        AND pss.bool_delete_enum = 0
+        LEFT JOIN mes_building_team_user_link tulink ON itr.team_id = tulink.team_id and tulink.bool_delete_enum = 0
+        LEFT JOIN sys_user su ON itr.user_id = su.id and su.bool_delete_enum = 0
+        WHERE
+        itr.bool_delete_enum = 0
+<!--        and  itr.task_type_enum = 2-->
+        <if test="conditionalMap != null and conditionalMap.size() > 0">
+                and
+                <foreach collection="conditionalMap" index = "key" item="value" open="(" close=")" separator="or">
+                    (
+                    itr.task_process_id = #{key}
+                    and number in
+                    <foreach collection="value"  item="val" open="(" close=")" separator=",">
+                        #{val}
+                    </foreach>
+                    )
+                </foreach>
+        </if>
+    </select>
+
+    <select id="findInspectCountByParam"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingInspectCountDTO">
+        SELECT
+        cp.serial_number 'project.serialNumber',
+        cp.short_name 'project.shortName',
+        pm.`name` monomerName,
+        area.`name` areaName,
+        itr.task_type_enum,
+<!--        CASE-->
+<!--        pro.task_type_enum-->
+<!--        WHEN 2 THEN-->
+        art.id productId,
+<!--        WHEN 16 THEN-->
+<!--        ass.id-->
+<!--        END productId,-->
+<!--        CASE-->
+<!--        pro.task_type_enum-->
+<!--        WHEN 2 THEN-->
+        art.serial_number,
+<!--        WHEN 16 THEN-->
+<!--        ass.serial_number-->
+<!--        END serial_number,-->
+        itr.inspection_quantity inspectionQuantity,
+        itr.task_process_id 'taskProcessId',
+        itr.number,
+        tulink.user_name 'team.name',
+        shop.`name` 'workshopName',
+        pss.`name` 'processName',
+        itr.report_time 'reportDate',
+        itr.update_time 'passageTime',
+        su.name inspectUserName
+        FROM
+        mes_building_produce_inspection_team_report itr
+        LEFT JOIN mes_building_task_process pro ON itr.task_process_id = pro.id
+        LEFT JOIN contract_project cp ON pro.project_id = cp.id
+        AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer pm ON pro.monomer_id = pm.id
+        AND pm.bool_delete_enum = 0
+        LEFT JOIN plan_area area ON pro.area_id = area.id
+        AND area.bool_delete_enum = 0
+        LEFT JOIN tech_artifact art ON pro.product_id = art.id
+        AND art.bool_delete_enum = 0
+        AND pro.task_type_enum = 2
+<!--        LEFT JOIN tech_assemble ass ON pro.product_id = ass.id-->
+<!--        AND ass.bool_delete_enum = 0-->
+<!--        AND pro.task_type_enum = 16-->
+        LEFT JOIN mes_building_workshop shop ON pro.workshop_id = shop.id
+        AND shop.bool_delete_enum = 0
+        LEFT JOIN mes_building_process pss ON itr.process_id = pss.id
+        AND pss.bool_delete_enum = 0
+        LEFT JOIN mes_building_team_user_link tulink ON itr.team_id = tulink.team_id and tulink.bool_delete_enum = 0 and tulink.bool_leader_enum = 1
+        LEFT JOIN sys_user su ON itr.user_id = su.id and su.bool_delete_enum = 0
+        WHERE
+        itr.bool_delete_enum = 0
+        and itr.task_type_enum = 2
+        <if test="projectId !=null">
+            and pro.project_id = #{projectId}
+        </if>
+        <if test="startDate != null">
+            AND itr.in_year_month_day_date >= date_format(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            AND itr.in_year_month_day_date &lt;= date_format(#{endDate}, '%Y-%m-%d')
+        </if>
+        <if test="workShopId != null">
+            and shop.id = #{workShopId}
+        </if>
+        <if test="insepectUserId != null">
+            and itr.user_id = #{insepectUserId}
+        </if>
+    </select>
+
+    <select id="findInspectReportRealtime"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.InspectToDayListDTO">
+        SELECT
+        DATE_FORMAT( tr.inspect_report_time, '%H:%i' ) `time`,
+        wk.`name` workShopName,
+        tul.user_name teamName,
+        pro.`name` processName,
+        cp.short_name projectName,
+        CASE
+        WHEN tr.task_type_enum = 2 THEN art.serial_number
+        WHEN tr.task_type_enum = 16 THEN ass.serial_number
+        END serialNumber,
+        sum(tr.inspection_quantity) quantity
+        FROM
+        mes_building_produce_inspection_team_report tr
+        LEFT JOIN mes_building_task_process tp ON tr.task_process_id = tp.id
+        AND tp.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop wk ON tp.workshop_id = wk.id
+        AND wk.bool_delete_enum = 0
+        LEFT JOIN mes_building_team_user_link tul ON tr.team_id = tul.team_id
+        AND tul.bool_delete_enum = 0
+        AND tul.bool_leader_enum = 0
+        LEFT JOIN mes_building_process pro ON tr.process_id = pro.id
+        AND pro.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON tp.project_id = cp.id
+        AND cp.bool_delete_enum = 0
+        LEFT JOIN tech_artifact art ON tr.product_id = art.id
+        AND art.bool_delete_enum = 0
+        AND tr.task_type_enum = 2
+        LEFT JOIN tech_assemble ass ON tr.product_id = ass.id
+        AND ass.bool_delete_enum = 0
+        AND tr.task_type_enum = 16
+        WHERE
+        tr.bool_delete_enum = 0
+        AND tr.inspect_report_time > DATE_FORMAT(CURDATE(), '%Y-%m-00 00:00:00' )
+        <if test="workShopId != null">
+            and  tp.workshop_id = #{workShopId}
+        </if>
+        GROUP BY
+        `time`,
+        wk.`name`,
+        tul.user_name,
+        pro.`name`,
+        cp.short_name,
+        serialNumber
+    </select>
+
+    <select id="findInspectCountGroupMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.MonthlyFirstPassRateDTO">
+        SELECT
+            DATE_FORMAT(tr.create_time,'%Y-%m') date,
+            count(*) InspectQuantity
+        FROM
+            mes_building_produce_inspection_team_report tr
+            where tr.bool_delete_enum = 0
+        GROUP BY
+            DATE_FORMAT(tr.create_time,'%Y-%m');
+    </select>
+
+    <select id="findInspectCountByWorkshopId" resultType="java.lang.Integer">
+        select
+            count(*)
+        from mes_building_produce_inspection_team_report tr
+        left join mes_building_task task on tr.task_id = task.id and task.bool_delete_enum = 0
+        where tr.bool_delete_enum = 0
+        and tr.create_time > date_format(CURDATE(),'%Y-%m-%d')
+        <if test="workShopId != null">
+            and task.workshop_id = #{workShopId}
+        </if>
+
+    </select>
+
+    <select id="getInspectionQuantity" resultType="java.lang.Integer">
+        select
+            IFNULL(sum(tr.inspection_quantity),0)
+        from mes_building_produce_inspection_team_report tr
+        left join mes_building_task_process task on tr.task_id = task.id and task.bool_delete_enum = 0
+        where tr.bool_delete_enum = 0
+        <if test="workshopId != null">
+            and task.workshop_id = #{workshopId}
+        </if>
+        <if test="teamId != null">
+            and tr.team_id = #{teamId}
+        </if>
+    </select>
+</mapper>

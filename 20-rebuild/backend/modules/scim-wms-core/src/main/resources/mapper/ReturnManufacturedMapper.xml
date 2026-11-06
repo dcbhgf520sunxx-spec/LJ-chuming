@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.ReturnManufacturedMapper">
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `wms_return_manufactured`
+        WHERE DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.ReturnManufactured">
+        select
+        wrm.*
+        from wms_return_manufactured wrm
+        left join wms_return_detail_manufactured wrdm on wrm.id = wrdm.return_manufactured_id and wrdm.bool_delete_enum = 0
+        where wrm.bool_delete_enum = 0
+        <if test="serialNumber != null and serialNumber != ''">
+            and wrm.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="personName != null and personName != ''">
+            and wrm.applicant_name like concat('%',#{personName},'%')
+        </if>
+        <if test="basicClass != null and basicClass != ''">
+            and wrdm.basic_class = #{basicClass}
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and wrdm.project_id = #{projectId}
+        </if>
+        <if test="applicationTime != null and applicationTime.size() > 0">
+            <if test="applicationTime[0] != null">
+                and wrm.applicant_time &gt;= #{applicationTime[0]}
+            </if>
+            <if test="applicationTime[1] != null">
+                and wrm.applicant_time &lt;= #{applicationTime[1]}
+            </if>
+        </if>
+        <if test="reviewPassTime != null and reviewPassTime.size() > 0">
+            <if test="reviewPassTime[0] != null">
+                and wrm.review_pass_time &gt;= #{reviewPassTime[0]}
+            </if>
+            <if test="reviewPassTime[1] != null">
+                and wrm.review_pass_time &lt;= #{reviewPassTime[1]}
+            </if>
+        </if>
+        <if test="reviewStatus != null and reviewStatus != ''">
+            and wrdm.review_status = #{reviewStatus}
+        </if>
+        group by wrm.id
+    </select>
+</mapper>

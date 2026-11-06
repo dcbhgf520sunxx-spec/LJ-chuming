@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.ProcessInstructionLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.ProcessInstructionLink">
+        <id column="id" property="id" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="version" property="version" />
+        <result column="create_user_id" property="createUserId" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="product_type" property="productType" />
+        <result column="data_type" property="dataType" />
+        <result column="drawing_id" property="drawingId" />
+        <result column="file_name" property="fileName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum,
+        create_time,
+        update_time,
+        version,
+        id, create_user_id, project_id, monomer_id, area_id, serial_number, product_type, data_type, drawing_id, file_name
+    </sql>
+
+</mapper>

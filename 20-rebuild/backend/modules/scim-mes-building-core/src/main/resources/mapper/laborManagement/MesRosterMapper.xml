@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.laborManagement.MesRosterMapper">
+
+    <select id="rosterList" parameterType="com.hzchum.scim.mes.building.core.api.pojo._dtoParam.laborManagement.MesRosterQuery"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.laborManagement.MesRosterDTO">
+        SELECT
+            mr.*,
+            ss.name AS supplier_name,
+            su.phone,
+            su.username,
+            mr.behavior_total_score,
+            IFNULL(t1.deducted_behavior_score, 0) AS deducted_behavior_score,
+            mr.behavior_total_score - IFNULL(t1.deducted_behavior_score, 0) AS remaining_behavior_score,
+            IFNULL(t1.penalty, 0) as cumulative_penalty
+        FROM mes_roster mr
+        LEFT JOIN scm_supplier ss ON ss.bool_delete_enum = 0 AND ss.id = mr.supplier_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mr.user_id
+        LEFT JOIN (
+            SELECT
+                mbq.duty_id,
+                SUM(
+                    CASE
+                        WHEN mbq.type IN (1, 8) THEN mqcc.behavior_score
+                        WHEN mbq.type IN (2, 4) THEN mscc.behavior_score
+                        ELSE 0
+                    END
+                ) AS deducted_behavior_score,
+                SUM(
+                    CASE
+                        WHEN mbq.type IN (1, 8) THEN mqcc.penalty
+                        WHEN mbq.type IN (2, 4) THEN mscc.penalty
+                        ELSE 0
+                    END
+                ) AS penalty
+            FROM mes_building_qhse mbq
+            LEFT JOIN mes_quality_class_config mqcc ON mqcc.bool_delete_enum = 0 AND mqcc.id = mbq.level_two_type AND mbq.type IN (1, 8)
+            LEFT JOIN mes_safety_class_config mscc ON mscc.bool_delete_enum = 0 AND mscc.id = mbq.level_two_type AND mbq.type IN (2, 4)
+            WHERE mbq.bool_delete_enum = 0 AND YEAR(mbq.create_time) = YEAR(NOW())
+            GROUP BY mbq.duty_id
+        ) t1 ON t1.duty_id = mr.user_id
+        WHERE mr.bool_delete_enum = 0
+        <if test="id != null">
+            AND mr.id = #{id}
+        </if>
+        <if test="status != null">
+            AND mr.status = #{status}
+        </if>
+        <if test="nation != null">
+            AND mr.nation = #{nation}
+        </if>
+        <if test="sex != null">
+            AND mr.sex = #{sex}
+        </if>
+        <if test="name != null">
+            <bind name="nameLike" value="'%' + name + '%'"/>
+            AND mr.name LIKE #{nameLike}
+        </if>
+        <if test="idNumber != null and idNumber != ''">
+            <bind name="idNumberLike" value="'%' + idNumber + '%'"/>
+            AND mr.id_number LIKE #{idNumberLike}
+        </if>
+        <if test="phone != null and phone != ''">
+            <bind name="phoneLike" value="'%' + phone + '%'"/>
+            AND su.phone LIKE #{phoneLike}
+        </if>
+        <if test="supplierId != null">
+            AND mr.supplier_id = #{supplierId}
+        </if>
+        <if test="userId != null">
+            AND mr.user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="nationList" resultType="java.lang.String">
+            SELECT DISTINCT
+                mr.nation
+            FROM mes_roster mr
+            WHERE mr.bool_delete_enum = 0
+    </select>
+
+</mapper>

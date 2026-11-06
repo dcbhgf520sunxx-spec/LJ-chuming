@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.PlanMonomerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.PlanMonomer">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="date" property="date"/>
+        <result column="project_id" property="projectId"/>
+        <result column="sort" property="sort"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, date, project_id,  sort, remark
+    </sql>
+
+    <select id="listByProjectIdAndName" resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanMonomerDTO">
+        SELECT *
+        FROM plan_monomer
+        WHERE bool_delete_enum = 0
+
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="name != null and name != ''">
+            AND name LIKE concat('%',#{name},'%')
+        </if>
+        order by sort ASC
+    </select>
+
+    <select id="listContentByProjectId" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProjectContent"
+            parameterType="long">
+        select pc.*
+        from contract_project_content_link as pcl,
+             contract_project_content as pc
+
+        where pc.id = pcl.project_content_id
+          and pc.no!=null
+          and pc.no &gt; 0
+          and pcl.project_id = #{projectId}
+          and pc.bool_delete_enum = false
+          and pcl.bool_delete_enum = false
+        order by pc.no asc
+    </select>
+
+    <!--查询单体下的产品类型列表-->
+    <select id="listProductTypeByMonomerId" parameterType="long" resultType="map">
+        select pd.product_type as type,
+               pc.name         as name
+        from plan_area as pd,
+             contract_project_content as pc
+
+        where pd.monomer_id = #{monomerId}
+          and pd.product_type = pc.no
+
+          and pd.bool_delete_enum = 0
+          and pc.bool_delete_enum = 0
+        order by pd.product_type asc
+    </select>
+
+
+    <select id="selectMinMaxDate" resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanMaxMinDateDTO">
+        SELECT
+        MIN(start_date) min_date ,
+        MAX(end_date) max_date
+        FROM plan_monomer
+        WHERE bool_delete_enum = 0
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+    </select>
+
+    <select id="selectNoDeepenedPersonId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanMonomerDTO">
+        SELECT
+        id,
+        user_id
+        FROM
+        plan_monomer
+        WHERE
+        id NOT IN ( SELECT monomer_id FROM sys_monomer_user_link WHERE project_id = #{projectId} AND bool_delete_enum =0)
+        AND project_id = #{projectId};
+    </select>
+
+    <select id="yearOrderTon" resultType="java.lang.Integer">
+        select
+            ifnull( sum(b.mete), 0 ) as ton
+        from
+            plan_monomer a
+            left join plan_monomer_detail b on b.bool_delete_enum = 0
+            and a.id = b.monomer_id
+        where
+            a.bool_delete_enum = 0
+          and date_format(a.create_time, '%Y') = date_format(CURDATE(), '%Y')
+    </select>
+
+    <select id="getListByProjectId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectPlanMonomerDTO">
+        SELECT
+            pm.*
+        FROM plan_monomer pm
+        WHERE pm.bool_delete_enum = FALSE
+        <if test="projectId != null">
+            AND pm.project_id = #{projectId}
+        </if>
+        order by pm.sort
+    </select>
+
+
+</mapper>

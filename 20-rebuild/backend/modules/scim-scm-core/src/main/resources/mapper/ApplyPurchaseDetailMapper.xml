@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.ApplyPurchaseDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._do.ApplyPurchaseDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="apply_purchase_id" property="applyPurchaseId" />
+        <result column="classify_id" property="classifyId" />
+        <result column="classify_name" property="classifyName" />
+        <result column="basic_class" property="basicClass" />
+        <result column="specification" property="specification" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="brand" property="brand" />
+        <result column="quantity" property="quantity" />
+        <result column="mete" property="mete" />
+        <result column="arrival_time" property="arrivalTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, apply_purchase_id, classify_id, classify_name, basic_class, specification, length, width, thickness, brand, quantity, mete, arrival_time
+    </sql>
+    <update id="updateStatus">
+        update scm_apply_purchase_detail
+        set bool_purchase = #{status} ,
+            product_mete = product_mete - #{mete},
+            product_quantity = product_quantity - #{quantity}
+            where id = #{detailId}
+    </update>
+
+    <select id="getTotalMete" resultType="decimal">
+        SELECT sum(ifnull(mete,0))
+        FROM scm_apply_purchase_detail
+        WHERE bool_delete_enum = 0
+        and apply_purchase_id = #{id}
+        and material_inventory_id is null
+    </select>
+</mapper>

@@ -1,0 +1,27 @@
+package ${package.BizImpl};
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import org.springframework.stereotype.Service;
+import com.hzchum.pangu.common.util.IBizImpl;
+import ${package.Biz}.${table.bizName};
+
+/**
+ * <p>
+ * $!{table.comment} Biz服务实现类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Service
+#if(${kotlin})
+open class ${table.bizImplName} : ${superBizImplClass}<${superServiceClass},${table.mapperName}, ${entity}>(), ${table.bizName} {
+
+}
+#else
+public class ${table.bizImplName} extends IBizImpl<${table.serviceName},${table.mapperName}, ${entity}> implements ${table.bizName} {
+
+}
+#end

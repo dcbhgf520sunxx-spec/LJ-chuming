@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessPriceDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessPriceDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="business_price_id" property="businessPriceId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_id" property="productId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="pricing_manner_enum" property="pricingMannerEnum"/>
+        <result column="pricing_unit_type_enum" property="pricingUnitTypeEnum"/>
+        <result column="pricing_weight_type_enum" property="pricingWeightTypeEnum"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="audit_status" property="auditStatus"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, business_price_id, project_id, monomer_id, area_id, product_type, product_id, quantity, pricing_manner_enum, pricing_unit_type_enum, pricing_weight_type_enum, unit_price, total_price, audit_status
+    </sql>
+
+    <select id="selectListUnPricingArtifact"
+            resultType="com.hzchum.scim.business.core.api.pojo.dto.BusinessBriceProductDTO">
+        select
+        a.id product_id,
+        2 product_type,
+        a.project_id 'project.id',
+        c.name 'project.name',
+        c.short_name 'project.short_name',
+        c.serial_number 'project.serial_number',
+        a.monomer_id 'monomer.id',
+        m.name 'monomer.name',
+        a.area_id 'area.id',
+        ar.name 'area.name',
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.material,
+        a.quantity - ifnull(sum(d.quantity), 0) as quantity,
+        a.length,
+        (a.quantity - ifnull(sum(d.quantity), 0)) * a.length / 1000 as total_length,
+        a.net_weight,
+        (a.quantity - ifnull(sum(d.quantity), 0)) * a.net_weight as total_net_weight,
+        a.gross_weight,
+        (a.quantity - ifnull(sum(d.quantity), 0)) * a.gross_weight as total_gross_weight,
+        a.drawing_weight,
+        (a.quantity - ifnull(sum(d.quantity), 0)) * a.drawing_weight as drawing_total_weight,
+        a.surface_area / 1000000,
+        (a.quantity - ifnull(sum(d.quantity), 0)) * a.surface_area / 1000000 as total_area
+        from tech_artifact as a
+        left join business_price_detail as d on a.id = d.product_id
+        and d.bool_delete_enum = 0
+        and d.product_type = 2
+        and d.branch_company_id = #{branchCompanyId}
+        and d.audit_status in (1, 2)
+        left join contract_project as c on a.project_id = c.id
+        left join plan_monomer as m on a.monomer_id = m.id
+        left join plan_area as ar on a.area_id = ar.id
+        where a.bool_delete_enum = 0
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like concat('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and a.specification like concat('%', #{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            and a.material like concat('%', #{material},'%')
+        </if>
+        group by a.id
+        having quantity > 0
+        order by a.id
+    </select>
+
+    <select id="selectListUnPricingEnclosure"
+            resultType="com.hzchum.scim.business.core.api.pojo.dto.BusinessBriceProductDTO">
+        select
+        e.id as product_id,
+        4 product_type,
+        e.project_id 'project.id',
+        c.name 'project.name',
+        c.short_name 'project.short_name',
+        c.serial_number 'project.serial_number',
+        <!-- e.monomer_id 'monomer.id',-->
+        <!-- m.name 'monomer.name',-->
+        e.enclosure_plan_id 'area.id',
+        ep.name 'area.name',
+        e.category,
+        <!--s.label as enclosure_type,-->
+        e.name,
+        e.serial_number,
+        e.plate as specification,
+        e.material,
+        e.quantity - ifnull(sum(d.quantity), 0) as quantity,
+        e.length,
+        (e.quantity - ifnull(sum(d.quantity), 0)) * e.length / 1000 as total_length,
+        e.width,
+        e.unfolded_width,
+        e.weight,
+        (e.quantity - ifnull(sum(d.quantity), 0)) * e.weight as total_weight,
+        e.surface_area / 1000000 as surface_area,
+        (e.quantity - ifnull(sum(d.quantity), 0)) * e.surface_area / 1000000 as total_area
+        from tech_enclosure as e
+        left join business_price_detail as d on e.id = d.product_id
+        and d.bool_delete_enum = 0
+        and d.product_type = 4
+        and d.branch_company_id = #{branchCompanyId}
+        and d.audit_status in (1, 2)
+        left join contract_project as c on e.project_id = c.id
+        left join enclosure_plan as ep on e.enclosure_plan_id = ep.id
+        <!-- left join plan_monomer as m on e.monomer_id = m.id-->
+        <!-- left join plan_area as ar on e.area_id = ar.id-->
+        <!-- left join sys_dictionary as s on e.dictionary_id = s.id-->
+        where e.bool_delete_enum = 0
+        <if test="projectId != null">
+            and e.project_id = #{projectId}
+        </if>
+<!--        <if test="monomerId != null">-->
+<!--            and e.monomer_id = #{monomerId}-->
+<!--        </if>-->
+<!--        <if test="areaId != null">-->
+<!--            and e.area_id = #{areaId}-->
+<!--        </if>-->
+        <if test="name != null and name != ''">
+            and e.name like concat('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and e.serial_number like concat('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and e.plate like concat('%', #{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            and a.material like concat('%', #{material},'%')
+        </if>
+        group by e.id
+        having quantity > 0
+        order by e.id
+    </select>
+
+    <select id="selectListUnPricingStandardPart"
+            resultType="com.hzchum.scim.business.core.api.pojo.dto.BusinessBriceProductDTO">
+        select
+        a.id as product_id,
+        8 product_type,
+        a.project_id 'project.id',
+        c.name 'project.name',
+        c.short_name 'project.short_name',
+        c.serial_number 'project.serial_number',
+        a.monomer_id 'monomer.id',
+        m.name 'monomer.name',
+        a.area_id 'area.id',
+        ar.name 'area.name',
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.use_property,
+        a.quantity - ifnull(sum(d.quantity), 0) as quantity,
+        a.measure_unit,
+        a.mete * (a.quantity - ifnull(sum(d.quantity), 0)) / a.quantity as mete,
+        a.accounting_unit
+        from tech_standard_part as a
+        left join business_price_detail as d on a.id = d.product_id
+        and d.bool_delete_enum = 0
+        and d.product_type = 8
+        and d.branch_company_id = #{branchCompanyId}
+        and d.audit_status in (1, 2)
+        left join contract_project as c on a.project_id = c.id
+        left join plan_monomer as m on a.monomer_id = m.id
+        left join plan_area as ar on a.area_id = ar.id
+        where a.bool_delete_enum = 0
+        <!-- and a.use_property = 1-->
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like concat('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and a.specification like concat('%', #{specification},'%')
+        </if>
+        <if test="!boolContractSignBody">
+            and a.use_property = 1
+        </if>
+        group by a.id
+        having quantity > 0
+        order by a.id
+    </select>
+
+</mapper>

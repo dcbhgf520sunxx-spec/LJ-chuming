@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.report_work.MesMaterialFeedingReportMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesMaterialFeedingReportDTO">
+        SELECT
+            mmfr.*,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            su.name AS user_name
+        FROM mes_material_feeding_report mmfr
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = mmfr.project_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mmfr.user_id
+        WHERE mmfr.bool_delete_enum = 0
+        <if test="startDate != null">
+            AND DATE_FORMAT(mmfr.create_time, '%Y-%m-%d') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND DATE_FORMAT(mmfr.create_time, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        <if test="workshopId != null">
+            AND FIND_IN_SET(#{workshopId}, mmfr.workshop_ids) > 0
+        </if>
+        <if test="projectId != null">
+            AND mmfr.project_id = #{projectId}
+        </if>
+        <if test="userName != null and userName != ''">
+            <bind name="userNameLike" value="'%' + userName + '%'"/>
+            AND su.name LIKE #{userNameLike}
+        </if>
+    </select>
+
+    <select id="detailById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesMaterialFeedingReportDTO">
+        SELECT
+            mmfr.*,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            su.name AS user_name
+        FROM mes_material_feeding_report mmfr
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = mmfr.project_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mmfr.user_id
+        WHERE mmfr.bool_delete_enum = 0 AND mmfr.id = #{id}
+    </select>
+
+    <select id="artifactClassList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesMaterialFeedingReportArtifactClassDTO">
+        SELECT
+            t.*,
+            ifnull(t1.cumulative_feeding_quantity / 1000, 0) AS cumulative_feeding_quantity
+        FROM (
+            SELECT
+                ta.project_id,
+                ta.monomer_id,
+                pm.name AS monomer_name,
+                ta.area_batch_id,
+                pab.name AS area_batch_name,
+                ta.structure_type,
+                IFNULL(sum(ta.quantity * ta.net_weight), 0) AS total_net_weight,
+                IFNULL(sum(ta.quantity * ta.gross_weight), 0) AS total_gross_weight
+            FROM tech_artifact ta
+            LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = 0 AND pm.id = ta.monomer_id
+            LEFT JOIN plan_area_batch pab ON pab.bool_delete_enum = 0 AND pab.id = ta.area_batch_id
+            WHERE ta.bool_delete_enum = 0
+            <if test="projectId != null">
+                AND ta.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND ta.monomer_id = #{monomerId}
+            </if>
+            <if test="areaBatchId != null">
+                AND ta.area_batch_id = #{areaBatchId}
+            </if>
+            <if test="structureType != null and structureType != ''">
+                <bind name="structureTypeLike" value="'%' + structureType + '%'"/>
+                AND ta.structure_type LIKE #{structureTypeLike}
+            </if>
+            GROUP BY ta.project_id, ta.monomer_id, ta.area_batch_id, ta.structure_type
+        ) t
+        LEFT JOIN (
+            SELECT
+            mmfrd.project_id,
+            mmfrd.monomer_id,
+            mmfrd.area_batch_id,
+            mmfrd.structure_type,
+            sum(mmfrd.feeding_quantity) AS cumulative_feeding_quantity
+            FROM mes_material_feeding_report_detail mmfrd
+            WHERE mmfrd.bool_delete_enum = 0
+            GROUP BY mmfrd.project_id, mmfrd.monomer_id, mmfrd.area_batch_id, mmfrd.structure_type
+        ) t1 ON t1.project_id = t.project_id AND t1.monomer_id = t.monomer_id AND t1.area_batch_id = t.area_batch_id AND t1.structure_type = t.structure_type
+    </select>
+
+</mapper>

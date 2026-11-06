@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsDeficitMapper">
+
+    <!-- 通用查询映射结果 -->
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+    </sql>
+    <select id="getCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM `wms_deficit`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <select id="getDeficitList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsDeficit">
+        select
+        *
+        from
+        wms_deficit
+        where
+        bool_delete_enum = 0
+        <if test=" reviewStatus != null">
+            and review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test=" deficitType != null">
+            and deficit_type = #{deficitType}
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt;= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and project_ids is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and project_ids IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="applicantName != null and applicantName != ''">
+            and applicant_name like CONCAT('%', #{applicantName},'%')
+        </if>
+    </select>
+
+</mapper>

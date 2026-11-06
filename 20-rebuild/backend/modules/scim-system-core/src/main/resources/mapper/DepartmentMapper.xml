@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.DepartmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.Department">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="introduction" property="introduction"/>
+        <result column="name" property="name"/>
+        <result column="pid" property="pid"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,version,bool_delete_enum,
+        id, introduction, name, pid
+    </sql>
+
+    <select id="getRootDeptId" resultType="long">
+        select min(id)
+        from sys_department
+        where bool_delete_enum = 0;
+    </select>
+
+    <select id="getDepartmentOne" resultType="com.hzchum.scim.system.core.api.pojo.dto.DeptUserTreeResponseVO">
+        SELECT id, name label, false isUser
+        FROM sys_department
+        WHERE pid = 0
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listIsEnabledByDeptId" parameterType="long" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE department_id = #{deptId}
+          AND is_enabled = 1
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listAll" resultType="com.hzchum.scim.system.core.api.pojo.dto.DepartmentTree">
+        SELECT *
+        FROM sys_department
+        WHERE bool_delete_enum = 0
+        order by sort, id
+    </select>
+
+    <select id="selectByUserId" parameterType="long" resultType="com.hzchum.scim.system.core.api.pojo._do.Department">
+        select d.*
+        from sys_user u
+                 left join sys_department d on u.department_id = d.id and d.bool_delete_enum = 0
+        where u.bool_delete_enum = 0
+          and u.id = #{userId}
+    </select>
+
+    <select id="checkName" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sys_department
+        WHERE name = #{name}
+          and bool_delete_enum = 0
+    </select>
+    <select id="getAllDepartmentList" resultType="com.hzchum.scim.system.core.api.pojo._do.Department">
+        SELECT * from sys_department
+    </select>
+    <select id="getDepartmentById" resultType="com.hzchum.scim.system.core.api.pojo._do.Department">
+        SELECT * from sys_department where id = #{id}
+    </select>
+
+</mapper>

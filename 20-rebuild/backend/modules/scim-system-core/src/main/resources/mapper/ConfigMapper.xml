@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.Config">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="value" property="value"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , code, name, value ,create_time ,update_time ,version ,bool_delete_enum
+    </sql>
+
+    <select id="listAll" resultType="com.hzchum.scim.system.core.api.pojo._do.Config">
+        SELECT *
+        FROM sys_config
+        WHERE bool_delete_enum = 0
+    </select>
+
+    <select id="getByCode" resultType="com.hzchum.scim.system.core.api.pojo._do.Config">
+        SELECT *
+        FROM sys_config
+        WHERE code = #{code}
+          and bool_delete_enum = 0
+    </select>
+
+    <delete id="remove">
+        DELETE FROM sys_config
+        WHERE
+            bool_delete_enum = 1
+          AND CODE = #{code};
+    </delete>
+
+</mapper>

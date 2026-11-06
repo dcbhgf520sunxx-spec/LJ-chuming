@@ -1,0 +1,1111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifact">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="bool_status_enum" property="boolStatusEnum"/>
+        <result column="bool_abnormal_enum" property="boolAbnormalEnum"/>
+        <result column="name" property="name"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="material" property="material"/>
+        <result column="quantity" property="quantity"/>
+        <result column="net_weight" property="netWeight"/>
+        <result column="total_net_weight" property="totalNetWeight"/>
+        <result column="gross_weight" property="grossWeight"/>
+        <result column="total_gross_weight" property="totalGrossWeight"/>
+        <result column="surface_area" property="surfaceArea"/>
+        <result column="drawing_number" property="drawingNumber"/>
+        <result column="remark" property="remark"/>
+        <result column="user_id" property="userId"/>
+        <result column="business_id" property="businessId"/>
+        <result column="produced_quantity" property="producedQuantity"/>
+        <result column="area_type" property="areaType"/>
+        <result column="spec_prefix" property="specPrefix"/>
+        <result column="serial_number_prefix" property="serialNumberPrefix"/>
+        <result column="smart_line_mark_word" property="smartLineMarkWord"/>
+        <result column="artifact_type" property="artifactType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, bool_status_enum,bool_abnormal_enum, name, serial_number, specification, length,
+        material, quantity, net_weight, total_net_weight, gross_weight, total_gross_weight, surface_area, drawing_number,
+        remark,user_id, business_id, produced_quantity,area_type,smart_line_mark_word,artifact_type
+    </sql>
+
+    <select id="selectListByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactResponseDTO">
+        select distinct
+        a.*,
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name',
+        batch.name AS areaBatchName,
+        u.name as user_name
+        FROM
+        tech_artifact AS a
+        left join sys_user as u on a.user_id = u.id and u.bool_delete_enum = 0
+        left join contract_project cp on a.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer m on a.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        left join plan_area_batch batch on a.area_batch_id = batch.id and batch.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+             INNER JOIN sys_monomer_user_link AS link ON m.id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            AND a.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="structureClassId != null">
+            AND a.structure_class_id = #{structureClassId}
+        </if>
+        <if test="status != null">
+            AND a.bool_status_enum = #{status}
+        </if>
+        <if test="areaType != null">
+            AND a.area_type = #{areaType}
+        </if>
+        <if test="name != null and name != '' ">
+            And a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND a.material like concat('%',#{material},'%')
+        </if>
+        <if test="boolSchedulingEnum != null">
+            AND a.bool_scheduling_enum = #{boolSchedulingEnum}
+        </if>
+        <if test="artifactType != null">
+            AND a.artifact_type = #{artifactType}
+        </if>
+
+    </select>
+
+
+    <select id="selectListByConditionV2" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactResponseDTO">
+        select distinct
+        a.id,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.length,
+        a.material,
+        a.net_weight,
+        a.gross_weight,
+        a.surface_area,
+        a.drawing_number,
+        a.remark,
+        a.bool_status_enum,
+        a.artifact_type,
+        a.bool_send_directly,
+        a.structure_class_id,
+        m.id AS monomerId,
+        es.quantity,
+        es.quantity * a.net_weight AS total_net_weight,
+        es.quantity * a.gross_weight AS total_gross_weight,
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name',
+        u.name as user_name,
+        es.batch_number
+        FROM
+        (
+        SELECT
+        ext.batch_number,
+        ext.artifact_id,
+        sum(quantity) quantity
+        FROM
+        tech_artifact_ext AS ext
+        WHERE
+        ext.bool_delete_enum = 0
+        <if test="batchNumber != null and batchNumber != ''">
+            and ext.batch_number like concat('%',#{batchNumber},'%')
+        </if>
+        <if test="areaId != null">
+            AND ext.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND ext.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        GROUP BY
+        ext.batch_number,
+        ext.artifact_id
+        ) AS es
+        LEFT JOIN tech_artifact a on a.id = es.artifact_id and a.bool_delete_enum = 0
+        left join sys_user as u on a.user_id = u.id and u.bool_delete_enum = 0
+        left join contract_project cp on a.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer m on a.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        where  a.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="structureClassId != null">
+            AND a.structure_class_id = #{structureClassId}
+        </if>
+        <if test="status != null">
+            AND a.bool_status_enum = #{status}
+        </if>
+        <if test="areaType != null">
+            AND a.area_type = #{areaType}
+        </if>
+        <if test="name != null and name != '' ">
+            And a.name like concat('%',#{name},'%')
+        </if>
+
+        <if test="specification != null and specification != ''">
+            AND a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND a.material like concat('%',#{material},'%')
+        </if>
+        <if test="boolSchedulingEnum != null">
+            AND a.bool_scheduling_enum = #{boolSchedulingEnum}
+        </if>
+        <if test="artifactType != null">
+            AND a.artifact_type = #{artifactType}
+        </if>
+    </select>
+
+    <select id="sumMete" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProductMeteDTO">
+        select ifnull(sum(quantity),0) quantity,
+        ifnull(sum(total_net_weight),0) mete,
+        ifnull(sum(total_gross_weight),0) mete_two
+        from tech_artifact
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="sumMeteGroupByProject"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupByProjectDTO">
+        select project_id,ifnull(sum(quantity),0) quantity, ifnull(sum(total_net_weight),0) mete
+        from tech_artifact
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        group by project_id
+    </select>
+
+    <select id="getWeightSum" parameterType="long"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactWeightSumDTO">
+        select IFNULL(sum(total_net_weight), 0)   as total_net_weight,
+               IFNULL(sum(total_gross_weight), 0) as total_gross_weight
+        from tech_artifact
+        where area_id = #{areaId}
+          and bool_delete_enum = 0
+    </select>
+    <select id="sumMeteGroupByMonomerId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        ifnull(sum(a.quantity), 0) quantity,
+        ROUND( ifnull( sum( a.surface_area * a.quantity ), 0 ) / 1000000, 4 ) AS total_area,
+        ROUND( ifnull( sum( a.top_flange_area * a.quantity ), 0 ) / 1000000, 4 ) AS top_flange_area,
+        ifnull(sum(a.total_drawing_weight), 0) AS total_drawing_weight,
+        ifnull(sum(a.total_net_weight), 0) total_net_weight,
+        ifnull(sum(a.total_gross_weight), 0) total_gross_weight
+
+        from tech_artifact a
+                 inner join plan_monomer m on m.id = a.monomer_id and m.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON m.id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+        group by m.id
+    </select>
+    <select id="sumMeteGroupByAreaId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select
+        d.`id` 'area.id',
+        d.`name` 'area.name',
+        ifnull(sum(a.quantity), 0) quantity,
+        ifnull(sum(a.total_net_weight), 0) total_net_weight,
+        ifnull(sum(a.total_gross_weight), 0) total_gross_weight,
+        ROUND( ifnull( sum( a.surface_area * a.quantity ), 0 ) / 1000000, 4 ) AS total_area,
+        ROUND( ifnull( sum( a.top_flange_area * a.quantity ), 0 ) / 1000000, 4 ) AS top_flange_area,
+        ifnull(sum(a.total_drawing_weight), 0) AS total_drawing_weight
+        from tech_artifact a
+                 inner join plan_area d on d.id = a.area_id and d.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON a.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+          and a.monomer_id = #{monomerId}
+        group by d.id
+    </select>
+
+
+    <select id="sumMeteGroupByAreaIds"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select
+        d.`id` 'area.id',
+        d.`name` 'area.name',
+        ifnull(sum(a.quantity), 0) quantity,
+        ifnull(sum(a.total_net_weight), 0) total_net_weight,
+        ifnull(sum(a.total_gross_weight), 0) total_gross_weight,
+        ROUND( ifnull( sum( a.surface_area * a.quantity ), 0 ) / 1000000, 4 ) AS total_area,
+        ROUND( ifnull( sum( a.top_flange_area * a.quantity ), 0 ) / 1000000, 4 ) AS top_flange_area,
+        ifnull(sum(a.total_drawing_weight), 0) AS total_drawing_weight
+        from tech_artifact a
+        inner join plan_area d on d.id = a.area_id and d.bool_delete_enum = 0
+        where a.bool_delete_enum = 0
+        <if test="areaIds != null and areaIds.size() > 0">
+            and a.area_id in
+            <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                #{areaId}
+            </foreach>
+        </if>
+        group by d.id
+    </select>
+
+
+    <select id="selectIdsByAreaId" resultType="java.lang.Long">
+        select id
+        from tech_artifact
+        where bool_delete_enum = 0
+          and area_id = #{areaId}
+    </select>
+    <select id="selectByIdIgnoreDelete" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechArtifact">
+        select *
+        from tech_artifact
+        where id = #{id}
+    </select>
+
+
+    <select id="selectArtifactByBim" resultType="com.hzchum.scim.plan.core.api.pojo.vo.BimArtifactVO">
+        select ta.*,
+        ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} As productType,
+        pa.name AS areaName,
+        m.name AS monomerName
+        from tech_artifact ta
+        LEFT JOIN plan_area pa on pa.id = ta.area_id
+        LEFT JOIN plan_monomer m on m.id = ta.monomer_id
+        where ta.bool_delete_enum = 0
+        <if test="areaIds != null and areaIds.size() != 0">
+            AND ta.area_id in
+            <foreach collection="areaIds" item="areaId" separator="," close=")" open="(">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null">
+            and ta.serial_number = #{serialNumber}
+        </if>
+        limit 1
+    </select>
+
+    <select id="selectBridgeArtifactByBim" resultType="com.hzchum.scim.plan.core.api.pojo.vo.BimBoxOrElementsVO">
+        select ta.*,
+        ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} As productType,
+        pa.name AS areaName,
+        m.name AS monomerName
+        from tech_artifact ta
+        LEFT JOIN plan_area pa on pa.id = ta.area_id
+        LEFT JOIN plan_monomer m on m.id = ta.monomer_id
+        where ta.bool_delete_enum = 0
+        <if test="areaIds != null and areaIds.size() != 0">
+            AND ta.area_id in
+            <foreach collection="areaIds" item="areaId" separator="," close=")" open="(">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null">
+            and ta.serial_number = #{serialNumber}
+        </if>
+        limit 1
+    </select>
+
+    <select id="selectProjectGroupBySpec"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.building.ComponentCrderInformationDTO">
+        SELECT sc.classification_name,
+               sc.id                                 classificationId,
+               ta.material,
+               ta.artifact_type,
+               IFNULL(sum(ta.quantity), 0)           quantity,
+               IFNULL(sum(ta.total_gross_weight), 0) totalGrossWeight,
+               IFNULL(sum(ta.total_net_weight), 0)   totalNetWeight
+        FROM (SELECT structure_class_id,
+                     material,
+                     production_line_type_enum,
+                     artifact_type,
+                     SUM(quantity)           quantity,
+                     SUM(total_gross_weight) total_gross_weight,
+                     SUM(total_net_weight)   total_net_weight
+              FROM tech_artifact
+              WHERE project_id = #{projectId}
+                AND bool_delete_enum = 0
+              GROUP BY structure_class_id,
+                       production_line_type_enum,
+                       material,
+                       artifact_type) AS ta
+                 LEFT JOIN sys_structure_classification AS sc ON ta.structure_class_id = sc.id
+            AND sc.bool_delete_enum = 0
+        GROUP BY sc.classification_name,
+                 sc.id,
+                 ta.material,
+                 ta.artifact_type
+        ORDER BY ta.artifact_type ASC, sc.id ASC
+    </select>
+    <select id="selectByProjectIdAndLine"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.building.ProductLineSummary">
+        SELECT IFNULL(SUM(ms.scheduling_quantity * ta.net_weight),0) allocationWeight,
+        IFNULL(SUM(ms.complete_quantity * ta.net_weight),0) completionWeight,
+        IFNULL(SUM((ms.scheduling_quantity - ms.complete_quantity) * ta.net_weight),0) unCompletionWeight,
+        MAX(ask_complete_time)
+        FROM `mes_building_scheduling` ms
+        <if test="type!=null and type==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ms.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        <if test="type!=null and type==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble ta ON ms.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        <if test="type!=null and type==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part ta ON ms.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        <if test="type!=null and type==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure ta ON ms.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        WHERE ms.project_id = #{projectId}
+        AND ms.bool_delete_enum = 0
+        AND ms.production_line_id = #{lineId}
+        AND ms.product_type = #{type}
+
+    </select>
+    <select id="getArtifactList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactsDTO">
+        Select`name`,
+        serial_number,
+        specification,
+        quantity,
+        length,
+        net_weight,
+        gross_weight
+        from
+        tech_artifact
+        where
+        <if test="classificationName!= null and classificationName !=''">
+            structure_class_id in
+            (
+            SELECT id
+            FROM sys_structure_classification
+            WHERE
+            bool_delete_enum = 0
+            and classification_name=#{classificationName}
+            )
+        </if>
+        <if test="classificationName!= null and classificationName ==''">
+            structure_class_id is null
+        </if>
+        <if test="material!= null and material !=''">
+            and material=#{material}
+        </if>
+        <if test="projectId != null">
+            and project_id=#{projectId}
+        </if>
+        and bool_delete_enum=0
+    </select>
+    <select id="selectByTypeAndId" resultType="java.lang.String">
+        select
+        <if test="productType!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            initial_serial_number AS serial_number
+        </if>
+        <if test="productType!=null and productType!=@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            serial_number
+        </if>
+        from
+        <if test="productType!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact
+        </if>
+        <if test="productType!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            tech_assemble
+        </if>
+        <if test="productType!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part
+        </if>
+        WHERE
+        bool_delete_enum=0
+        <if test="productId != null">
+            and id=#{productId}
+        </if>
+    </select>
+    <select id="areaArtifactSummary" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AreaArtifactSummaryDTO">
+        SELECT
+        sum(IFNULL((process.need_quantity - complete_quantity),a.quantity)) AS quantity,
+        c.id id,
+        c.classification_name name
+        FROM
+        `tech_artifact` a
+        INNER  JOIN mes_building_task_process process ON process.product_id = a.id and process.task_type_enum = 2
+        AND process.sequence = 0 and process.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification c ON a.structure_class_id = c.id
+        WHERE
+        a.bool_delete_enum = 0 and IFNULL((process.need_quantity - complete_quantity),0) > 0 and a.quantity >
+        a.produced_quantity
+        AND c.id IS NOT NULL
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        GROUP BY c.id
+    </select>
+
+    <select id="listArtifactProcess"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanArtifactAssembleMatchingDTO">
+        SELECT
+        a.id id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.material,
+        a.length,
+        a.net_weight,
+        a.total_net_weight,
+        a.gross_weight,
+        a.total_gross_weight,
+        a.surface_area AS area,
+        IFNULL( SUM( process.complete_quantity ), 0 ) produced_quantity,
+        IFNULL(( SUM(process.need_quantity)), 0) AS quantity,
+        IFNULL(( SUM(process.need_quantity) - SUM(complete_quantity) ), 0 ) AS needQuantity
+        FROM
+        `tech_artifact` a
+        INNER JOIN mes_building_task_process process ON process.product_id = a.id and process.task_type_enum = 2
+        and process.sequence = 0 and process.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        and a.bool_all_part_send_directly=0
+        and IFNULL((process.need_quantity - complete_quantity),0) > 0 and a.quantity > a.produced_quantity
+        <if test="ids != null and ids.size() > 0">
+            and a.id in
+            <foreach collection="ids" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            AND a.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="structureClassId != null">
+            AND a.structure_class_id = #{structureClassId}
+        </if>
+        <if test="name != null and name != ''">
+            AND a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND a.material like concat('%',#{material},'%')
+        </if>
+        GROUP BY a.id
+    </select>
+
+    <select id="artifactSourceProductList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactDTO">
+        SELECT cp.id 'project.id', cp.NAME 'project.name', cp.serial_number 'project.serialNumber', cp.short_name 'project.shortName', pm.id 'monomer.id', pm.`name` 'monomer.name', pa.id 'area.id', pa.`name` 'area.name', a.id,
+               a.name,
+               a.serial_number,
+               a.specification,
+               a.material,
+               a.quantity,
+               a.user_id 'user.id', u.username 'user.name'
+        FROM tech_artifact a
+                 LEFT JOIN sys_user u ON a.user_id = u.id
+                 LEFT JOIN contract_project cp ON cp.id = a.project_id
+                 LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+                 LEFT JOIN plan_area pa ON pa.id = a.area_id
+        WHERE a.bool_delete_enum = 0
+          AND a.id = #{productId}
+    </select>
+    <select id="getStructureClass" resultType="com.hzchum.scim.plan.core.api.pojo.dto.StructureClassDTO">
+        SELECT
+        b.id id,
+        b.classification_name name,
+        sum(a.quantity) quantity,
+        sum(a.total_net_weight) mete
+        FROM
+        tech_artifact a
+        LEFT JOIN sys_structure_classification b ON a.structure_class_id = b.id
+        WHERE
+        a.bool_delete_enum = 0
+        and a.area_type = 1
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        GROUP BY b.id ,b.classification_name
+    </select>
+
+    <select id="sumTnventoryTon" resultType="java.math.BigDecimal">
+        select ifnull(round(sum((ifnull(a.quantity, 0) * ifnull(a.net_weight, 0)) / 1000), 2), 0) as ton
+        from tech_artifact a
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+    </select>
+
+    <select id="selectClassSnQuantity"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactClassSummaryDTO">
+        SELECT
+        temp.structure_class_id,
+        class.classification_name structure_class_name,
+        COUNT(temp.serial_number) quantity
+        FROM
+        (
+        SELECT
+        a.monomer_id,
+        a.serial_number,
+        a.structure_class_id
+        FROM
+        tech_artifact a
+        WHERE
+        a.bool_delete_enum = 0
+        AND a.project_id = #{projectId}
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        GROUP BY
+        a.monomer_id,
+        a.serial_number,
+        structure_class_id
+        ) temp
+        INNER JOIN sys_structure_classification class ON class.id = temp.structure_class_id
+        AND class.bool_delete_enum = 0
+        GROUP BY temp.structure_class_id
+    </select>
+
+    <select id="selectArtifactSnList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactSnDTO">
+        SELECT
+        a.project_id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        a.monomer_id,
+        m.`name` monomer_name,
+        a.structure_class_id,
+        class.classification_name as structure_class_name,
+        a.serial_number,
+        a.`name`,
+        a.specification,
+        a.material
+        FROM
+        tech_artifact a
+        LEFT JOIN contract_project cp on cp.id = a.project_id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON a.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification class ON a.structure_class_id = class.id AND class.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+
+        <if test="structureClassIdList != null and structureClassIdList.size() > 0">
+            and a.structure_class_id in
+            <foreach collection="structureClassIdList" open="(" separator="," close=")" item="structureClassId">
+                #{structureClassId}
+            </foreach>
+        </if>
+
+        <if test="name != null and name != ''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+
+        <if test="specification != null and specification != ''">
+            and a.specification like concat('%',#{specification},'%')
+        </if>
+
+        <if test="material != null and material != ''">
+            and a.material like concat('%',#{material},'%')
+        </if>
+        GROUP BY a.project_id, a.monomer_id, a.structure_class_id, a.serial_number, a.`name`, a.specification,
+        a.material
+    </select>
+    <select id="listAllPartsByIds" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AllSendArtifactDTO">
+
+        SELECT
+        art.id 'artifactId',
+        par.id 'assOrPartId',
+        par.bool_process 'boolProcess'
+        FROM
+        tech_artifact art
+        LEFT JOIN tech_artifact_machine_part_link link ON art.id = link.artifact_id
+        LEFT JOIN tech_machine_part par ON link.machine_part_id = par.id
+        WHERE
+        art.id IN
+        <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+            #{artifactId}
+        </foreach>
+    </select>
+    <select id="listAllAsssByIds" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AllSendArtifactDTO">
+
+        SELECT
+        art.id 'artifactId',
+        par.id 'assOrPartId',
+        par.bool_process 'boolProcess'
+        FROM
+        tech_artifact art
+        LEFT JOIN tech_assemble_detail link ON art.id = link.artifact_id
+        LEFT JOIN tech_assemble ass ON link.assemble_id = ass.id
+        WHERE
+        art.id IN
+        <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+            #{artifactId}
+        </foreach>
+
+    </select>
+
+    <select id="getArtifact" resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        select
+            a.*
+        from
+            (
+                select
+                    a.id,
+                    a.`name`,
+                    a.specification,
+                    a.serial_number,
+                    GROUP_CONCAT( DISTINCT b.number ) number,
+                    a.create_time,
+                    c.id 'project.id',
+                    c.name 'project.name',
+                    c.serial_number 'project.serial_number',
+                    c.short_name 'project.short_name',
+                    d.id 'monomer.id',
+                    d.name 'monomer.name',
+                    e.id 'area.id',
+                    e.name 'area.name'
+                from
+                    tech_artifact a
+                        left join mes_building_produce_team_report b on a.id = b.product_id
+                        left join contract_project c on a.project_id = c.id
+                        left join plan_monomer d on a.monomer_id = d.id
+                        left join plan_area e on a.area_id = e.id
+                where
+                    a.bool_delete_enum = 0
+                  and b.bool_delete_enum = 0
+                  and b.task_type_enum = 2
+                  and a.production_line_type_enum = 1
+                  and a.serial_number like concat( '%', #{serialNumber}, '%' )
+                <if test="projectId != null">
+                    and a.project_id = #{projectId}
+                </if>
+                <if test="monomerId != null">
+                    and a.monomer_id = #{monomerId}
+                </if>
+                <if test="areaId != null">
+                    and a.area_id = #{areaId}
+                </if>
+                group by
+                    a.id,
+                    c.id,
+                    d.id,
+                    e.id,
+                    a.serial_number,
+                    a.specification
+            ) a
+        order by
+            CHAR_LENGTH( a.serial_number ),
+            a.create_time desc
+    </select>
+
+    <select id="getArtifactListBySerialNumber"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        select
+            a.id,
+            a.`name`,
+            a.specification,
+            a.serial_number,
+            a.create_time,
+            c.id 'project.id',
+            c.name 'project.name',
+            c.serial_number 'project.serial_number',
+            c.short_name 'project.short_name',
+            d.id 'monomer.id',
+            d.name 'monomer.name',
+            e.id 'area.id',
+            e.name 'area.name'
+        from
+            tech_artifact a
+            left join contract_project c on a.project_id = c.id
+            left join plan_monomer d on a.monomer_id = d.id
+            left join plan_area e on a.area_id = e.id
+        where
+            a.bool_delete_enum = 0
+          and a.serial_number like concat( '%', #{serialNumber}, '%' )
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+    </select>
+
+    <select id="selectListQuantity" resultType="java.math.BigDecimal">
+        SELECT sum(total_net_weight)
+        FROM tech_artifact
+        WHERE project_id in (#{projectId})
+          AND bool_delete_enum = 0
+    </select>
+
+    <select id="getArtifactDetail" resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        SELECT
+        a.id,
+        a.`name`,
+        a.specification,
+        a.serial_number,
+        a.specification,
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name'
+        FROM
+        tech_artifact a
+        LEFT JOIN contract_project cp on cp.id = a.project_id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON a.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification class ON a.structure_class_id = class.id AND class.bool_delete_enum = 0
+        LEFT JOIN plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="projectId != null and projectId != ''">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="monomerId != null and monomerId != ''">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number = #{serialNumber}
+        </if>
+    </select>
+
+
+    <select id="getCompanyArtifactDetail" resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        SELECT
+        distinct
+        a.id,
+        a.`name`,
+        a.specification,
+        a.serial_number,
+        a.specification,
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name'
+        FROM
+        mes_building_complete complete
+        LEFT JOIN tech_artifact a on complete.product_id = a.id and a.bool_delete_enum =0
+        LEFT JOIN contract_project cp on cp.id = a.project_id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON a.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification class ON a.structure_class_id = class.id AND class.bool_delete_enum = 0
+        LEFT JOIN plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        LEFT JOIN mes_building_warehouse_record record on complete.product_id = record.product_id and  complete.number = record.number
+                                                              and complete.id = record.complete_id
+         and record.bool_delete_enum = 0 and record.product_type = 2 and record.type = 1
+        WHERE
+        complete.bool_delete_enum = 0 and complete.task_type_enum = 2 and complete.bool_spot_check = false and record.status in(1,2)
+        <if test="projectId != null and projectId != ''">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="monomerId != null and monomerId != ''">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number = #{serialNumber}
+        </if>
+    </select>
+
+
+    <select id="listSerialNumber" resultType="java.lang.String">
+        SELECT
+        a.serial_number
+        FROM
+        tech_artifact a
+        LEFT JOIN contract_project cp on cp.id = a.project_id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON a.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification class ON a.structure_class_id = class.id AND class.bool_delete_enum = 0
+        LEFT JOIN plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="projectId != null and projectId != ''">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="monomerId != null and monomerId != ''">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+    </select>
+
+
+    <select id="listCompanySerialNumber" resultType="java.lang.String">
+        SELECT
+        distinct a.serial_number
+        FROM
+        mes_building_complete complete
+        LEFT JOIN tech_artifact a on complete.product_id = a.id and a.bool_delete_enum =0
+        LEFT JOIN contract_project cp on cp.id = a.project_id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON a.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification class ON a.structure_class_id = class.id AND class.bool_delete_enum = 0
+        LEFT JOIN plan_area ar on a.area_id = ar.id and ar.bool_delete_enum = 0
+        LEFT JOIN mes_building_warehouse_record record on complete.product_id = record.product_id and  complete.number = record.number
+        and complete.id = record.complete_id
+        and record.bool_delete_enum = 0 and record.product_type = 2 and record.type = 1
+        WHERE
+        complete.bool_delete_enum = 0 and complete.task_type_enum = 2 and complete.bool_spot_check = false and record.status in(1,2)
+        <if test="projectId != null and projectId != ''">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="areaId != null and areaId != ''">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="monomerId != null and monomerId != ''">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+    </select>
+
+    <select id="getInfoById" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ArtifactDTO">
+        SELECT
+            cp.id 'project.id',
+                cp.NAME 'project.name',
+                cp.serial_number 'project.serialNumber',
+                cp.short_name 'project.shortName',
+                pm.id 'monomer.id',
+                pm.`name` 'monomer.name',
+                pa.id 'area.id',
+                pa.`name` 'area.name',
+                a.id,
+            a.*,
+            ssc.classification_name 'structureClassify.name',
+            ssc.id 'structureClassify.id'
+        FROM
+            tech_artifact a
+                LEFT JOIN contract_project cp ON cp.id = a.project_id
+                LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+                LEFT JOIN plan_area pa ON pa.id = a.area_id
+                LEFT JOIN sys_structure_classification ssc ON ssc.id = a.structure_class_id
+        WHERE
+            a.bool_delete_enum = 0
+          AND a.id =#{id}
+
+    </select>
+
+    <select id="findSchedulingArtifactInfo" resultType="com.hzchum.scim.common.core.api.pojo.dto.ProjectProductInfoDTO">
+        select ta.Id,
+        ta.name,
+        serial_number serialNumber,
+        specification specification,
+        sum(task.task_quantity) taskQuantity
+        from tech_artifact ta
+        inner join mes_building_task task on ta.id = task.product_id and task.bool_delete_enum = 0
+        where ta.bool_delete_enum = 0
+        <if test="userProjectIds != null and userProjectIds.size()>0">
+            and ta.project_id in
+            <foreach collection="userProjectIds" item="userProjectId" open="(" separator="," close=")">
+                #{userProjectId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            and ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and ta.area_id = #{areaId}
+        </if>
+        <if test="classId != null">
+            and ta.structure_class_id = #{classId}
+        </if>
+        <if test="serialNumber != null">
+            and ta.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="areaIds != null and areaIds.size() > 0">
+            and ta.area_id in
+            <foreach collection="areaIds" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        group by ta.id
+    </select>
+
+
+    <select id="getArtifactProductionDashboardCardDisplay" resultType="com.hzchum.scim.common.core.api.pojo.dto.ProjectProductInfoDTO">
+        select
+        ta.id,
+        ta.name,
+        ta.serial_number ,
+        ta.quantity,
+        ta.produced_quantity
+        from tech_artifact ta
+        where ta.bool_delete_enum = 0 and ta.project_id = #{projectId}
+        <if test="monomerId != null">
+            and ta.monomer_id = #{monmerId}
+        </if>
+        <if test="areaId != null">
+            and ta.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and ta.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="name != null and name != ''">
+            and ta.name like concat('%',#{name},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and ta.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            and ta.material like concat('%',#{material},'%')
+        </if>
+    </select>
+
+
+    <select id="getAssembleRecordList" resultType="com.hzchum.scim.plan.core.api.pojo._do.check.TechAssembleRecord">
+        select
+        *
+        from tech_assemble_record ta
+        where ta.monomer_id = #{monomerId}
+          and ta.area_id = #{areaId}
+          and ta.inventory_operation_id = #{inventoryOperationId}
+          and ta.serial_number like concat(#{serialNumber},'%')
+
+    </select>
+    <select id="listArtifactProcessByTaskOrderId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanArtifactAssembleMatchingDTO">
+        SELECT
+        a.id id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.material,
+        a.length,
+        a.net_weight,
+        a.total_net_weight,
+        a.gross_weight,
+        a.total_gross_weight,
+        a.surface_area AS area,
+        IFNULL( SUM( process.complete_quantity ), 0 ) produced_quantity,
+        IFNULL(( SUM(process.need_quantity)), 0) AS quantity,
+        IFNULL(( SUM(process.need_quantity) - SUM(complete_quantity) ), 0 ) AS needQuantity
+        FROM
+        `tech_artifact` a
+        INNER JOIN mes_building_task_process process ON process.product_id = a.id and process.task_type_enum = 2
+        and process.sequence = 0 and process.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        and a.bool_all_part_send_directly=0
+        and IFNULL((process.need_quantity - complete_quantity),0) > 0 and a.quantity > a.produced_quantity
+        <if test="taskOrderId != null">
+            and process.task_order_id = #{taskOrderId}
+        </if>
+        GROUP BY a.id
+    </select>
+</mapper>

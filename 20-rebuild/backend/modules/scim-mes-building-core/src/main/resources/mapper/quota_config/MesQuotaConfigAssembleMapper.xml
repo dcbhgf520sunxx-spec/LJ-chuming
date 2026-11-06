@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesQuotaConfigAssembleMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesQuotaConfigAssembleDTO">
+        SELECT
+            mqca.*,
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name'
+        FROM mes_quota_config_assemble mqca
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mqca.process_id
+        WHERE mqca.bool_delete_enum = 0
+        <if test="branchCompanyId != null">
+            AND FIND_IN_SET(#{branchCompanyId}, mqca.branch_company_ids) > 0
+        </if>
+        <if test="workshopId != null">
+            AND FIND_IN_SET(#{workshopId}, mqca.workshop_ids) > 0
+        </if>
+        <if test="productClassId != null">
+            AND FIND_IN_SET(#{productClassId}, mqca.assemble_class_ids) > 0
+        </if>
+        <if test="processId != null">
+            AND mqca.process_id = #{processId}
+        </if>
+        <if test="branchCompanyIdList != null and branchCompanyIdList.size() > 0">
+            AND (
+            <foreach collection="branchCompanyIdList" item="bcId" separator="OR">
+                FIND_IN_SET(#{bcId}, mqca.branch_company_ids) > 0
+            </foreach>
+            )
+        </if>
+        <if test="workshopIdList != null and workshopIdList.size() > 0">
+            AND (
+            <foreach collection="workshopIdList" item="wId" separator="OR">
+                FIND_IN_SET(#{wId}, mqca.workshop_ids) > 0
+            </foreach>
+            )
+        </if>
+        <if test="productClassIdList != null and productClassIdList.size() > 0">
+            AND (
+            <foreach collection="productClassIdList" item="pcId" separator="OR">
+                FIND_IN_SET(#{pcId}, mqca.assemble_class_ids) > 0
+            </foreach>
+            )
+        </if>
+        <if test="processIdList != null and processIdList.size() > 0">
+            AND (
+            <foreach collection="processIdList" item="pId" separator="OR">
+                mqca.process_id = #{pId}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="getMaxSerialNumber" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(MAX(CAST(TRIM(LEADING #{prefix} FROM serial_number) AS UNSIGNED)), 0)
+        FROM mes_quota_config_assemble
+        WHERE serial_number REGEXP CONCAT('^', #{prefix}, '[0-9]+$')
+    </select>
+
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesArtifactClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesArtifactClassification">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="classification" property="classification" />
+        <result column="artifact_type" property="artifactType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, classification, artifact_type
+    </sql>
+
+    <select id="hasIdBeenUsed" resultType="java.lang.Boolean">
+        SELECT
+            count(0) > 0
+        FROM (
+                 SELECT
+                     1
+                 FROM mes_assembling_welding_config
+                 WHERE bool_delete_enum = FALSE AND artifact_classification_id = #{id}
+                 UNION ALL
+                 SELECT
+                     1
+                 FROM mes_coating_config
+                 WHERE bool_delete_enum = FALSE AND status = TRUE AND FIND_IN_SET(#{id}, artifact_classification)
+                 UNION ALL
+                 SELECT
+                     1
+                 FROM mes_contract_project_assembling_welding_config_link
+                 WHERE bool_delete_enum = FALSE AND artifact_classification_id = #{id}
+                 UNION ALL
+                 SELECT
+                     1
+                 FROM mes_contract_project_coating_config_link
+                 WHERE bool_delete_enum = FALSE AND status = TRUE AND FIND_IN_SET(#{id}, artifact_classification)
+             ) t
+    </select>
+
+</mapper>

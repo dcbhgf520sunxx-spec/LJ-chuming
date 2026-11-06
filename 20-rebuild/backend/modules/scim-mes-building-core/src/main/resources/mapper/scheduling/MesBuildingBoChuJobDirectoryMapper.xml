@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingBoChuJobDirectoryMapper">
+
+    <select id="getJobList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingBoChuJobDirectoryDTO">
+        SELECT
+            mbbcjd.*
+        FROM mes_building_bo_chu_job_directory mbbcjd
+        WHERE mbbcjd.bool_delete_enum = 0 AND mbbcjd.job_type = 1
+        <if test="startDate != null">
+            AND DATE(mbbcjd.create_time) >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND DATE(mbbcjd.create_time) &lt;= #{endDate}
+        </if>
+        <if test="cutSendStatus != null">
+            AND EXISTS(SELECT 1 FROM mes_building_bo_chu_nesting_result mbbcnr WHERE mbbcnr.bool_delete_enum = 0 AND mbbcnr.job_id = mbbcjd.job_id AND mbbcnr.cut_send_status = #{cutSendStatus})
+        </if>
+        <if test="projectId != null">
+            AND mbbcjd.project_id = #{projectId}
+        </if>
+        <if test="workshopIdList != null and workshopIdList.size() > 0">
+            AND mbbcjd.workshop_id IN
+            <foreach collection="workshopIdList" item="i" open="(" separator="," close=")">
+                #{i}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND EXISTS(select 1 from mes_building_task_need_machine_part_scheduling mbtnmps WHERE mbtnmps.bool_delete_enum = 0 and mbtnmps.nesting_job_id = mbbcjd.job_id and mbtnmps.monomer_id = #{monomerId})
+        </if>
+        <if test="areaId != null">
+            AND EXISTS(select 1 from mes_building_task_need_machine_part_scheduling mbtnmps WHERE mbtnmps.bool_delete_enum = 0 and mbtnmps.nesting_job_id = mbbcjd.job_id and mbtnmps.area_id = #{areaId})
+        </if>
+            OR (mbbcjd.job_type = 0 AND mbbcjd.bool_delete_enum = 0
+            <if test="projectId != null">
+                AND (mbbcjd.project_id IS NULL OR mbbcjd.project_id = #{projectId})
+            </if>
+            <if test="workshopIdList != null and workshopIdList.size() > 0">
+                AND mbbcjd.workshop_id IN
+                <foreach collection="workshopIdList" item="i" open="(" separator="," close=")">
+                    #{i}
+                </foreach>
+            </if>
+            )
+    </select>
+
+</mapper>

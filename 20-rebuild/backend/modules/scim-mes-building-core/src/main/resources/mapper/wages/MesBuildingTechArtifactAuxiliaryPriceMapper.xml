@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wages.MesBuildingTechArtifactAuxiliaryPriceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wages.MesBuildingTechArtifactAuxiliaryPrice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="auxiliary_part_id" property="auxiliaryPartId"/>
+        <result column="complete_id" property="completeId"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="quantity" property="quantity"/>
+        <result column="price" property="price"/>
+        <result column="wages" property="wages"/>
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, team_id, project_id, monomer_id, area_id, artifact_id, auxiliary_part_id, complete_id, complete_time,quantity,price,wages
+    </sql>
+    <select id="studSleeveList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wages.StudSleeveDTO">
+        SELECT
+            cp.id 'project.id',
+            cp.`name` 'project.name',
+            cp.short_name 'project.shortName',
+            cp.serial_number 'project.serialNumber',
+            pm.id 'monomer.id',
+            pm.`name` 'monomer.name',
+            pa.id 'area.id',
+            pa.`name` 'area.name',
+            line.id 'productionLine.id',
+            line.`name` 'productionLine.name',
+            ta.serial_number,
+            ta.specification,
+            ta.material,
+            ta.net_weight,
+            ta.gross_weight,
+            a.create_time completeTime,
+            ap.specification auxiliarySpecification,
+            ap.material auxiliaryMaterial,
+            a.quantity auxiliaryQuantity,
+            sac.type auxiliaryTypeName,
+            a.price,
+            a.wages
+            FROM
+            (
+            SELECT
+            a.project_id,
+            a.monomer_id,
+            a.area_id,
+            a.artifact_id,
+            a.auxiliary_part_id,
+            SUM( a.quantity ) quantity,
+            a.price,
+            sum( a.wages ) wages,
+            DATE_FORMAT( c.create_time, '%Y/%m/%d' ) create_time,
+            c.production_line_id
+            FROM
+            `mes_building_tech_artifact_auxiliary_price` a
+            LEFT JOIN mes_building_complete c ON c.id = a.complete_id
+            WHERE
+            a.bool_delete_enum = 0
+              <if test="projectId!=null">
+                  AND a.project_id = #{projectId}
+              </if>
+            AND c.task_type_enum = 2
+            <if test="startDate!=null">
+                AND DATE_FORMAT( c.create_time, '%Y/%m/%d' )>= DATE_FORMAT( #{startDate}, '%Y/%m/%d' )
+            </if>
+            <if test="endDate!=null">
+                AND DATE_FORMAT( c.create_time, '%Y/%m/%d' )&lt;= DATE_FORMAT( #{endDate}, '%Y/%m/%d' )
+            </if>
+            GROUP BY
+            a.project_id,
+            a.monomer_id,
+            a.area_id,
+            a.price,
+            a.quantity,
+            create_time,
+            c.production_line_id,
+            a.artifact_id,
+            a.auxiliary_part_id
+            ) a
+            LEFT JOIN tech_artifact ta ON ta.id = a.artifact_id
+            LEFT JOIN tech_auxiliary_part ap ON ap.id = a.auxiliary_part_id
+            LEFT JOIN sys_auxiliary_classification sac ON sac.id = ap.auxiliary_class_id
+            LEFT JOIN contract_project cp ON cp.id = a.project_id
+            LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+            LEFT JOIN plan_area pa ON pa.id = a.area_id
+            LEFT JOIN mes_building_production_line line ON line.id = a.production_line_id
+            <where>
+                <if test="auxiliaryTypeEnum!=null">
+                    AND sac.type = #{auxiliaryTypeEnum}
+                </if>
+            </where>
+    </select>
+
+</mapper>

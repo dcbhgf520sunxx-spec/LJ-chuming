@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesContractProjectAssemblingWeldingConfigLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.system.core.api.pojo._do.MesContractProjectAssemblingWeldingConfigLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="artifact_type_id" property="artifactTypeId"/>
+        <result column="artifact" property="artifact"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="process" property="process"/>
+        <result column="measurement_manner" property="measurementManner"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, contract_project_id, artifact_classification_id, pricing_manner, process, measurement_manner
+    </sql>
+
+    <resultMap id="MesContractProjectAssemblingWeldingConfigLinkDTOMap" type="com.hzchum.scim.system.core.api.pojo.dto.MesContractProjectAssemblingWeldingConfigLinkDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="artifact_type_id" property="artifactTypeId"/>
+        <result column="artifact" property="artifact"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="process" property="process"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="artifact_type_name" property="artifactTypeName"/>
+        <collection property="processList" ofType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+            <result column="process_id" property="id"/>
+            <result column="process_name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesContractProjectAssemblingWeldingConfigLinkDTOMap">
+        SELECT
+            mcpawcl.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mcpawcl.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        WHERE mcpawcl.bool_delete_enum = FALSE AND mcpawcl.contract_project_id = #{projectId}
+    </select>
+
+    <select id="listInfo_COUNT" resultType="int">
+        SELECT
+            count(0)
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        WHERE mcpawcl.bool_delete_enum = FALSE AND mcpawcl.contract_project_id = #{projectId}
+    </select>
+
+    <select id="listInfoByProjectIds" resultMap="MesContractProjectAssemblingWeldingConfigLinkDTOMap">
+        SELECT
+        mcpawcl.*,
+        ssc.classification_name as artifact_type_name,
+        mbp.id AS process_id,
+        mbp.name AS process_name
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mcpawcl.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        WHERE mcpawcl.bool_delete_enum = FALSE
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND mcpawcl.contract_project_id in (
+            <foreach collection="projectIds" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="listInfoByIds" resultMap="MesContractProjectAssemblingWeldingConfigLinkDTOMap">
+        SELECT
+            mcpawcl.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mcpawcl.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        WHERE mcpawcl.bool_delete_enum = FALSE
+        <if test="idList != null and idList.size() > 0">
+            AND mcpawcl.id in (
+            <foreach collection="idList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="detailById" resultMap="MesContractProjectAssemblingWeldingConfigLinkDTOMap">
+        SELECT
+            mcpawcl.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mcpawcl.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        WHERE mcpawcl.bool_delete_enum = FALSE AND mcpawcl.id = #{id}
+    </select>
+
+    <select id="getOneByCondition" resultMap="MesContractProjectAssemblingWeldingConfigLinkDTOMap">
+        SELECT
+            mcpawcl.*,
+            ssc.classification_name as artifact_type_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name
+        FROM mes_contract_project_assembling_welding_config_link mcpawcl
+        LEFT JOIN sys_structure_classification ssc on ssc.bool_delete_enum = FALSE and ssc.id = mcpawcl.artifact_type_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        WHERE mcpawcl.bool_delete_enum = FALSE
+        <if test="param.projectId != null">
+            AND mcpawcl.contract_project_id = #{param.projectId}
+        </if>
+        <if test="param.artifactTypeId != null">
+            AND mcpawcl.artifact_type_id = #{param.artifactTypeId}
+        </if>
+        <if test="param.artifactName != null and param.artifactName != ''">
+            AND FIND_IN_SET(#{param.artifactName}, mcpawcl.artifact) > 0
+        </if>
+        <if test="param.processId != null">
+            AND FIND_IN_SET(#{param.processId}, mcpawcl.process) > 0
+        </if>
+    </select>
+
+</mapper>

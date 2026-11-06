@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsPickingApproveDetailMapper">
+
+    <resultMap id="getPickingApproveDetailDTOList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsPickingApproveDetailDTO">
+        <id column="id" property="id"/>
+        <id column="picking_approve_id" property="pickingApproveId"/>
+        <id column="picking_id" property="pickingId"/>
+        <id column="out_id" property="outId"/>
+        <id column="out_detail_id" property="outDetailId"/>
+        <id column="project_id" property="projectId"/>
+        <id column="picking_detail_material" property="pickingDetailMaterial"/>
+        <id column="picking_detail_specification" property="pickingDetailSpecification"/>
+        <id column="picking_detail_thickness" property="pickingDetailThickness"/>
+        <id column="picking_out_sum_quantity" property="pickingOutSumQuantity"/>
+        <id column="picking_out_sum_mete" property="pickingOutSumMete"/>
+        <id column="picking_out_sum_area" property="pickingOutSumArea"/>
+        <id column="picking_out_sum_length" property="pickingOutSumLength"/>
+        <id column="basic_class" property="basicClass"/>
+        <id column="classify_id" property="classifyId"/>
+        <id column="out_specification" property="outSpecification"/>
+        <id column="out_length" property="outLength"/>
+        <id column="out_width" property="outWidth"/>
+        <id column="out_thickness" property="outThickness"/>
+        <id column="out_brand" property="outBrand"/>
+        <id column="out_color" property="outColor"/>
+        <id column="out_heat_no_and_batch_no" property="outHeatNoAndBatchNo"/>
+        <id column="out_bool_party_a" property="outBoolPartyA"/>
+        <id column="out_the_ory_thickness" property="outTheoryThickness"/>
+        <id column="out_standard_id" property="outStandardId"/>
+        <id column="out_standard_name" property="outStandardName"/>
+        <id column="out_material_sn" property="outMaterialSn"/>
+        <id column="bool_process" property="boolProcess"/>
+        <association property="picking" javaType="com.hzchum.scim.common.core.api.pojo.common.IdAndNameDTO">
+            <id column="picking_pickingId" property="id"/>
+            <id column="picking_pickingTaskOrderNumber" property="serialNumber"/>
+        </association>
+        <association property="outbound" javaType="com.hzchum.scim.common.core.api.pojo.common.IdAndNameDTO">
+            <id column="outbound_outboundId" property="id"/>
+            <id column="outbound_outboundSerialNumber" property="serialNumber"/>
+        </association>
+    </resultMap>
+
+    <select id="selectPassPickingApproveDetails" resultMap="getPickingApproveDetailDTOList">
+        SELECT
+            wpad.*,
+            wp.id picking_pickingId,
+            wp.task_order_number picking_pickingTaskOrderNumber,
+            wo.id outbound_outboundId,
+            wo.serial_number outbound_outboundSerialNumber
+        FROM wms_picking_approve_detail wpad
+        LEFT JOIN wms_picking_approve wpa ON wpa.id = wpad.picking_approve_id
+        LEFT JOIN wms_picking wp ON wp.id = wpad.picking_id
+        LEFT JOIN wms_outbound wo ON wo.id = wpad.out_id
+        WHERE wpad.bool_delete_enum = 0 AND wpa.bool_delete_enum = 0
+        AND wpa.review_status = 2
+        <if test="transactStatus != null and transactStatus != ''">
+            AND wp.transact_status = #{transactStatus}
+        </if>
+        <if test="pickingId != null">
+            AND wpad.picking_id = #{pickingId}
+        </if>
+        <if test="pickingIds != null and pickingIds.size() > 0">
+            AND wpad.picking_id IN
+            <foreach collection="pickingIds" item="pickingId" open="(" separator="," close=")">
+                #{pickingId}
+            </foreach>
+        </if>
+        <if test="taskOrderId != null">
+            AND wpad.task_order_id = #{taskOrderId}
+        </if>
+        <if test="material != null and material != ''">
+            AND wpad.picking_detail_material = #{material}
+        </if>
+        <if test="thickness != null and thickness != ''">
+            AND wpad.picking_detail_thickness = #{thickness}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND wpad.picking_detail_specification = #{specification}
+        </if>
+        <if test="boolProcess != null">
+            AND wpad.bool_process = #{boolProcess}
+        </if>
+
+    </select>
+
+
+    <select id="getOutMsgByPickingId" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.PickingOutMsg">
+        SELECT
+            wpad.picking_id as pickingId,
+            SUM(IFNULL(wpad.picking_out_sum_quantity,0)) as pickingOutSumQuantity,
+            SUM(IFNULL(wpad.picking_out_sum_mete,0)) as pickingOutSumMete,
+            SUM(IFNULL(wpad.picking_out_sum_area,0)) as pickingOutSumArea,
+            SUM(IFNULL(wpad.picking_out_sum_length,0)) as pickingOutSumLength
+        FROM `wms_picking_approve` wpa
+                 LEFT JOIN `wms_picking_approve_detail` wpad on wpad.picking_approve_id = wpa.id and wpad.bool_delete_enum = 0
+        WHERE wpa.bool_delete_enum = 0
+          and wpa.review_status = 2
+          and wpad.picking_id = #{pickingId}
+        <if test="material != null and material != ''">
+            and wpad.picking_detail_material = #{material}
+        </if>
+        <if test="thickness != null and thickness != ''">
+            and wpad.picking_detail_thickness = #{thickness}
+        </if>
+        <if test="specification != null and specification != ''">
+            and wpad.picking_detail_specification  = #{specification}
+        </if>
+        GROUP BY wpad.picking_id
+    </select>
+</mapper>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.TransferBuyInMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TransferBuyIn">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="classify_id" property="classifyId" />
+        <result column="basic_class" property="basicClass" />
+        <result column="specification" property="specification" />
+        <result column="mete" property="mete" />
+        <result column="quantity" property="quantity" />
+        <result column="thickness" property="thickness" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="invoice_type" property="invoiceType" />
+        <result column="tax_rate" property="taxRate" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_VAT" property="amountExcludingVat" />
+        <result column="input_VAT" property="inputVat" />
+        <result column="project_id" property="projectId" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="transfer_id" property="transferId" />
+        <result column="" property="applicantId" />
+        <result column="applicant_name" property="applicantName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, classify_id, basic_class, specification, mete, quantity, thickness, theory_thickness, length, width, color, brand, heat_no_and_batch_no, invoice_type, tax_rate, unit_price, amount, amount_excluding_VAT, input_VAT, project_id, workshop_id, warehouse_id, transfer_id, applicant_id, applicant_name, standard_id, standard_name
+    </sql>
+    <select id="getBuyIn" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.TransferBuyIn">
+        select
+       *
+        from
+        wms_transfer_buy_in
+        where
+        bool_delete_enum = 0
+        <if test=" workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="materialIsWhole != null ">
+            AND material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+          and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null" >-->
+<!--            and classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" color != null and color != ''">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="workshopIds != null and workshopIds.size > 0">
+            and workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <resultMap id="getDownLoadDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <id column="classifyName" property="classifyName"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="specification" property="specification"/>
+        <result column="unit_price" property="unitPrice" />
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_VAT" property="amountExcludingVat" />
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="spName" property="projectName"/>
+        <result column="wsn" property="serialNumber"/>
+        <result column="wct" property="reviewTime"/>
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+        </association>
+    </resultMap>
+    <select id="getDownLoadDetail" resultMap="getDownLoadDetail">
+        select
+        wtbi.*,
+        wtbi.create_time wct,
+        wc.name classifyName,
+        wm.*,
+        wt.serial_number wsn,
+        p.name spName
+        from wms_transfer_buy_in wtbi
+        left join wms_transfer wt on wt.id = wtbi.transfer_id
+        left join contract_project p on p.id = wtbi.project_id
+        left join wms_classification wc on wtbi.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wtbi.classify_id
+        where
+        wtbi.bool_delete_enum = 0
+        <if test="basicClass != null ">
+            and wtbi.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wtbi.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wtbi.bool_party_a = 0
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wtbi.create_time &gt; #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wtbi.create_time &lt; #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wtbi.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wtbi.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test=" width != null">
+            and wtbi.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wtbi.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wtbi.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wtbi.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wtbi.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wtbi.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wtbi.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wtbi.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wtbi.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wtbi.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wtbi.workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by wtbi.id desc
+    </select>
+</mapper>

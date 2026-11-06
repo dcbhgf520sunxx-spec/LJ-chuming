@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftProductTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftProductTask">
+        <id column="id" property="id"/>
+        <result column="one_code_ext_id" property="oneCodeExtId"/>
+        <result column="product_serial_number" property="productSerialNumber"/>
+        <result column="product_id" property="productId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="tech_capp_product_task_work_type" property="techCappProductTaskWorkType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , one_code_ext_id, product_serial_number, product_id, project_id, monomer_id, area_id, product_type, tech_capp_product_task_work_type
+    </sql>
+    <select id="productList" resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductAppVO">
+        select
+        tccpt.project_id as projectId,
+        tccpt.monomer_id as monomerId,
+        tccpt.area_id as areaId,
+        tccpt.product_id as productId,
+        tccpt.product_serial_number as productSerialNumber,
+        tccpt.product_type as productType,
+        COUNT(*) as productQuantity,
+        CASE
+        WHEN COUNT(DISTINCT tccpt.tech_capp_product_task_work_type) = 1
+        AND MAX(tccpt.tech_capp_product_task_work_type) = 1 THEN 1
+        WHEN COUNT(DISTINCT tccpt.tech_capp_product_task_work_type) = 1
+        AND MAX(tccpt.tech_capp_product_task_work_type) = 4 THEN 4
+        ELSE 2
+        END as techCappProductTaskWorkType
+        from
+        tech_capp_craft_product_task as tccpt
+        <where>
+            tccpt.bool_delete_enum = 0
+            <if test="taskIds != null and taskIds.size() > 0">
+                and (tccpt.mes_building_task_id in
+                <foreach item="item" collection="taskIds" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+                or tccpt.mes_building_task_id = 0
+                )
+            </if>
+            <if test="dto.techCappProductTaskWorkType != null">
+                and tccpt.tech_capp_product_task_work_type = #{dto.techCappProductTaskWorkType}
+            </if>
+            <if test="dto.projectId != null ">
+                and tccpt.project_id = #{dto.projectId}
+            </if>
+            <if test="dto.monomerId != null ">
+                and tccpt.monomer_id = #{dto.monomerId}
+            </if>
+            <if test="dto.areaId != null ">
+                and tccpt.area_id = #{dto.areaId}
+            </if>
+            <if test="dto.productSerialNumber != null ">
+                and tccpt.product_serial_number like concat('%',#{dto.productSerialNumber},'%')
+            </if>
+        </where>
+        group by
+        tccpt.project_id,
+        tccpt.monomer_id,
+        tccpt.area_id,
+        tccpt.product_id,
+        tccpt.product_serial_number,
+        tccpt.product_type
+    </select>
+    <select id="productCodeNumberList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductAppCodeNumberVO">
+        select
+        tccpt.id as id,
+        tccpt.tech_capp_product_task_work_type as techCappProductTaskWorkType,
+        ext.sort_number as productCodeNumber
+        from tech_capp_craft_product_task as tccpt
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            left join tech_artifact_ext as ext on tccpt.one_code_ext_id = ext.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            left join tech_assemble_ext as ext on tccpt.one_code_ext_id = ext.id
+        </if>
+        where tccpt.bool_delete_enum = 0 and ext.bool_delete_enum = 0 and tccpt.product_id = #{productId}
+        order by tccpt.tech_capp_product_task_work_type asc
+    </select>
+    <select id="productWeldList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductAppWeldVO">
+        select
+        tccpt.id as id,
+        tccpt.welding_serial_number as weldingSerialNumber,
+        tccpt.product_serial_number as productSerialNumber,
+        tcccs.welding_base_joint_type as weldingBaseJointType,
+        tcccs.serial_number as techCappCraftCardStorehouseSerialNumber,
+        tcccs.welding_base_welding_method as weldingBaseWeldingMethod,
+        tccpt.tech_capp_product_task_work_type as techCappProductTaskWorkType
+        from tech_capp_craft_product_weld_task as tccpt
+        left join tech_capp_craft_card_storehouse as tcccs on tcccs.id = tccpt.tech_capp_craft_card_storehouse_id
+        <where>
+            tccpt.bool_delete_enum = 0
+            and tccpt.tech_capp_craft_product_task_id = #{id}
+            <if test="techCappProductTaskWorkType != null ">
+                and tccpt.tech_capp_product_task_work_type = #{techCappProductTaskWorkType}
+            </if>
+        </where>
+        order by tccpt.tech_capp_product_task_work_type asc
+    </select>
+    <select id="productPassList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductAppPassVO">
+        select tccppt.id                                                       as id,
+               tcccscppl.welding_craft_parameter_pass                          as weldingCraftParameterPass,
+               tcccs.welding_base_welding_method                               as weldingBaseWeldingMethod,
+               tcccscppl.welding_material_trademark                            as weldingMaterialTrademark,
+               tcccscppl.welding_craft_parameter_rod_or_wire_designation       as weldingCraftParameterRodOrWireDesignation,
+               tcccscppl.voltage                                               as voltage,
+               tcccscppl.electricity                                           as electricity,
+               tcccscppl.welding_speed                                         as weldingSpeed,
+               tcccscppl.welding_craft_parameter_welding_flux_or_shielding_gas as weldingCraftParameterWeldingFluxOrShieldingGas,
+               tcccscppl.welding_craft_parameter_shielding_gas_flow            as weldingCraftParameterShieldingGasFlow,
+               tccppt.tech_capp_product_task_work_type                         as techCappProductTaskWorkType,
+               tccppt.equiment_serial_number                                   as equimentSerialNumber,
+               tccppt.equiment_code                                            as equimentCode,
+               tccppt.equiment_name                                            as equimentName,
+               tccppt.is_pause                                                 as isPause,
+               tccppt.welding_gun_code                                         as weldingGunCode,
+               tcccs.id                                                        as techCappCraftCardStorehouseId
+        from tech_capp_craft_product_pass_task as tccppt
+                 left join tech_capp_craft_card_storehouse_craft_parameter_pass_link as tcccscppl
+                           on tccppt.tech_capp_craft_card_storehouse_craft_parameter_pass_link_id = tcccscppl.id
+                 left join tech_capp_craft_card_storehouse as tcccs
+                           on tcccs.id = tcccscppl.tech_capp_craft_card_storehouse_id
+        where tccppt.bool_delete_enum = 0
+          and tccppt.tech_capp_craft_product_weld_task_id = #{id}
+    </select>
+
+</mapper>

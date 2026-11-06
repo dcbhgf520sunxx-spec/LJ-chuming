@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.temp_work.MesTempWorkApprovalMapper">
+
+    <select id="listByTempWorkIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.temp_work.MesTempWorkApprovalDTO">
+        SELECT
+            mtwa.*,
+            su.name AS approver_name
+        FROM mes_temp_work_approval mtwa
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mtwa.approver_id
+        WHERE mtwa.bool_delete_enum = 0
+        <if test="tempWorkIds != null and tempWorkIds.size() > 0">
+            AND mtwa.temp_work_id IN
+            <foreach collection="tempWorkIds" item="tempWorkId" open="(" separator="," close=")">
+                #{tempWorkId}
+            </foreach>
+        </if>
+    </select>
+    <select id="getMaxSort" resultType="java.lang.Integer">
+        SELECT IFNULL(MAX(sort), 0)
+        FROM mes_temp_work_approval
+        WHERE bool_delete_enum = 0
+        <if test="tempWorkId != null">
+            AND temp_work_id = #{tempWorkId}
+        </if>
+    </select>
+
+</mapper>

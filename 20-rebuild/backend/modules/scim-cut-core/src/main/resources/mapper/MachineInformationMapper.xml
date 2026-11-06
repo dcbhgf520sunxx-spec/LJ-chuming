@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.cut.core.mapper.MachineInformationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.cut.core.api.request.MachineInformationDTO">
+        <id column="id" property="id" />
+        <result column="file_name" property="fileName" />
+        <result column="cut_state" property="cutState" />
+        <result column="current_line_num" property="currentLineNum" />
+        <result column="current_hole_num" property="currentHoleNum" />
+        <result column="cut_speed" property="cutSpeed" />
+        <result column="total_pierce_count" property="totalPierceCount" />
+        <result column="move_fixed_distanc" property="moveFixedDistanc" />
+        <result column="total_cut_length" property="totalCutLength" />
+        <result column="kerf" property="kerf" />
+        <result column="estimate_cut_time" property="estimateCutTime" />
+        <result column="current_cut_time" property="currentCutTime" />
+        <result column="soft_run_time" property="softRunTime" />
+        <result column="motion_version" property="motionVersion" />
+        <result column="partx" property="partx" />
+        <result column="party" property="party" />
+        <result column="current_line_god" property="currentLineGod" />
+        <result column="mac" property="mac" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, file_name, cut_state, current_line_num, current_hole_num, cut_speed, total_pierce_count, move_fixed_distanc, total_cut_length, kerf, estimate_cut_time, current_cut_time, soft_run_time, motion_version, partx, party, current_line_god, mac
+    </sql>
+
+</mapper>

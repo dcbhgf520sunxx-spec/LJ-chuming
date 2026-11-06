@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.factory.MesEnclosureProductionLineMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureProductionLine">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="sort" property="sort"/>
+        <result column="bool_enabled_enum" property="boolEnabledEnum"/>
+        <result column="remark" property="remark"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, short_name, sort, bool_enabled_enum, remark, factory_id, workshop_id, user_id
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.DistributionDO">
+        SELECT
+        a.factory_id 'factory.id',
+        a.id 'production_line.id',
+        a.workshop_id 'workshop.id',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        a.`name` 'production_line.name'
+        FROM
+        mes_enclosure_production_line a
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id=a.factory_id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbw.id=a.workshop_id
+        <where>
+            <if test="factory!=null">
+                a.factory_id=#{factory}
+            </if>
+            <if test="workshopId!=null">
+                a.workshop_id=#{workshopId}
+            </if>
+        </where>
+    </select>
+    <select id="listProductionLineUser" resultType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+        select id, name
+        from mes_enclosure_production_line
+        where id in (select distinct t.factory_id
+        from mes_enclosure_team t
+        inner join mes_enclosure_team_user_link tu on tu.team_id = t.id
+        where t.bool_delete_enum = 0
+        and tu.bool_delete_enum = 0
+        and tu.user_id = #{currentUserId}) and bool_delete_enum = 0
+        <if test="workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+    </select>
+    <select id="productionLineList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.factory.ProductionLineDO">
+        SELECT
+        mbpl.id 'productionLine.id',
+        mbpl.`name` 'productionLine.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbf.id 'factory.id',
+        mbf.`name` 'factory.name'
+        FROM
+        (
+        SELECT DISTINCT
+        production_line_id id
+        FROM
+        mes_enclosure_team team
+        LEFT JOIN mes_enclosure_process process ON team.process_id = process.id
+        <where>
+            team.bool_delete_enum = FALSE
+            <if test="factoryId!=null">
+                AND team.factory_id=#{factoryId}
+            </if>
+            <if test="workshopId!=null">
+                AND team.workshop_id=#{factoryId}
+            </if>
+            <if test="productType!=null">
+                AND process.product_type=#{productType}
+            </if>
+            <if test="productionLineId!=null">
+                AND team.id=#{productionLineId}
+            </if>
+        </where>
+        ) a
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id =a.id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbpl.workshop_id = mbw.id
+        LEFT JOIN mes_enclosure_factory mbf ON mbpl.factory_id = mbf.id
+        WHERE mbpl.bool_delete_enum=FALSE
+        ORDER BY mbpl.factory_id
+    </select>
+
+    <select id="selectProductLine"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.factory.MesEnclosureProductionLineSumDO">
+        SELECT
+        line.*,
+        factory.name factoryName,
+        workshop.name workshopName
+        FROM
+        mes_enclosure_production_line line
+        LEFT JOIN mes_enclosure_factory factory ON line.factory_id = factory.id
+        AND factory.bool_delete_enum = 0 AND factory.bool_enabled_enum=1
+        LEFT JOIN mes_enclosure_workshop workshop ON line.workshop_id = workshop.id
+        AND workshop.bool_delete_enum = 0 AND workshop.bool_enabled_enum=1
+        WHERE
+        line.bool_delete_enum = 0
+        AND line.bool_enabled_enum=1
+        <if test="factoryId!=null">
+            AND line.factory_id = #{factoryId}
+        </if>
+        <if test="workshopId!=null">
+            AND line.workshop_id = #{workshopId}
+        </if>
+        <if test="productionLineId!=null">
+            AND line.id = #{productionLineId}
+        </if>
+        <if test="productType!=null">
+            AND line.product_type= #{productType}
+        </if>
+        ORDER BY workshop.`id` ASC ,line.`id` ASC
+    </select>
+    <select id="selectProductLineByids"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.factory.MesEnclosureProductionLineSumDO">
+        SELECT
+        line.*,
+        factory.name factoryName,
+        workshop.name workshopName
+        FROM
+        mes_enclosure_production_line line
+        LEFT JOIN mes_enclosure_factory factory ON line.factory_id = factory.id
+        AND factory.bool_delete_enum = 0 AND factory.bool_enabled_enum=1
+        LEFT JOIN mes_enclosure_workshop workshop ON line.workshop_id = workshop.id
+        AND workshop.bool_delete_enum = 0 AND workshop.bool_enabled_enum=1
+        WHERE
+        line.bool_delete_enum = 0
+        AND line.bool_enabled_enum=1
+        <if test="lineIds!=null">
+            and line.id in
+            <foreach collection="lineIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getLineById"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureProductionLine">
+        SELECT * FROM mes_enclosure_production_line WHERE id=#{productionLineId}
+    </select>
+
+</mapper>

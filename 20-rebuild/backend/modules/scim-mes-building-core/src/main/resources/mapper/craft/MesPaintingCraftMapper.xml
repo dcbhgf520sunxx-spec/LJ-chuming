@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.craft.MesPaintingCraftMapper">
+
+    <update id="approvalDataUpdateById">
+        UPDATE mes_painting_craft
+        SET
+            bool_delete_enum = 0,
+            bool_in_approval = #{boolInApproval},
+            approval_status  = #{approvalStatus},
+            approval_user_id = #{approvalUserId},
+            approval_time    = #{approvalTime},
+            old_data = NULL,
+            old_id = NULL
+        WHERE id = #{id}
+    </update>
+
+    <select id="getMaxDigit" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(MAX(SUBSTRING_INDEX(serial_number, '-', -1)), 0)
+        FROM mes_painting_craft
+        WHERE bool_delete_enum = 0
+    </select>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.craft.MesPaintingCraftDTO">
+        SELECT
+            mpc.*,
+            p.id AS 'project.id',
+            p.serial_number AS 'project.serialNumber',
+            p.short_name AS 'project.shortName',
+            cu.id AS 'createUser.id',
+            cu.name AS 'createUser.name',
+            au.id AS 'approvalUser',
+            au.name AS 'approvalUser.name'
+        FROM mes_painting_craft mpc
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = mpc.project_id
+        LEFT JOIN sys_user cu ON cu.bool_delete_enum = 0 AND cu.id = mpc.create_user_id
+        LEFT JOIN sys_user au ON au.bool_delete_enum = 0 AND au.id = mpc.approval_user_id
+        WHERE mpc.bool_delete_enum = 0
+        <if test="startDateTime != null">
+            AND date_format(mpc.create_date, '%Y-%m-%d') >= date_format(#{startDateTime}, '%Y-%m-%d')
+        </if>
+        <if test="endDateTime != null">
+            AND date_format(mpc.create_date, '%Y-%m-%d') &lt;= date_format(#{endDateTime}, '%Y-%m-%d')
+        </if>
+        <if test="projectId != null">
+            AND mpc.project_id = #{projectId}
+        </if>
+        <if test="paintingTypeEnum != null">
+            AND exists(select 1 from mes_painting_craft_detail mpcd WHERE mpcd.bool_delete_enum = 0 and mpcd.painting_craft_id = mpc.id and mpcd.painting_type_enum = #{paintingTypeEnum})
+        </if>
+        <if test="paintBrand != null">
+            AND exists(select 1 from mes_painting_craft_detail mpcd WHERE mpcd.bool_delete_enum = 0 and mpcd.painting_craft_id = mpc.id and mpcd.paint_brand = #{paintBrand})
+        </if>
+        <if test="projectIdList != null and projectIdList.size() > 0">
+            AND mpc.project_id IN
+            <foreach collection="projectIdList" item="i" open="(" separator="," close=")">
+                #{i}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="detailById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.craft.MesPaintingCraftDTO">
+        SELECT
+            mpc.*,
+            p.id AS 'project.id',
+            p.serial_number AS 'project.serialNumber',
+            p.short_name AS 'project.shortName',
+            cu.id AS 'createUser.id',
+            cu.name AS 'createUser.name',
+            au.id AS 'approvalUser',
+            au.name AS 'approvalUser.name'
+        FROM mes_painting_craft mpc
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = mpc.project_id
+        LEFT JOIN sys_user cu ON cu.bool_delete_enum = 0 AND cu.id = mpc.create_user_id
+        LEFT JOIN sys_user au ON au.bool_delete_enum = 0 AND au.id = mpc.approval_user_id
+        WHERE mpc.bool_delete_enum = 0 AND mpc.id = #{id}
+    </select>
+
+    <select id="approvalDataDetailById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.craft.MesPaintingCraftDTO">
+        SELECT
+            mpc.*,
+            p.id AS 'project.id',
+            p.serial_number AS 'project.serialNumber',
+            p.short_name AS 'project.shortName',
+            cu.id AS 'createUser.id',
+            cu.name AS 'createUser.name',
+            au.id AS 'approvalUser',
+            au.name AS 'approvalUser.name'
+        FROM mes_painting_craft mpc
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = mpc.project_id
+        LEFT JOIN sys_user cu ON cu.bool_delete_enum = 0 AND cu.id = mpc.create_user_id
+        LEFT JOIN sys_user au ON au.bool_delete_enum = 0 AND au.id = mpc.approval_user_id
+        WHERE mpc.id = #{id}
+    </select>
+
+    <select id="selectApprovalDataById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.craft.MesPaintingCraft">
+        SELECT
+            *
+        FROM mes_painting_craft
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectApprovalDataByOldId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.craft.MesPaintingCraft">
+        SELECT
+            *
+        FROM mes_painting_craft
+        WHERE old_id = #{oldId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

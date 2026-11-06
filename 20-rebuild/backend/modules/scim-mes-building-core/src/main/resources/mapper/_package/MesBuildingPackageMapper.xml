@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper._package.MesBuildingPackageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel._package.MesBuildingPackage">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="product_type" property="productType"/>
+        <result column="project_id," property="projectId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="print_type" property="printType"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, product_type, project_id,status, remark, print_type, user_id
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.PackageDO">
+        SELECT
+        a.*,
+        a.warehouse_id 'warehouse.id',
+        wh.name 'warehouse.name',
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        GROUP_CONCAT(distinct monomer.name) As monomerName
+        <if test="productType != 4 and productType != null">
+
+            ,GROUP_CONCAT(distinct batch.name) As areaBatchName
+        </if>
+        FROM
+        mes_building_package a
+        left join contract_project p on p.id = a.project_id
+        INNER JOIN mes_building_package_link link ON link.package_id = a.id and link.bool_delete_enum = 0
+        INNER JOIN plan_monomer monomer on monomer.id = link.monomer_id and monomer.bool_delete_enum = 0
+        <if test="monomerName != null and monomerName != ''">
+            and  monomer.name like CONCAT('%',#{monomerName},'%')
+        </if>
+        <if test="productType != 4 and productType != null">
+            INNER JOIN plan_area_batch batch on  batch.id  = link.area_batch_id and batch.bool_delete_enum = 0
+            <if test="areaBatchName != null and areaBatchName != ''">
+                and  batch.name like CONCAT('%',#{areaBatchName},'%')
+            </if>
+        </if>
+        LEFT JOIN mes_building_warehouse wh on a.warehouse_id = wh.id
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            <if test="productType == 2 ">
+                INNER JOIN tech_artifact artifact on artifact.id = link.product_id and artifact.bool_delete_enum = 0
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and artifact.serial_number = #{productSerialNumber}
+                    </when>
+                    <otherwise>
+                        and artifact.serial_number like CONCAT('%',#{productSerialNumber},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="productType == 4">
+                INNER JOIN tech_enclosure enclosure on enclosure.id = link.product_id and enclosure.bool_delete_enum = 0
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and enclosure.serial_number = #{productSerialNumber}
+                    </when>
+                    <otherwise>
+                        and enclosure.serial_number like CONCAT('%',#{productSerialNumber},'%')
+                    </otherwise>
+                </choose>
+            </if>
+        </if>
+        <if test="productName != null and productName != ''">
+            <if test="productType == 2 ">
+                INNER JOIN tech_artifact artifact on artifact.id = link.product_id and artifact.bool_delete_enum = 0
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and artifact.name = #{productName}
+                    </when>
+                    <otherwise>
+                        and artifact.name like CONCAT('%',#{productName},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="productType == 4">
+                INNER JOIN tech_enclosure enclosure on enclosure.id = link.product_id and enclosure.bool_delete_enum = 0
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and enclosure.name = #{productName}
+                    </when>
+                    <otherwise>
+                        and enclosure.name like CONCAT('%',#{productName},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="productType == 8">
+                INNER JOIN tech_standard_part auxiliary on auxiliary.id = link.product_id and auxiliary.bool_delete_enum = 0
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and auxiliary.name = #{productName}
+                    </when>
+                    <otherwise>
+                        and auxiliary.name like CONCAT('%',#{productName},'%')
+                    </otherwise>
+                </choose>
+            </if>
+        </if>
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="packageIds != null and packageIds.size() != 0">
+                and a.id in
+                <foreach collection="packageIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                and a.project_id in
+                <foreach collection="projectIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="projectId != null">
+                AND a.project_id = #{ projectId}
+            </if>
+            <if test="productType != null and productType!=1">
+                AND a.product_type &amp; #{productType} > 0
+            </if>
+            <if test="productType != null and productType == 1">
+                AND a.product_type &amp; 17
+            </if>
+            <if test="category != null">
+                AND a.category &amp; #{productType} > 0
+            </if>
+            <if test="monomerName != null and monomerName != ''">
+                and monomer.name like CONCAT('%',#{monomerName},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and a.serial_number = #{serialNumber}
+                    </when>
+                    <otherwise>
+                        and a.serial_number like CONCAT('%',#{serialNumber},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="userName != null and userName != ''">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and a.user_name = #{userName}
+                    </when>
+                    <otherwise>
+                        and a.user_name like CONCAT('%',#{userName},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="remark != null and remark != ''">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        and a.remark = #{remark}
+                    </when>
+                    <otherwise>
+                        and a.remark like CONCAT('%',#{remark},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="startDate != null">
+                and date(a.create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(a.create_time) &lt;= date(#{endDate})
+            </if>
+            <if test="status != null">
+                AND a.status = #{status}
+            </if>
+            <if test="boolShip != null and boolShip">
+                AND a.status = 2
+            </if>
+            <if test="boolShip != null and !boolShip">
+                AND a.status IN (0,1)
+            </if>
+            <if test="monomerId != null">
+                AND link.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null">
+                AND link.area_id = #{areaId}
+            </if>
+            <if test="warehouseTypeList != null and warehouseTypeList.size() != 0">
+                AND link.warehouse_type IN
+                <foreach collection="warehouseTypeList" open="(" separator="," close=")" item="warehouseType">
+                    #{warehouseType}
+                </foreach>
+            </if>
+            <if test="printType != null  and  printType != ''">
+                AND a.print_type = #{ printType}
+            </if>
+        </where>
+        group by a.id
+        order by a.status, a.id desc
+    </select>
+    <select id="countByDate" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM mes_building_package
+        WHERE
+            date (create_time) = date (#{now})
+          AND project_id = #{projectId}
+    </select>
+
+</mapper>

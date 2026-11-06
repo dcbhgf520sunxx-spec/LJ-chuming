@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.bid.core.mapper.ProjectTenderingMapper">
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        pt.version, pt.create_time, pt.update_time, pt.bool_delete_enum, pt.id,
+        pt.user_id, pt.user_name, pt.name, pt.project_type, pt.contract_no, pt.bidding_type, pt.cash_deposit, pt.is_cash_deposit, pt.bank_account_name,
+        pt.bank_account, pt.deposit_bank, pt.company_name, pt.verifier_id, pt.verifier_name, pt.verifier_time, pt.status, pt.project_progress,
+        pt.contact_person, pt.phone, pt.delivery_address, pt.delivery_time, pt.delivery_type, pt.invoice_type, pt.tax_rate,
+        pt.inviting_num, pt.is_open, pt.remark,pt.tender_value
+    </sql>
+
+    <select id="selectListByValue" resultType="com.hzchum.scim.bid.core.api.pojo.vo.ProjectTenderingVO">
+        SELECT
+        <include refid="Base_Column_List"/>, -- 招采项目基础信息
+        br.release_date, -- 最新发布日期
+        br.bid_deadline, -- 最新投标截止时间
+        br.bid_opening_time,  -- 最新开标时间
+        br.round, -- 最新轮次
+        bs.name projectTypeName, -- 项目类型名称
+        ifnull(COUNT(DISTINCT pts.id),0) respondNum, -- 应标单位数量
+        ifnull(COUNT(DISTINCT os.supplier_id),0) tickSizeNum -- 当前轮次报价单位数量
+        FROM project_tendering pt
+        LEFT JOIN subject bs ON bs.id = pt.project_type
+        LEFT JOIN bidding_rounds br ON br.project_id = pt.id
+        LEFT JOIN project_tendering_supplier pts ON pts.project_tendering_id = pt.id AND pts.bid_status = 1
+        LEFT JOIN bidding_supplier bsr on bsr.supplier_id = pts.bid_supplier_id
+        LEFT JOIN offer_rounds os ON os.supplier_id = pts.`id` AND os.project_tendering_id = pt.`id` AND os.bid_gross_amount IS NOT NULL and os.offer_round = br.round
+        AND os.is_hold = 0
+        WHERE pt.UUID = #{uuid} and  br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = pt.id )
+        -- 应标中的列表
+        <if test="menu == 1">
+            AND pt.status = 2 -- 审核通过
+            AND br.round = 1  -- 最新招标轮次
+            AND pt.is_open = 0  -- 是否开标
+            AND pt.project_progress != 5 AND pt.project_progress != 6 -- 项目进度不为结束和废标
+            -- 投标截止时间筛选
+            <if test="startDate != null">
+                AND date(br.bid_deadline) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(br.bid_deadline) &lt;= date(#{endDate})
+            </if>
+        </if>
+        -- 开标中的列表
+        <if test="menu == 2">
+            AND pt.status = 2 -- 审核通过
+            AND pt.is_open = 1  -- 是否开标
+            AND pt.project_progress != 5 AND pt.project_progress != 6 -- 项目进度不为结束和废标
+            -- 投标截止时间筛选
+            <if test="startDate != null">
+                AND date(br.bid_deadline) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(br.bid_deadline) &lt;= date(#{endDate})
+            </if>
+            -- 开标时间筛选
+            <if test="startDateVerifier != null">
+                AND date(br.bid_opening_time) >= date(#{startDateVerifier})
+            </if>
+            <if test="endDateVerifier != null">
+                AND date(br.bid_opening_time) &lt;= date(#{endDateVerifier})
+            </if>
+        </if>
+        -- 已结束和废弃的列表
+        <if test="menu == 3">
+            AND pt.status = 2 -- 审核通过
+            AND pt.project_progress in (5,6) -- 项目进度为结束和废标
+            -- 发布时间筛选
+            <if test="startDate != null">
+                AND date(br.release_date) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(br.release_date) &lt;= date(#{endDate})
+            </if>
+        </if>
+        -- 其他参数
+            <if test="dto.contractNo != null and dto.contractNo != '' ">
+                AND pt.contract_no like concat('%',#{dto.contractNo},'%')
+            </if>
+            <if test="dto.biddingUnit != null and dto.biddingUnit != '' ">
+            AND bsr.name like concat('%',#{dto.biddingUnit},'%')
+            </if>
+            <if test="dto.name != null and dto.name != '' ">
+                AND pt.name like concat('%',#{dto.name},'%')
+            </if>
+            <if test="dto.founder != null and dto.founder != '' ">
+            AND pt.user_name like concat('%',#{dto.founder},'%')
+            </if>
+            <if test="dto.verifier != null and dto.verifier != '' ">
+            AND pt.verifier_name like concat('%',#{dto.verifier},'%')
+            </if>
+            <if test="dto.projectType != null ">
+                AND pt.project_type = #{dto.projectType}
+            </if>
+            <if test="dto.biddingType != null ">
+                AND pt.bidding_type = #{dto.biddingType}
+            </if>
+            <if test="dto.projectProgress != null ">
+                AND pt.project_progress = #{dto.projectProgress}
+            </if>
+            <if test="dto.status != null ">
+                AND pt.status = #{dto.status}
+            </if>
+        <if test="menu == 0">
+                <if test="startDateVerifier != null">
+                    AND date(pt.verifier_time) >= date(#{startDateVerifier})
+                </if>
+                <if test="endDateVerifier != null">
+                    AND date(pt.verifier_time) &lt;= date(#{endDateVerifier})
+                </if>
+                <if test="startDate != null">
+                    AND date(pt.create_time) >= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    AND date(pt.create_time) &lt;= date(#{endDate})
+                </if>
+        </if>
+        GROUP BY pt.id,br.release_date,br.bid_deadline,br.bid_opening_time,br.round,bs.name
+        ORDER BY pt.project_progress ASC,pt.create_time DESC
+    </select>
+
+
+
+    <select id="getProjectAll" resultType="com.hzchum.scim.bid.core.api.pojo.vo.ProjectTenderingVO">
+        SELECT
+        pt.id, -- 项目id
+        br.release_date, -- 最新发布日期
+        br.bid_deadline, -- 最新投标截止时间
+        br.bid_opening_time,  -- 最新开标时间
+        br.round, -- 最新轮次
+        ifnull(COUNT(DISTINCT os.supplier_id),0) tickSizeNum -- 当前轮次报价单位数量
+        FROM project_tendering pt
+        LEFT JOIN subject bs ON bs.id = pt.project_type
+        LEFT JOIN bidding_rounds br ON br.project_id = pt.id
+        LEFT JOIN project_tendering_supplier pts ON pts.project_tendering_id = pt.id AND pts.bid_status = 1
+        LEFT JOIN offer_rounds os ON os.supplier_id = pts.`id` AND os.project_tendering_id = pt.`id` AND os.bid_gross_amount IS NOT NULL AND os.offer_round = br.round
+        AND os.is_hold = 0
+        WHERE pt.UUID = #{UUID} and br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = pt.id ) AND pt.project_progress != 4 AND pt.`status` = 2
+        GROUP BY pt.id,br.release_date,br.bid_deadline,br.bid_opening_time,br.round
+    </select>
+
+
+    <select id="getProject" resultType="com.hzchum.scim.bid.core.api.pojo._do.ProjectTendering">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM project_tendering pt
+        INNER JOIN bidding_rounds br ON br.project_id = pt.id
+        WHERE pt.UUID = #{UUID} and pt.`status` = 2 AND pt.project_progress = 2 and pt.bidding_type = 0
+        GROUP BY br.id HAVING MAX(br.`round`) = 1
+    </select>
+
+
+    <select id="selectByProjectId" resultType="com.hzchum.scim.bid.core.api.pojo.vo.ProjectTenderingVO">
+        SELECT
+        <include refid="Base_Column_List"/>, -- 招采项目的基础信息
+        br.release_date, -- 最新发布日期
+        br.bid_deadline, -- 最新投标截止时间
+        br.bid_opening_time, -- 最新开标时间
+        br.round, -- 最新轮次
+        br.id AS roundId, -- 最新轮次的id
+        bs.name projectTypeName, -- 招采项目类型名称
+        IFNULL(COUNT(DISTINCT pts.id),0) respondNum, -- 应标单位数量
+        IFNULL(COUNT(DISTINCT os.supplier_id),0) tickSizeNum -- 报价单位数量
+        FROM project_tendering pt
+        LEFT JOIN subject bs ON bs.id = pt.project_type
+        LEFT JOIN bidding_rounds br ON br.project_id = pt.id
+        LEFT JOIN project_tendering_supplier pts ON pts.project_tendering_id = pt.id AND pts.bid_status = 1
+        LEFT JOIN offer_rounds os ON os.supplier_id = pts.`id` AND os.project_tendering_id = pt.`id` AND os.bid_gross_amount IS NOT NULL
+        WHERE br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = pt.id )
+        AND pt.id = #{id}
+        GROUP BY pt.id,br.release_date,br.bid_deadline,br.bid_opening_time,br.id,bs.name
+    </select>
+
+
+    <select id="getOverview" resultType="com.hzchum.scim.bid.core.api.pojo.vo.BiddingOverviewVO">
+        SELECT
+        SUM(IFNULL(ods.bid_amount,0)) AS totalAmount,
+        COUNT(DISTINCT pt.id) AS quantity,
+        pt.`project_type` AS projectType,
+        bs.name AS typeName
+        FROM project_tendering pt
+        LEFT JOIN subject bs ON bs.id =  pt.`project_type`
+        LEFT JOIN bidding_rounds br ON br.project_id = pt.id AND br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = pt.id)
+        LEFT JOIN project_tendering_supplier pts ON pts.project_tendering_id = pt.id AND pts.bid_status = 1
+        LEFT JOIN offer_rounds os ON os.supplier_id = pts.`id` AND os.project_tendering_id = pt.`id` AND os.`offer_round` = br.`round`
+        LEFT JOIN offer_round_detail ods on ods.offer_id = os.id AND ods.is_follow = 1 and ods.project_id = pt.id
+        <where>
+            AND pt.UUID = #{uuid}
+            <if test="startDate != null">
+                AND date(pt.create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(pt.create_time) &lt;= date(#{endDate})
+            </if>
+        </where>
+        GROUP BY pt.`project_type`,bs.name ORDER BY totalAmount DESC
+    </select>
+
+
+
+    <select id="getBidType" resultType="com.hzchum.scim.bid.core.api.pojo.vo.BiddingOverviewVO">
+        SELECT
+        SUM(IFNULL(ods.bid_amount,0)) AS totalAmount,
+        COUNT(DISTINCT pt.id) AS quantity,
+        pt.`bidding_type` AS projectType
+        FROM project_tendering pt
+        LEFT JOIN bidding_rounds br ON br.project_id = pt.id AND br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = pt.id)
+        LEFT JOIN project_tendering_supplier pts ON pts.project_tendering_id = pt.id AND pts.bid_status = 1
+        LEFT JOIN offer_rounds os ON os.supplier_id = pts.`id` AND os.project_tendering_id = pt.`id` AND os.`offer_round` = br.`round`
+        LEFT JOIN offer_round_detail ods on ods.offer_id = os.id AND ods.is_follow = 1 and ods.project_id = pt.id
+        <where>
+            AND pt.UUID = #{uuid}
+            <if test="projectType != null ">
+                AND pt.project_type = #{projectType}
+            </if>
+            <if test="startDate != null">
+                AND date(pt.create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(pt.create_time) &lt;= date(#{endDate})
+            </if>
+        </where>
+        GROUP BY pt.`bidding_type`
+    </select>
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmEnterpriseWarehousingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmEnterpriseWarehousing">
+        <id column="id" property="id" />
+        <result column="informant_user_id" property="informantUserId" />
+        <result column="create_user_id" property="createUserId" />
+        <result column="crm_check_status_enum" property="crmCheckStatusEnum" />
+        <result column="department_id" property="departmentId" />
+        <result column="informant_date_time" property="informantDateTime" />
+        <result column="business_name" property="businessName" />
+        <result column="unit_property_allocation_config_id" property="unitPropertyAllocationConfigId" />
+        <result column="unit_class_configuration_id" property="unitClassConfigurationId" />
+        <result column="country_id" property="countryId" />
+        <result column="country_name" property="countryName" />
+        <result column="province_id" property="provinceId" />
+        <result column="province_name" property="provinceName" />
+        <result column="city_id" property="cityId" />
+        <result column="city_name" property="cityName" />
+        <result column="region_id" property="regionId" />
+        <result column="region_name" property="regionName" />
+        <result column="address" property="address" />
+        <result column="credit_code" property="creditCode" />
+        <result column="industry_configuration_id" property="industryConfigurationId" />
+        <result column="business_phone" property="businessPhone" />
+        <result column="business_email" property="businessEmail" />
+        <result column="liaisons" property="liaisons" />
+        <result column="qualification_and_ability" property="qualificationAndAbility" />
+        <result column="approve_record_id" property="approveRecordId" />
+        <result column="attachment_ids" property="attachmentIds" />
+        <result column="remark" property="remark" />
+        <result column="unit_reputation_allocation_config_id" property="unitReputationAllocationConfigId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, informant_user_id, create_user_id, crm_check_status_enum, department_id, informant_date_time, business_name, unit_property_allocation_config_id, unit_class_configuration_id, country_id, country_name, province_id, province_name, city_id, city_name, region_id, region_name, address, credit_code, industry_configuration_id, business_phone, business_email, liaisons, qualification_and_ability, approve_record_id, attachment_ids, remark, unit_reputation_allocation_config_id
+    </sql>
+
+</mapper>

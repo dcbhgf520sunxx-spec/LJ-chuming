@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmPageManagementConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmPageManagementConfig">
+        <id column="id" property="id" />
+        <result column="field_name" property="fieldName" />
+        <result column="is_show" property="isShow" />
+        <result column="is_write" property="isWrite" />
+        <result column="crm_field_parent_type_enum" property="crmFieldParentTypeEnum" />
+        <result column="crm_page_management_config_enum" property="crmPageManagementConfigEnum" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, field_name, is_show, is_write, crm_field_parent_type_enum, crm_page_management_config_enum
+    </sql>
+
+</mapper>

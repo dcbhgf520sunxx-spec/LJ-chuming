@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsShipmentReceiveApproveMapper">
+
+
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsShipmentReceiveApprove">
+        SELECT
+        *
+        FROM `wms_shipment_receive_approve`
+        WHERE bool_delete_enum = 0
+        <if test="param.createTimeList != null and param.createTimeList.size() > 0">
+            and create_time between #{param.createTimeList.get(0)} and #{param.createTimeList.get(1)}
+        </if>
+        <if test="param.applicantName != null and param.applicantName != ''">
+            and applicant_name like concat('%',#{param.applicantName},'%')
+        </if>
+        <if test="param.reviewStatus != null and param.reviewStatus != ''">
+            and review_status = #{param.reviewStatus}
+        </if>
+    </select>
+</mapper>

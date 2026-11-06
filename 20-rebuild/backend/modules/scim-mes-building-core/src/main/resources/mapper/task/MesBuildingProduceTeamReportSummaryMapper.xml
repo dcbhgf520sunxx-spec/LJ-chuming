@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingProduceTeamReportSummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingProduceTeamReportSummary">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="task_id" property="taskId" />
+        <result column="task_process_id" property="taskProcessId" />
+        <result column="process_id" property="processId" />
+        <result column="scheduling_id" property="schedulingId" />
+        <result column="product_id" property="productId" />
+        <result column="product_type" property="productType" />
+        <result column="quantity" property="quantity" />
+        <result column="inspection_quantity" property="inspectionQuantity" />
+        <result column="problem_quantity" property="problemQuantity" />
+        <result column="team_id" property="teamId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, task_process_id, process_id, scheduling_id, product_id, product_type, quantity, inspection_quantity, problem_quantity, team_id, user_id
+    </sql>
+    <select id="listReportSummarysByData"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingProduceTeamReportSummary">
+        select
+        *
+        from
+        mes_building_produce_team_report_summary
+        where
+        <if test="summarys!=null and summarys.size() != 0">
+            <foreach collection="summarys" item="summary" separator="or" open="(" close=")">
+                ( task_process_id= #{summary.taskProcessId}
+                and production_line_id=#{summary.prodLineId}
+                and team_id=#{summary.teamId})
+            </foreach>
+        </if>
+        and bool_delete_enum=0
+    </select>
+
+</mapper>

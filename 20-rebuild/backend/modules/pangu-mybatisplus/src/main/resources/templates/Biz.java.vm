@@ -1,0 +1,20 @@
+package ${package.Biz};
+
+import ${package.Entity}.${entity};
+import com.hzchum.pangu.common.util.IBiz;
+
+/**
+ * <p>
+ * $!{table.comment} Biz服务类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${kotlin})
+interface ${table.bizName} : ${superBizClass}<${superServiceClass},${entity}>
+#else
+public interface ${table.bizName} extends IBiz<${entity}> {
+
+}
+#end

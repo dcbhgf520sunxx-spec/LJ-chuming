@@ -1,0 +1,89 @@
+package ${package.Entity};
+
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
+import lombok.experimental.Accessors;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import javax.persistence.*;
+import com.hzchum.pangu.mybatisplus.pojo.BaseNovEntity;
+
+
+/**
+ * 杭州初鸣建筑科技有限公司 版权所有 © Copyright 2021<br>
+ *  <p>
+ * $!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
+@ApiModel(value = "${entity}对象", description = "$!{table.comment}")
+@Entity
+@TableName("${table.name}")
+@Table(name = "${table.name}")
+@org.hibernate.annotations.Table(appliesTo = "${table.name}"#if("$!table.comment"!=""),comment = "${table.comment}"#end)
+public class ${entity} extends BaseNovEntity<Long> {
+
+    private static final long serialVersionUID = 1L;
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if("$!field.comment" != "")
+    @ApiModelProperty(name = "${field.propertyName}", value = "${field.comment}",notes = "${field.comment}")
+    #else
+    @ApiModelProperty(name = "${field.propertyName}")
+    #end
+    @JsonProperty(value = "${field.propertyName}")
+    @JSONField(name = "${field.propertyName}")
+    #if(${field.keyFlag})
+        #set($keyPropertyName=${field.propertyName})
+    #end
+    #if(${field.keyFlag})
+## 主键
+    @TableId(type = IdType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+## 普通字段
+    #elseif(${field.fill})
+## -----   存在字段填充设置   -----
+    #if(${field.convert})
+    @TableField(value = "${field.name}" , fill = FieldFill.${field.fill})
+    #else
+    @TableField(value = "${field.name}" , fill = FieldFill.${field.fill})
+    #end
+    @Column(name = "${field.name}", columnDefinition = "${field.type} #if("$!field.defaultValue" !="")default ${field.defaultValue}#end COMMENT '${field.comment}'",nullable =${field.canNull} )
+    #elseif(${field.convert})
+    @TableField("${field.name}")
+    @Column(name = "${field.name}", columnDefinition = "${field.type} #if("$!field.defaultValue" !="")default ${field.defaultValue}#end COMMENT '${field.comment}'",nullable =${field.canNull} )
+    #else
+    @TableField("${field.name}")
+    @Column(name = "${field.name}", columnDefinition = "${field.type} #if("$!field.defaultValue" !="")default ${field.defaultValue}#end COMMENT '${field.comment}'",nullable =${field.canNull} )
+    #end
+## 乐观锁注解
+    #if(${versionFieldName}==${field.name})
+    @Version
+    #end
+## 逻辑删除注解
+    #if(${logicDeleteFieldName}==${field.name})
+    @TableLogic
+    #end
+    private ${field.propertyType} ${field.propertyName};
+
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

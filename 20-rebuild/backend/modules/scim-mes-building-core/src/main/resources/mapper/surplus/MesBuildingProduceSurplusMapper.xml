@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.surplus.MesBuildingProduceSurplusMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.surplus.MesBuildingProduceSurplus">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="task_id" property="taskId"/>
+        <result column="task_process_id" property="taskProcessId"/>
+        <result column="process_id" property="processId"/>
+        <result column="scheduling_id" property="schedulingId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="team_id" property="teamId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, task_process_id, process_id, scheduling_id, product_id, product_type, quantity, team_id, user_id
+    </sql>
+    <select id="surplusList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.ProduceSurplusDO">
+        SELECT
+        mba.serial_number,
+        process.`name` process_name,
+        surplus.remark,
+        team_user.user_name leader_name,
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'area.name',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        mbpl.`name` 'production_line.name',
+        surplus.quantity
+        FROM
+        mes_building_produce_surplus surplus
+        LEFT JOIN mes_building_process process ON surplus.process_id = process.id
+        LEFT JOIN mes_building_team team ON surplus.team_id = team.id
+        LEFT JOIN mes_building_team_user_link team_user ON surplus.team_id = team_user.team_id
+        AND team_user.bool_delete_enum = FALSE
+        AND team_user.bool_leader_enum = TRUE
+        LEFT JOIN mes_building_task task ON task.id=surplus.task_id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        AND cp.bool_delete_enum =
+        FALSE LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        AND pm.bool_delete_enum =
+        FALSE LEFT JOIN plan_area pd ON pd.id = task.area_id
+        AND pd.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_factory mbf ON mbf.id = task.factory_id
+        AND mbf.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_workshop mbw ON mbw.id = task.workshop_id
+        AND mbw.bool_delete_enum =
+        FALSE LEFT JOIN mes_building_production_line mbpl ON mbpl.id = task.production_line_id
+        AND mbpl.bool_delete_enum =FALSE
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON surplus.product_id =mba.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON surplus.product_id =mba.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON surplus.product_id =mba.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble mba ON surplus.product_id =mba.id
+        </if>
+        <where>
+            surplus.bool_delete_enum=FALSE
+            <if test="projectId!=null">
+               AND task.project_id=#{projectId}
+            </if>
+            <if test="monomerId!=null">
+                AND task.monomer_id=#{monomerId}
+            </if>
+            <if test="areaId!=null">
+                AND task.area_id=#{areaId}
+            </if>
+            <if test="factoryId!=null">
+                AND task.factory_id=#{factoryId}
+            </if>
+            <if test="workshopId!=null">
+                AND task.workshop_id=#{workshopId}
+            </if>
+            <if test="productionLineId!=null">
+                AND task.production_line_id=#{productionLineId}
+            </if>
+            <if test="leaderName!=null">
+                AND team_user.user_name like =CONCAT('%',#{leaderName},'%')
+            </if>
+            <if test="processName!=null">
+                AND process.`name` like CONCAT('%',#{processName},'%')
+            </if>
+            <if test="productType!=null">
+                AND surplus.product_type =#{productType}
+            </if>
+        </where>
+    </select>
+
+</mapper>

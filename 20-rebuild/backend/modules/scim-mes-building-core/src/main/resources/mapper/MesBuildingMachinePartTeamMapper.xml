@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.MesBuildingMachinePartTeamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingMachinePartTeam">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="process_id" property="processId" />
+        <result column="factory_id" property="factoryId" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="production_line_id" property="productionLineId" />
+        <result column="production_line_type_enum" property="productionLineTypeEnum" />
+        <result column="user_id" property="userId" />
+        <result column="team_status" property="teamStatus" />
+        <result column="organization_type" property="organizationType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, process_id, factory_id, workshop_id, production_line_id, production_line_type_enum, user_id, team_status, organization_type
+    </sql>
+
+    <select id="machinePartListByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingMachinePartTeamDTO">
+        select
+            ptd.id,
+            grou.id 'groupsId',
+            grou.name 'groupsName',
+            grou.workshop_id 'workshop.id',
+            shop.name 'workshop.name',
+            grou.production_line_id 'productionLine.id',
+            line.name 'productionLine.name',
+            ptd.id AS 'machineToolId',
+            ptd.mid,
+            ptd.part_type,
+            ptd.part_prod_mode,
+            ptd.device_type 'deviceType.id',
+            ptd.device_name,
+            ptd.nc_system 'ncSystem.id',
+            ptd.nc_file_format 'ncFileFormat.id',
+            ptd.team_status,
+            ptd.cutting_report_method,
+            ptd.drill_report_method
+        from mes_building_machine_part_team_detail ptd
+            left join mes_building_groups grou on ptd.groups_id = grou.id and grou.bool_delete_enum=0
+            left join mes_building_production_line line on grou.production_line_id = line.id and line.bool_delete_enum=0
+            left join mes_building_workshop shop on line.workshop_id = shop.id and shop.bool_delete_enum=0
+        <where>
+            ptd.bool_delete_enum=0
+            <if test="id!=null">
+                AND ptd.id=#{id}
+            </if>
+            <if test="processId!=null">
+                AND ptd.process_id=#{processId}
+            </if>
+            <if test="workshopId!=null">
+                AND line.workshop_id=#{workshopId}
+            </if>
+            <if test="productionLineId!=null">
+                AND ptd.production_line_id=#{productionLineId}
+            </if>
+            <if test="organizationType!=null">
+                AND ptd.organization_type=#{organizationType}
+            </if>
+            <if test="teamStatus!=null">
+                AND ptd.team_status=#{teamStatus}
+            </if>
+            <if test="partProdMode!=null">
+                AND ptd.part_prod_mode=#{partProdMode}
+            </if>
+            <if test="part_type!=null">
+                AND ptd.part_type=#{partType}
+            </if>
+            <if test="groupsId!=null">
+                AND ptd.groups_id=#{groupsId}
+            </if>
+        </where>
+    </select>
+
+    <select id="machinePartListByConditionNoGroup"
+      resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingMachinePartTeamDTO">
+        select
+        ptd.id,
+        ptd.part_feature,
+        ptd.groups_id,
+        ptd.part_feature,
+        shop.name 'workshop.name',
+        line.id 'productionLine.id',
+        line.name 'productionLine.name',
+        ptd.id AS 'machineToolId',
+        ptd.mid,
+        ptd.part_type,
+        CASE ptd.part_type
+        WHEN 1 THEN '板材零件'
+        WHEN 2 THEN '型材零件'
+        ELSE ''
+        END AS 'partTypeName',
+        ptd.process_type,
+        ptd.drill_method,
+        ptd.part_prod_mode,
+        ptd.device_type 'deviceType.id',
+        processes.name 'deviceType.name',
+        ptd.device_name,
+        ptd.nc_system 'ncSystem.id',
+        ptd.nc_file_format 'ncFileFormat.id',
+        ptd.team_status,
+        ptd.cutting_report_method,
+        ptd.drill_report_method
+        from mes_building_machine_part_team_detail ptd
+        left join mes_building_production_line line on ptd.production_line_id = line.id and line.bool_delete_enum=0
+        left join mes_building_workshop shop on line.workshop_id = shop.id and shop.bool_delete_enum=0
+        left join mes_building_process processes on processes.id = ptd.device_type
+        <where>
+            ptd.bool_delete_enum=0
+            <if test="id!=null">
+                AND ptd.id=#{id}
+            </if>
+            <if test="processId!=null">
+                AND ptd.process_id=#{processId}
+            </if>
+            <if test="workshopId!=null">
+                AND line.workshop_id=#{workshopId}
+            </if>
+            <if test="productionLineId!=null">
+                AND ptd.production_line_id=#{productionLineId}
+            </if>
+            <if test="organizationType!=null">
+                AND ptd.organization_type=#{organizationType}
+            </if>
+            <if test="teamStatus!=null">
+                AND ptd.team_status=#{teamStatus}
+            </if>
+            <if test="partProdMode!=null">
+                AND ptd.part_prod_mode=#{partProdMode}
+            </if>
+            <if test="partType!=null">
+                AND ptd.part_type=#{partType}
+            </if>
+            <if test="groupsId!=null">
+                AND ptd.groups_id=#{groupsId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

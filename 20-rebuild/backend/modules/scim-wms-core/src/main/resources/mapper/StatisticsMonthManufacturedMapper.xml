@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.StatisticsMonthManufacturedMapper">
+
+
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsMonthManufactured">
+        select
+            wsmm.*
+        from wms_statistics_month_manufactured wsmm
+        where month_str = #{monthStr}
+        <if test="basicClass != null and basicClass != ''">
+            basic_class = #{basicClass}
+        </if>
+    </select>
+    <select id="statisticsCount"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.StatisticsMonthManufacturedCountDTO">
+        select
+            sum(ifnull(wsmm.begin_month_amount,0)) as beginMonthAmount,
+            sum(ifnull(wsmm.inbound_amount,0)) as inboundAmount,
+            sum(ifnull(wsmm.outbound_amount,0)) as outboundAmount,
+            sum(ifnull(wsmm.return_amount,0)) as returnAmount,
+            sum(ifnull(wsmm.end_month_amount,0)) as endMonthAmount
+        from wms_statistics_month_manufactured wsmm
+        where month_str = #{monthStr}
+        <if test="basicClass != null and basicClass != ''">
+            basic_class = #{basicClass}
+        </if>
+    </select>
+</mapper>

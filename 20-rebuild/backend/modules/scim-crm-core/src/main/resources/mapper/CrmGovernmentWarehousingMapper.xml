@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmGovernmentWarehousingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmGovernmentWarehousing">
+        <id column="id" property="id"/>
+        <result column="informant_user_id" property="informantUserId"/>
+        <result column="informant_user_name" property="informantUserName"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="crm_check_status_enum" property="crmCheckStatusEnum"/>
+        <result column="crm_enterprise_warehousing_id" property="crmEnterpriseWarehousingId"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <!--        <result column="media_type" property="mediaType"/>-->
+        <result column="deadline_for_acceptance_time" property="deadlineForAcceptanceTime"/>
+        <result column="acceptance_addres" property="acceptanceAddress"/>
+        <result column="cost" property="cost"/>
+        <result column="remark" property="remark"/>
+        <result column="approve_record_id" property="approveRecordId"/>
+        <result column="serial_number" property="serialNumber"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , informant_user_id, informant_user_name, create_user_id, crm_check_status_enum, crm_enterprise_warehousing_id, attachment_ids,
+--         media_type,
+        deadline_for_acceptance_time, acceptance_addres, cost, remark, approve_record_id, serial_number
+    </sql>
+
+
+    <select id="getList" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmGovernmentWarehousingPageDTO">
+        select gover.*,
+        enter.country_id as countryId,
+        enter.country_name as countryName,
+        enter.province_id as provinceId,
+        enter.province_name as provinceName,
+        enter.city_id as cityId,
+        enter.city_name as cityName,
+        enter.region_id as regionId,
+        enter.region_name as regionName,
+        enter.business_name as businessName,
+        enter.business_phone as businessPhone,
+        enter.business_email as businessEmail,
+        enter.credit_code as creditCode,
+        <if test="checkRecord != null and checkRecord == 1">
+            gover.create_time as informantDateTime,
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            gover.informant_date_time as informantDateTime,
+        </if>
+        project_warehousing.id as crmProjectInformationWarehousingId,
+        project_warehousing.project_name as crmProjectInformationWarehousingName,
+        basice_config1.name as unitPropertyAllocationConfigName,
+        basice_config1.id as unitPropertyAllocationConfigId,
+        basice_config2.name as unitClassConfigurationName,
+        basice_config2.id as unitClassConfigurationId,
+        basice_config3.name as industryConfigurationName,
+        basice_config3.id as industryConfigurationId,
+        basice_config4.name as unitReputationAllocationConfigName,
+        basice_config4.id as unitReputationAllocationConfigId,
+        user_a.name as informantUserName,
+        user_b.name as createUserName
+        from crm_government_warehousing as gover
+        left join crm_enterprise_warehousing as enter on enter.id = gover.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum = 0
+        left join crm_basics_config as basice_config1 on basice_config1.id = enter.unit_property_allocation_config_id
+        and
+        basice_config1.bool_delete_enum = 0
+        left join crm_basics_config as basice_config2 on basice_config2.id = enter.unit_class_configuration_id
+        and
+        basice_config2.bool_delete_enum = 0
+        left join crm_basics_config as basice_config3 on basice_config3.id = enter.industry_configuration_id
+        and
+        basice_config3.bool_delete_enum = 0
+        left join crm_basics_config as basice_config4 on basice_config4.id = enter.unit_reputation_allocation_config_id
+        and
+        basice_config4.bool_delete_enum = 0
+        left join sys_user as user_a on user_a.id = gover.informant_user_id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on user_b.id = gover.create_user_id and user_b.bool_delete_enum = 0
+        left join crm_project_information_warehousing as project_warehousing on project_warehousing.id =
+        gover.crm_project_information_warehousing_id and project_warehousing.bool_delete_enum = 0
+        <where>
+            gover.bool_delete_enum = 0
+            <if test="checkRecord != null ">
+                and gover.crm_record_type_enum = #{checkRecord}
+            </if>
+            <if test="crmCheckStatusEnum != null">
+                and gover.crm_check_status_enum = #{crmCheckStatusEnum}
+            </if>
+            <if test="checkRecord != null and checkRecord == 1">
+                <if test="startDate != null ">
+                    and DATE_FORMAT(gover.create_time, '%Y-%m-%d') >= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE_FORMAT(gover.create_time, '%Y-%m-%d') &lt;= #{endDate}
+                </if>
+            </if>
+
+            <if test="checkRecord != null and checkRecord == 2">
+                <if test="startDate != null ">
+                    and DATE_FORMAT(gover.informant_date_time, '%Y-%m-%d') >= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE_FORMAT(gover.informant_date_time, '%Y-%m-%d') &lt;= #{endDate}
+                </if>
+            </if>
+
+            <if test="countryId != null ">
+                and enter.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null ">
+                and enter.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and enter.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and enter.region_id = #{regionId}
+            </if>
+            <if test="unitPropertyAllocationConfigId != null">
+                and enter.unit_property_allocation_config_id = #{unitPropertyAllocationConfigId}
+            </if>
+            <if test="unitClassConfigurationId != null">
+                and enter.unit_class_configuration_id = #{unitClassConfigurationId}
+            </if>
+            <if test="industryConfigurationId != null">
+                and enter.industry_configuration_id = #{industryConfigurationId}
+            </if>
+            <if test="unitReputationAllocationConfigId != null ">
+                and enter.unit_reputation_allocation_config_id = #{unitReputationAllocationConfigId}
+            </if>
+            <if test="businessName != null and businessName != '' ">
+                and enter.business_name like concat('%',#{businessName},'%')
+            </if>
+            <if test="creditCode != null and creditCode != ''">
+                and enter.credit_code like concat('%',#{creditCode},'%')
+            </if>
+            <if test="informantUserName != null and informantUserName != ''">
+                and user_a.name like concat('%',#{informantUserName},'%')
+            </if>
+        </where>
+        <if test="checkRecord != null and checkRecord == 1">
+            order by gover.create_time desc
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            order by gover.informant_date_time desc
+        </if>
+    </select>
+
+</mapper>

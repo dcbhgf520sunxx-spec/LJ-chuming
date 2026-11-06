@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.factory.MesEnclosureTeamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureTeam">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="process_id" property="processId"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, process_id, factory_id, workshop_id, production_line_id
+    </sql>
+    <select id="getTeamByProductionLineIdAndProcessIdAndUserId"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureTeam">
+        SELECT b.*
+        FROM mes_enclosure_team_user_link a
+        INNER JOIN mes_enclosure_team b ON a.team_id = b.id
+        <where>a.user_id = #{userId}
+            <if test="productionLineId!=null">
+                AND b.production_line_id = #{productionLineId}
+            </if>
+            AND b.process_id = #{processId}
+            AND b.bool_delete_enum = FALSE
+            AND a.bool_delete_enum = FALSE
+            <if test="ids!=null">
+                AND a.team_id IN
+                <foreach collection="ids" item="id" open="(" close=")" separator="">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="listTeamSimple" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.product.ProductProcessDO">
+        select p.id,p.name,p.product_type
+        from mes_enclosure_team t
+        inner join mes_enclosure_process p on p.id = t.process_id
+        where t.bool_delete_enum = 0
+        <if test="productionLineId != null">
+            and t.production_line_id = #{productionLineId}
+        </if>
+    </select>
+    <select id="listTeamUser" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.product.ProductProcessDO">
+        select p.id,p.name,p.product_type
+        from mes_enclosure_team t
+        inner join mes_enclosure_team_user_link tu on tu.team_id = t.id
+        inner join mes_enclosure_process p on p.id = t.process_id
+        where t.bool_delete_enum = 0
+        and tu.bool_delete_enum = 0
+        and tu.user_id = #{currentUserId}
+        <if test="productionLineId != null">
+            and t.production_line_id = #{productionLineId}
+        </if>
+    </select>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureTeam">
+        select a.*
+        from mes_enclosure_team a
+        <if test="productionLineIds!=null and productionLineIds.size()>0">
+            left join mes_enclosure_production_line_team_link  b on a.id=b.team_id and b.bool_delete_enum=0
+        </if>
+        <where>
+            bool_delete_enum=0
+            <if test="id!=null">
+                AND a.id=#{id}
+            </if>
+            <if test="processId!=null">
+                AND a.process_id=#{processId}
+            </if>
+             <if test="factoryId!=null">
+                AND a.factory_id=#{factoryId}
+            </if>
+            <if test="organizationType!=null">
+                AND a.organization_type=#{organizationType}
+            </if>
+            <if test="boolExtraCountEnum!=null">
+                AND a.bool_extra_count_enum=#{boolExtraCountEnum}
+            </if>
+            <if test="productionLineTypeEnum!=null">
+                AND a.production_line_type_enum=#{productionLineTypeEnum}
+            </if>
+            <if test="wageQuotaType!=null">
+                AND a.wage_quota_type=#{wageQuotaType}
+            </if>
+            <if test="productionLineIds!=null and productionLineIds.size()>0">
+                and   b.production_line_id in
+                <foreach collection="productionLineIds" item="productionLineId" separator="," open="(" close=")">
+                    #{productionLineId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="listNameByIds" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.util.IdAndNameDO">
+        SELECT
+            link.team_id 'id',
+            us.`name` 'name'
+        FROM
+            mes_enclosure_team_user_link link
+                LEFT JOIN sys_user us ON link.user_id = us.id
+        WHERE
+            link.bool_delete_enum = 0
+        <if test="teamIds!=null and teamIds.size()>0">
+            and   link.team_id in
+            <foreach collection="teamIds" item="teanId" separator="," open="(" close=")">
+                #{teanId}
+            </foreach>
+        </if>
+          AND link.bool_leader_enum =1
+
+    </select>
+</mapper>

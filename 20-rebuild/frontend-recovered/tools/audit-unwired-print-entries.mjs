@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {parse} from '@babel/parser';
+import {assemble} from './assemble.mjs';
+const project=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),workspace=path.resolve(project,'../..');
+const original=fs.readFileSync(path.join(workspace,'10-reverse/private/server/home/plm7/dist/static/js/index-50216080.js'),'utf8');
+const current=assemble();
+const originals=parse(original,{sourceType:'module'}).program.body,currents=parse(current,{sourceType:'module'}).program.body;
+const definitions=[['projectManagementFee','tTe'],['innerCostMaterials','kTe'],['innerCostOther','DTe'],['innerCostManage','xTe']];
+const entries=definitions.map(([catalog_key,symbol])=>{
+ const before=originals.find(x=>x.type==='FunctionDeclaration'&&x.id.name===symbol),after=currents.find(x=>x.type==='FunctionDeclaration'&&x.id.name===symbol);
+ if(!before||!after)throw Error('Missing original/current print catalog function '+symbol);
+ const first=before.body.body[0]?.argument?.arguments?.[0],next=after.body.body[0]?.argument?.arguments?.[0];
+ const property=(node,key)=>node?.properties?.find(x=>x.type==='ObjectProperty'&&x.key.name===key)?.value?.value;
+ if(property(first,'url')!==''||property(next,'url')!=='')throw Error('Expected original and current unwired empty URLs');
+ return{catalog_key,symbol,original_source_start:before.start,original_source_end:before.end,original_function:original.slice(before.start,before.end),current_source_start:after.start,current_source_end:after.end,current_function:current.slice(after.start,after.end),status:'inherited-unwired-print-catalog-entry',http_method:property(first,'method'),http_url:'',replacement_wired:false,current_menu_action_execution_verified:false};
+});
+const related=fs.readFileSync(path.join(project,'src/modules/cost-report-60aee68e.js'),'utf8');
+const report={verified_at:new Date().toISOString(),original_chunk:'index-50216080.js',original_chunk_sha256:crypto.createHash('sha256').update(original).digest('hex'),entries,related_other_version:{source:'src/modules/cost-report-60aee68e.js',get_paths:[...related.matchAll(/url:\s*"([^"]+)"/g)].map(x=>x[1]),current_menu_import_closure:false,business_equivalence_to_empty_catalog_entries_proven:false,boundary:'The v2 cost-report API module exists, but no substitution is wired into these four catalog keys. Backend inherited-empty-methods audit separately evaluates its implementation; no path or business rule has been invented.'}};
+fs.writeFileSync(path.join(project,'inherited-unwired-print-catalog.json'),JSON.stringify(report,null,2)+'\n');console.log({...report,entries:entries.map(({catalog_key,symbol,status})=>({catalog_key,symbol,status}))});

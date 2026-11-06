@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.temp_work.MesWageAdjustProductMapper">
+
+    <select id="listInfoByWageAdjustId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesWageAdjustProductDTO">
+        SELECT
+            mwap.*,
+            product.id AS 'product.id',
+            product.serial_number AS 'product.serial_number',
+            product.specification AS 'product.specification',
+            product.net_weight AS 'product.net_weight',
+            pq.quantity AS 'product.quantity'
+        FROM mes_wage_adjust_product mwap
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_artifact
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_assemble
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_machine_part
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+        </choose>
+        WHERE mwap.bool_delete_enum = 0
+          AND mwap.wage_adjust_id = #{wageAdjustId}
+          AND mwap.product_type_enum = #{productTypeEnum}
+    </select>
+
+    <select id="listInfo" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesWageAdjustProductDTO">
+        SELECT
+            mwap.*,
+            product.id AS 'product.id',
+            product.serial_number AS 'product.serial_number',
+            product.specification AS 'product.specification',
+            product.net_weight AS 'product.net_weight',
+            pq.quantity AS 'product.quantity',
+            mwa.workshop_id,
+            mwa.process_id,
+            mwa.team_ids
+        FROM mes_wage_adjust_product mwap
+        LEFT JOIN mes_wage_adjust mwa ON mwa.bool_delete_enum = 0 AND mwa.id = mwap.wage_adjust_id
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_artifact
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_assemble
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = mwap.product_id AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                LEFT JOIN (
+                    SELECT
+                        project_id,
+                        monomer_id,
+                        serial_number,
+                        sum(quantity) AS quantity
+                    FROM tech_machine_part
+                    WHERE bool_delete_enum = 0
+                    GROUP BY project_id, monomer_id, serial_number
+                ) pq ON pq.project_id = mwap.project_id AND pq.monomer_id = mwap.monomer_id AND pq.serial_number = mwap.product_serial_number
+            </when>
+        </choose>
+        WHERE mwap.bool_delete_enum = 0
+          AND mwa.approval_status = #{approvalStatus}
+          AND mwap.product_type_enum = #{productTypeEnum}
+        <if test="productSerialNumberList != null and productSerialNumberList.size() > 0">
+            <foreach collection="productSerialNumberList" item="item" open="AND mwap.product_serial_number IN (" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY mwap.id DESC
+    </select>
+</mapper>

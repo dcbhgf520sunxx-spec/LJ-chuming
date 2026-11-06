@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.process.MesBuildingProductProcessLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProductProcessLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="product_process_id" property="productProcessId" />
+        <result column="process_id" property="processId" />
+        <result column="sequence" property="sequence" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_process_id, process_id, sequence
+    </sql>
+    <select id="getProcessListByTypeIdAndProductType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.process.MesBuildingProductProcessLinkDO">
+        SELECT
+            a.*,
+            pro.type_id,
+            b.`name`,
+            b.product_type,
+            b.type
+        FROM
+            mes_building_product_process pro
+            left join mes_building_product_process_link a on pro.id = a.product_process_id
+                LEFT JOIN mes_building_process b ON a.process_id = b.id
+        WHERE
+                product_process_id in (
+                SELECT
+                    id
+                FROM
+                    mes_building_product_process
+                WHERE
+                    bool_delete_enum  = 0
+                  <if test="id !=  null">
+                      and type_id = #{id}
+                  </if>
+                     and product_type=#{productType}
+                  AND bool_delete_enum = 0
+            )
+          AND a.bool_delete_enum =0
+        ORDER BY a.sequence
+    </select>
+
+    <select id="findProcessLinkByLineAndClass"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.process.MesBuildingProductProcessLinkDTO">
+        select link.*,
+        wk.name 'shopName',
+        line.name 'lineName',
+        pro.name 'processName',
+        ul.user_name 'teamLeaderName'
+        from
+        mes_building_product_process pp
+        left join mes_building_product_process_link link on pp.id = link.product_process_id and pp.type_id = #{classId}
+        left join mes_building_process pro on link.process_id = pro.id and pro.bool_delete_enum = 0
+        left join mes_building_team_user_link ul on link.team_id = ul.team_id and ul.bool_leader_enum = 1 and ul.bool_delete_enum = 0
+        left join mes_building_workshop wk on pp.workshop_id = wk.id and wk.bool_delete_enum = 0
+        left join mes_building_production_line line on pp.production_line_id = line.id and line.bool_delete_enum = 0
+        where
+        link.bool_delete_enum = 0 and pp.bool_history = 0
+        <if test="prodLineId != null">
+            and pp.production_line_id = #{prodLineId}
+        </if>
+        <if test="taskTypeEnum != null">
+            and pp.product_type = #{taskTypeEnum}
+        </if>
+    </select>
+
+    <select id="isExistProductProcessLink" resultType="java.lang.Integer">
+        SELECT
+            count(0)
+        FROM
+            mes_building_product_process_link a
+                LEFT JOIN mes_building_process b ON a.process_id = b.id
+        WHERE
+                product_process_id =(
+                SELECT
+                    id
+                FROM
+                    mes_building_product_process
+                WHERE
+                    type_id = #{productId} and product_type=#{productType}
+                  AND bool_delete_enum = 0
+            )
+          AND a.bool_delete_enum =0
+        ORDER BY a.sequence
+    </select>
+
+</mapper>

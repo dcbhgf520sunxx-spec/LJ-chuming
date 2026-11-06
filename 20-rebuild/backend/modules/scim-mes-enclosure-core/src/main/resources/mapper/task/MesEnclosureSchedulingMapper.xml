@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.task.MesEnclosureSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.MesEnclosureScheduling">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_process_id" property="productProcessId"/>
+        <result column="scheduling_quantity" property="schedulingQuantity"/>
+        <result column="task_quantity" property="taskQuantity"/>
+        <result column="complete_quantity" property="completeQuantity"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="status" property="status"/>
+        <result column="issue_status" property="issueStatus"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        ,
+	factory_id,
+	workshop_id,
+	production_line_id,
+	project_id,
+	monomer_id,
+	plan_id,
+	product_id,
+	product_type,
+    product_process_id,
+	scheduling_quantity,
+	task_quantity,
+	complete_quantity,
+    ask_complete_time,
+    complete_time,
+	STATUS,
+    issue_status,
+	user_id,
+	create_time,
+	update_time,
+	bool_delete_enum,
+	version
+    </sql>
+    <!-- 通用查询条件列 -->
+    <sql id="sql_condition">
+
+    </sql>
+
+
+
+
+
+</mapper>

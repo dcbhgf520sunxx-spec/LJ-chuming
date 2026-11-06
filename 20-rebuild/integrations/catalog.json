@@ -1,0 +1,743 @@
+{
+  "schema": 1,
+  "kind": "third-party-preparation-catalog",
+  "source_scope": {
+    "file": "docs/platform-functional-development-checklist.html",
+    "sha256": "d87283ea60e3d4732f2ca97567597300a04cad055fbf1f55a63af60c5781f19d"
+  },
+  "private_values_included": false,
+  "integration_count": 17,
+  "integrations": [
+    {
+      "id": "I01",
+      "name": "OA / 审批系统",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/OaBusinessProcessServiceImpl.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_OA_HOST",
+          "spring_property": "zhongnan.oa.host",
+          "type": "url",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OA_APP_ID",
+          "spring_property": "zhongnan.oa.appId",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OA_SECRET",
+          "spring_property": "zhongnan.oa.secret",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OA_SPK",
+          "spring_property": "zhongnan.oa.spk",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_CALLBACK_BASE_URL",
+          "spring_property": "chum.config.url",
+          "type": "https-url",
+          "required": true
+        }
+      ],
+      "material_file": "I01/contract.json",
+      "required_materials": [
+        "测试OA接口文档及请求/响应样例",
+        "采购/付款/结算流程ID、表单字段、OA用户/部门映射",
+        "oaToken获取/刷新及结果回调认证说明"
+      ],
+      "code_blockers": [
+        "现平台AuthFilter拦截OA自有oaToken回调；其令牌发放/刷新与回调认证完整协议需确认，不能直接放开/api/oa。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/oa-shr-webhook.json",
+        "sha256": "e791eacc07b77d9af7d90a2f7e12d43c39aa55d8e9d58566b6ea343da6a79818"
+      }
+    },
+    {
+      "id": "I02",
+      "name": "SHR / 人事组织主数据",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-common-core/src/main/java/com/hzchum/scim/common/core/service/impl/zhongnanoa/ShrPersonnelOrganizationServierImpl.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_SHR_HOST",
+          "spring_property": "zhongnan.shr.host",
+          "type": "url",
+          "required": true
+        }
+      ],
+      "material_file": "I02/contract.json",
+      "required_materials": [
+        "SHR接口响应样例（部门、岗位、人员）",
+        "组织根编码、人员稳定主键与全量/增量标识",
+        "同步禁用/离职范围及隔离测试组织"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/oa-shr-webhook.json",
+        "sha256": "e791eacc07b77d9af7d90a2f7e12d43c39aa55d8e9d58566b6ea343da6a79818"
+      }
+    },
+    {
+      "id": "I03",
+      "name": "BIM / 模型转换引擎",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_BIM_ENABLED",
+          "spring_property": "ljaps.integrations.bim.enabled",
+          "type": "bool",
+          "required": true,
+          "expected": "true"
+        },
+        {
+          "name": "LJAPS_BIM_APP_KEY",
+          "spring_property": "engine.appKey",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_BIM_APP_SECRET",
+          "spring_property": "engine.appSecret",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_CALLBACK_BASE_URL",
+          "spring_property": "chum.config.url",
+          "type": "https-url",
+          "required": true
+        },
+        {
+          "name": "LJAPS_BIM_API_HOST",
+          "spring_property": "engine.apiHost",
+          "type": "https-url",
+          "required": false
+        },
+        {
+          "name": "LJAPS_BIM_FILE_HOST",
+          "spring_property": "engine.fileHost",
+          "type": "https-url",
+          "required": false
+        },
+        {
+          "name": "LJAPS_BIM_BDFS_HOST",
+          "spring_property": "engine.bdfsHost",
+          "type": "https-url",
+          "required": false
+        }
+      ],
+      "material_file": "I03/contract.json",
+      "required_materials": [
+        "已授权真实模型文件和fileId/构件ID样例",
+        "SDK/引擎版本、配额及回调域名白名单",
+        "浏览器SDK/模型资源域名清单"
+      ],
+      "code_blockers": [
+        "BIM转换/集成回调也经过现平台token过滤器；需验证回调token与Redis状态后建立精确适配，不能匿名开放整段模型API。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/bim-bochu.json",
+        "sha256": "feee93e59f9136ee0a705c9b1badb4b21268a6a86429d9a5caba3009a006a9dc"
+      }
+    },
+    {
+      "id": "I04",
+      "name": "柏楚 / 套料与切割服务",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/third_party_api/BoChuNesting.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_BOCHU_APP_ID",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_BOCHU_SECRET",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_BOCHU_BASE_URL",
+          "spring_property": "chum.config.boChuUrl",
+          "type": "https-url",
+          "required": true
+        }
+      ],
+      "material_file": "I04/contract.json",
+      "required_materials": [
+        "测试团队Orgcode、车间/机床与材料/零件映射",
+        "真实作业/结果/NC/LXDS样例",
+        "回调或WebSocket地址、证书及服务责任"
+      ],
+      "code_blockers": [
+        "部分legacy分支仍有原固定Orgcode；须从现场团队映射确认适用范围。",
+        "WS被动监听初始化未启用，须明确回调/WS部署方式及重连责任。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/bim-bochu.json",
+        "sha256": "feee93e59f9136ee0a705c9b1badb4b21268a6a86429d9a5caba3009a006a9dc"
+      }
+    },
+    {
+      "id": "I05",
+      "name": "IoT / 设备与能耗看板",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/screen/ScreenUpServiceImpl.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_IOT_BASE_URL",
+          "spring_property": "equiment.ip",
+          "type": "url",
+          "required": true
+        }
+      ],
+      "material_file": "I05/contract.json",
+      "required_materials": [
+        "平台接口文档、认证和真实采集样例",
+        "机构/设备/工序对应表及时间/计量口径"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    },
+    {
+      "id": "I06",
+      "name": "地磅 / 自动称重",
+      "group": "核心业务",
+      "source_files": [
+        "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/MesWeighbridgeManagementServiceImpl.java",
+        "backend/modules/scim-iot-core/src/main/java/com/hzchum/scim/iot/core/service/impl/equipment/WeighingScaleEquipmentInfoServiceImpl.java"
+      ],
+      "environment": [],
+      "material_file": "I06/contract.json",
+      "required_materials": [
+        "地磅网关协议、url/device_id/docking_method记录样例",
+        "毛/皮/净重单位、标定值及测试车辆",
+        "本地或回调对接方式与签名说明"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    },
+    {
+      "id": "I07",
+      "name": "企业微信 / 审批通知",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushQiweiUtil.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_QIWEI_CORP_ID",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_QIWEI_CORP_SECRET",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        }
+      ],
+      "material_file": "I07/contract.json",
+      "required_materials": [
+        "应用通知/群机器人选型与AgentId/机器人测试群",
+        "测试接收人与消息样例"
+      ],
+      "code_blockers": [
+        "专用企业微信工具当前仅发现私有方法，实际消息可能走I13；必须确认采用应用通知还是群机器人。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I08",
+      "name": "微信 / 登录绑定与消息",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/WeChatApi.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_WECHAT_ENDPOINT",
+          "spring_property": "wechat.app.endpoint",
+          "type": "https-url",
+          "required": true
+        },
+        {
+          "name": "LJAPS_WECHAT_APP_ID",
+          "spring_property": "wechat.app.appid",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_WECHAT_APP_SECRET",
+          "spring_property": "wechat.app.secret",
+          "type": "secret",
+          "required": true
+        }
+      ],
+      "material_file": "I08/contract.json",
+      "required_materials": [
+        "微信应用类型、授权域/回调及code换身份文档",
+        "手机号/验证码/绑定解绑规则与测试微信身份"
+      ],
+      "code_blockers": [
+        "匿名登录/验证码入口受当前平台token过滤器限制。",
+        "历史generateTokenMap签发令牌与当前jti/uid/pwdv规则不兼容，需明确微信身份验证及绑定协议后接入。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I09",
+      "name": "钉钉 / 审批推送与回调",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushDingdingUtil.java",
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/schedule/DDTokenRefreshSchedule.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_DD_APP_KEY",
+          "spring_property": "chum.config.ddAppKey",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_APP_SECRET",
+          "spring_property": "chum.config.ddAppSecret",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_CORP_ID",
+          "spring_property": "chum.config.corpId",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_CALLBACK_TOKEN",
+          "spring_property": "chum.config.token",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_CALLBACK_AES_KEY",
+          "spring_property": "chum.config.aesKey",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_CHAT_ID",
+          "spring_property": "chum.config.ddChatid",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "LJAPS_DD_ENABLED",
+          "spring_property": "chum.config.enable",
+          "type": "bool",
+          "expected": "true",
+          "required": true
+        }
+      ],
+      "material_file": "I09/contract.json",
+      "required_materials": [
+        "钉钉测试应用及回调加密签名样例",
+        "通知模板、审批事件、用户/部门映射及允许测试接收人"
+      ],
+      "code_blockers": [
+        "回调受当前平台token过滤器限制；须按真实签名/加密协议形成精确入口适配，不能开放整个/api/dd。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I10",
+      "name": "短信 / 阿里云等发送通道",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/AliYunSMSUtil.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_SMS_ACCESS_KEY_ID",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMS_ACCESS_KEY_SECRET",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMS_SIGN_NAME",
+          "spring_property": "chum.sms.sign-name",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "LJAPS_SMS_SIGN_TITLE",
+          "spring_property": "chum.sms.sign-title",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "material_file": "I10/contract.json",
+      "required_materials": [
+        "已审核签名、模板Code与模板参数样例",
+        "授权测试接收号码与发送限额"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "source_note": "Spring签名只覆盖读取SmsProperties的入口；SmsUtils/AliYunSMSUtil的签名与模板仍按源码及测试账号实际核对，不能用通用字段冒充全覆盖。",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I11",
+      "name": "邮件 / SMTP",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/MailUtils.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_SMTP_HOST",
+          "spring_property": "spring.mail.host",
+          "type": "host",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_PORT",
+          "spring_property": "spring.mail.port",
+          "type": "port",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_USERNAME",
+          "spring_property": "spring.mail.username",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_PASSWORD",
+          "spring_property": "spring.mail.password",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_AUTH",
+          "spring_property": "spring.mail.properties.mail.smtp.auth",
+          "type": "bool",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_STARTTLS",
+          "spring_property": "spring.mail.properties.mail.smtp.starttls.enable",
+          "type": "bool",
+          "required": true
+        },
+        {
+          "name": "LJAPS_SMTP_SSL",
+          "spring_property": "spring.mail.properties.mail.smtp.ssl.enable",
+          "type": "bool",
+          "required": true
+        }
+      ],
+      "material_file": "I11/contract.json",
+      "required_materials": [
+        "SMTP的SSL/STARTTLS要求及发件身份",
+        "允许的测试收件箱与正文/附件样例"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I12",
+      "name": "极光 / App推送",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_JIGUANG_APP_KEY",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_JIGUANG_MASTER_SECRET",
+          "spring_property": null,
+          "type": "secret",
+          "required": true
+        }
+      ],
+      "material_file": "I12/contract.json",
+      "required_materials": [
+        "测试App/设备registrationId及平台",
+        "APNS环境、厂商渠道与消息payload样例"
+      ],
+      "code_blockers": [
+        "APNS生产标志及厂商渠道参数仍需与测试App契约匹配，不能把旧常量用于新App。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/messages.json",
+        "sha256": "7fd0b2751f5853b02f13039b05272aefbb1a4ba1880ce87e6f8fa655ad5e67a1"
+      }
+    },
+    {
+      "id": "I13",
+      "name": "Webhook / 自定义通知",
+      "group": "消息与身份",
+      "source_files": [
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/notification/SysPushWebhookConfigServiceImpl.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_WEBHOOK_ENABLED",
+          "spring_property": "ljaps.integrations.webhook.enabled",
+          "type": "bool",
+          "required": true,
+          "expected": "true"
+        }
+      ],
+      "material_file": "I13/contract.json",
+      "required_materials": [
+        "Webhook接收端协议、鉴权/签名/幂等约定",
+        "三类WMS消息及普通消息样例",
+        "隔离测试群/接收人范围"
+      ],
+      "code_blockers": [
+        "原WMS推送体含@all与固定agentid，须确认机器人/应用协议及测试收件范围后才能开启。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/oa-shr-webhook.json",
+        "sha256": "e791eacc07b77d9af7d90a2f7e12d43c39aa55d8e9d58566b6ea343da6a79818"
+      }
+    },
+    {
+      "id": "I14",
+      "name": "OSS / 远端对象存储",
+      "group": "存储与客户端",
+      "source_files": [
+        "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java"
+      ],
+      "environment": [
+        {
+          "name": "LJAPS_STORAGE_LOCAL",
+          "spring_property": "ljaps.storage.local",
+          "type": "bool",
+          "required": true,
+          "expected": "false"
+        },
+        {
+          "name": "LJAPS_OSS_ENDPOINT",
+          "spring_property": "endpoint",
+          "type": "https-url",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OSS_ACCESS_KEY_ID",
+          "spring_property": "accessKeyId",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OSS_ACCESS_KEY_SECRET",
+          "spring_property": "accessKeySecret",
+          "type": "secret",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OSS_BUCKET_NAME",
+          "spring_property": "bucketName",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "LJAPS_OSS_PUBLIC_BASE_URL",
+          "spring_property": "ljaps.storage.public-base-url",
+          "type": "https-url",
+          "required": true
+        }
+      ],
+      "material_file": "I14/contract.json",
+      "required_materials": [
+        "测试Bucket区域、对象前缀、可见性/授权和访问域名",
+        "隔离上传/下载/删除样例及旧附件兼容约定"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    },
+    {
+      "id": "I15",
+      "name": "独立招采系统 / bidding数据源",
+      "group": "存储与客户端",
+      "source_files": [],
+      "environment": [
+        {
+          "name": "LJAPS_BIDDING_EXTERNAL_URL",
+          "spring_property": "menu.recruitment.externalLinkAddress",
+          "type": "https-url",
+          "required": true,
+          "consumer_state": "legacy-MenuInitializer-excluded; persistent-menu-redirect-needs-explicit-application"
+        }
+      ],
+      "material_file": "I15/contract.json",
+      "required_materials": [
+        "独立招采入口、测试账号与回跳方式",
+        "是否启用本地bidding库及只读结构/连接资料",
+        "既有sys_menu的redirect/path/iframe/is_tripartite映射与入口更新方案（不重放旧菜单初始化）"
+      ],
+      "code_blockers": [
+        "命名bidding数据源未配置且当前运行仅有master，独立外链与本地bidding模块需分开确认。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    },
+    {
+      "id": "I16",
+      "name": "独立设备管理系统入口",
+      "group": "存储与客户端",
+      "source_files": [],
+      "environment": [
+        {
+          "name": "LJAPS_DEVICE_EXTERNAL_URL",
+          "spring_property": "menu.deviceManagement.externalLinkAddress",
+          "type": "https-url",
+          "required": true,
+          "consumer_state": "legacy-MenuInitializer-excluded; persistent-menu-redirect-needs-explicit-application"
+        }
+      ],
+      "material_file": "I16/contract.json",
+      "required_materials": [
+        "独立设备管理入口、测试账号与嵌入/回跳要求",
+        "既有sys_menu的redirect/path/iframe/is_tripartite映射与入口更新方案（不重放旧菜单初始化）"
+      ],
+      "code_blockers": [],
+      "discovery_review_complete": true,
+      "local_preparation": "source-and-configuration-prepared",
+      "real_test_status": "not-started",
+      "source_note": "设备/device路径追加的是LAST_DEVICE_PATH（v2），不是平台令牌；SSO能力按现场实际契约另核。",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    },
+    {
+      "id": "I17",
+      "name": "LODOP / C-Lodop与实体打印机",
+      "group": "存储与客户端",
+      "source_files": [
+        "frontend-recovered/src/runtime/printing.js"
+      ],
+      "environment": [],
+      "material_file": "I17/contract.json",
+      "required_materials": [
+        "目标操作系统/浏览器、客户端版本和安装材料",
+        "打印机驱动、纸张/标签/条码规格",
+        "LJAPS_PRINT_ADAPTER注入脚本及localhost端口清单"
+      ],
+      "code_blockers": [
+        "只预留LJAPS_PRINT_ADAPTER入口，现场客户端/适配器注入脚本及浏览器资源来源待提供。"
+      ],
+      "discovery_review_complete": true,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "real_test_status": "not-started",
+      "discovery": {
+        "file": "integrations/discovery/equipment-storage.json",
+        "sha256": "3a6147e4083895545b060b79c5ee5407f0e381690538fa4cf6821b4416c418e7"
+      }
+    }
+  ]
+}

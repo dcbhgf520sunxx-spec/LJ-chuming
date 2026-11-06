@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTaskOrderChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskOrderChange">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="task_type_enum" property="taskTypeEnum" />
+        <result column="user_id" property="userId" />
+        <result column="top_task_order_id" property="topTaskOrderId" />
+        <result column="production_line_type_enum" property="productionLineTypeEnum" />
+        <result column="old_task_order_id" property="oldTaskOrderId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_type_enum, user_id, top_task_order_id, production_line_type_enum, old_task_order_id
+    </sql>
+    <select id="getTaskOrderList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.change.MesBuildingTaskOrderChangeDO">
+        <choose>
+            <when test="taskTypeEnum==1">
+                SELECT
+                task_order.id,
+                task_order.order_number,
+                task_order.task_type_enum,
+                cut_config.id 'cut_config.id',
+                cut_config.`name` 'cut_config.name',
+                task.quantity,
+                task.total_net_weight,
+                task.total_gross_weight,
+                task.complete_quantity,
+                task.total_complete_net_weight,
+                task.total_complete_gross_weight
+                FROM
+                mes_building_task_order task_order
+                LEFT JOIN (
+                SELECT
+                task_order_id,
+                IFNULL( sum( quantity ), 0 ) quantity,
+                IFNULL( sum( complete_quantity ), 0 ) complete_quantity,
+                IFNULL( sum( total_net_weight ), 0 ) total_net_weight,
+                IFNULL( sum( total_gross_weight ), 0 ) total_gross_weight,
+                IFNULL( sum( total_complete_net_weight ), 0 ) total_complete_net_weight,
+                IFNULL( sum( total_complete_gross_weight ), 0 ) total_complete_gross_weight
+                FROM
+                (
+                SELECT
+                task.task_order_id,
+                task.task_quantity quantity,
+                task.complete_quantity complete_quantity,
+                task.task_quantity * product.net_weight total_net_weight,
+                task.task_quantity * product.gross_weight total_gross_weight,
+                task.complete_quantity * product.net_weight total_complete_net_weight,
+                task.complete_quantity * product.gross_weight total_complete_gross_weight
+                FROM
+                mes_building_task task
+                LEFT JOIN tech_machine_part product ON task.product_id = product.id
+                WHERE
+                task_type_enum = 1
+                AND task.task_quantity  &lt;&gt;
+                task.in_production_quantity
+                AND task.bool_delete_enum = 0
+                ) task
+                GROUP BY
+                task.task_order_id
+                ) task ON task.task_order_id = task_order.id
+                LEFT JOIN mes_building_cut_config cut_config ON task_order.cut_config_id = cut_config.id
+                WHERE
+                task_order.id IN (
+                SELECT
+                task_order_id
+                FROM
+                mes_building_nest_cut_plate
+                WHERE
+                id IN (
+                SELECT
+                mes_building_nest_cut_plate_id
+                FROM
+                mes_building_nest_cut_plate_part
+                <if test="projectId!=null">
+                WHERE
+                 part_id IN ( SELECT id FROM tech_machine_part WHERE project_id = #{projectId} )
+                </if>
+                )AND bool_issue_enum = 1 AND bool_production_eunm = 0
+                )
+            </when>
+            <otherwise>
+                SELECT
+                task_order.id,
+                task_order.order_number,
+                task_order.ask_complete_time,
+                user.id 'user.id',
+                user.`name` 'user.name',
+                project.id 'project.id',
+                monomer.id 'monomer.id',
+                monomer.name 'monomer.name',
+                project.`name` 'project.name',
+                project.short_name 'project.short_name',
+                project.serial_number 'project.serial_number',
+                gro.id 'groups.id',
+                gro.`name` 'groups.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name',
+                factory.id 'factory.id',
+                factory.`name` 'factory.name',
+                task.task_order_id,
+                task.quantity,
+                task.complete_quantity,
+                <if test="taskTypeEnum &amp; 2">
+                    task.total_net_weight,
+                    task.total_gross_weight,
+                    task.total_complete_net_weight,
+                    task.total_complete_gross_weight
+                </if>
+                <if test="taskTypeEnum &amp; 16">
+                    task.total_net_weight,
+                    task.total_complete_net_weight
+                </if>
+                FROM
+                mes_building_task_order task_order
+                LEFT JOIN(SELECT
+                task_order_id,
+                IFNULL(sum(quantity),0) quantity,
+                IFNULL(sum(complete_quantity),0) complete_quantity,
+                <if test="taskTypeEnum &amp; 2">
+                    IFNULL(sum(total_net_weight),0) total_net_weight,
+                    IFNULL(sum(total_gross_weight),0) total_gross_weight,
+                    IFNULL(sum(total_complete_net_weight),0) total_complete_net_weight,
+                    IFNULL(sum(total_complete_gross_weight),0) total_complete_gross_weight
+                </if>
+                <if test="taskTypeEnum &amp; 16">
+                    IFNULL(sum(total_net_weight),0) total_net_weight,
+                    IFNULL(sum(total_gross_weight),0) total_gross_weight,
+                    IFNULL(sum(total_complete_net_weight),0) total_complete_net_weight,
+                    IFNULL(sum(total_complete_gross_weight),0) total_complete_gross_weight
+                </if>
+                FROM
+                (
+                SELECT
+                task.task_order_id,
+                task.task_quantity quantity,
+                task.complete_quantity complete_quantity,
+                <if test="taskTypeEnum &amp; 2">
+                    task.task_quantity * product.net_weight total_net_weight,
+                    task.task_quantity * product.gross_weight total_gross_weight,
+                    task.complete_quantity * product.net_weight total_complete_net_weight,
+                    task.complete_quantity * product.gross_weight total_complete_gross_weight
+                </if>
+                <if test="taskTypeEnum &amp; 16">
+                    CASE task_type_enum
+                    WHEN 16 THEN
+                    task.task_quantity * product.net_weight
+                    ELSE
+                    task.task_quantity * typesetting.net_weight
+                    END total_net_weight,
+                    CASE task_type_enum
+                    WHEN 16 THEN
+                    task.task_quantity * product.net_weight
+                    ELSE
+                    task.task_quantity * typesetting.net_weight
+                    END total_gross_weight,
+                    CASE task_type_enum
+                    WHEN 16 THEN
+                    task.complete_quantity * product.net_weight
+                    ELSE
+                    task.complete_quantity * typesetting.net_weight
+                    END total_complete_net_weight,
+                    CASE task_type_enum
+                    WHEN 16 THEN
+                    task.complete_quantity * product.net_weight
+                    ELSE
+                    task.complete_quantity * typesetting.net_weight
+                    END total_complete_gross_weight
+                </if>
+                FROM
+                mes_building_task task
+                <if test="taskTypeEnum &amp; 2">
+                    LEFT JOIN tech_artifact product ON task.product_id = product.id
+                </if>
+                <if test="taskTypeEnum &amp; 16">
+                    LEFT JOIN tech_assemble product ON task.product_id = product.id
+                </if>
+                WHERE
+                task_type_enum &amp; #{taskTypeEnum}
+                AND task.task_quantity &lt;&gt;task.in_production_quantity
+                AND task.bool_delete_enum=0
+                <if test="projectId!=null">
+                    AND task.project_id=#{projectId}
+                </if>
+                ) task
+                GROUP BY task.task_order_id) task ON task.task_order_id=task_order.id
+                LEFT JOIN sys_user user ON user.id=task_order.user_id
+                LEFT JOIN contract_project project ON project.id=task_order.project_id
+                LEFT JOIN plan_monomer monomer ON monomer.id = task_order.monomer_id
+                LEFT JOIN mes_building_groups gro ON gro.id=task_order.groups_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id=gro.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id=gro.production_line_id
+                LEFT JOIN mes_building_factory factory ON factory.id=gro.factory_id
+                WHERE
+                task_order.complete_time IS NULL AND task_order.bool_delete_enum=0 AND task.quantity IS NOT NULL
+                <if test="projectId!=null">
+                    AND task_order.project_id=#{projectId}
+                </if>
+                <if test="dateTime!=null">
+                    AND date_format(task_order.create_time, '%Y-%m') = date_format(#{dateTime}, '%Y-%m')
+                </if>
+                AND task_order.task_type_enum &amp; #{taskTypeEnum}
+                ORDER BY
+                task_order.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getTaskOrderDetailsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.change.MesBuildingTaskChangeDO">
+        <choose>
+            <when test="taskTypeEnum==1">
+                SELECT
+                cut_plate.id,
+                cut_plate.cut_number,
+                cut_plate.ask_complete_time,
+                1 task_type_enum,
+                CONCAT_WS( '*', round( cut_plate.thick, 0 ), round( cut_plate.width, 0 ), round( cut_plate.length, 0 ) ) AS specification,
+                USER.id 'user.id',
+                USER.`name` 'user.name',
+                gro.id 'groups.id',
+                gro.`name` 'groups.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name',
+                factory.id 'factory.id',
+                factory.`name` 'factory.name',
+                part.quantity,
+                part.net_weight,
+                part.gross_weight,
+                part.total_net_weight,
+                part.total_gross_weight
+                FROM
+                mes_building_nest_cut_plate cut_plate
+                LEFT JOIN sys_user USER ON USER.id = cut_plate.user_id
+                LEFT JOIN mes_building_groups gro ON gro.id = cut_plate.groups_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = cut_plate.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = cut_plate.production_line_id
+                LEFT JOIN mes_building_factory factory ON factory.id = cut_plate.factory_id
+                LEFT JOIN (
+                SELECT
+                a.mes_building_nest_cut_plate_id,
+                IFNULL( SUM( quantity ), 0 ) quantity,
+                IFNULL( SUM( net_weight ), 0 ) net_weight,
+                IFNULL( SUM( gross_weight ), 0 ) gross_weight,
+                IFNULL( SUM( total_net_weight ), 0 ) total_net_weight,
+                IFNULL( SUM( total_gross_weight ), 0 ) total_gross_weight
+                FROM
+                (
+                SELECT
+                a.mes_building_nest_cut_plate_id,
+                a.quantity,
+                b.net_weight,
+                b.gross_weight,
+                a.quantity * b.net_weight total_net_weight,
+                a.quantity * b.gross_weight total_gross_weight
+                FROM
+                mes_building_nest_cut_plate_part a
+                LEFT JOIN tech_machine_part b ON a.part_id = b.id
+                WHERE  a.task_order_id = #{taskOrderId}
+                ) a
+                GROUP BY
+                mes_building_nest_cut_plate_id
+                ) part ON part.mes_building_nest_cut_plate_id = cut_plate.id
+                WHERE
+                cut_plate.bool_delete_enum = 0
+                AND cut_plate.task_order_id = #{taskOrderId}
+                AND cut_plate.bool_issue_enum = 1
+                AND cut_plate.bool_production_eunm =0
+            </when>
+            <otherwise>
+                SELECT
+                task.id,
+                task.task_quantity-task.in_production_quantity quantity,
+                <choose>
+                    <when test="taskTypeEnum==2">
+                        (task.task_quantity-task.in_production_quantity) * artifact.net_weight total_net_weight,
+                        (task.task_quantity-task.in_production_quantity) * artifact.gross_weight total_gross_weight,
+                        artifact.serial_number,
+                        artifact.specification,
+                        artifact.length,
+                        artifact.structure_class_id config_id,
+                        task.ask_complete_time,
+                    </when>
+                    <otherwise>
+                        CASE
+                        task.task_type_enum
+                        WHEN 16 THEN
+                        (task.task_quantity-task.in_production_quantity) * assemble.net_weight
+                        END total_net_weight,
+
+                        CASE
+                        task.task_type_enum
+                        WHEN 16 THEN
+                        assemble.serial_number
+                        END serial_number,
+
+                        CASE
+                        task.task_type_enum
+                        WHEN 16 THEN
+                        assemble.specification
+                        END specification,
+                        CASE
+                        task.task_type_enum
+                        WHEN 16 THEN
+                        assemble.length
+                        END length,
+
+                        CASE
+                        task.task_type_enum
+                        WHEN 16 THEN
+                        assemble.assemble_config_id
+                        END config_id,
+                    </otherwise>
+                </choose>
+                task.task_type_enum,
+                area.id 'area.id',
+                area.`name` 'area.name'
+                FROM
+                mes_building_task task
+                LEFT JOIN plan_area area ON area.id = task.area_id
+                <choose>
+                    <when test="taskTypeEnum==2">
+                        LEFT JOIN tech_artifact artifact ON task.product_id = artifact.id
+                    </when>
+                    <otherwise>
+                        LEFT JOIN tech_assemble assemble ON task.product_id = assemble.id
+                    </otherwise>
+                </choose>
+                WHERE
+                task.task_order_id =#{taskOrderId}
+                AND task.task_type_enum &amp; #{taskTypeEnum}
+                AND task.bool_delete_enum=0
+                AND task.task_quantity>task.in_production_quantity
+                <if test="areaId!=null">
+                    AND task.areaId=#{areaId}
+                </if>
+                <choose>
+                    <when test="taskTypeEnum==2">
+                        <if test="serialNumber!=null and serialNumber!=''">
+                            AND artifact.serial_number LIKE concat('%',#{serialNumber},'%')
+                        </if>
+                        <if test="specification!=null and specification!=''">
+                            AND artifact.specification LIKE concat('%',#{specification},'%')
+                        </if>
+                    </when>
+                    <otherwise>
+                        <if test="serialNumber!=null and serialNumber!=''">
+                            AND (assemble.serial_number LIKE concat('%',#{serialNumber},'%'))
+                        </if>
+                        <if test="specification!=null and specification!=''">
+                            AND (assemble.specification LIKE concat('%',#{specification},'%'))
+                        </if>
+                    </otherwise>
+                </choose>
+                ORDER BY
+                task.area_id
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getChangeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.change.MesBuildingChangeDO">
+        <choose>
+            <when test="taskTypeEnum==1">
+                SELECT
+                task_order_change.id,
+                task_order_change.create_time,
+                task_order.order_number,
+                task_order.task_type_enum,
+                USER.id 'user.id ',
+                USER.`name` 'user.name',
+                gro.id 'groups.id',
+                gro.`name` 'groups.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name',
+                IFNULL( details.quantity, 0 ) quantity,
+                IFNULL( details.total_net_weight, 0 ) total_net_weight,
+                IFNULL( details.total_gross_weight, 0 ) total_gross_weight
+                FROM
+                mes_building_task_order_change task_order_change
+                LEFT JOIN sys_user USER ON USER.id = task_order_change.user_id
+                LEFT JOIN mes_building_task_order task_order ON task_order.id = task_order_change.old_task_order_id
+                LEFT JOIN mes_building_groups gro ON gro.id = task_order.groups_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = gro.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = gro.production_line_id
+                LEFT JOIN (
+                SELECT
+                a.quantity,
+                total_net_weight,
+                details.change_id
+                FROM
+                mes_building_task_order_change_details details
+                LEFT JOIN (
+                SELECT
+                a.mes_building_nest_cut_plate_id,
+                sum( a.quantity ) quantity,
+                sum( a.total_net_weight ) total_net_weight,
+                sum( a.total_gross_weight ) total_gross_weight
+                FROM
+                (
+                SELECT
+                cut_plate_part.mes_building_nest_cut_plate_id,
+                cut_plate_part.quantity,
+                cut_plate_part.quantity * machine_part.net_weight total_net_weight,
+                cut_plate_part.quantity * machine_part.gross_weight total_gross_weight
+                FROM
+                mes_building_nest_cut_plate_part cut_plate_part
+                LEFT JOIN tech_machine_part machine_part ON cut_plate_part.part_id = machine_part.id
+                ) a
+                GROUP BY
+                a.mes_building_nest_cut_plate_id
+                ) a ON details.nest_cut_plate_id = a.mes_building_nest_cut_plate_id
+                ) details ON details.change_id = task_order_change.id
+                WHERE task_order_change.task_type_enum&amp;#{taskTypeEnum}
+                ORDER BY
+                task_order_change.create_time
+            </when>
+            <otherwise>
+                SELECT
+                task_order_change.id,
+                task_order_change.create_time,
+                task_order.order_number,
+                task_order.task_type_enum,
+                USER.id 'user.id ',
+                USER.`name` 'user.name',
+                gro.id 'groups.id',
+                gro.`name` 'groups.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name',
+                project.id 'project.id',
+                project.`name` 'project.name',
+                project.short_name 'project.short_name',
+                project.serial_number 'project.serial_number',
+                monomer.id 'monomer.id',
+                monomer.`name` 'monomer.name',
+                IFNULL( details.quantity, 0 ) quantity,
+                IFNULL( details.total_net_weight, 0 ) total_net_weight,
+                IFNULL( details.total_gross_weight, 0 ) total_gross_weight
+                FROM
+                mes_building_task_order_change task_order_change
+                LEFT JOIN sys_user USER ON USER.id = task_order_change.user_id
+                LEFT JOIN mes_building_task_order task_order ON task_order.id = task_order_change.old_task_order_id
+                LEFT JOIN mes_building_groups gro ON gro.id = task_order.groups_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = gro.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = gro.production_line_id
+                LEFT JOIN contract_project project ON project.id = task_order.project_id
+                LEFT JOIN plan_monomer monomer ON monomer.id = task_order.monomer_id
+                LEFT JOIN (
+                SELECT
+                a.change_id,
+                sum( a.quantity ) quantity,
+                sum( a.total_net_weight ) total_net_weight,
+                sum( a.total_gross_weight ) total_gross_weight
+                FROM
+                (
+                SELECT
+                details.change_id,
+                details.quantity,
+                CASE
+                details.task_type_enum
+                WHEN 2 THEN
+                details.quantity * artifact.net_weight
+                WHEN 16 THEN
+                details.quantity * assemble.net_weight
+                END total_net_weight,
+                CASE
+                details.task_type_enum
+                WHEN 2 THEN
+                details.quantity * artifact.gross_weight
+                WHEN 16 THEN
+                0 ELSE 0
+                END total_gross_weight
+                FROM
+                mes_building_task_order_change_details details
+                LEFT JOIN tech_artifact artifact ON artifact.id = details.product_id
+                LEFT JOIN tech_assemble assemble ON assemble.id = details.product_id
+                ) a
+                GROUP BY
+                a.change_id
+                ) details ON details.change_id = task_order_change.id
+                <where>
+                    <if test="userName!=null and userName!=''">
+                        user.name like concat('%',#{userName},'%')
+                    </if>
+                </where>
+                WHERE task_order_change.task_type_enum&amp;#{taskTypeEnum}
+                ORDER BY
+                task_order_change.create_time
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getChangeDetailsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.change.MesBuildingChangeDetailsDO">
+            <choose>
+                <when test="taskTypeEnum==1">
+                    SELECT
+                    details.change_id ,
+                    cut_plate.cut_number,
+                    cut_plate.pdf_url ,
+                    CONCAT_WS( '*', round( cut_plate.thick, 0 ), round( cut_plate.width, 0 ), round( cut_plate.length, 0 ) ) AS specification,
+                    gro.id 'groups.id',
+                    gro.`name` 'groups.name',
+                    workshop.id 'workshop.id',
+                    workshop.`name` 'workshop.name',
+                    production_line.id 'production_line.id',
+                    production_line.`name` 'production_line.name',
+                    a.quantity,
+                    total_net_weight,
+                    total_gross_weight
+                    FROM
+                    mes_building_task_order_change_details details
+                    LEFT JOIN mes_building_nest_cut_plate cut_plate ON cut_plate.id=details.nest_cut_plate_id
+                    LEFT JOIN mes_building_groups gro ON gro.id = cut_plate.groups_id
+                    LEFT JOIN mes_building_workshop workshop ON workshop.id = cut_plate.workshop_id
+                    LEFT JOIN mes_building_production_line production_line ON production_line.id = cut_plate.production_line_id
+                    LEFT JOIN (
+                    SELECT
+                    a.mes_building_nest_cut_plate_id,
+                    sum( a.quantity ) quantity,
+                    sum( a.total_net_weight ) total_net_weight,
+                    sum( a.total_gross_weight ) total_gross_weight
+                    FROM
+                    (
+                    SELECT
+                    cut_plate_part.mes_building_nest_cut_plate_id,
+                    cut_plate_part.quantity,
+                    cut_plate_part.quantity * machine_part.net_weight total_net_weight,
+                    cut_plate_part.quantity * machine_part.gross_weight total_gross_weight
+                    FROM
+                    mes_building_nest_cut_plate_part cut_plate_part
+                    LEFT JOIN tech_machine_part machine_part ON cut_plate_part.part_id = machine_part.id
+                    ) a
+                    GROUP BY
+                    a.mes_building_nest_cut_plate_id
+                    ) a ON details.nest_cut_plate_id = a.mes_building_nest_cut_plate_id
+                    WHERE
+                    details.change_id = #{changeId}
+                </when>
+                <otherwise>
+                    SELECT
+                    a.new_task_order_id,
+                    a.quantity,
+                    a.id,
+                    a.task_type_enum,
+                    a.product_id,
+                    a.order_number,
+                    a.total_net_weight,
+                    a.net_weight,
+                    a.total_gross_weight,
+                    a.gross_weight,
+                    a.serial_number,
+                    a.specification,
+                    a.length,
+                    a.groups_id 'groups.id',
+                    a.groups_name 'groups.name',
+                    a.workshop_id 'workshop.id',
+                    a.workshop_name 'workshop.name',
+                    a.production_line_id 'production_line.id',
+                    a.production_line_name 'production_line.name',
+                    area.id 'area.id',
+                    area.`name` 'area.name'
+                    FROM
+                    (
+                    SELECT
+                    details.new_task_order_id,
+                    details.task_type_enum,
+                    details.quantity,
+                    details.id,
+                    details.product_id,
+                    task_order.order_number,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    details.quantity * artifact.net_weight
+                    WHEN 16 THEN
+                    details.quantity * assemble.net_weight
+                    END total_net_weight,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.net_weight
+                    WHEN 16 THEN
+                    assemble.net_weight
+                    END net_weight,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    details.quantity * artifact.gross_weight
+                    WHEN 16 THEN
+                    0 ELSE 0
+                    END total_gross_weight,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.gross_weight
+                    WHEN 16 THEN
+                    0 ELSE 0
+                    END gross_weight,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.serial_number
+                    WHEN 16 THEN
+                    assemble.serial_number
+                    END serial_number,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.specification
+                    WHEN 16 THEN
+                    assemble.specification
+                    END specification,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.length
+                    WHEN 16 THEN
+                    assemble.length
+                    END length,
+                    CASE
+                    details.task_type_enum
+                    WHEN 2 THEN
+                    artifact.area_id
+                    WHEN 16 THEN
+                    assemble.area_id ELSE NULL
+                    END area_id,
+                    gro.id groups_id,
+                    gro.`name` groups_name,
+                    workshop.id workshop_id,
+                    workshop.`name` workshop_name,
+                    production_line.id production_line_id,
+                    production_line.`name` production_line_name
+                    FROM
+                    mes_building_task_order_change_details details
+                    LEFT JOIN tech_artifact artifact ON artifact.id = details.product_id
+                    LEFT JOIN tech_assemble assemble ON assemble.id = details.product_id
+                    LEFT JOIN mes_building_task_order task_order ON task_order.id = details.new_task_order_id
+                    LEFT JOIN mes_building_groups gro ON gro.id = task_order.groups_id
+                    LEFT JOIN mes_building_workshop workshop ON workshop.id = gro.workshop_id
+                    LEFT JOIN mes_building_production_line production_line ON production_line.id = gro.production_line_id
+                    WHERE
+                    details.change_id = #{changeId}
+                    ORDER BY
+                    details.new_task_order_id
+                    ) a
+                    LEFT JOIN plan_area area ON a.area_id=area.id
+                </otherwise>
+            </choose>
+
+    </select>
+
+</mapper>

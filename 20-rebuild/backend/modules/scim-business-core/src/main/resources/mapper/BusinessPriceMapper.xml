@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessPriceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessPrice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="product_type" property="productType"/>
+        <result column="pricing_name" property="pricingName"/>
+        <result column="pricing_manner_enum" property="pricingMannerEnum"/>
+        <result column="pricing_unit_type_enum" property="pricingUnitTypeEnum"/>
+        <result column="pricing_weight_type_enum" property="pricingWeightTypeEnum"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="pricing_mete" property="pricingMete"/>
+        <!--        <result column="total_weight" property="totalWeight"/>-->
+        <!--        <result column="total_length" property="totalLength"/>-->
+        <!--        <result column="total_area" property="totalArea"/>-->
+        <result column="unit_price" property="unitPrice"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="remark" property="remark"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_time" property="auditTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, product_type, pricing_name, pricing_manner_enum, pricing_unit_type_enum, pricing_weight_type_enum, total_quantity, pricing_mete, unit_price, total_price, remark, create_user_id, audit_status, audit_user_id, audit_time
+    </sql>
+
+
+    <select id="selectListByCondition"
+            resultType="com.hzchum.scim.business.core.api.pojo.doModel.BusinessPrice">
+        SELECT bp.*
+        FROM business_price AS bp
+        INNER JOIN contract_project AS cp ON cp.id = bp.project_id
+        INNER JOIN business_price_detail AS de ON bp.id = de.business_price_id
+        LEFT JOIN tech_artifact AS a ON de.product_type = 2 AND de.product_id = a.id AND a.bool_delete_enum = 0
+        LEFT JOIN tech_enclosure AS b ON de.product_type = 4 AND de.product_id = b.id AND b.bool_delete_enum = 0
+        LEFT JOIN tech_standard_part AS c ON de.product_type = 8 AND de.product_id = c.id AND c.bool_delete_enum = 0
+        WHERE bp.bool_delete_enum = 0
+        AND cp.bool_delete_enum = 0
+        AND de.bool_delete_enum = 0
+        and bp.project_id in
+        <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+            #{projectId}
+        </foreach>
+        <if test="year != null">
+            AND YEAR(cp.create_time) = YEAR(#{year})
+        </if>
+        <if test="branchCompanyId != null">
+            AND bp.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="projectId != null">
+            AND bp.project_id = #{projectId}
+        </if>
+        <if test="productType != null">
+            AND bp.product_type = #{productType}
+        </if>
+        <if test="pricingMannerEnum != null">
+            AND bp.pricing_manner_enum = #{pricingMannerEnum}
+        </if>
+        <if test="auditStatus != null">
+            AND bp.audit_status = #{auditStatus}
+        </if>
+        <if test="pricingName != null and pricingName != ''">
+            AND bp.pricing_name LIKE CONCAT('%', #{pricingName},'%')
+        </if>
+        <if test="name != null and name != ''">
+            and (
+            a.name LIKE CONCAT('%', #{name},'%')
+            or b.name LIKE CONCAT('%', #{name},'%')
+            or c.name LIKE CONCAT('%', #{name},'%')
+            )
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and (
+            a.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+            or b.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+            or c.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+            )
+        </if>
+        GROUP BY bp.id
+        HAVING IFNULL(sum(a.quantity), 0) + IFNULL(sum(b.quantity), 0) + IFNULL(sum(c.quantity), 0) > 0
+        ORDER BY
+        bp.audit_status,
+        bp.id DESC
+
+    </select>
+
+</mapper>

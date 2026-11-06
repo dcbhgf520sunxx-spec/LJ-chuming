@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.bid.core.mapper.SubjectMapper">
+
+    <select id="getSubjectList" resultType="com.hzchum.scim.bid.core.api.pojo.vo.SubjectTreeVO">
+        SELECT
+        st.id AS subjectId,
+        st.pid,
+        st.name,
+        st.level,
+        st.unit_name,
+        st.path,
+        st.bool_last_enum,
+        ifnull(sc.code,'') code,
+        ifnull(sc.number,1) number
+        FROM subject st
+        LEFT JOIN subject_config sc on sc.subject_id = st.id AND sc.UUID = #{uuid}
+        <where>
+            and subject.bool_delete_enum = 0
+            <if test="configuration != null ">
+                AND st.level = 1
+            </if>
+        </where>
+        ORDER BY st.pid desc
+    </select>
+
+
+    <select id="getSubjectByPath" resultType="com.hzchum.scim.bid.core.api.pojo.vo.SubjectTreeVO">
+        SELECT
+        st.id AS subjectId,
+        st.pid,
+        st.name,
+        st.level,
+        st.unit_name,
+        st.path,
+        st.bool_last_enum
+        FROM subject st
+        where st.bool_delete_enum = 0 and st.path LIKE concat(#{path},'%')
+    </select>
+
+</mapper>

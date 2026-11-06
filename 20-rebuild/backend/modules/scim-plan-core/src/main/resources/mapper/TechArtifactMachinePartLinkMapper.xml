@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactMachinePartLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactMachinePartLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="machine_part_id" property="machinePartId"/>
+        <result column="quantity" property="quantity"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, artifact_id, machine_part_id, quantity
+    </sql>
+
+
+    <select id="selectArtifactPartByConditions" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactDTO">
+        SELECT distinct
+        a.id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.area_batch_id,
+        2 product_type,
+        a.bool_status_enum,
+        a.bool_abnormal_enum abnormal,
+        a.structure_type,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.length,
+        a.material,
+        a.quantity,
+        a.total_net_weight,
+        a.total_gross_weight,
+        a.net_weight,
+        a.gross_weight,
+        a.surface_area / 1000000 surface_area,
+        a.surface_area * a.quantity / 1000000 totalSurfaceArea,
+        a.top_flange_area / 1000000 as top_flange_area,
+        a.drawing_number,
+        a.remark,
+        a.user_id,
+        a.business_id,
+        a.produced_quantity,
+        a.area_type,
+        a.smart_line_mark_word,
+        a.artifact_type,
+        a.production_line_type_enum,
+        a.bool_blasting_enum,
+        a.bool_coating_enum,
+        a.bool_scheduling_enum,
+        a.coding_type,
+        a.structure_class_id,
+        a.create_time,
+        a.drawing_weight,
+        a.total_drawing_weight,
+        a.bool_send_directly,
+        u.name as user_name,
+        1 has_machine_part,
+        a.printed_code
+        FROM
+        tech_artifact AS a
+        LEFT JOIN sys_user AS u ON a.user_id = u.id AND u.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON a.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        <if test="machinePartSerialNumber != null and machinePartSerialNumber != ''">
+            INNER JOIN (
+            SELECT DISTINCT link.artifact_id
+            FROM tech_artifact_machine_part_link AS link
+            INNER JOIN tech_machine_part AS m
+            ON m.id = link.machine_part_id
+            WHERE link.bool_delete_enum = 0
+            AND m.bool_delete_enum = 0
+            <if test="areaId != null">
+                AND m.area_id = #{areaId}
+            </if>
+            <if test="areaBatchId != null">
+                AND m.area_batch_id = #{areaBatchId}
+            </if>
+            AND m.relation_type in (2 )
+            AND m.serial_number like concat('%',#{machinePartSerialNumber},'%')
+            ) AS ids ON a.id = ids.artifact_id
+        </if>
+        <if test="assembleSerialNumber != null and assembleSerialNumber != ''">
+            INNER JOIN (
+            SELECT
+            DISTINCT link.artifact_id
+            FROM tech_assemble_detail AS link
+            INNER JOIN tech_assemble AS m
+            ON m.id = link.assemble_id
+            WHERE link.bool_delete_enum = 0
+            AND m.bool_delete_enum = 0
+            <if test="areaId != null">
+                AND m.area_id = #{areaId}
+            </if>
+            <if test="areaBatchId != null">
+                AND m.area_batch_id = #{areaBatchId}
+            </if>
+            AND m.serial_number like concat('%',#{assembleSerialNumber},'%')
+            ) AS assembleDetail ON a.id = assembleDetail.artifact_id
+        </if>
+        WHERE a.bool_delete_enum = 0
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId != null">
+            and a.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber!= null and serialNumber != '' ">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification!= null and specification != '' ">
+            and a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="material!= null and material != '' ">
+            and a.material like concat('%',#{material},'%')
+        </if>
+        <if test="userName!= null and userName != '' ">
+            and a.user_names like concat('%',#{userName},'%')
+        </if>
+        <if test="dateTimeList != null and dateTimeList.size()>0">
+            <if test="dateTimeList[0] != null">
+                AND date_format(a.create_time, '%Y-%m-%d')  &gt;= date_format(#{dateTimeList[0]}, '%Y-%m-%d')
+            </if>
+            <if test="dateTimeList[1] != null">
+                AND date_format(a.create_time, '%Y-%m-%d')  &lt;= date_format(#{dateTimeList[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+
+    </select>
+    <select id="getArtifactPartConvertCounts"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.ArtifactAssociationCount">
+        <if test="artifactId.size > 0">
+            SELECT
+            td.artifact_id,
+            td.machine_part_id asseOrPartId,
+            td.quantity,
+            ta.produced_quantity - ta.used_quantity unusedQuantity
+            FROM
+            tech_artifact_machine_part_link td
+            LEFT JOIN tech_machine_part ta ON td.machine_part_id = ta.id
+            WHERE
+            td.bool_delete_enum = 0
+            AND ta.bool_delete_enum = 0
+            AND ta.relation_type = 2
+            AND ta.bool_process = 1
+            AND td.artifact_id IN
+            <foreach collection="artifactId" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+
+    </select>
+
+</mapper>

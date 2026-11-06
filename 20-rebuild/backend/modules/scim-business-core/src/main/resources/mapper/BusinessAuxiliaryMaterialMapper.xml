@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessAuxiliaryMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessAuxiliaryMaterial">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_full_name" property="classifyFullName"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="specification" property="specification"/>
+        <result column="color" property="color"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="measure_precision" property="measurePrecision"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="accounting_precision" property="accountingPrecision"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, classify_id, classify_full_name, classify_name, serial_number, specification, color, measure_unit, measure_precision, accounting_unit, accounting_precision, quantity, mete
+    </sql>
+    <select id="summary" resultType="com.hzchum.scim.business.core.api.pojo._do.AuxiliaryMaterialSummaryDO">
+        select ifnull(sum(mete),0) total_mete,
+        ifnull(sum(unit_price * mete),0) total_price
+        from business_auxiliary_material
+        <where>
+            <if test="projectId != null">
+                and project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and monomer_id = #{monomerId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

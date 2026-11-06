@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.StatisticsMonthRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsMonthRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="wap_id" property="wapId"/>
+        <result column="specs" property="specs"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="thickness" property="thickness"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="standardName"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="total_mete" property="totalMete"/>
+        <result column="inbound_mete" property="inboundMete"/>
+        <result column="inbound_quantity" property="inboundQuantity"/>
+        <result column="inbound_amount" property="inboundAmount"/>
+        <result column="inbound_amount_excluding_vat" property="inboundAmountExcludingVat"/>
+        <result column="inbound_unit_price" property="inboundUnitPrice"/>
+        <result column="inbound_unit_price_excluding_vat" property="inboundUnitPriceExcludingVat"/>
+        <result column="outbound_mete" property="outboundMete"/>
+        <result column="outbound_quantity" property="outboundQuantity"/>
+        <result column="outbound_amount" property="outboundAmount"/>
+        <result column="outbound_amount_excluding_vat" property="outboundAmountExcludingVat"/>
+        <result column="outbound_unit_price" property="outboundUnitPrice"/>
+        <result column="outbound_unit_price_excluding_vat" property="outboundUnitPriceExcludingVat"/>
+        <result column="specification" property="specification"/>
+        <result column="end_amount" property="endAmount"/>
+        <result column="end_amount_excluding_vat" property="endAmountExcludingVat"/>
+        <result column="end_mete" property="endMete"/>
+        <result column="end_quantity" property="endQuantity"/>
+        <result column="end_unit_price" property="endUnitPrice"/>
+        <result column="end_unit_price_excluding_vat" property="endUnitPriceExcludingVat"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, wap_id, specs, basic_class, classify_id, project_id, thickness, theory_thickness, brand, color, heat_no_and_batch_no, unit_net, bool_party_a, invoice_type, tax_rate, standard_id, standard_name, type, total_quantity, total_mete, inbound_mete, inbound_quantity, inbound_amount, inbound_amount_excluding_vat, inbound_unit_price, inbound_unit_price_excluding_vat, outbound_mete, outbound_quantity, outbound_amount, outbound_amount_excluding_vat, outbound_unit_price, outbound_unit_price_excluding_vat, specification, end_amount, end_amount_excluding_vat, end_mete, end_quantity, end_unit_price, end_unit_price_excluding_vat
+    </sql>
+
+    <resultMap id="getList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.StatisticsDTO">
+        <id column="id" property="id"/>
+        <result column="specs" property="specs"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="wap_id" property="wapId"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="className" property="classifyName"/>
+        <result column="stat_id" property="statId"/>
+        <association property="inbound" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+            <result column="inbound_mete" property="mete"/>
+            <result column="inbound_quantity" property="quantity"/>
+            <result column="inbound_amount" property="amount"/>
+            <result column="inbound_amount_excluding_vat" property="amountExcludingVAT"/>
+            <result column="inbound_unit_price" property="unitPrice"/>
+            <result column="inbound_unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        </association>
+        <association property="transfer" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+            <result column="transfer_mete" property="mete"/>
+            <result column="transfer_quantity" property="quantity"/>
+            <result column="transfer_amount" property="amount"/>
+            <result column="transfer_amount_excluding_vat" property="amountExcludingVAT"/>
+            <result column="transfer_unit_price" property="unitPrice"/>
+            <result column="transfer_unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        </association>
+        <association property="outbound" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+            <result column="outbound_mete" property="mete"/>
+            <result column="outbound_quantity" property="quantity"/>
+            <result column="outbound_amount" property="amount"/>
+            <result column="outbound_amount_excluding_vat" property="amountExcludingVAT"/>
+            <result column="outbound_unit_price" property="unitPrice"/>
+            <result column="outbound_unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        </association>
+        <association property="endPeriod" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+            <result column="end_mete" property="mete"/>
+            <result column="end_quantity" property="quantity"/>
+            <result column="end_amount" property="amount"/>
+            <result column="end_amount_excluding_vat" property="amountExcludingVAT"/>
+            <result column="end_unit_price" property="unitPrice"/>
+            <result column="end_unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="wmId" property="id"/>
+            <id column="measureUnit" property="measureUnit"/>
+            <id column="measurePrecision" property="measurePrecision"/>
+            <id column="accountingUnit" property="accountingUnit"/>
+            <id column="accountingPrecision" property="accountingPrecision"/>
+            <id column="outboundUnitType" property="outboundUnitType"/>
+            <id column="rdRate" property="rdRate"/>
+        </association>
+    </resultMap>
+    <select id="getListById" resultMap="getList">
+        select
+        wsmr.id,
+        wsmr.wap_id,
+        wsmr.specs,
+        wsmr.basic_class,
+        wsmr.classify_id,
+        wsmr.project_id,
+        wsmr.thickness,
+        wsmr.theory_thickness,
+        wsmr.brand,
+        wsmr.color,
+        wsmr.heat_no_and_batch_no,
+        wsmr.unit_net,
+        wsmr.bool_party_a,
+        wsmr.invoice_type,
+        wsmr.tax_rate,
+        wsmr.weighted_price_type,
+        wsmr.standard_id,
+        wsmr.standard_name,
+        wsmr.total_quantity,
+        wsmr.total_mete,
+        wsmr.inbound_mete,
+        wsmr.inbound_quantity,
+        wsmr.transfer_mete,
+        wsmr.transfer_quantity,
+        wsmr.outbound_mete,
+        wsmr.outbound_quantity,
+        wsmr.end_mete,
+        wsmr.end_quantity,
+        <if test="boolShowAmount">
+            wsmr.inbound_amount,
+            wsmr.inbound_amount_excluding_vat,
+            wsmr.inbound_unit_price,
+            wsmr.inbound_unit_price_excluding_vat,
+            wsmr.outbound_amount,
+            wsmr.outbound_amount_excluding_vat,
+            wsmr.outbound_unit_price,
+            wsmr.outbound_unit_price_excluding_vat,
+            wsmr.end_amount,
+            wsmr.end_amount_excluding_vat,
+            wsmr.end_unit_price,
+            wsmr.end_unit_price_excluding_vat,
+            wsmr.transfer_amount,
+            wsmr.transfer_amount_excluding_vat,
+            wsmr.transfer_unit_price,
+            wsmr.transfer_unit_price_excluding_vat,
+        </if>
+        wsmr.create_time,
+        wsmr.update_time,
+        wsmr.bool_delete_enum,
+        wsmr.version,
+        wsmr.specification,
+        wsmr.stat_id,
+        wc.name className,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        wm.id wmId,
+        wm.measure_unit measureUnit,
+        wm.measure_precision measurePrecision,
+        wm.accounting_unit accountingUnit,
+        wm.accounting_precision accountingPrecision,
+        wm.outbound_unit_type outboundUnitType,
+        wm.rd_rate rdRate
+        from wms_statistics_month_record wsmr
+        left join contract_project p on p.id = wsmr.project_id
+        left join wms_classification wc on wsmr.classify_id = wc.id
+        left join wms_measure wm on wsmr.classify_id = wm.classification_id
+        <where>
+            wsmr.bool_delete_enum = 0
+            <if test="basicClass != null ">
+                AND wsmr.basic_class = #{basicClass}
+            </if>
+            <if test="orderSupplyType == 2 ">
+                and wsmr.bool_party_a = 1
+            </if>
+            <if test="orderSupplyType == 1 ">
+                and wsmr.bool_party_a = 0
+            </if>
+            <if test="classifyIds != null and classifyIds.size()>0">
+                and wsmr.classify_id in
+                <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+<!--            <if test="classifyIds == null and  classifyId != null">-->
+<!--                and wsmr.classify_id = #{classifyId}-->
+<!--            </if>-->
+            <if test="projectWarehouseType == 1 ">
+                and wsmr.project_id is null
+            </if>
+            <if test="projectWarehouseType == 2 ">
+                and wsmr.project_id IS NOT NULL
+            </if>
+            <if test="projectId != null ">
+                AND wsmr.project_id = #{projectId}
+            </if>
+            <if test=" color != null">
+                and wsmr.color like CONCAT('%', #{color},'%')
+            </if>
+            <if test=" specification != null and specification != ''">
+                and wsmr.specs like CONCAT('%', #{specification},'%')
+            </if>
+            <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+                and wsmr.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+            </if>
+            <if test="brand != null and brand != ''">
+                AND wsmr.brand like CONCAT('%',#{brand},'%')
+            </if>
+            <if test="createTime != null and wmsClosingTimeId==null">
+                AND date_format(DATE_ADD(wsmr.create_time, INTERVAL -1 month), '%y-%m') = date_format(#{createTime},'%y-%m')
+            </if>
+            <if test="wmsClosingTimeId !=null and wmsClosingTimeId!=''">
+                and   wsmr.wms_closing_time_id=#{wmsClosingTimeId}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

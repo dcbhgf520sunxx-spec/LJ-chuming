@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTaskNeedMachinePartSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskNeedMachinePartScheduling">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="need_scheduling_time" property="needSchedulingTime" />
+        <result column="product_id" property="productId" />
+        <result column="need_quantity" property="needQuantity" />
+        <result column="scheduling_quantity" property="schedulingQuantity" />
+        <result column="use_id" property="useId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, need_scheduling_time, product_id, need_quantity, scheduling_quantity, use_id
+    </sql>
+    <select id="getNeedDetailByIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingTaskNeedMachinePartSchedulingDO">
+        SELECT
+            need.id,
+            need.need_quantity-need.scheduling_quantity quantity,
+            need.product_id,
+            task.ask_complete_time,
+            artifact.serial_number,
+            project.id 'project.id',
+                project.`name` 'project.`name`',
+                project.short_name 'project.short_name',
+                project.serial_number 'project.serial_number',
+                monomer.id 'monomer.id',
+                monomer.`name` 'monomer.`name`',
+                area.id 'area.id',
+                area.`name` 'area.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name',
+                gro.id 'groups.id',
+                gro.`name` 'groups.name'
+        FROM
+            mes_building_task_need_machine_part_scheduling need
+                LEFT JOIN mes_building_task task ON need.task_id = task.id
+                LEFT JOIN tech_artifact artifact ON artifact.id=task.product_id
+                LEFT JOIN contract_project project ON need.id = project.id
+                LEFT JOIN plan_monomer monomer ON need.monomer_id = monomer.id
+                LEFT JOIN plan_area area ON need.area_id = area.id
+                LEFT JOIN mes_building_workshop workshop ON need.workshop_id = workshop.id
+                LEFT JOIN mes_building_production_line production_line ON need.production_line_id = production_line.id
+                LEFT JOIN mes_building_groups gro ON need.groups_id = gro.id
+        <where>
+            need.bool_delete_enum=0 and need.id in
+        <foreach collection="ids" close=")" open="(" item="id" separator=",">
+            #{id}
+        </foreach>
+        </where>
+    </select>
+
+  <select id="getWorkShopList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.util.WorkshopDetailDO">
+      SELECT
+        workshop.id id,
+        workshop.`name` name
+      FROM
+        mes_building_task_need_machine_part_scheduling need
+      LEFT JOIN  mes_building_workshop workshop ON workshop.id = need.workshop_id and workshop.bool_delete_enum = 0
+      LEFT JOIN tech_machine_part machine_part ON machine_part.id = need.product_id and machine_part.bool_delete_enum = 0
+      WHERE
+        need.bool_delete_enum = 0
+      <if test="param.yearMonth != null">
+        AND DATE_FORMAT( need.ask_complete_time, '%Y-%m' ) IN (#{param.yearMonth})
+      </if>
+      <if test="param.sendNestingStatus != null">
+        AND need.send_nesting_status = #{param.sendNestingStatus}
+      </if>
+      <if test="param.steelPlateTypeEnum != null">
+        AND machine_part.steel_plate_type_enum in
+        <foreach collection="param.steelPlateTypeEnum" item="steelPlateTypeEnum" separator="," open="(" close=")">
+          #{steelPlateTypeEnum}
+        </foreach>
+      </if>
+      <if test="param.projectIds != null and param.projectIds.size > 0">
+          AND need.project_id IN
+          <foreach collection="param.projectIds" item="projectId" open="(" separator="," close=")">
+              #{projectId}
+          </foreach>
+      </if>
+      GROUP BY workshop.id
+  </select>
+
+    <select id="getTeamList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MachinePartNestingTeamDTO">
+      SELECT
+        count(DISTINCT project.id) projectCount,
+        project.id 'project.id',
+        project.name 'project.name',
+        project.serial_number 'project.serial_number',
+        project.short_name 'project.short_name',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%Y-%m')) AS 'yearMonthDTO.yearMonth',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%Y')) AS 'yearMonthDTO.year',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%m')) AS 'yearMonthDTO.month',
+        workshop.id 'workshopTeamDTO.workshopId',
+        workshop.`name` 'workshopTeamDTO.workshopName',
+        ANY_VALUE(need.ask_complete_time) 'workshopTeamDTO.askCompleteTime',
+        sum(need.need_quantity - need.scheduling_quantity) 'schedulingQuantity',
+        sum(need.need_quantity * part.net_weight) 'schedulingWeight'
+      FROM
+        mes_building_task_need_machine_part_scheduling need
+        LEFT JOIN contract_project project ON need.project_id = project.id
+        LEFT JOIN mes_building_workshop workshop ON need.workshop_id = workshop.id
+        LEFT JOIN tech_machine_part part ON part.id = need.product_id
+      WHERE
+        need.bool_delete_enum = 0
+        <if test="param.projectId != null">
+          AND project.id = #{param.projectId}
+        </if>
+        <if test="param.workshopId != null">
+          AND workshop.id = #{param.workshopId}
+        </if>
+        <if test="param.yearMonthArrayStr != null">
+          AND DATE_FORMAT( need.ask_complete_time, '%Y-%m' ) IN
+          <foreach collection="param.yearMonthArrayStr" close=")" open="(" item="yearMonth" separator=",">
+            #{yearMonth}
+          </foreach>
+        </if>
+      GROUP BY
+        project.id ,
+        project.name ,
+        project.serial_number ,
+        project.short_name ,
+        workshop.id,
+        workshop.`name` ,
+        DATE_FORMAT(need.ask_complete_time, '%Y-%m')
+    </select>
+
+  <select id="getNeedMachinePartOrderList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MachinePartNestingTeamDTO">
+      SELECT
+        count(DISTINCT project.id) projectCount,
+        project.id 'project.id',
+        project.name 'project.name',
+        project.serial_number 'project.serial_number',
+        project.short_name 'project.short_name',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%Y-%m')) AS 'yearMonthDTO.yearMonth',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%Y')) AS 'yearMonthDTO.year',
+        ANY_VALUE(DATE_FORMAT(need.ask_complete_time, '%m')) AS 'yearMonthDTO.month',
+        workshop.id 'workshopTeamDTO.workshopId',
+        workshop.`name` 'workshopTeamDTO.workshopName',
+        ANY_VALUE(need.ask_complete_time) 'workshopTeamDTO.askCompleteTime',
+        sum(need.need_quantity) 'needSchedulingQuantity',
+        sum(need.need_quantity - need.scheduling_quantity) 'schedulingQuantity',
+        sum((need.need_quantity - need.scheduling_quantity) * part.net_weight) 'schedulingWeight',
+        sum(need.scheduling_quantity) 'scheduledQuantity',
+        sum(need.scheduling_quantity * part.net_weight) 'scheduledWeight',
+        ANY_VALUE(taskOrder.order_number) AS 'taskOrderDTO.orderNumber',
+        need.task_order_id AS 'taskOrderDTO.taskOrderId',
+        group_concat(DISTINCT concat(need.monomer_id, '&amp;', need.area_id)) AS monomerAndAreaIds
+      FROM
+        mes_building_task_need_machine_part_scheduling need
+          LEFT JOIN contract_project project ON need.project_id = project.id
+          LEFT JOIN mes_building_workshop workshop ON need.workshop_id = workshop.id
+          LEFT JOIN mes_building_task_order taskOrder ON need.task_order_id = taskOrder.id
+          LEFT JOIN tech_machine_part part ON part.id = need.product_id
+      WHERE
+      need.bool_delete_enum = 0
+      <if test="param.projectId != null">
+        AND project.id = #{param.projectId}
+      </if>
+      <if test="param.sendNestingStatus != null">
+        AND need.send_nesting_status = #{param.sendNestingStatus}
+      </if>
+      <if test="param.workshopId != null">
+        AND workshop.id IN
+        <foreach collection="param.workshopId" close=")" open="(" item="wid" separator=",">
+          #{wid}
+        </foreach>
+      </if>
+      <if test="param.yearMonthArrayStr != null">
+        AND DATE_FORMAT( need.ask_complete_time, '%Y-%m' ) IN
+        <foreach collection="param.yearMonthArrayStr" close=")" open="(" item="yearMonth" separator=",">
+          #{yearMonth}
+        </foreach>
+      </if>
+      <if test="param.steelPlateTypeEnum">
+        AND need.steel_plate_type_enum in
+        <foreach collection="param.steelPlateTypeEnum" item="steelPlateTypeEnum" separator="," open="(" close=")">
+          #{steelPlateTypeEnum}
+        </foreach>
+      </if>
+      <if test="param.monomerId != null">
+          AND need.monomer_id = #{param.monomerId}
+      </if>
+      <if test="param.areaId != null">
+          AND need.area_id = #{param.areaId}
+      </if>
+      GROUP BY
+        project.id ,
+        project.name ,
+        project.serial_number ,
+        project.short_name ,
+        workshop.id,
+        workshop.`name` ,
+        DATE_FORMAT(need.ask_complete_time, '%Y-%m'),
+        need.task_order_id
+        <if test="param.sendNestingStatus != null and !param.sendNestingStatus ">
+           HAVING
+           sum(need.need_quantity - need.scheduling_quantity) &gt; 0
+        </if>
+  </select>
+
+    <select id="getNeedMachinePartDetailList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MachinePartNestingDetailDTO">
+        SELECT
+          need.task_order_id 'order_id',
+          group_concat(need.id) AS task_need_machine_part_scheduling_ids,
+          need.issued_to_nesting_software_status,
+          ANY_VALUE(need.ask_complete_time) 'ask_complete_time',
+          ANY_VALUE(need.id) id,
+          ANY_VALUE(part.specification) specification,
+          ANY_VALUE(CONCAT(part.specification, ' * ', part.material)) specificationAndMaterial,
+          ANY_VALUE(project.id) 'project.id',
+          ANY_VALUE(project.short_name) 'project.short_name',
+          ANY_VALUE(project.serial_number) 'project.serial_number',
+          ANY_VALUE(need.team_id) 'team_id',
+          ANY_VALUE(taskorder.order_number) 'order_number',
+          ANY_VALUE(part.id) 'part_id',
+          ANY_VALUE(part.steel_plate_type_enum) 'steel_plate_type_enum',
+          ANY_VALUE(part.bool_process) bool_process,
+          ANY_VALUE(need.monomer_id) 'monomerId',
+          ANY_VALUE(monomer.name) 'monomerName',
+          ANY_VALUE(need.product_id) 'productId',
+          ANY_VALUE(need.workshop_id) 'workshop_id',
+          ANY_VALUE(steel.id) partTypeId,
+          ANY_VALUE(steel.name) AS partType,
+          ANY_VALUE(part.path) 'path',
+          ANY_VALUE(part.serial_number) 'serial_number',
+          ANY_VALUE(part.material) 'material',
+          ANY_VALUE(part.thick) 'thick',
+          ANY_VALUE(part.width) 'width',
+          sum(need.scheduling_quantity) 'scheduling_quantity',
+          sum(need.need_quantity) 'need_quantity',
+          ANY_VALUE(users.name) 'user_name',
+          ANY_VALUE(DATE_FORMAT(need.scheduling_date, '%Y-%m-%d %H:%i:%S')) 'scheduling_date',
+          ANY_VALUE(jobDirectory.job_name) 'job_name',
+          sum(need.need_quantity - need.scheduling_quantity) 'quantity',
+          sum(part.net_weight) 'weight',
+          sum(need.need_quantity * part.net_weight) 'total_weight',
+          ANY_VALUE(part.length) 'length',
+          ROUND(sum(need.need_quantity * part.length)) 'total_length',
+          ROUND(sum(part.surface_area) / 1000000, 8) 'area',
+          ROUND(sum(need.need_quantity * part.surface_area) / 1000000, 8) 'total_area',
+          part.bool_send_directly
+        FROM
+            mes_building_task_need_machine_part_scheduling need
+                LEFT JOIN mes_building_task_order taskorder ON need.task_order_id = taskorder.id
+                LEFT JOIN contract_project project ON need.project_id = project.id
+                LEFT JOIN tech_machine_part part ON part.id = need.product_id
+                LEFT JOIN mes_building_workshop workshop ON need.workshop_id = workshop.id
+                LEFT JOIN sys_user users ON need.scheduling_user_id = users.id
+                LEFT JOIN mes_building_bo_chu_job_directory jobDirectory ON need.nesting_job_id = jobDirectory.job_id
+                LEFT JOIN plan_monomer monomer ON need.monomer_id = monomer.id AND monomer.bool_delete_enum = 0
+                LEFT JOIN sys_steel_classification steel ON part.steel_id = steel.id
+        WHERE
+            need.bool_delete_enum = 0
+          <if test="param.projectIds!=null and param.projectIds.size()!=0">
+            AND need.project_id IN
+            <foreach collection="param.projectIds" separator="," item="projectId" open="(" close=")">
+              #{projectId}
+            </foreach>
+          </if>
+          <if test="param.taskOrderIds!=null and param.taskOrderIds.size()!=0">
+            AND need.task_order_id IN
+            <foreach collection="param.taskOrderIds" separator="," item="taskOrderId" open="(" close=")">
+              #{taskOrderId}
+            </foreach>
+          </if>
+          <if test="param.steelPlateTypeEnum">
+            AND part.steel_plate_type_enum in
+            <foreach collection="param.steelPlateTypeEnum" item="item" separator="," open="(" close=")">
+              #{item}
+            </foreach>
+          </if>
+          <if test="param.yearMonthArrayStr != null">
+            AND DATE_FORMAT( need.ask_complete_time, '%Y-%m' ) IN
+            <foreach collection="param.yearMonthArrayStr" close=")" open="(" item="yearMonth" separator=",">
+              #{yearMonth}
+            </foreach>
+          </if>
+          <if test="param.sendNestingStatus != null">
+            AND need.send_nesting_status = #{param.sendNestingStatus}
+          </if>
+          <if test="param.taskTypeEnum!=null and param.taskTypeEnum.size()!=0">
+            AND part.steel_id IN
+            <foreach collection="param.taskTypeEnum" separator="," item="taskType" open="(" close=")">
+              #{taskType}
+            </foreach>
+          </if>
+          <if test="param.groupsIds!=null and param.groupsIds.size()!=0">
+            AND need.groups_id IN
+            <foreach collection="param.groupsIds" separator="," item="groupId" open="(" close=")">
+              #{groupId}
+            </foreach>
+          </if>
+          <if test="param.workshopIds!=null and param.workshopIds.size()!=0">
+            AND need.workshop_id IN
+            <foreach collection="param.workshopIds" separator="," item="workshopId" open="(" close=")">
+              #{workshopId}
+            </foreach>
+          </if>
+          <if test="param.partSource != null">
+            AND part.path = #{param.partSource}
+          </if>
+          <if test="param.specification != null">
+            AND part.specification like concat('%',#{param.specification},'%')
+          </if>
+          <if test="param.serialNumber != null and !param.serialNumber.isEmpty() ">
+            AND part.serial_number like concat('%',#{param.serialNumber},'%')
+          </if>
+          <if test="param.thick != null">
+            AND part.thick IN
+            <foreach collection="param.thick" separator="," item="thick" open="(" close=")">
+              #{thick}
+            </foreach>
+          </if>
+          <if test="param.minWidth != null">
+            AND part.width between #{param.minWidth} and #{param.maxWidth}
+          </if>
+          <if test="param.minLength != null">
+            AND part.length between #{param.minLength} and #{param.maxLength}
+          </if>
+          <if test="param.boolProcess != null">
+            AND part.bool_process = #{param.boolProcess}
+          </if>
+          <if test="param.issuedToNestingSoftwareStatus != null">
+              AND need.issued_to_nesting_software_status = #{param.issuedToNestingSoftwareStatus}
+          </if>
+        <if test="param.material != null and param.material != ''">
+            AND part.material = #{param.material}
+        </if>
+        <if test="param.boolSendDirectly != null">
+            AND part.bool_send_directly = #{param.boolSendDirectly}
+        </if>
+        GROUP BY need.product_id,need.task_order_id, need.issued_to_nesting_software_status
+        ORDER BY ask_complete_time,part.serial_number,part.specification DESC
+    </select>
+
+    <select id="passDeleteCount" resultType="java.lang.Integer">
+      SELECT
+        COUNT(*)
+      FROM
+        mes_building_bo_chu_job_directory
+      WHERE
+        parent_id != -1
+        AND job_type = 1
+    </select>
+
+    <select id="getMesBuildingBoChuJobDirectoryByProjectId" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingBoChuJobDirectory">
+      SELECT
+        *
+      FROM
+        mes_building_bo_chu_job_directory
+      WHERE
+        bool_delete_enum = 0
+        AND job_type = 1
+        AND project_id = #{projectIdsStr}
+        AND workshop_id = #{workshopId}
+        AND team_code_id = #{teamCode}
+      ORDER BY
+        create_time DESC
+    </select>
+
+  <select id="getMesBuildingBoChuJobDirectoryByWorkshopId" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingBoChuJobDirectory">
+      SELECT
+        *
+      FROM
+        mes_building_bo_chu_job_directory
+      WHERE
+        bool_delete_enum = 0
+        AND parent_id = -1
+        AND workshop_id = #{workshopIdStr}
+        AND team_code_id = #{teamCode}
+      ORDER BY
+        create_time DESC
+  </select>
+
+  <select id="getMesBuildingBoChuJobDirectoryByProjectIdAll" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingBoChuJobDirectoryDTO">
+    SELECT
+      *
+    FROM
+      mes_building_bo_chu_job_directory
+    WHERE
+      bool_delete_enum = 0
+      <if test="projectIdsStr != null">
+        AND project_id = #{projectIdsStr}
+      </if>
+<!--      <if test="name != null">-->
+<!--        AND job_name like CONCAT('%', #{name},'%')-->
+<!--      </if>-->
+      <if test="startDate != null">
+        AND DATE_FORMAT( create_time, '%Y-%m-%d' ) &gt;= #{startDate}
+      </if>
+      <if test="endDate != null">
+        AND DATE_FORMAT( create_time, '%Y-%m-%d' ) &lt;= #{endDate}
+      </if>
+<!--      <if test="workShopId != null">-->
+<!--        AND workshop_id = #{workShopId}-->
+<!--      </if>-->
+      <if test="workShopId != null">
+          AND workshop_id IN
+          <foreach collection="workShopId" separator="," item="wid" open="(" close=")">
+            #{wid}
+          </foreach>
+      </if>
+      OR job_type = 0
+  </select>
+
+    <select id="getWorkList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.MesBuildingBoChuJobDirectoryDTO">
+        SELECT
+            mbbcjd.*
+        FROM
+        mes_building_bo_chu_job_directory mbbcjd
+        WHERE mbbcjd.bool_delete_enum = 0
+        <if test="name != null">
+            AND mbbcjd.job_name like CONCAT('%', #{name},'%')
+        </if>
+        <if test="startDate != null">
+            AND DATE_FORMAT( mbbcjd.create_time, '%Y-%m-%d' ) >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND DATE_FORMAT( mbbcjd.create_time, '%Y-%m-%d' ) &lt;= #{endDate}
+        </if>
+        <if test="workShopId != null">
+            AND mbbcjd.workshop_id IN
+            <foreach collection="workShopId" separator="," item="wid" open="(" close=")">
+                #{wid}
+            </foreach>
+        </if>
+        <if test="cutStatus != null">
+            AND EXISTS(SELECT 1 FROM mes_building_bo_chu_nesting_result mbbcnr WHERE mbbcnr.bool_delete_enum = 0 AND mbbcnr.job_id = mbbcjd.job_id AND mbbcnr.cut_status = #{cutStatus})
+        </if>
+        OR (mbbcjd.job_type = 0 AND mbbcjd.bool_delete_enum = 0)
+    </select>
+
+    <insert id="insertMesBuildingBoChuJobDirectory" parameterType="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingBoChuJobDirectory">
+      INSERT INTO mes_building_bo_chu_job_directory(
+                                                    job_id,
+                                                    parent_id,
+                                                    job_name,
+                                                    job_type,
+                                                    project_id,
+                                                    workshop_id,
+                                                    team_id,
+                                                    team_code_id,
+                                                    task_order_id,
+                                                    steel_plate_type_enum
+      )
+      VALUES
+        (
+          #{param.jobId},
+          #{param.parentId},
+          #{param.jobName},
+          #{param.jobType},
+          #{param.projectId},
+          #{param.workshopId},
+          #{param.teamId},
+          #{param.teamCodeId},
+          #{param.taskOrderId},
+          #{param.steelPlateTypeEnum}
+        )
+    </insert>
+
+  <select id="getDictionaryByNameAndSort" resultType="string">
+    SELECT
+      label
+    FROM
+      sys_dictionary
+    WHERE
+      name = #{name}
+      AND sort = #{sort}
+      AND bool_delete_enum = 0
+  </select>
+
+  <select id="getJobInfoByJobId" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.nesting.MachinePartNestingProductInfoDTO">
+    SELECT
+      ANY_VALUE(need.id) 'id',
+      sum(need.need_quantity) 'scheduling_quantity',
+      ANY_VALUE(DATE_FORMAT(need.scheduling_date, '%Y-%m-%d')) 'scheduling_date',
+      ANY_VALUE(users.id) 'scheduling_user_id',
+      ANY_VALUE(users.name) 'scheduling_user_name',
+      ANY_VALUE(taskorder.id) 'task_order_id',
+      taskorder.order_number 'order_number',
+      min(need.ask_complete_time) artifactAskCompleteTime
+    FROM
+      mes_building_task_need_machine_part_scheduling need
+        LEFT JOIN mes_building_task_order taskorder ON need.task_order_id = taskorder.id
+        LEFT JOIN sys_user users ON need.scheduling_user_id = users.id
+    WHERE
+      need.nesting_job_id = #{jobId}
+      AND need.bool_delete_enum = 0
+    GROUP BY
+      taskorder.order_number
+  </select>
+
+  <select id="getWorkShopNestingList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.nesting.WorkshopTeamDTO">
+    SELECT
+      need.workshop_id workshopId,
+      ANY_VALUE(workshop.name) 'workshop_name'
+    FROM
+      mes_building_task_need_machine_part_scheduling need
+        LEFT JOIN mes_building_workshop workshop ON need.workshop_id = workshop.id AND workshop.bool_delete_enum = 0
+    WHERE
+      need.bool_delete_enum = 0
+    group by need.workshop_id
+  </select>
+
+<!--  <delete id="deleteMesBuildingBoChuJobDirectoryByJobId">-->
+<!--    DELETE FROM mes_building_bo_chu_job_directory WHERE job_id = #{jobId}-->
+<!--  </delete>-->
+
+  <update id="deleteMesBuildingBoChuJobDirectoryByJobId">
+    UPDATE mes_building_bo_chu_job_directory SET bool_delete_enum = 1 WHERE job_id = #{jobId}
+  </update>
+
+    <select id="getTeamLeaderName" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeamUserLink">
+    SELECT
+      b.*
+    FROM
+      mes_building_team a
+        INNER JOIN mes_building_team_user_link b ON a.id = b.team_id
+        AND b.bool_delete_enum = 0
+    WHERE
+      b.team_id = #{teamId}
+      AND b.bool_leader_enum = 1
+  </select>
+
+  <select id="resultByApprovePartList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.ApprovePartRecordDTO">
+    SELECT
+      mbw.NAME workshopName,
+      mbtul.user_name teamName,
+      CASE
+        WHEN tmp.steel_plate_type_enum = 1 THEN '板材'
+        WHEN tmp.steel_plate_type_enum = 2 THEN '板材'
+        WHEN tmp.steel_plate_type_enum = 4 THEN '型材'
+        ELSE '未知类型'
+    END AS type
+    FROM
+      mes_building_task_process mbtp
+        LEFT JOIN mes_building_workshop mbw ON mbtp.workshop_id = mbw.id AND mbw.bool_delete_enum = 0
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtp.team_id = mbtul.team_id AND mbtul.bool_delete_enum = 0
+        LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id AND tmp.bool_delete_enum = 0
+    WHERE
+      mbtp.machine_part_scheduling_id = #{dataId}
+      AND mbtp.bool_delete_enum = 0
+    LIMIT 1
+  </select>
+
+  <select id="getWmsPickingDTOParam" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.PickingPartDO">
+    SELECT
+      mbtp.id,
+      mbtp.project_id,
+      mbtp.workshop_id,
+      mbtp.task_order_id,
+      mbto.order_number AS taskOrderNumber,
+      steel.name AS partType,
+      tmp.specification,
+      tmp.material,
+      tmp.thick,
+      tmp.net_weight,
+      tmp.length,
+      CASE
+        WHEN tmp.steel_plate_type_enum = ${@com.hzchum.scim.common.core.api.enums.SteelPlateTypeEnum@SECONDARY_MEMBER.getType()}
+                 and (tmp.surface_area = 0 OR tmp.surface_area IS NULL )
+            THEN tmp.length * tmp.width
+        ELSE tmp.surface_area
+      END AS surface_area,
+      mbtp.need_quantity AS quantity
+    FROM
+      mes_building_task_process mbtp
+        LEFT JOIN mes_building_task_order mbto ON mbtp.task_order_id = mbto.id
+        AND mbto.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON mbtp.project_id = cp.id
+        AND cp.bool_delete_enum = 0
+        LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id
+        AND tmp.bool_delete_enum = 0
+        LEFT JOIN sys_steel_classification steel ON tmp.steel_id = steel.id AND steel.bool_delete_enum = 0
+        AND steel.bool_delete_enum = 0
+    WHERE
+      mbtp.sequence = 0
+      AND mbtp.machine_part_scheduling_id = #{dataId}
+  </select>
+
+</mapper>

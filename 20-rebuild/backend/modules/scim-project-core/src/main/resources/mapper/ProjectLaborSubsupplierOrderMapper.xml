@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectLaborSubsupplierOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectLaborSubsupplierOrder">
+        <id column="id" property="id" />
+        <result column="project_id" property="projectId" />
+        <result column="product_type" property="productType" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="supplier_type" property="supplierType" />
+        <result column="notes" property="notes" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, project_id, product_type, serial_number, supplier_id, create_user_id, supplier_type, notes
+    </sql>
+
+    <select id="getCanSubSupplierProductList" resultType="com.hzchum.scim.project.core.api.pojo.dto.sub.ProjectLaborProductDTO">
+        SELECT
+        product.*,
+        product.id as productId,
+        product.quantity- COALESCE(link.quantity,0) as canDivideQuantity,
+        m.id as 'monomer.id',
+        m.name as 'monomer.name',
+        ar.id as 'area.id',
+        ar.name as 'area.name'
+        FROM
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact AS product
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            tech_enclosure as product
+        </if>
+        LEFT JOIN contract_project cp ON product.project_id = cp.id
+        AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON product.monomer_id = m.id
+        AND m.bool_delete_enum = 0
+        LEFT JOIN plan_area ar ON product.area_id = ar.id
+        AND ar.bool_delete_enum = 0
+        LEFT JOIN (
+        SELECT
+        product_id,
+        SUM(quantity) as quantity
+        FROM
+        project_labor_subsupplier_order_product_link
+        WHERE
+        bool_delete_enum = 0
+        AND area_id = #{areaId}
+        GROUP BY product_id
+        ) as link on link.product_id = product.id
+        WHERE
+        product.bool_delete_enum = 0
+        and product.quantity > COALESCE(link.quantity,0)
+        AND product.area_id = #{areaId}
+        <if test="name != null and name != ''">
+            and product.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and product.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+    </select>
+    <select id="getProjectOrderCount" resultType="java.lang.Integer">
+        select count(*) from project_labor_subsupplier_order where project_id = #{projectId}
+    </select>
+
+    <select id="getLaborOrderList" resultType="com.hzchum.scim.project.core.api.pojo.dto.sub.ProjectLaborOrderDTO">
+        select
+        so.id as id,
+        so.serial_number as serialNumber,
+        so.supplier_id as 'supplier.id',
+        sup.name as 'supplier.name',
+        a.measure_mode as measureMode,
+        so.product_type,
+        a.category,
+        a.quantity,
+        a.actualQuantity,
+        CASE
+        WHEN a.product_type = 2 THEN a.mete / 1000
+        WHEN a.product_type = 4 and a.measure_mode = 1 THEN a.mete / 1000
+        WHEN a.product_type = 4 and a.measure_mode = 2 THEN a.totalArea / 1000000
+        ELSE 0
+        END AS mete,
+        CASE
+        WHEN a.product_type = 2 THEN a.actualMete / 1000
+        WHEN a.product_type = 4 and a.measure_mode = 1 THEN a.actualMete / 1000
+        WHEN a.product_type = 4 and a.measure_mode = 2 THEN a.actualtotalArea / 1000000
+        ELSE 0
+        END AS actualMete
+        from project_labor_subsupplier_order so
+        INNER JOIN
+        (
+        SELECT
+        supplier_order_id,
+        product_type,
+        category,
+        measure_mode,
+        sum(quantity) as quantity,
+        sum(actual_quantity) as actualQuantity,
+        sum(mete) as mete,
+        sum(actual_mete) as actualMete,
+        sum(total_area) as totalArea,
+        sum(actual_total_area) as actualtotalArea
+        FROM project_labor_subsupplier_order_product_link
+        where bool_delete_enum = 0
+        <if test="projectId !=null">
+            AND project_id = #{projectId}
+        </if>
+        group by
+        supplier_order_id,
+        product_type,
+        category,
+        measure_mode
+        )a on a.supplier_order_id = so.id
+        left join scm_supplier sup on sup.id = so.supplier_id and sup.bool_delete_enum = 0
+        where so.bool_delete_enum = 0
+        <if test="projectId !=null">
+            AND so.project_id = #{projectId}
+        </if>
+    </select>
+
+</mapper>

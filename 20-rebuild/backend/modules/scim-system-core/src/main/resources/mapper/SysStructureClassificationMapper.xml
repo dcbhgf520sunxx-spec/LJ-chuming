@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysStructureClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysStructureClassification">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="production_line_type_enum" property="productionLineTypeEnum"/>
+        <result column="parent_type" property="parentType"/>
+        <result column="classification_name" property="classificationName"/>
+        <result column="min_length" property="minLength"/>
+        <result column="max_length" property="maxLength"/>
+        <result column="definition_word" property="definitionWord"/>
+        <result column="artifact_type" property="artifactType"/>
+        <result column="coding_type" property="codingType"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,update_time,bool_delete_enum,version,
+        id, classification_name, production_line_type_enum, parent_type, min_length, bool_contains_min, max_length, bool_contains_max, definition_word, artifact_type, coding_type, sort
+    </sql>
+
+    <resultMap id="listMap" type="com.hzchum.scim.system.core.api.pojo.dto.StructureClassificationDTO">
+        <id column="id" property="id"/>
+        <result column="classification_name" property="classificationName"/>
+        <result column="production_line_type_enum" property="productionLineTypeEnum"/>
+        <result column="parent_type" property="parentType"/>
+        <result column="artifact_type" property="artifactType"/>
+        <result column="small_artifact_class_enum" property="smallArtifactClassEnum"/>
+        <result column="coding_type" property="codingType"/>
+        <result column="definition_word" property="definitionWord"/>
+        <result column="sort" property="sort"/>
+        <result column="bool_compose_assemble" property="boolComposeAssemble"/>
+        <result column="last_change_id" property="lastChangeId" />
+
+        <collection property="specPrefixList" ofType="com.hzchum.scim.system.core.api.pojo.dto.StructureSpecDTO">
+            <id column="ss_id" property="id"/>
+            <result column="spec_prefix" property="specPrefix"/>
+            <result column="ss_production_line_type_enum" property="productionLineTypeEnum"/>
+        </collection>
+
+        <collection property="serialNumberPrefixList" ofType="com.hzchum.scim.system.core.api.pojo.dto.StructureSerialNumberPrefixDTO">
+            <id column="sn_id" property="id"/>
+            <result column="serial_number_prefix" property="serialNumberPrefix"/>
+            <result column="sn_production_line_type_enum" property="productionLineTypeEnum"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectListByCondition" resultMap="listMap">
+        select
+        sc.*,
+        ss.id ss_id,
+        ss.spec_prefix,
+        ss.production_line_type_enum ss_production_line_type_enum,
+        sn.id sn_id,
+        sn.serial_number_prefix,
+        sn.production_line_type_enum sn_production_line_type_enum
+        from sys_structure_classification as sc
+        inner join sys_structure_spec as ss on sc.id = ss.structure_classification_id and ss.bool_delete_enum = 0
+        left join sys_structure_serial_number_prefix as sn on sc.id = sn.structure_classification_id and
+        sn.bool_delete_enum = 0
+        WHERE sc.bool_delete_enum = 0
+        <if test="classificationIds !=null and classificationIds.size != 0">
+            and sc.id IN
+            <foreach collection="classificationIds" item="classificationId" open="(" separator="," close=")">
+                #{classificationId}
+            </foreach>
+        </if>
+        order by sc.production_line_type_enum, sc.sort, sc.artifact_type, sc.id
+    </select>
+
+    <select id="selectIdsByCondition" resultType="java.lang.Long">
+        select
+        sc.id
+        from sys_structure_classification as sc
+        inner join sys_structure_spec as ss on sc.id = ss.structure_classification_id and ss.bool_delete_enum = 0
+        left join sys_structure_serial_number_prefix as sn on sc.id = sn.structure_classification_id and
+        sn.bool_delete_enum = 0
+        WHERE sc.bool_delete_enum = 0
+        <if test="classificationName != null and classificationName != ''">
+            and sc.classification_name like concat('%',#{classificationName},'%')
+        </if>
+        <if test="specPrefix != null and specPrefix != ''">
+            and ss.spec_prefix like concat('%', #{specPrefix},'%')
+        </if>
+        <if test="artifactType != null">
+            and sc.artifact_type = #{artifactType}
+        </if>
+        <if test="mesProductEnum != null">
+            and sc.mes_product_enum = #{mesProductEnum}
+        </if>
+        <if test="sectionAndNameAndType != null and sectionAndNameAndType != ''">
+            and (sc.classification_name like concat('%',#{sectionAndNameAndType},'%')
+            or  ss.spec_prefix like concat('%',#{sectionAndNameAndType},'%')
+            or  sn.serial_number_prefix like concat('%',#{sectionAndNameAndType},'%'))
+        </if>
+    </select>
+
+    <resultMap id="parentMap" type="com.hzchum.scim.system.core.api.pojo.dto.StructureParentTypeDTO">
+        <result property="productionLineTypeEnum" column="sc_production_line_type_enum"/>
+        <result property="parentType" column="sc_parent_type"/>
+        <collection property="structureClassificationList" resultMap="listMap"/>
+    </resultMap>
+
+    <select id="selectLisStructureClass" resultMap="parentMap">
+        SELECT
+        sc.production_line_type_enum sc_production_line_type_enum,
+        (case sc.production_line_type_enum WHEN 1 THEN NULL ELSE sc.parent_type END) sc_parent_type,
+        ssc.id,
+        ssc.classification_name,
+        case ssc.production_line_type_enum WHEN 1 then NULL ELSE ssc.parent_type END parent_type,
+        ssc.artifact_type,
+        ssc.production_line_type_enum,
+        ssc.coding_type,
+        ssc.sort,
+        ssc.spec_prefix ,
+        ssc.ss_production_line_type_enum,
+        ssc.serial_number_prefix,
+        ssc.sn_production_line_type_enum
+        FROM (
+        SELECT sc.production_line_type_enum,
+        IFNULL(sc.parent_type, 0) parent_type
+        FROM sys_structure_classification AS sc
+        WHERE sc.bool_delete_enum = 0
+        <if test="productionLineTypeEnum != null">
+            AND sc.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="classificationName != null and classificationName != ''">
+            AND sc.classification_name like concat('%',#{classificationName},'%')
+        </if>
+        GROUP BY sc.production_line_type_enum, sc.parent_type
+        ORDER BY sc.production_line_type_enum, sc.parent_type
+        ) sc
+        LEFT JOIN
+        (
+        select sc.id,
+        sc.classification_name,
+        IFNULL(sc.parent_type, 0) parent_type,
+        sc.production_line_type_enum,
+        sc.artifact_type,
+        sc.coding_type,
+        sc.max_length,
+        sc.min_length,
+        sc.definition_word,
+        sc.sort,
+        ss.spec_prefix,
+        ss.production_line_type_enum ss_production_line_type_enum,
+        sn.serial_number_prefix,
+        sn.production_line_type_enum sn_production_line_type_enum
+        from sys_structure_classification as sc
+        left join sys_structure_spec as ss on sc.id = ss.structure_classification_id and ss.bool_delete_enum = 0
+        left join sys_structure_serial_number_prefix as sn on sc.id = sn.structure_classification_id and sn.bool_delete_enum = 0
+        WHERE sc.bool_delete_enum = 0
+        <if test="productionLineTypeEnum != null">
+            AND sc.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="classificationName != null and classificationName != ''">
+            AND sc.classification_name like concat('%',#{classificationName},'%')
+        </if>
+        order by sc.production_line_type_enum, sc.parent_type, sc.sort, sc.artifact_type, sc.id
+        ) ssc
+        ON sc.production_line_type_enum = ssc.production_line_type_enum
+        AND sc.parent_type = ssc.parent_type
+        ORDER BY sc.production_line_type_enum, sc.parent_type, ssc.sort, ssc.id
+    </select>
+    <select id="selectListByCondition2" resultMap="listMap">
+        select
+        sc.*,
+        ss.id ss_id,
+        ss.spec_prefix,
+        sn.id sn_id,
+        sn.serial_number_prefix
+        from sys_structure_classification as sc
+        inner join sys_structure_spec as ss on sc.id = ss.structure_classification_id and ss.bool_delete_enum = 0
+        left join sys_structure_serial_number_prefix as sn on sc.id = sn.structure_classification_id and
+        sn.bool_delete_enum = 0
+        WHERE sc.bool_delete_enum = 0
+        <if test="classificationName != null and classificationName != ''">
+            and sc.classification_name like concat('%',#{classificationName},'%')
+        </if>
+        <if test="specPrefix != null and specPrefix != ''">
+            and ss.spec_prefix like concat('%', #{specPrefix},'%')
+        </if>
+        <if test="artifactType != null">
+            and sc.artifact_type = #{artifactType}
+        </if>
+        <if test="mesProductEnum != null">
+            and sc.mes_product_enum = #{mesProductEnum}
+        </if>
+        order by sc.sort, sc.artifact_type, sc.id
+    </select>
+</mapper>

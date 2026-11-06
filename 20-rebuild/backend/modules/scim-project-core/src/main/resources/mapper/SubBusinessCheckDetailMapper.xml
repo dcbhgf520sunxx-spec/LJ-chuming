@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.SubBusinessCheckDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.SubBusinessCheckDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="check_info_id" property="checkInfoId"/>
+        <result column="business_id" property="businessId"/>
+        <result column="old_unit_price" property="oldUnitPrice"/>
+        <result column="new_unit_price" property="newUnitPrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, check_info_id, business_id, old_unit_price, new_unit_price
+    </sql>
+    <select id="listByCheckId" resultType="com.hzchum.scim.project.core.api.pojo.dto.SubBusinessCheckDetailDO">
+        select b.*,
+               c.old_unit_price,
+               c.new_unit_price,
+               p.id 'project.id',
+               p.name 'project.name',
+               p.short_name 'project.short_name',
+               p.serial_number 'project.contract_no',
+               m.id 'monomer.id',
+               m.name 'monomer.name',
+               d.id 'area.id',
+               d.name 'area.name'
+        from project_sub_business_check_detail c
+                 inner join project_sub_business b on b.id = c.business_id
+                 inner join contract_project p on p.id = b.project_id
+                 inner join plan_monomer m on m.id = b.monomer_id
+                 inner join plan_area d on d.id = b.area_id
+        where c.check_info_id = #{id}
+    </select>
+
+</mapper>

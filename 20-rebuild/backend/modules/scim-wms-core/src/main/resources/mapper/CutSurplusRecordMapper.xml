@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.CutSurplusRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.CutSurplusRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="spec" property="spec"/>
+        <result column="source_spec" property="sourceSpec"/>
+        <result column="project_id" property="projectId"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="quantity" property="quantity"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="mete" property="mete"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="material_id" property="materialId"/>
+        <result column="barcode" property="barcode"/>
+        <result column="area_id" property="areaId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="surplus_sn" property="surplusSn"/>
+        <result column="cut_task_id" property="cutTaskId"/>
+        <result column="cut_end_time" property="cutEndTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, basic_class, classify_id, classify_name, spec, source_spec, project_id, bool_party_a, quantity, brand, heat_no_and_batch_no, mete, warehouse_id, workshop_id, material_id, barcode, area_id, monomer_id, surplus_sn, cut_task_id, cut_end_time
+    </sql>
+
+
+    <resultMap id="getSurplusDT" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.CutSurplusDTO">
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="spec" property="spec"/>
+        <result column="source_spec" property="sourceSpec"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="surplus_sn" property="surplusSn"/>
+        <result column="cut_task_id" property="cutTaskId"/>
+        <result column="cut_end_time" property="cutEndTime"/>
+        <result column="spec" property="spec"/>
+        <result column="source_spec" property="sourceSpec"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="pmName" property="monomerName"/>
+        <result column="paName" property="areaName"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getList" resultMap="getSurplusDT">
+        select
+        csr.id,
+        csr.basic_class,
+        csr.classify_id,
+        csr.classify_name,
+        csr.spec,
+        csr.source_spec,
+        csr.project_id,
+        csr.bool_party_a,
+        csr.quantity,
+        csr.brand,
+        csr.heat_no_and_batch_no,
+        csr.mete,
+        csr.barcode,
+        csr.surplus_sn,
+        csr.cut_task_id,
+        csr.cut_end_time,
+        p.id as pid,
+        p.short_name as psName,
+        p.serial_number as pSN,
+        p.name as pn,
+        pm.name pmName,
+        pa.name paName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_cut_surplus_record csr
+        left join contract_project p on p.id = csr.project_id
+        left join mes_building_workshop mbf on csr.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = csr.warehouse_id
+        left join plan_monomer pm on pm.id = csr.monomer_id
+        left join plan_area pa on pa.id = csr.area_id
+        where csr.bool_delete_enum = 0
+        <if test="endTime != null and endTime.size()>0">
+            <if test="endTime[0] != null">
+                and csr.cut_end_time &gt; #{endTime[0]}
+            </if>
+            <if test="endTime[1] != null">
+                and csr.cut_end_time &lt; #{endTime[1]}
+            </if>
+        </if>
+        <if test="projectId != null ">
+            AND csr.project_id = #{projectId}
+        </if>
+        <if test="cutTaskId != null and cutTaskId != ''">
+            and csr.cut_task_id like CONCAT('%', #{cutTaskId},'%')
+        </if>
+    </select>
+</mapper>

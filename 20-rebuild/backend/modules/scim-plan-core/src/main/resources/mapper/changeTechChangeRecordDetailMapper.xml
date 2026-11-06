@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.change.TechChangeRecordDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.change.TechChangeRecordDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="change_record_id" property="changeRecordId" />
+        <result column="type" property="type" />
+        <result column="artifact_id" property="artifactId" />
+        <result column="sort_number" property="sortNumber" />
+        <result column="change_serial_number" property="changeSerialNumber" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, change_record_id, type, artifact_id, sort_number, change_serial_number
+    </sql>
+
+    <select id="listChangeRecordDetailList" resultType="com.hzchum.scim.plan.core.api.pojo._do.change.TechChangeRecordDetail">
+    SELECT
+    *
+    FROM
+    tech_change_record_detail detail
+    INNER JOIN tech_change_record record on detail.change_record_id = record.id and check_status = #{checkStatus} and record.bool_delete_enum = 0
+    where detail.bool_delete_enum = 0
+        and artifact_id in
+        <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+            #{artifactId}
+        </foreach>
+
+</select>
+
+
+</mapper>

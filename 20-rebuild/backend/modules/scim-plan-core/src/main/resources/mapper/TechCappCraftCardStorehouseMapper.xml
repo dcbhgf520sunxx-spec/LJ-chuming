@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardStorehouseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouse">
+        <id column="id" property="id"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="craft_type" property="craftType"/>
+        <result column="process_attributes" property="processAttributes"/>
+        <result column="project_id" property="projectId"/>
+        <result column="welding_base_joint_type" property="weldingBaseJointType"/>
+        <result column="welding_base_parent_material_steel_grade" property="weldingBaseParentMaterialSteelGrade"/>
+        <result column="welding_base_plate_thickness_or_pipe_diameter"
+                property="weldingBasePlateThicknessOrPipeDiameter"/>
+        <result column="welding_base_hot_rolling_or_heat_treatment_status"
+                property="weldingBaseHotRollingOrHeatTreatmentStatus"/>
+        <result column="process_id" property="processId"/>
+        <result column="welding_base_welding_method" property="weldingBaseWeldingMethod"/>
+        <result column="welding_base_welding_position" property="weldingBaseWeldingPosition"/>
+        <result column="welding_base_welding_device_type" property="weldingBaseWeldingDeviceType"/>
+        <result column="welding_base_power_supply_and_polarity" property="weldingBasePowerSupplyAndPolarity"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="creta_user_name" property="cretaUserName"/>
+        <result column="operator_user_id" property="operatorUserId"/>
+        <result column="operator_user_name" property="operatorUserName"/>
+        <result column="operator_date_time" property="operatorDateTime"/>
+        <result column="auditor_user_id" property="auditorUserId"/>
+        <result column="auditor_user_name" property="auditorUserName"/>
+        <result column="audit_date_time" property="auditDateTime"/>
+        <result column="joint_schematic_diagram_attachment_id" property="jointSchematicDiagramAttachmentId"/>
+        <result column="welding_schematic_diagram_attachment_id" property="weldingSchematicDiagramAttachmentId"/>
+        <result column="welding_technical_measure_pre_weld_cleaning" property="weldingTechnicalMeasurePreWeldCleaning"/>
+        <result column="welding_technical_measure_road_cleaning" property="weldingTechnicalMeasureRoadCleaning"/>
+        <result column="welding_technical_measure_back_cleaning" property="weldingTechnicalMeasureBackCleaning"/>
+        <result column="welding_technical_measure_other" property="weldingTechnicalMeasureOther"/>
+        <result column="process_status" property="processStatus"/>
+        <result column="enabled_flag" property="enabledFlag"/>
+        <result column="version_number" property="versionNumber"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , serial_number, craft_type, process_attributes, project_id, welding_base_joint_type, welding_base_parent_material_steel_grade, welding_base_plate_thickness_or_pipe_diameter, welding_base_hot_rolling_or_heat_treatment_status, process_id, welding_base_welding_method, welding_base_welding_position, welding_base_welding_device_type, welding_base_power_supply_and_polarity, create_user_id, creta_user_name, operator_user_id, operator_user_name, operator_date_time, auditor_user_id, auditor_user_name, audit_date_time, joint_schematic_diagram_attachment_id, welding_schematic_diagram_attachment_id, welding_technical_measure_pre_weld_cleaning, welding_technical_measure_road_cleaning, welding_technical_measure_back_cleaning, welding_technical_measure_other, process_status, enabled_flag, version_number
+    </sql>
+    <select id="list" resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardStorehouseVO"
+            parameterType="com.hzchum.scim.plan.core.api.pojo.dto.CappCraftCardStorehouseListDTO">
+        select tccs.*,
+        cp.name as projectName,
+        mbp.name as processName
+        from tech_capp_craft_card_storehouse as tccs
+        left join contract_project as cp on tccs.project_id = cp.id
+        left join mes_building_process as mbp on mbp.id = tccs.process_id
+        <where>
+            tccs.bool_delete_enum = 0
+            <if test="craftType != null">
+                and tccs.craft_type = #{craftType}
+            </if>
+            <if test="processAttributes != null">
+                and tccs.process_attributes = #{processAttributes}
+            </if>
+            <if test="processStatus != null">
+                and tccs.process_status = #{processStatus}
+            </if>
+            <if test="enabledFlag != null">
+                and tccs.enabled_flag = #{enabledFlag}
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and tccs.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="weldingBaseJointType != null and weldingBaseJointType != '' ">
+                and tccs.welding_base_joint_type like concat('%',#{weldingBaseJointType},'%')
+            </if>
+            <if test="processId != null">
+                and tccs.process_id = #{processId}
+            </if>
+            <if test="projectId != null">
+                and tccs.project_id = #{projectId}
+            </if>
+            <if test="weldingBaseHotRollingOrHeatTreatmentStatus != null and weldingBaseHotRollingOrHeatTreatmentStatus != '' ">
+                and tccs.welding_base_hot_rolling_or_heat_treatment_status like
+                concat('%',#{weldingBaseHotRollingOrHeatTreatmentStatus},'%')
+            </if>
+            <if test="weldingBaseWeldingPosition != null and weldingBaseWeldingPosition != '' ">
+                and tccs.welding_base_welding_position like concat('%',#{weldingBaseWeldingPosition},'%')
+            </if>
+            <if test="weldingBaseWeldingDeviceType != null and weldingBaseWeldingDeviceType != '' ">
+                and tccs.welding_base_welding_device_type like concat('%',#{weldingBaseWeldingDeviceType},'%')
+            </if>
+            <if test=" weldingBaseParentMaterialSteelGrade != null and weldingBaseParentMaterialSteelGrade != '' ">
+                and tccs.welding_base_parent_material_steel_grade like
+                concat('%',#{weldingBaseParentMaterialSteelGrade},'%')
+            </if>
+            <if test="weldingBasePlateThicknessOrPipeDiameter != null and weldingBasePlateThicknessOrPipeDiameter != '' ">
+                and tccs.welding_base_plate_thickness_or_pipe_diameter like
+                concat('%',#{weldingBasePlateThicknessOrPipeDiameter},'%')
+            </if>
+        </where>
+
+    </select>
+    <select id="listAll" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouse">
+        select * from tech_capp_craft_card_storehouse
+    </select>
+
+</mapper>

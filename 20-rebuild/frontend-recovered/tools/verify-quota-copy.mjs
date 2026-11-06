@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const {parse}=createRequire(path.join(root,'package.json'))('@babel/parser');
+const kinds=[['artifact','artifact-quota-config','Z','l','C'],['assemble','assemble-quota-config','te','l','x'],['machine-part','macgine-part-quota-config','oe','c','x'],['coating','painting-quota-config','H','c',null]];
+function walk(node,visit){if(!node||typeof node!=='object')return;if(node.type)visit(node);for(const [k,v]of Object.entries(node)){if(['loc','start','end'].includes(k))continue;if(Array.isArray(v))v.forEach(x=>walk(x,visit));else if(v?.type)walk(v,visit);}}
+export function copyQuota(kind,row,stale={id:777,conditionList:[{numberOne:999}]}){
+ const spec=kinds.find(x=>x[0]===kind),source='src/views/mes/wage-norm-manage-v2/'+spec[1]+'/index.vue.js',code=fs.readFileSync(path.join(root,source),'utf8');let fn;walk(parse(code,{sourceType:'module'}),n=>{if(n.type==='FunctionDeclaration'&&n.id.name===spec[2])fn=n;});assert(fn);
+ let opened=0;const crud={form:structuredClone(stale),resetForm(value){for(const k of Object.keys(this.form))delete this.form[k];Object.assign(this.form,structuredClone(value));},toAdd(){opened++;}};
+ const context={JSON,[spec[3]]:crud};if(spec[4])context[spec[4]]=[{conditionEnum:1,name:'长度'}];vm.runInNewContext(code.slice(fn.start,fn.end)+`;${spec[2]}(row);`,{...context,row});return {form:crud.form,opened,source};
+}
+const common={id:88,serialNumber:'OLD-IDENTITY',branchCompanyIdList:[1],workshopIdList:[1],process:{id:31,name:'PROC'},measureUnit:'件',quotaType:2,productClassificationEnum:1,artifactClassIdList:[46],artifactNameList:['钢梁'],assembleClassIdList:[1],machinePartClassIdList:[1],organizationInsidePrice:1.25,organizationOutsidePrice:2.5,conditionList:[{id:56,conditionEnum:1,numberOne:100,comparisonOperatorOne:1,comparisonOperatorTwo:2,numberTwo:200}],paintFilmThicknessBase:80,startOrganizationInsidePrice:1.5,startOrganizationOutsidePrice:2.5,startAddPaintFilmThickness:20,startAddOrganizationInsidePrice:.25,startAddOrganizationOutsidePrice:.5};
+const checks=[];function check(id,fn){try{fn();checks.push({id,status:'passed'});}catch(e){checks.push({id,status:'fail',error:e.message});}}
+for(const [kind]of kinds){
+ const fields=['branchCompanyIdList','workshopIdList','processId','measureUnit',...(kind==='coating'?['artifactClassIdList','paintFilmThicknessBase','startOrganizationInsidePrice','startOrganizationOutsidePrice','startAddPaintFilmThickness','startAddOrganizationInsidePrice','startAddOrganizationOutsidePrice']:['quotaType','organizationInsidePrice','organizationOutsidePrice',...(kind==='artifact'?['productClassificationEnum','artifactClassIdList','artifactNameList']:kind==='assemble'?['assembleClassIdList']:['productClassificationEnum','machinePartClassIdList'])])];
+ check(kind+'_copies_all_current_business_form_fields',()=>{const {form,opened}=copyQuota(kind,structuredClone(common));assert.equal(opened,1);for(const k of fields)assert.deepEqual(form[k]===undefined?undefined:JSON.parse(JSON.stringify(form[k])),k==='processId'?31:common[k],k);});
+ check(kind+'_never_reuses_stale_or_source_record_identity',()=>{const {form}=copyQuota(kind,structuredClone(common));assert.equal(form.id,undefined);assert.equal(form.serialNumber,undefined);assert(!form.conditionList?.some(x=>x.id));});
+ check(kind+'_copied_applicability_and_conditions_are_independent',()=>{const row=structuredClone(common),before=JSON.stringify(row),{form}=copyQuota(kind,row);form.branchCompanyIdList.push(2);form.workshopIdList.push(2);if(form.conditionList?.length)form.conditionList[0].numberOne=400;assert.equal(JSON.stringify(row),before);});
+ check(kind+'_missing_process_and_optional_lists_clear_previous_values',()=>{const row={...structuredClone(common),process:undefined,artifactNameList:undefined,conditionList:undefined};const {form}=copyQuota(kind,row,{id:77,processId:99,conditionList:[{numberOne:999}],artifactNameList:['STALE']});assert.equal(form.processId,undefined);assert(!form.conditionList?.length);if(kind==='artifact')assert.equal(form.artifactNameList.length,0);});
+ if(kind!=='coating')for(const [label,conditions]of [['normal',common.conditionList],['zero',[{conditionEnum:1,numberOne:0,comparisonOperatorOne:1,comparisonOperatorTwo:2,numberTwo:50}]],['multiple',[...common.conditionList,{conditionEnum:2,numberOne:300,comparisonOperatorOne:2,comparisonOperatorTwo:1,numberTwo:500}]]])check(kind+'_retains_'+label+'_thresholds_and_operators',()=>{const {form}=copyQuota(kind,{...structuredClone(common),conditionList:structuredClone(conditions)});assert.deepEqual(JSON.parse(JSON.stringify(form.conditionList)),conditions.map(({id,...business})=>business));});
+}
+const result={verified_at:new Date().toISOString(),cases:checks.length,passed:checks.filter(x=>x.status==='passed').length,failed:checks.filter(x=>x.status==='fail').length,checks};fs.mkdirSync(path.join(root,'.verification'),{recursive:true});fs.writeFileSync(path.join(root,'quota-copy-verification.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));if(result.failed)process.exitCode=1;

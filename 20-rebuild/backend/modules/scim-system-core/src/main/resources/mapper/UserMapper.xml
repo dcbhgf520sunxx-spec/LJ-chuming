@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.User">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="dd_user_id" property="ddUserId"/>
+        <result column="version" property="version"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="email" property="email"/>
+        <result column="is_enabled" property="isEnabled"/>
+        <result column="job_id" property="jobId"/>
+        <result column="last_password_reset_date" property="lastPasswordResetDate"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="sex" property="sex"/>
+        <result column="username" property="username"/>
+        <result column="inventory_notify_perm" property="inventoryNotifyPerm"/>
+        <result column="user_type" property="userType"/>
+        <result column="oa_sub_dept_id" property="oaSubDeptId"/>
+        <result column="oa_sub_dept_name" property="oaSubDeptName"/>
+        <result column="oa_dept_id" property="oaDeptId"/>
+        <result column="oa_user_id" property="oaUserId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        , update_time, version, bool_delete_enum,
+        id, dd_user_id, department_id, email, is_enabled, job_id, last_password_reset_date, name, password, phone, sex, username, inventory_notify_perm, user_type, oa_sub_dept_id, oa_sub_dept_name, oa_dept_id, oa_user_id
+    </sql>
+
+    <select id="listByName" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        select *
+        from sys_user
+        where name like concat('%', #{name}, '%')
+          and bool_delete_enum = 0
+          and user_type = 1
+    </select>
+
+    <select id="getSimpleUser" resultType="com.hzchum.scim.system.core.api.pojo.dto.UserSimpleResponseVO">
+        select u.id   id,
+               u.name name,
+               u.is_deepen,
+               u.phone,
+               u.oa_user_id,
+               d.name deptName
+        from sys_user u
+                 LEFT join sys_department d on u.department_id = d.id
+        where u.is_enabled = 1
+          and u.bool_delete_enum = 0
+          and d.bool_delete_enum = 0
+          and u.user_type in (1,4)
+        order by d.id
+    </select>
+
+    <select id="selectByPrimaryKeys" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        select * from sys_user
+        where id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND bool_delete_enum = 0
+    </select>
+
+    <select id="selectIdsByName" resultType="long" parameterType="string">
+        select id
+        from sys_user
+        where bool_delete_enum = 0
+          AND name like concat('%', #{name}, '%');
+    </select>
+
+    <select id="getByUsername" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE username = #{username}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="getIdByPhone" resultType="java.lang.Long">
+        SELECT id
+        FROM sys_user
+        WHERE phone = #{phone}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="getByEmail" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE email = #{email}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="listByDeptId" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE department_id = #{deptId}
+          and bool_delete_enum = 0
+    </select>
+
+
+    <select id="getByInventoryNotifyPerm" resultType="long">
+        SELECT id
+        FROM sys_user
+        WHERE inventory_notify_perm = 1
+          and bool_delete_enum = 0
+    </select>
+
+
+    <select id="listIsEnabledByDeptId" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE department_id = #{deptId}
+          AND is_enabled = true
+          AND bool_delete_enum = 0
+    </select>
+
+
+    <select id="getByPhone" resultType="com.hzchum.scim.system.core.api.pojo._do.User">
+        SELECT *
+        FROM sys_user
+        WHERE phone = #{phone}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.system.core.api.pojo.dto.UserResponseVO">
+
+        SELECT u.id,
+        u.username,
+        u.NAME,
+        u.phone,
+        u.email,
+        u.create_time,
+        u.sex,
+        u.is_enabled AS enabled,
+        u.last_password_reset_date,
+        u.department_id AS deptId,
+        u.job_id,
+        u.sort,
+        u.user_code,
+        u.user_type,
+        u.oa_sub_dept_id,
+        u.oa_sub_dept_name,
+        u.oa_dept_id,
+        u.oa_user_id,
+
+        j.id as 'job.id',
+        j.dept_id as 'job.deptId',
+        j.enabled as 'job.enabled',
+        j.is_admin as 'job.isAdmin',
+        j.name as 'job.name',
+        j.sort as 'job.sort',
+        d.id as 'dept.id',
+        d.introduction as 'dept.introduction',
+        d.name as 'dept.name',
+        d.pid as 'dept.pid'
+
+
+        FROM sys_user u
+        LEFT JOIN sys_department as d ON u.department_id = d.id AND d.bool_delete_enum = 0
+        LEFT JOIN sys_job as j ON u.job_id = j.id AND j.bool_delete_enum = 0
+
+        WHERE u.bool_delete_enum = 0
+        <if test="isEnabled != null">
+            AND u.is_enabled = #{isEnabled}
+        </if>
+        <if test="deptId != null">
+            AND u.department_id = #{deptId}
+        </if>
+        <if test="userType != null">
+            AND u.user_type = #{userType}
+        </if>
+        <if test="blurry != null and blurry != ''">
+            AND (u.name LIKE concat('%',#{blurry},'%')
+            OR u.phone LIKE concat('%',#{blurry},'%')
+            OR u.email LIKE concat('%',#{blurry},'%')
+            OR u.username LIKE concat('%',#{blurry},'%'))
+        </if>
+        ORDER BY u.sort, u.id asc
+
+
+    </select>
+
+    <update id="updateNotifyType" >
+        UPDATE sys_user
+        SET inventory_notify_perm = #{b}
+        WHERE
+        bool_delete_enum = 0
+        <if test="ids != null and ids.size()>0">
+            and id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="getSimpleUserByIds" resultType="com.hzchum.scim.system.core.api.pojo.dto.UserSimpleResponseVO">
+        select u.id   id,
+        u.name name
+        from sys_user u
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getUserAllListVO" resultType="com.hzchum.scim.system.core.api.pojo.dto.UserSimpleResponseVO">
+        select u.id   id,
+               u.name name,
+               u.phone phone,
+               d.name deptName
+        from sys_user u
+                 LEFT join sys_department d on u.department_id = d.id
+    </select>
+
+    <select id="getUserByPhone" resultType="com.hzchum.scim.system.core.api.pojo.dto.UserResponseVO">
+        SELECT
+            u.id,
+            u.username,
+            u.NAME,
+            u.phone,
+            u.email,
+            u.create_time,
+            u.sex,
+            u.is_enabled AS enabled,
+            u.last_password_reset_date,
+            u.department_id AS deptId,
+            u.job_id,
+            u.sort,
+            u.oa_sub_dept_id,
+            u.oa_sub_dept_name,
+            u.oa_dept_id,
+            u.oa_user_id,
+
+            j.id as 'job.id',
+            j.dept_id as 'job.deptId',
+            j.enabled as 'job.enabled',
+            j.is_admin as 'job.isAdmin',
+            j.name as 'job.name',
+            j.sort as 'job.sort',
+            d.id as 'dept.id',
+            d.introduction as 'dept.introduction',
+            d.name as 'dept.name',
+            d.pid as 'dept.pid'
+
+        FROM sys_user u
+        LEFT JOIN sys_department as d ON u.department_id = d.id AND d.bool_delete_enum = 0
+        LEFT JOIN sys_job as j ON u.job_id = j.id AND j.bool_delete_enum = 0
+        WHERE u.bool_delete_enum = 0
+        <if test="phone != null and phone != ''">
+            AND u.phone = #{phone}
+        </if>
+    </select>
+
+
+</mapper>

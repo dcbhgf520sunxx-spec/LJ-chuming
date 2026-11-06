@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.RejectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Reject">
+        <id column="id" property="id"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="editor_id" property="editorId"/>
+        <result column="editor_name" property="editorName"/>
+        <result column="applicant_id" property="applicantId"/>
+        <result column="applicant_name" property="applicantName"/>
+        <result column="inbound_id" property="inboundId"/>
+        <result column="inbound_sn" property="inboundSn"/>
+        <result column="project_ids" property="projectIds"/>
+        <result column="purchase_order_id" property="purchaseOrderId"/>
+        <result column="purchase_sn" property="purchaseSn"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="shipment_number" property="shipmentNumber"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="user_update_time" property="userUpdateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="approval_comments" property="approvalComments"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVat"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum
+        ,
+        create_time,
+        update_time,
+        version,
+        review_time,
+        id, basic_class, editor_id, editor_name, applicant_id, applicant_name, inbound_id, inbound_sn, project_ids, purchase_order_id, purchase_sn, review_status, reviewer_id, reviewer_name, serial_number, shipment_number, supplier_id, user_update_time, remark, approval_comments, amount, amount_excluding_VAT
+    </sql>
+
+    <resultMap id="getList" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="editor_name" property="editorName"/>
+        <result column="applicant_name" property="applicantName"/>
+        <result column="project_ids" property="projectIds"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="review_time" property="rejectTime"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="approval_comments" property="approvalComments"/>
+        <result column="amount_excluding_vat" property="rejectAmountExcludingVAT"/>
+        <result column="amount_excluding_vat_no_freight" property="rejectAmountExcludingVATNoFreight"/>
+        <result column="remark" property="remark"/>
+        <result column="approval_comments" property="approvalComments"/>
+        <result column="wia" property="inboundAmountExcludingVAT"/>
+        <result column="wiaNoFreight" property="inboundAmountExcludingVATNoFreight"/>
+        <result column="inboundAmount" property="inboundAmount"/>
+        <result column="inboundAmountNoFreight" property="inboundAmountNoFreight"/>
+        <result column="rejectAmount" property="rejectAmount"/>
+        <result column="rejectAmountNoFreight" property="rejectAmountNoFreight"/>
+        <result column="bool_printed" property="boolPrinted" />
+        <association property="purchaseOrder" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="spoId" />
+            <result property="serialNumber" column="spoSN" />
+        </association>
+        <association property="inboundReceipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="wiId" />
+            <result property="serialNumber" column="wiSN" />
+        </association>
+        <association property="supplier" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="ssId" />
+            <result property="name" column="ssName" />
+        </association>
+    </resultMap>
+
+    <select id="getList" resultMap="getList">
+        select
+        wr.*,
+        spo.id spoId,
+        spo.serial_number spoSN,
+        wi.id wiId,
+        wi.serial_number wiSN,
+        wi.amount_excluding_VAT wia,
+        wi.amount_excluding_VAT_no_freight wiaNofreight,
+        ss.id ssId,
+        ss.name ssName,
+        wi.amount inboundAmount,
+        wr.amount rejectAmount,
+        wi.amount_no_freight inboundAmountNoFreight,
+        wr.amount_no_freight rejectAmountNoFreight
+        from wms_reject wr
+        left join wms_inbound wi on wi.id = wr.inbound_id
+        left join scm_purchase_order spo on spo.id = wr.purchase_order_id
+        left join scm_supplier ss on ss.id = wr.supplier_id
+        left join wms_reject_detail wd on wd.reject_id = wr.id
+        where
+        wr.bool_delete_enum = 0
+          and wr.review_status = 2
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and wr.review_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wr.review_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="basicClass != null ">
+            and wr.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="reviewStatus != null ">
+            and wr.review_status = #{reviewStatus}
+        </if>
+        <if test="purchaseSN != null and inboundSN != '' ">
+            and spo.serial_number like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundSN != null and inboundSN != '' ">
+            and wi.serial_number like CONCAT('%', #{inboundSN},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wr.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="supplierId != null ">
+            and wr.supplier_id = #{supplierId}
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wr.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wr.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wr.project_ids  is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wr.project_ids  IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},wr.project_ids)
+        </if>
+        <if test="workshopIds != null and workshopIds.size() > 0">
+            and wd.workshop_id in
+            <foreach collection="workshopIds" item="workshopId" open="(" close=")" separator=",">
+                #{workshopId}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="selectSumRejectAmount" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(amount), 0)
+        FROM `wms_reject`
+        WHERE bool_delete_enum = 0
+        AND review_status = 2
+        <if test="purchaseOrderId != null">
+           AND purchase_order_id = #{purchaseOrderId}
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="inboundId != null">
+            AND inbound_id = #{inboundId}
+        </if>
+    </select>
+
+    <select id="selectSumRejectAmountV2" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(amount_no_freight), 0)
+        FROM `wms_reject`
+        WHERE bool_delete_enum = 0
+        AND review_status = 2
+        <if test="purchaseOrderId != null">
+            AND purchase_order_id = #{purchaseOrderId}
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="inboundId != null">
+            AND inbound_id = #{inboundId}
+        </if>
+    </select>
+
+    <select id="getTotalAmount" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(wrd.amount), 0)
+        FROM wms_reject wr
+        left join wms_reject_detail wrd on wr.id = wrd.reject_id and wrd.bool_delete_enum = 0
+        WHERE wr.bool_delete_enum = 0
+        and wr.inbound_id in
+        <foreach collection="inboundIds" index="id" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <resultMap id="RejectDOCount" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDO">
+        <result column="amountCount" property="amountCount"/>
+        <result column="amountExcludingVatCount" property="amountExcludingVatCount"/>
+    </resultMap>
+    <select id="getListCount" resultMap="RejectDOCount">
+        select
+        sum(wr.amount) as amountCount,
+        sum(wr.amount_excluding_VAT) as amountExcludingVatCount
+        from wms_reject wr
+        left join wms_inbound wi on wi.id = wr.inbound_id
+        left join scm_purchase_order spo on spo.id = wr.purchase_order_id
+        left join scm_supplier ss on ss.id = wr.supplier_id
+        where
+        wr.bool_delete_enum = 0
+        and wr.review_status = 2
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and wr.review_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wr.review_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="basicClass != null ">
+            and wr.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="reviewStatus != null ">
+            and wr.review_status = #{reviewStatus}
+        </if>
+        <if test="purchaseSN != null and inboundSN != '' ">
+            and spo.serial_number like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundSN != null and inboundSN != '' ">
+            and wi.serial_number like CONCAT('%', #{inboundSN},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wr.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="supplierId != null ">
+            and wr.supplier_id = #{supplierId}
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wr.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wr.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wr.project_ids  is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wr.project_ids  IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},wr.project_ids)
+        </if>
+    </select>
+    <select id="getCountMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.QuantityMeteDTO">
+        select
+        IFNULL(sum(wrd.quantity),0) as quantity,
+        IFNULL(sum(wrd.mete),0) as mete
+        from wms_reject_detail wrd
+        left join wms_reject wr on wrd.reject_id = wr.id
+        where
+        wrd.bool_delete_enum = 0
+        and wrd.basic_class != 256
+        <if test="status != null and status.size > 0">
+            and wr.review_status in
+            <foreach collection="status" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="purchaseId != null">
+            and wr.purchase_order_id = #{purchaseId}
+        </if>
+    </select>
+
+</mapper>

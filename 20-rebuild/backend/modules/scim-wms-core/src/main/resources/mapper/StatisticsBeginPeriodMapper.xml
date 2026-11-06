@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.StatisticsBeginPeriodMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsBeginPeriod">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="statistics_id" property="statisticsId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="warehouse_type" property="warehouseType"/>
+        <result column="project_id" property="projectId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="weight_measurement_mode" property="weightMeasurementMode"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="standardName"/>
+        <result column="weighted_average_price_id" property="weightedAveragePriceId"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVat"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVat"/>
+        <result column="input_vat" property="inputVat"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, statistics_id, basic_class, classify_id, classify_name, specification, material_is_whole, warehouse_type, type, project_id, quantity, length, width, thickness, theory_thickness, brand, heat_no_and_batch_no, color, mete, unit_net, warehouse_id, workshop_id, weight_measurement_mode, invoice_type, tax_rate, standard_id, standard_name, weighted_average_price_id, unit_price, unit_price_excluding_vat, amount, amount_excluding_vat, input_vat
+    </sql>
+
+    <select id="getList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsBeginPeriod">
+        select *
+        from wms_statistics_begin_period
+        where date_format(create_time, '%Y-%m') = date_format(#{createTime}, '%Y-%m')
+    </select>
+
+    <select id="getBeginPeriodList" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select statistics_id id,
+        sum(mete) mete,
+        <if test="boolShowAmount">
+            unit_price_excluding_vat unitPriceExcludingVAT,
+            sum(input_VAT) inputVAT,
+            sum(amount) amount,
+            sum(amount_excluding_VAT) amountExcludingVAT,
+        </if>
+        sum(quantity) quantity
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+        and date_format(create_time, '%Y-%m') = date_format(#{createTime}, '%Y-%m')
+        GROUP BY statistics_id,unit_price_excluding_vat
+    </select>
+    <select id="getDetail" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select sum(mete)                 mete,
+               sum(quantity)             quantity,
+               sum(input_VAT)            inputVAT,
+               sum(amount)               amount,
+               sum(amount_excluding_VAT) amountExcludingVAT
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+          and statistics_id = #{id}
+            and  create_time &gt; #{times.startTime}
+            and  create_time &lt; #{times.endTime}
+
+    </select>
+
+    <resultMap id="getDetailDTOList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.StatisticsDetailDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="quantity" property="quantity"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getDetailDTOListUser" resultMap="getDetailDTOList">
+        select wsbp.*,
+        p.id            pid,
+        p.short_name    psName,
+        p.serial_number pSN,
+        p.name          pn,
+        pm.name          pmName,
+        pa.name          paName,
+        mbf.id          mbfId,
+        mbf.name        mbfName,
+        wc.name classifyName,
+        ww.id           wwId,
+        ww.name         wwName
+        from wms_statistics_begin_period wsbp
+        left join contract_project p on p.id = wsbp.project_id
+        left join wms_workshop mbf on wsbp.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wsbp.warehouse_id
+        left join wms_classification wc on wsbp.classify_id = wc.id
+        left join plan_monomer pm on pm.id = wsbp.monomer_id
+        left join plan_area pa on pa.id = wsbp.area_id
+        where wsbp.bool_delete_enum = 0
+        and wsbp.mete is not null
+        <if test="ids != null and ids.size()>0 " >
+            and wsbp.statistics_id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="times.wmsClosingTimeId !=null and times.wmsClosingTimeId!=''">
+            and   wsbp.wms_closing_time_id=#{times.wmsClosingTimeId}
+        </if>
+        <if test="times.startTime !=null">
+            and wsbp.create_time &gt; #{times.startTime}
+        </if>
+        <if test="times.endTime !=null">
+            and wsbp.create_time &lt; #{times.endTime}
+        </if>
+
+    </select>
+
+    <select id="getDetailDTOList" resultMap="getDetailDTOList">
+        select wsbp.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               pm.name          pmName,
+               pa.name          paName,
+               mbf.id          mbfId,
+               mbf.name        mbfName,
+                wc.name classifyName,
+               ww.id           wwId,
+               ww.name         wwName
+        from wms_statistics_begin_period wsbp
+        left join contract_project p on p.id = wsbp.project_id
+        left join wms_workshop mbf on wsbp.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wsbp.warehouse_id
+        left join wms_classification wc on wsbp.classify_id = wc.id
+        left join plan_monomer pm on pm.id = wsbp.monomer_id
+        left join plan_area pa on pa.id = wsbp.area_id
+        where wsbp.bool_delete_enum = 0
+          and wsbp.mete is not null
+          and wsbp.create_time &gt; #{times.startTime}
+          and wsbp.create_time &lt; #{times.endTime}
+        <if test="ids != null and ids.size()>0 " >
+            and wsbp.statistics_id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getSumAmount" resultType="decimal">
+        select ifnull(SUM(amount_excluding_vat),0)
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+        <if test="times.wmsClosingTimeId !=null and times.wmsClosingTimeId!=''">
+            and   wms_closing_time_id=#{times.wmsClosingTimeId}
+        </if>
+        <if test="times.wmsClosingTimeId ==null or times.wmsClosingTimeId==''">
+            and   wms_closing_time_id is null
+        </if>
+        <if test="times.startTime !=null and times.wmsClosingTimeId ==null">
+            and   create_time>#{times.startTime}
+        </if>
+        <if test="times.endTime !=null and times.wmsClosingTimeId ==null">
+            and  create_time &lt; #{times.endTime}
+        </if>
+
+    </select>
+
+     <select id="getAmountList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MonthSummaryDO">
+            SELECT
+            DATE_FORMAT( create_time, '%m' ) date,
+            ifnull(sum(mete),0) mete,
+            CASE
+            WHEN #{type} = 1 THEN
+            sum(ifnull(amount, 0))
+            WHEN #{type} = 2 THEN
+            sum(ifnull(amount_excluding_vat, 0))
+            END amount
+            FROM
+            wms_statistics_begin_period
+            WHERE
+            bool_delete_enum = 0
+            and basic_class &amp; #{basicClass} &gt; 0
+            AND date_format( create_time, '%Y' ) = date_format( #{year}, '%Y' )
+            GROUP BY
+            DATE_FORMAT( create_time, '%m' )
+    </select>
+    <select id="getAmountListV2" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MonthSummaryDO">
+        SELECT
+            CASE
+            WHEN DATE_FORMAT( create_time, '%m' ) = '01' THEN '12'
+            ELSE LPAD( DATE_FORMAT( create_time, '%m' ) - 1, 2, '0' )
+            END AS DATE,
+            ifnull(sum(mete),0) mete,
+            CASE
+            WHEN #{type} = 1 THEN
+                sum(ifnull(amount, 0))
+            WHEN #{type} = 2 THEN
+                sum(ifnull(amount_excluding_vat, 0))
+        END amount
+        FROM
+            wms_statistics_begin_period
+            WHERE
+            bool_delete_enum = 0
+        AND (
+        (YEAR(create_time) = YEAR(#{yearDate}) AND MONTH(create_time) >= 2)
+        OR (YEAR(create_time) = YEAR(#{yearDate}) + 1 AND MONTH(create_time) = 1) )
+        <if test="materialIsWhole!=null">
+          and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="basicClass!=null">
+            and basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS (SELECT 1 FROM wms_workshop ww
+                JOIN mes_building_factory mf ON mf.id=ww.factory_id AND mf.bool_delete_enum=0
+                WHERE ww.bool_delete_enum=0 AND ww.id=wms_statistics_begin_period.workshop_id
+                AND mf.branch_company_id=#{branchCompanyId})
+        </if>
+        GROUP BY
+        CASE
+           WHEN DATE_FORMAT( create_time, '%m' ) = '01' THEN '12'
+           ELSE LPAD( DATE_FORMAT( create_time, '%m' ) - 1, 2, '0' )
+        END;
+    </select>
+    <select id="boolHave" resultType="boolean">
+        SELECT
+            CASE
+                WHEN count(*) = 0 THEN
+                    1
+                WHEN count(*) > 0 THEN
+                    0
+                END
+        FROM
+            wms_statistics_begin_period
+            WHERE
+            bool_delete_enum = 0
+        AND date_format( create_time, '%Y' ) = date_format( now(), '%Y' )
+        and basic_class = #{basicClass}
+        and classify_id = #{classifyId}
+        and bool_party_a = #{boolPartyA}
+        <if test="workshopId != null ">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test="materialIsWhole != null ">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="standardId != null ">
+            and standard_id = #{standardId}
+        </if>
+        <if test="warehouseId != null ">
+            AND warehouse_id = #{warehouseId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND specification = #{specification}
+        </if>
+        <if test="specification == null ">
+            AND specification is null
+        </if>
+        <if test="length != null ">
+            AND length = #{length}
+        </if>
+        <if test="length == null ">
+            AND length is null
+        </if>
+        <if test="width != null ">
+            AND width = #{width}
+        </if>
+        <if test="width == null ">
+            AND width is null
+        </if>
+        <if test="thickness != null ">
+            AND thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="unitNet != null ">
+            AND unit_net = #{unitNet}
+        </if>
+        <if test="unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="projectId != null ">
+            AND project_id = #{projectId}
+        </if>
+        <if test="projectId == null ">
+            AND project_id is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="brand != null and brand != ''">
+            AND brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            AND brand is null
+        </if>
+        <if test="color != null and color != ''">
+            AND color = #{color}
+        </if>
+        <if test="color == null ">
+            AND color is null
+        </if>
+
+    </select>
+    <select id="getDetailNew" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select
+        statistics_id       AS     id,
+        sum(mete)           AS     mete,
+        sum(quantity)       AS     quantity,
+        sum(input_VAT)      AS     inputVAT,
+        sum(amount)         AS     amount,
+        sum(amount_excluding_VAT) AS amountExcludingVAT
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+        <if test="times.wmsClosingTimeId !=null and times.wmsClosingTimeId!=''">
+            and   wms_closing_time_id=#{times.wmsClosingTimeId}
+        </if>
+        <if test="times.wmsClosingTimeId ==null or times.wmsClosingTimeId==''">
+            and   wms_closing_time_id is null
+        </if>
+
+        <if test="firstClosedPeriod">
+            and create_time &lt; #{times.endTime}
+        </if>
+
+        <if test="ids != null and ids.size()>0 " >
+            and statistics_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="times.startTime !=null">
+            and create_time &gt; #{times.startTime}
+        </if>
+        <if test="times.endTime !=null">
+            and create_time &lt; #{times.endTime}
+        </if>
+        group by statistics_id
+    </select>
+
+    <select id="getSumAmountNewOne" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(amount_excluding_vat),0)
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+          and create_time &gt; #{times.startTime}
+          and create_time &lt; #{times.endTime}
+          <if test="basicClass != null and basicClass != ''">
+              and basic_class &amp; #{basicClass} &gt; 0
+          </if>
+          <if test="workshopId != null and workshopId != ''">
+              and workshop_id = #{workshopId}
+          </if>
+          <if test="classifyIds != null and classifyIds.size() > 0">
+              and classify_id in
+              <foreach collection="classifyIds" item="classifyId" open="(" separator="," close=")">
+                  #{classifyId}
+              </foreach>
+          </if>
+    </select>
+    <select id="getSumMeteNewOne" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(mete),0)
+        from wms_statistics_begin_period
+        where bool_delete_enum = 0
+        and create_time &gt; #{times.startTime}
+        and create_time &lt; #{times.endTime}
+        <if test="basicClass != null and basicClass != ''">
+            and basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size() > 0">
+            and classify_id in
+            <foreach collection="classifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

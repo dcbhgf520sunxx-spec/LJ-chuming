@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.bim.core.mapper.BimModelCommonMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.bim.core.api.pojo._do.BimModelCommonDO">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="file_id" property="fileId" />
+        <result column="file_name" property="fileName" />
+        <result column="path" property="path" />
+        <result column="translate_status" property="translateStatus" />
+        <result column="file_thumbnail" property="fileThumbnail" />
+        <result column="file_tiny_thumbnail" property="fileTinyThumbnail" />
+        <result column="create_user_id" property="createUserId" />
+        <result column="file_size" property="fileSize" />
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        id, project_id, monomer_id, file_id, file_name, path, translate_status, file_thumbnail, file_tiny_thumbnail, create_user_id,file_size
+    </sql>
+
+    <select id="getBimByMonomer" resultType="com.hzchum.scim.bim.core.api.pojo.vo.BimModelCommonResponseVO">
+        SELECT
+        m.id,
+        p.id 'project.id',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.contract_no',
+        mo.id 'monomer.id',
+        mo.name 'monomer.name',
+        m.file_id,
+        m.file_name,
+        m.translate_status,
+        m.file_thumbnail,
+        m.file_tiny_thumbnail,
+        m.create_time,
+        m.update_time,
+        m.integration_status,
+        u.name AS create_user_name,
+        m.edition,
+        m.model_type,
+        m.import_mode
+        FROM plan_monomer mo
+        LEFT JOIN contract_project p ON p.id = mo.project_id
+        LEFT JOIN bim_model m ON mo.id = m.monomer_id  AND m.import_mode = #{importMode} and m.bool_delete_enum = 0
+        LEFT JOIN sys_user u ON u.id = m.create_user_id
+        <where>
+            m.bool_delete_enum = 0 AND m.area_id is NULL
+            <if test="projectId != null">
+                AND mo.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND mo.id = #{monomerId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getBimByArea" resultType="com.hzchum.scim.bim.core.api.pojo.vo.BimModelCommonResponseVO">
+        SELECT
+        m.id,
+        p.id 'project.id',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.contract_no',
+        area.id 'area.id',
+        area.name 'area.name',
+        m.file_id,
+        m.file_name,
+        m.translate_status,
+        m.file_thumbnail,
+        m.file_tiny_thumbnail,
+        m.create_time,
+        m.update_time,
+        m.integration_status,
+        u.name AS create_user_name,
+        m.edition,
+        m.model_type,
+        m.file_size,
+        m.import_mode
+        FROM plan_area area
+        LEFT JOIN contract_project p ON p.id = area.project_id
+        LEFT JOIN bim_model m ON area.id = m.area_id  AND m.import_mode = #{importMode} AND m.bool_delete_enum = 0
+        <if test="monomerId != null">
+            AND m.monomer_id = #{monomerId}
+        </if>
+        LEFT JOIN sys_user u ON u.id = m.create_user_id
+        <where>
+            <if test="projectId != null">
+                AND area.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND area.monomer_id = #{monomerId}
+            </if>
+            <if test="areaIds != null and areaIds.size() > 0">
+                and area.id in
+                <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                    #{areaId}
+                </foreach>
+            </if>
+        </where>
+        order by area.create_time
+    </select>
+    <select id="selectSuccessQuantity" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(SUM(success_quantity) ,0)
+        FROM
+            `bim_model`
+        WHERE 1=1
+        <if test="monomerId != null">
+            AND monomer_id=#{monomerId}
+        </if>
+        <if test="importMode != null">
+            AND import_mode=#{importMode}
+        </if>
+        <if test="areaId != null">
+            AND area_id=#{areaId}
+        </if>
+    </select>
+
+</mapper>

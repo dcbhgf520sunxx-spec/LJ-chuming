@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmProjectFollowUpRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectFollowUpRecord">
+        <id column="id" property="id" />
+        <result column="crm_project_information_warehousing_id" property="crmProjectInformationWarehousingId" />
+        <result column="follow_up_date" property="followUpDate" />
+        <result column="follow_up_methods" property="followUpMethods" />
+        <result column="follow_up_attachment" property="followUpAttachment" />
+        <result column="remark" property="remark" />
+        <result column="create_user_id" property="createUserId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, crm_project_information_warehousing_id, follow_up_date, follow_up_methods, follow_up_attachment, remark, create_user_id
+    </sql>
+
+</mapper>

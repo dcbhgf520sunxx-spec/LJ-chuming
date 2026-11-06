@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MoveMaterialMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        id, serial_number, applicant_id, applicant_name, reviewer_ids, reviewer_names, basic_class, source_warehouse_ids, direction_warehouse_id, project_id, review_status, review_end_time
+    </sql>
+
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveMaterial">
+        select
+        wmm.*
+        from
+        wms_move_material wmm
+        left join wms_move_material_detail wmmd on wmm.id = wmmd.move_material_id
+        left join contract_project p on p.id = wmmd.project_id
+        left join mes_building_factory mbf on wmmd.source_factory_id = mbf.id
+        left join mes_building_factory mbf1 on wmmd.direction_factory_id = mbf1.id
+        left join wms_warehouse ww on wmmd.source_warehouse_id = ww.id
+        left join wms_warehouse ww1 on wmm.direction_warehouse_id = ww1.id
+        where
+        wmm.bool_delete_enum = 0
+        <if test="boolPartyA != null">
+            and wmm.bool_party_a = #{boolPartyA}
+        </if>
+        <if test="basicClass != null">
+            and wmm.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="startAndEndTime != null and startAndEndTime.size()>0">
+            <if test="startAndEndTime[0] != null">
+                and wmm.create_time &gt;= #{startAndEndTime[0]}
+            </if>
+            <if test="startAndEndTime[1] != null">
+                and wmm.create_time &lt;= #{startAndEndTime[1]}
+            </if>
+        </if>
+        <if test="projectIds != null and projectIds.size()>0">
+            and wmmd.project_id in
+            <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size()>0">
+            and wmmd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" item="sourceWorkshopId" open="(" separator="," close=")">
+                #{sourceWorkshopId}
+            </foreach>
+        </if>
+        <if test="sourceWarehouseIds != null and sourceWarehouseIds.size()>0">
+            and wmmd.source_warehouse_id in
+            <foreach collection="sourceWarehouseIds" item="sourceWarehouseId" open="(" separator="," close=")">
+                #{sourceWarehouseId}
+            </foreach>
+        </if>
+        <if test="directionWorkshopIds != null and directionWorkshopIds.size()>0">
+            and wmmd.direction_workshop_id in
+            <foreach collection="directionWorkshopIds" item="directionWorkshopId" open="(" separator="," close=")">
+                #{directionWorkshopId}
+            </foreach>
+        </if>
+        <if test="directionWarehouseIds != null and directionWarehouseIds.size()>0">
+            and wmmd.direction_warehouse_id in
+            <foreach collection="directionWarehouseIds" item="directionWarehouseId" open="(" separator="," close=")">
+                #{directionWarehouseId}
+            </foreach>
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wmm.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (
+            wmm.applicant_name like CONCAT('%', #{operatorName},'%')
+            or
+            wmm.reviewer_names like CONCAT('%', #{operatorName},'%')
+            )
+        </if>
+        <if test="reviewStatus != null ">
+            and wmm.review_status = #{reviewStatus}
+        </if>
+        group by wmm.id
+    </select>
+
+</mapper>

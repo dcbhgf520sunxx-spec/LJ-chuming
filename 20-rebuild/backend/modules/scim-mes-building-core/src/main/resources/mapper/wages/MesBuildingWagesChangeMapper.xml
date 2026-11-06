@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wages.MesBuildingWagesChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wages.MesBuildingWagesChange">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="process_id" property="processId" />
+        <result column="old_price" property="oldPrice" />
+        <result column="new_price" property="newPrice" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, product_process_id, process_id, old_price, new_price, audit_time, user_id, audit_user_id, audit_status
+    </sql>
+
+    <select id="distributionComplete"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.DistributionProductDO">
+        SELECT
+            a.quantity complete_quantity,
+            a.create_time complete_time,
+            ta.*
+        FROM
+            mes_building_complete a
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part ta ON ta.id = a.product_id
+        </if>
+        <where>
+            a.product_type=#{productType}
+            <if test="productionLineId!=null">
+               and a.production_line_id=#{productionLineId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+    </select>
+    <select id="productClassifyList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProductClassifyDO">
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+                SELECT
+                b.steel_spec,
+                b.steel_id,
+                steel.`name` NAME,
+                b.material,
+                IFNULL( sum( a.task_quantity ), 0 ) quantity,
+                IFNULL( sum( a.task_quantity * b.net_weight ), 0 ) total_net_weight,
+                IFNULL( sum( a.task_quantity * b.gross_weight ), 0 ) total_gross_weight,
+                IFNULL( sum( a.task_quantity * b.length ), 0 ) total_length
+                FROM
+                mes_building_task a
+                LEFT JOIN tech_machine_part b ON a.product_id = b.id
+                LEFT JOIN sys_steel_classification steel ON steel.id = b.steel_id
+                <where>
+                    a.bool_delete_enum = FALSE AND a.product_type=#{productType}
+                    <!--AND b.relation_type = 2-->
+                    <if test=" monomerId != null">
+                        AND a. monomer_id = #{ monomerId}
+                    </if>
+                    <if test="projectId != null">
+                        AND a.project_id = #{projectId}
+                    </if>
+                    <if test=" areaId != null">
+                        AND a.area_id =#{areaId}
+                    </if>
+                    <if test=" name != null">
+                        AND  `name` =#{name}
+                    </if>
+                </where>
+                GROUP BY
+                b.material,
+                b.steel_id,
+                b.steel_spec,
+                steel.`name`
+            </when>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                SELECT
+                b.`name`,
+                IFNULL( sum( a.task_quantity ), 0 ) quantity,
+                IFNULL( sum( a.task_quantity * b.net_weight ), 0 ) total_net_weight,
+                IFNULL( sum( a.task_quantity * b.gross_weight ), 0 ) total_gross_weight,
+                IFNULL( sum( a.task_quantity * b.length ), 0 ) total_length ,
+                IFNULL( sum( a.task_quantity * b.surface_area ), 0 ) total_area
+                FROM
+                mes_building_task a
+                LEFT JOIN tech_artifact b ON a.product_id = b.id
+                <where>
+                    a.bool_delete_enum = FALSE AND a.product_type=#{productType}
+                    <if test=" monomerId != null">
+                        AND a. monomer_id = #{ monomerId}
+                    </if>
+                    <if test="projectId != null">
+                        AND a.project_id = #{projectId}
+                    </if>
+                    <if test=" areaId != null">
+                        AND a.area_id =#{areaId}
+                    </if>
+                    <if test=" name != null and name!=''">
+                        AND  b.`name` =#{name}
+                    </if>
+                </where>
+                GROUP BY
+                b.`name`
+            </when>
+            <when test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+                SELECT
+                b.category,
+                IFNULL( sum( a.task_quantity ), 0 ) quantity,
+                IFNULL( sum( a.task_quantity * b.length ), 0 ) total_length,
+                IFNULL( sum( a.task_quantity * b.length * b.width ), 0 ) total_area
+                FROM
+                mes_building_task a
+                LEFT JOIN tech_enclosure b ON a.product_id = b.id
+                <where>
+                    a.bool_delete_enum = FALSE AND a.product_type=#{productType}
+                    <if test=" monomerId != null">
+                        AND a.monomer_id = #{ monomerId}
+                    </if>
+                    <if test="projectId != null">
+                        AND a.project_id = #{projectId}
+                    </if>
+                    <if test=" areaId != null">
+                        AND a.area_id =#{areaId}
+                    </if>
+                    <if test=" category != null">
+                        AND  b.category=#{category}
+                    </if>
+                </where>
+                GROUP BY
+                b.category
+            </when>
+        </choose>
+    </select>
+    <select id="productList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProductDO">
+        SELECT
+            id,
+            material,
+            serial_number,
+            length,
+            quantity,
+            quantity*length total_length,
+             <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            width,
+            category,
+            color,
+            thickness,
+            total_area,
+            `name`
+            </if>
+            <if test="productType!=@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+            specification,
+            net_weight,
+            total_net_weight
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">,
+             `name`,
+            surface_area area,
+            gross_weight,
+            quantity * surface_area total_area,
+             total_gross_weight
+            </if>
+        FROM
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            tech_artifact
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+            tech_assemble
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            tech_enclosure
+        </if>
+        WHERE
+         bool_delete_enum=false
+        <if test="projectId!=null">
+           and project_id = #{projectId}
+        </if>
+        <if test="monomerId!=null">
+            and monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            and area_id=#{areaId}
+        </if>
+        <if test="material!=null">
+            and material=#{material}
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            and serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="category!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            and category=#{category}
+        </if>
+
+        <if test="name!=null and productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            and name=#{name}
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            and steel_spec=#{steelSpec}
+            and steel_id=#{steelId}
+        </if>
+    </select>
+    <select id="auditDetailsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.AuditDetailsListDO">
+        SELECT
+            a.id,
+            a.team_id,
+            c.name leader_name,
+            team.factory_id 'factory.id',
+            team.production_line_id 'production_line.id',
+            team.workshop_id 'workshop.id',
+            mbf.name 'factory.name',
+            mbw.name 'workshop.name',
+            mbpl.name 'production_line.name',
+            process.name process_name,
+            a.old_price,
+            a.new_price,
+            a.wage_quota_type,
+            a.bool_used_enum
+        FROM
+            mes_building_wages_change a
+                LEFT JOIN mes_building_team team ON a.team_id=team.id
+                LEFT JOIN mes_building_team_user_link b ON a.team_id=b.team_id AND b.bool_delete_enum=FALSE AND b.bool_leader_enum=TRUE
+                LEFT JOIN sys_user c ON b.user_id=c.id
+                LEFT JOIN mes_building_production_line mbpl ON mbpl.id = team.production_line_id
+                LEFT JOIN mes_building_factory mbf ON mbf.id = team.factory_id
+                LEFT JOIN mes_building_workshop mbw ON mbw.id = team.workshop_id
+                LEFT JOIN mes_building_process process ON process.id = team.process_id
+        WHERE a.bool_delete_enum=FALSE
+          AND a.change_audit_id=#{id}
+    </select>
+    <select id="processPriceCount"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProcessPriceDO">
+        SELECT
+        a.team_id,
+        a.process_id,
+        process.`name` process_name,
+        user_link.user_name leader_name,
+        team.organization_type,
+        mbf.id 'factory.id',
+        mbf.`name` 'factory.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbpl.id 'productionLine.id',
+        mbpl.`name` 'productionLine.name',
+        a.product_type,
+        a.wage_quota_type,
+        sum(a.price) price,
+        CASE
+        a.product_type
+        WHEN ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN
+        CASE
+        a.wage_quota_type
+        WHEN 1 THEN
+        sum( machine_part.net_weight * a.quantity )
+        WHEN 2 THEN
+        sum(machine_part.length * a.quantity)
+        ELSE sum(a.quantity)
+        END
+        WHEN ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN
+        CASE
+        a.wage_quota_type
+        WHEN 1 THEN
+        sum( artifact.net_weight * a.quantity )
+        WHEN 2 THEN
+        sum( artifact.length * a.quantity )
+        WHEN 4 THEN  sum( artifact.surface_area * a.quantity )
+        ELSE sum(a.quantity)
+        END
+        WHEN ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()} THEN
+        CASE
+        a.wage_quota_type
+        WHEN 1 THEN
+        sum( enclosure.weight * a.quantity )
+        WHEN 2 THEN
+        sum( enclosure.length * a.quantity )
+        WHEN 4 THEN sum( enclosure.length * enclosure.width * a.quantity )
+        ELSE sum(a.quantity)
+        END ELSE
+        CASE
+        a.wage_quota_type
+        WHEN 1 THEN
+        sum( assemble.net_weight * a.quantity )
+        WHEN 2 THEN sum( assemble.length * a.quantity )
+        ELSE sum(a.quantity)
+        END
+        END mate
+        FROM
+        mes_building_produce_team_report_price a
+        LEFT JOIN mes_building_team team ON a.team_id = team.id
+        LEFT JOIN mes_building_team_user_link user_link ON a.team_id = user_link.team_id
+        AND user_link.bool_delete_enum = 0
+        AND user_link.bool_leader_enum = 1
+        LEFT JOIN mes_building_process process ON a.process_id = process.id
+        LEFT JOIN mes_building_task task ON task.id=a.task_id
+        LEFT JOIN mes_building_factory mbf ON mbf.id = team.factory_id
+        LEFT JOIN mes_building_workshop mbw ON mbw.id = team.workshop_id
+        LEFT JOIN mes_building_production_line mbpl ON mbpl.id = team.production_line_id
+        LEFT JOIN tech_artifact  artifact ON artifact.id=a.product_id
+        LEFT JOIN tech_assemble  assemble ON assemble.id=a.product_id
+        LEFT JOIN tech_enclosure  enclosure ON enclosure.id=a.product_id
+        LEFT JOIN tech_machine_part  machine_part ON machine_part.id=a.product_id
+        <where>
+            <if test="productType!=null">
+                a.product_type &amp; #{productType}
+            </if>
+            <if test="organizationType!=null">
+                AND team.organization_type=#{organizationType}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="factoryId!=null">
+                AND task.factory_id=#{factoryId}
+            </if>
+            <if test="workshopName!=null">
+                AND mbw.name LIKE CONCAT('%', #{workshopName}, '%')
+            </if>
+            <if test="productionLineName!=null">
+                AND mbpl.name LIKE CONCAT('%', #{productionLineName}, '%')
+            </if>
+            <if test="processName!=null">
+                AND process.name LIKE CONCAT('%', #{processName}, '%')
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+        GROUP BY
+        a.team_id,
+        a.product_type,
+        a.process_id,
+        process.`name`,
+        user_link.user_name,
+        team.organization_type,
+        mbf.id,
+        mbf.`name`,
+        mbw.id,
+        mbw.`name`,
+        mbpl.id,
+        mbpl.`name`,
+        a.wage_quota_type
+    </select>
+    <select id="reckonSummary" resultType="java.math.BigDecimal">
+        SELECT
+            IFNULL( sum(a.price),0) price
+        FROM mes_building_produce_team_report_price a
+        LEFT JOIN mes_building_task b ON b.id=a.task_id
+        <where>
+            <if test="productType!=null">
+                a.product_type &amp; #{productType}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND b.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND b.project_id=#{projectId}
+            </if>
+            <if test="factoryId!=null">
+                AND b.factory_id=#{factoryId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+    </select>
+
+</mapper>

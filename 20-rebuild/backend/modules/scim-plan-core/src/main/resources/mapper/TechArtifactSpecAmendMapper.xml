@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactSpecAmendMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactSpecAmend">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="bool_amend_status" property="boolAmendStatus"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, artifact_id, specification, spec_prefix, bool_amend_status, user_id, structure_class_id
+    </sql>
+
+    <select id="selectListByCondition"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactSpecAmendDTO">
+        SELECT
+        sa.*,
+        sa.project_id AS 'project.id',
+        cp.`name` AS 'project.name',
+        cp.`short_name` AS 'project.short_name',
+        cp.`serial_number` AS 'project.serial_number',
+        sa.monomer_id 'monomer.id',
+        m.name 'monomer.name',
+        sa.area_id 'area.id',
+        ar.name 'area.name',
+        u.name AS user_name,
+        a.NAME,
+        a.serial_number,
+        a.material,
+        a.quantity,
+        a.length,
+        a.net_weight,
+        a.total_net_weight
+        FROM
+        tech_artifact_spec_amend sa
+        INNER JOIN tech_artifact_record a ON sa.artifact_id = a.id AND a.bool_delete_enum = 0
+        LEFT JOIN  mes_tech_inventory_operation operation on operation.id =  a.inventory_operation_id and operation.bool_delete_enum =0
+        LEFT JOIN contract_project cp ON sa.project_id = cp.id AND cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer m ON sa.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN plan_area ar ON sa.area_id = ar.id AND ar.bool_delete_enum = 0
+        LEFT JOIN sys_user u ON sa.user_id = u.id AND u.bool_delete_enum = 0
+        WHERE
+        sa.bool_delete_enum = 0 and operation.inventory_reviewed_enum not in (4,16)
+        <if test="projectId != null">
+            AND sa.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND sa.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND sa.area_id = #{areaId}
+        </if>
+        <if test="oldSpecification != null and oldSpecification != ''">
+            AND sa.old_specification like concat('%', #{oldSpecification}, '%')
+        </if>
+        <if test="newSpecification != null and newSpecification != ''">
+            AND sa.new_specification like concat('%', #{newSpecification}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND sa.old_specification = #{specification}
+        </if>
+        <if test="boolAmendStatus != null">
+            AND sa.bool_amend_status = #{boolAmendStatus}
+        </if>
+        <if test="name != null and name != ''">
+            AND a.name like concat('%', #{name}, '%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number like concat('%', #{serialNumber}, '%')
+        </if>
+    </select>
+
+    <select id="uncorrectedList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactSpecUncorrectedDTO">
+        SELECT
+        *,
+        0 AS plJudge
+        FROM tech_artifact_spec_amend
+        WHERE bool_delete_enum = FALSE AND inventory_operation_id = #{inventoryOperationId}
+          and bool_amend_status = false
+        <if test="serialNumber != null and serialNumber != ''">
+            AND serial_number like concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND old_specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material != ''">
+            AND material like concat('%', #{material}, '%')
+        </if>
+        <if test="minLength != null">
+            AND length  &gt;= #{minLength}
+        </if>
+        <if test="maxLength != null">
+            AND length  &lt;= #{maxLength}
+        </if>
+        <if test="structureClassId != null">
+            AND new_structure_class_id = #{structureClassId}
+        </if>
+        <if test="structureClassId != null">
+            order by new_specification
+        </if>
+        <if test="structureClassId == null">
+            order by old_specification
+        </if>
+    </select>
+
+</mapper>

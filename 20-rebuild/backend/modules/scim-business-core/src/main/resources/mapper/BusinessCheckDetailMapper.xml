@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessCheckDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessCheckDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="check_info_id" property="checkInfoId"/>
+        <result column="business_id" property="businessId"/>
+        <result column="old_unit_price" property="oldUnitPrice"/>
+        <result column="new_unit_price" property="newUnitPrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, check_info_id, business_id, old_unit_price, new_unit_price
+    </sql>
+    <select id="listByCheckId" resultType="com.hzchum.scim.business.core.api.pojo._do.BusinessCheckDetailDO">
+        select b.*,
+        <if test="type == 8">
+            b.quantity AS total_quantity,
+        </if>
+        c.old_unit_price,
+        c.new_unit_price,
+        c.old_pricing_manner,
+        c.new_pricing_manner,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number'
+        from business_check_detail c
+        <choose>
+            <when test="(projectType &amp; 1  or projectType &amp; 2) and type == 1">
+                inner join business_machine_part b on b.id = c.business_id
+            </when>
+            <when test="(projectType &amp; 1  or projectType &amp; 2) and type == 2">
+                inner join business_artifact b on b.id = c.business_id
+            </when>
+            <when test="(projectType &amp; 1  or projectType == 8 or &amp; 2 ) and type == 4">
+                inner join business_enclosure b on b.id = c.business_id
+            </when>
+            <when test="type == 8">
+                inner join business_standard_part b on b.id = c.business_id
+            </when>
+       </choose>
+        inner join contract_project p on p.id = b.project_id
+        where c.check_info_id = #{checkId}
+        and c.bool_delete_enum = 0
+    </select>
+
+</mapper>

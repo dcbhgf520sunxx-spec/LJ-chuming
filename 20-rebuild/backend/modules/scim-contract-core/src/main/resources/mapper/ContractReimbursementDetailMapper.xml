@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractReimbursementDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractReimbursementDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="reimbursement_id" property="reimbursementId"/>
+        <result column="invoice_amount" property="invoiceAmount"/>
+        <result column="invoice_no" property="invoiceNo"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="apply_amount" property="applyAmount"/>
+<!--        <result column="tax_rate" property="taxRate"/>-->
+        <result column="input_tax" property="inputTax"/>
+        <result column="actually_pay_amount" property="actuallyPayAmount"/>
+        <result column="expense_type_id" property="expenseTypeId"/>
+        <result column="dictionary_id" property="dictionaryId"/>
+
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, reimbursement_id, invoice_amount, invoice_no, invoice_type, apply_amount, tax_rate, input_tax,actually_pay_amount, expense_type_id,dictionary_id
+    </sql>
+    <select id="selectDetailClassify" parameterType="long"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ReimbursementDetailClassifyDTO">
+        SELECT
+            etids.expense_type_id,
+            et.name as expense_type_name
+        FROM
+            ( SELECT expense_type_id
+                FROM `contract_reimbursement_detail`
+                WHERE bool_delete_enum = 0
+                  <if test="reimbursementId != null">
+                    and reimbursement_id = #{reimbursementId}
+                  </if>
+                GROUP BY expense_type_id
+                ORDER BY expense_type_id ASC ) AS etids
+                LEFT JOIN contract_expense_type AS et
+                    ON etids.expense_type_id = et.id
+        WHERE
+            et.bool_delete_enum = 0
+    </select>
+
+</mapper>

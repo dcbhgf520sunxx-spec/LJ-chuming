@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesInspectConfigUserLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfigUserLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="inspect_config_id" property="inspectConfigId" />
+        <result column="inspect_user_id" property="inspectUserId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, inspect_config_id, inspect_user_id
+    </sql>
+    <select id="findInspectUserInfoByInspectId"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesInspectConfigUserLinkDTO">
+        SELECT
+        culink.inspect_config_id inspectConfigId,
+        culink.inspect_user_id inspectUserId,
+        ul.name inspectUserName
+        FROM
+        mes_inspect_config_user_link culink
+        LEFT JOIN sys_user ul ON culink.inspect_user_id = ul.id
+        <where>
+            culink.bool_delete_enum = 0 and ul.bool_delete_enum = 0
+            <if test="idList.size > 0 and idList != null">
+                and culink.inspect_config_id in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

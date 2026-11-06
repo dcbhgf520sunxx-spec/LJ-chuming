@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesProductionReportingApprovalWhitelistMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalWhitelistDTO">
+        SELECT
+            mpraw.*,
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name'
+        FROM mes_production_reporting_approval_whitelist mpraw
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mpraw.process_id
+        WHERE mpraw.bool_delete_enum = 0
+    </select>
+
+</mapper>

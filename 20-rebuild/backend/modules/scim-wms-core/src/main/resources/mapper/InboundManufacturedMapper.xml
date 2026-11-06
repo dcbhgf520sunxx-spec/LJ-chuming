@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.InboundManufacturedMapper">
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.InboundManufactured">
+        SELECT
+        *
+        FROM wms_inbound_manufactured
+        where
+        bool_delete_enum = 0
+        <if test="reviewStatus != null">
+            and review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipmentNumber != null and shipmentNumber != '' ">
+            and shipment_number like CONCAT('%', #{shipmentNumber},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+            and license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and purchase_SN like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test=" supplierId != null ">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+    </select>
+    <select id="selectSunAmount" resultType="java.math.BigDecimal">
+        select
+            sum(ifnull(amount,0))
+        from wms_inbound_manufactured
+        where purchase_id = #{purchaseId} and review_status = 2
+    </select>
+    <select id="getPassQuantity" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.QuantityMeteDTO">
+
+    </select>
+
+
+    <update id="updateEditable">
+        UPDATE wms_inbound_manufactured
+        SET editable = #{value}
+        WHERE original_id = #{id}
+          and bool_delete_enum = 0
+    </update>
+
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.temp_work.MesTempWorkMapper">
+
+    <select id="listInfo" parameterType="com.hzchum.scim.mes.building.core.api.pojo._dtoParam.temp_work.MesTempWorkQuery"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.temp_work.MesTempWorkDTO">
+        SELECT
+            mtw.*,
+            su.name AS reporter_name,
+            mbtul.user_id AS team_leader_id,
+            mbtul.user_name AS team_leader_name,
+            mtwqc.name AS temp_work_quota_config_name,
+            CONCAT(cp.serial_number, ' ', cp.short_name) AS project_name
+        FROM mes_temp_work mtw
+        LEFT JOIN mes_temp_work_quota_config mtwqc ON mtwqc.bool_delete_enum = 0 AND mtw.temp_work_quota_config_id = mtwqc.id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND mtw.reporter_id = su.id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.team_id = mtw.team_id AND mbtul.bool_leader_enum = 1
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = 0 AND mtw.project_id = cp.id
+        WHERE mtw.bool_delete_enum = 0
+        <if test="id != null">
+            AND mtw.id = #{id}
+        </if>
+        <if test="startDate != null">
+            AND mtw.report_date >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND mtw.report_date &lt;= #{endDate}
+        </if>
+        <if test="reporterId != null">
+            AND mtw.reporter_id = #{reporterId}
+        </if>
+        <if test="approverId != null or approveRecordDetailStatus != null">
+            AND mtw.approve_record_serial_number IN (
+                SELECT DISTINCT approve_record_serial_number
+                FROM wms_approve_record_detail
+                WHERE bool_delete_enum = 0
+                <if test="approveRecordDetailStatus != null">
+                    AND status = #{approveRecordDetailStatus}
+                </if>
+                <if test="approverId != null">
+                    AND check_user_id = #{approverId}
+                </if>
+            )
+        </if>
+        <if test="approvalStatusList != null and approvalStatusList.size() > 0">
+            AND mtw.approval_status IN
+            <foreach collection="approvalStatusList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="detailById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.temp_work.MesTempWorkDTO">
+        SELECT
+            mtw.*,
+            su.name AS reporter_name,
+            mbtul.user_id AS team_leader_id,
+            mbtul.user_name AS team_leader_name,
+            mtwqc.name AS temp_work_quota_config_name,
+            CONCAT(cp.serial_number, ' ', cp.short_name) AS project_name
+        FROM mes_temp_work mtw
+        LEFT JOIN mes_temp_work_quota_config mtwqc ON mtwqc.bool_delete_enum = 0 AND mtw.temp_work_quota_config_id = mtwqc.id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND mtw.reporter_id = su.id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.team_id = mtw.team_id AND mbtul.bool_leader_enum = 1
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = 0 AND mtw.project_id = cp.id
+        WHERE mtw.bool_delete_enum = 0
+          AND mtw.id = #{id}
+    </select>
+
+    <select id="recordList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.temp_work.MesTempWorkRecordDTO">
+        SELECT
+            mtw.report_date,
+            mtw.create_time,
+            reporter.id AS 'reporter.id',
+            reporter.name AS 'reporter.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            mtwqc.id AS 'tempWorkQuotaConfig.id',
+            mtwqc.name AS 'tempWorkQuotaConfig.name',
+            mtw.reason,
+            project.id AS 'project.id',
+            project.name AS 'project.name',
+            project.short_name AS 'project.shortName',
+            project.serial_number AS 'project.serialNumber',
+            mtw.work_milliseconds,
+            mtw.description,
+            mtw.price,
+            ROUND(mtw.amount, 2) AS amount,
+            ROUND(mtw.calculate_amount, 2) AS calculate_amount,
+            mtw.approval_status,
+            mtw.approve_record_id,
+            mtw.approval_time
+        FROM mes_temp_work mtw
+        LEFT JOIN sys_user reporter ON reporter.bool_delete_enum = 0 AND reporter.id = mtw.reporter_id
+        LEFT JOIN (
+                SELECT
+                    mbt.*,
+                    mbtul.user_name AS name
+                FROM mes_building_team mbt
+                LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+                WHERE mbt.bool_delete_enum = 0
+                ) team ON team.id = mtw.team_id
+        LEFT JOIN mes_temp_work_quota_config mtwqc ON mtwqc.bool_delete_enum = 0 AND mtwqc.id = mtw.temp_work_quota_config_id
+        LEFT JOIN contract_project project ON project.bool_delete_enum = 0 AND project.id = mtw.project_id
+        WHERE mtw.bool_delete_enum = 0
+        <if test="createStartDate != null"> AND DATE(mtw.create_time) >= #{createStartDate} </if>
+        <if test="createEndDate != null"> AND DATE(mtw.create_time) &lt;= #{createEndDate} </if>
+        <if test="reportStartDate != null"> AND DATE(mtw.report_date) >= #{reportStartDate} </if>
+        <if test="reportEndDate != null"> AND DATE(mtw.report_date) &lt;= #{reportEndDate} </if>
+        <if test="workshopId != null"> AND team.workshop_id = #{workshopId} </if>
+        <if test="tempWorkQuotaConfigId != null"> AND mtw.temp_work_quota_config_id = #{tempWorkQuotaConfigId} </if>
+        <if test="projectId != null"> AND mtw.project_id = #{projectId} </if>
+        <if test="approvalStatus != null"> AND mtw.approval_status = #{approvalStatus} </if>
+        <if test="teamName != null and teamName != ''"> AND team.name LIKE concat('%', #{teamName}, '%') </if>
+        <if test="reporterName != null and reporterName != ''"> AND reporter.name LIKE concat('%', #{reporterName}, '%') </if>
+    </select>
+
+</mapper>

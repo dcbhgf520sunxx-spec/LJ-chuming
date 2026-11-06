@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.factory.MesBuildingTeamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeam">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="process_id" property="processId"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, process_id, factory_id, workshop_id, production_line_id
+    </sql>
+    <select id="getTeamByProductionLineIdAndProcessIdAndUserId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeam">
+        SELECT b.*
+        FROM mes_building_team_user_link a
+        INNER JOIN mes_building_team b ON a.team_id = b.id
+        <where>a.user_id = #{userId}
+            <if test="productionLineId!=null">
+                AND b.production_line_id = #{productionLineId}
+            </if>
+            AND b.process_id = #{processId}
+            AND b.bool_delete_enum = FALSE
+            AND a.bool_delete_enum = FALSE
+            <if test="ids!=null">
+                AND a.team_id IN
+                <foreach collection="ids" item="id" open="(" close=")" separator="">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="listTeamSimple" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.ProductProcessDO">
+        select p.id,p.name,p.product_type
+        from mes_building_team t
+        inner join mes_building_process p on p.id = t.process_id
+        where t.bool_delete_enum = 0
+        <if test="productionLineId != null">
+            and t.production_line_id = #{productionLineId}
+        </if>
+    </select>
+    <select id="listTeamUser" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.ProductProcessDO">
+        select p.id,p.name,p.product_type
+        from mes_building_team t
+        inner join mes_building_team_user_link tu on tu.team_id = t.id
+        inner join mes_building_process p on p.id = t.process_id
+        where t.bool_delete_enum = 0
+        and tu.bool_delete_enum = 0
+        and tu.user_id = #{currentUserId}
+        <if test="productionLineId != null">
+            and t.production_line_id = #{productionLineId}
+        </if>
+    </select>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeam">
+        select
+        distinct
+        a.*
+        from mes_building_team a
+        left join mes_building_process pro on a.process_id = pro.id
+        <if test="productionLineIds!=null and productionLineIds.size()>0">
+            left join mes_building_production_line_team_link  b on a.id=b.team_id and b.bool_delete_enum=0
+        </if>
+        <if test="teamUserName != null and teamUserName != ''">
+            <choose>
+                <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                    Inner Join mes_building_team_user_link link on link.team_id = a.id and link.bool_delete_enum =0
+                    and link.user_name = #{teamUserName}
+                </when>
+                <otherwise>
+                    Inner Join mes_building_team_user_link link on link.team_id = a.id and link.bool_delete_enum =0
+                    and link.user_name like CONCAT('%',#{teamUserName},'%')
+                </otherwise>
+            </choose>
+        </if>
+        <where>
+            a.bool_delete_enum=0
+            and pro.bool_delete_enum = 0
+            <if test="id!=null">
+                AND a.id=#{id}
+            </if>
+            <if test="workshopId!=null">
+                AND a.workshop_id=#{workshopId}
+            </if>
+            <if test="processId!=null">
+                AND a.process_id=#{processId}
+            </if>
+            <if test="factoryId!=null">
+                AND a.factory_id=#{factoryId}
+            </if>
+            <if test="workshopId!=null">
+                AND a.workshop_id=#{workshopId}
+            </if>
+            <if test="organizationType!=null">
+                AND a.organization_type=#{organizationType}
+            </if>
+            <if test="teamStatus!=null">
+                AND a.team_status=#{teamStatus}
+            </if>
+            <if test="boolExtraCountEnum!=null">
+                AND a.bool_extra_count_enum=#{boolExtraCountEnum}
+            </if>
+            <if test="productionLineTypeEnum!=null">
+                AND a.production_line_type_enum=#{productionLineTypeEnum}
+            </if>
+            <if test="wageQuotaType!=null">
+                AND a.wage_quota_type=#{wageQuotaType}
+            </if>
+            <if test="taskTypeEnum != null">
+                and pro.product_type = #{taskTypeEnum}
+            </if>
+            <if test="productionLineId!=null">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="productionLineIds!=null and productionLineIds.size()>0">
+                and b.production_line_id in
+                <foreach collection="productionLineIds" item="productionLineId" separator="," open="(" close=")">
+                    productionLineId
+                </foreach>
+            </if>
+            <if test="mesProductEnum != null">
+                and a.mes_product_enum = #{mesProductEnum}
+            </if>
+            <if test="processNameList != null and processNameList.size() > 0">
+                and pro.name in (<foreach collection="processNameList" item="i" separator=",">#{i}</foreach>)
+            </if>
+        </where>
+    </select>
+    <select id="listTrees"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.teamForm.GroupTeamLinkDetailDTO">
+        SELECT bgr.id              groupId,
+               bgr.`name`          groupName,
+               taskTeam.id         teamId,
+               taskTeam.process_id processId,
+               process.`name`      processName,
+               ulink.user_name     leaderName
+        FROM mes_building_team taskTeam
+                 LEFT JOIN mes_building_groups_team_link groupsLink ON groupsLink.bool_delete_enum = 0
+            AND taskTeam.id = groupsLink.team_id
+                 LEFT JOIN mes_building_groups bgr ON bgr.id = groupsLink.groups_id
+            AND bgr.bool_delete_enum = 0
+                 LEFT JOIN mes_building_process process ON taskTeam.process_id = process.id
+                 LEFT JOIN mes_building_team_user_link ulink ON taskTeam.id = ulink.team_id
+            AND ulink.bool_delete_enum = 0
+            AND ulink.bool_leader_enum = 1
+        WHERE taskTeam.bool_delete_enum = 0
+        ORDER BY taskTeam.id
+    </select>
+
+    <select id="listProductionLineTrees"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesProcessTeamProductionLineListDTO">
+        select
+        team.workshop_id,
+        team.process_id,
+        pro.name processName,
+        pro.type,
+        pro.product_type as taskTypeEnum,
+        line.id lineId,
+        line.name lineName,
+        team.id teamId,
+        tuLink.user_name leaderName
+        from mes_building_team team
+        left join mes_building_process pro on team.process_id = pro.id
+        left join mes_building_production_line line on team.production_line_id = line.id and line.bool_delete_enum = 0
+        left join mes_building_team_user_link tuLink  on team.id =tuLink.team_id and tuLink.bool_leader_enum = 1
+        where team.bool_delete_enum  = 0 and pro.bool_delete_enum = 0 and tuLink.bool_delete_enum = 0
+        and team.team_status = 1
+        <if test="workShopId != null">
+            and team.workshop_id  = #{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            and team.production_line_id  = #{productionLineId}
+        </if>
+    </select>
+
+    <select id="listByLineId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeam">
+        select team.* from (
+                               select team_id from mes_building_production_line_team_link telink
+                               where telink.bool_delete_enum = 0 and telink.production_line_id = #{prodLineId}
+                           ) a
+                               left join mes_building_team team on a.team_id = team.id
+        where team.bool_delete_enum = 0
+    </select>
+    <select id="findAllTeamLeader"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingTeamLeaderDTO">
+        SELECT
+            tea.*,
+            link.user_id leaderUserId,
+            link.user_name leaderName,
+            pro.product_type productType
+        FROM
+            mes_building_team tea
+                LEFT JOIN mes_building_team_user_link link ON tea.id = link.team_id AND link.bool_leader_enum = 1
+                LEFT JOIN mes_building_process pro on tea.process_id = pro.id and pro.bool_delete_enum = 0
+        WHERE
+            tea.bool_delete_enum = 0
+          and link.bool_delete_enum = 0
+    </select>
+
+    <resultMap id="processTeam" type="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesProcessTeamListDTO">
+        <result column="workshop_id" property="workshopId"/>
+        <result column="process_id" property="processId"/>
+        <result column="name" property="processName"/>
+        <result column="taskTypeEnum" property="taskTypeEnum"/>
+        <result column="type" property="type"/>
+        <collection property="prodLineInfos" ofType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesSimpleProdLineDTO">
+        <result column="lineId" property="id"/>
+        <result column="lineName" property="name"/>
+            <collection property="teamInfo" ofType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesSimpleTeamDTO">
+                <result column="teamId" property="id"/>
+                <result column="user_name" property="name"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findProcessTeamList" resultMap="processTeam">
+        select
+        team.workshop_id,
+        team.process_id,
+        pro.name,
+        pro.type,
+        pro.product_type as taskTypeEnum,
+        line.id lineId,
+        line.name lineName,
+        team.id teamId,
+        tuLink.user_name
+        from mes_building_team team left join mes_building_process pro on team.process_id = pro.id
+        left join mes_building_production_line line on team.production_line_id = line.id and line.bool_delete_enum = 0
+        left join mes_building_team_user_link tuLink  on team.id =tuLink.team_id and tuLink.bool_leader_enum = 1
+        where team.bool_delete_enum  = 0 and pro.bool_delete_enum = 0 and tuLink.bool_delete_enum = 0
+        and team.team_status = 1
+        <if test="workShopId != null">
+            and team.workshop_id  = #{workShopId}
+        </if>
+        <if test="productionLineId != null">
+            and team.production_line_id  = #{productionLineId}
+        </if>
+    </select>
+
+    <select id="findLeaderInfoByTeamIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.projectKanban.MesBuildingLeaderInfoDTO">
+        SELECT tea.id         id,
+               link.user_id   leaderUserId,
+               link.user_name leaderName
+        FROM mes_building_team tea
+                 LEFT JOIN mes_building_team_user_link link ON tea.id = link.team_id
+        WHERE tea.bool_delete_enum = 0
+          and link.bool_delete_enum = 0
+          and link.bool_leader_enum = 1
+    </select>
+
+    <select id="listByProcessId" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.UseTeamDTO">
+        select userLink.user_name as leaderName,
+               team.id AS id
+        from mes_building_team team
+             left join mes_building_team_user_link userLink on team.id=userLink.team_id and userLink.bool_delete_enum=0 and userLink.bool_leader_enum=1
+        where
+            team.bool_delete_enum = 0
+            <if test="processId != null">
+                and team.process_id = #{processId}
+            </if>
+            <if test="workshopId != null">
+                and team.workshop_id = #{workshopId}
+            </if>
+    </select>
+
+    <select id="listInfoByIds" resultType="com.hzchum.scim.common.core.api.pojo.common.ShowInfo">
+        SELECT
+            mbt.id,
+            mbtul.user_name AS name
+        FROM mes_building_team mbt
+        LEFT JOIn mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+        WHERE mbt.bool_delete_enum = 0
+            AND mbt.id IN (<foreach collection="idList" item="id" separator=",">#{id}</foreach>)
+    </select>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingTeamInfoDTO">
+        SELECT
+            team.*,
+            mbtul.user_name AS name,
+            factory.id AS 'factory.id',
+            factory.name AS 'factory.name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            productionLine.id AS 'productionLine.id',
+            productionLine.name AS 'productionLine.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name'
+        FROM mes_building_team team
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = team.id
+        LEFT JOIN mes_building_factory factory ON factory.bool_delete_enum = 0 AND factory.id = team.factory_id
+        LEFT JOIN mes_building_workshop workshop ON workshop.bool_delete_enum = 0 AND workshop.id = team.workshop_id
+        LEFT JOIN mes_building_production_line productionLine ON productionLine.bool_delete_enum = 0 AND productionLine.id = team.production_line_id
+        LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = team.process_id
+        LEFT JOIN sys_user user ON user.bool_delete_enum = 0 AND user.id = team.user_id
+        WHERE team.bool_delete_enum = 0
+        <if test="id != null">
+            AND team.id = #{id}
+        </if>
+        <if test="idList != null and idList.size() > 0">
+            AND team.id IN (<foreach collection="idList" item="item" separator=",">#{item}</foreach>)
+        </if>
+        <if test="processId != null">
+            AND team.process_id = #{processId}
+        </if>
+        <if test="name != null">
+            AND mbtul.user_name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="workshopId != null">
+            AND team.workshop_id = #{workshopId}
+        </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesProcessConversionRateMapper">
+
+  <select id="listAllMesProcessConversionRate" resultType="com.hzchum.scim.system.core.api.pojo.vo.MesProcessConversionRateVO">
+    SELECT
+      mpcr.id,
+      mpcr.process_type,
+      CASE
+
+        WHEN mpcr.process_type = 1 THEN
+          '零件'
+        WHEN mpcr.process_type = 2 THEN
+          '构件'
+        WHEN mpcr.process_type = 16 THEN
+          '部件' ELSE NULL
+        END AS process_type_name,
+      mpcr.conversion_rate,
+      mpcr.process_ids,
+      GROUP_CONCAT( mbp.NAME SEPARATOR ',' ) AS process_names
+    FROM
+      mes_process_conversion_rate mpcr
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET( mbp.id, mpcr.process_ids ) > 0
+    WHERE
+      mpcr.bool_delete_enum = 0 and mpcr.artifact_class_id = #{artifactClassId}
+    GROUP BY
+      mpcr.id
+  </select>
+
+</mapper>

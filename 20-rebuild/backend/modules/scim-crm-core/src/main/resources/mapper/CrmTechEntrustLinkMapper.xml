@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmTechEntrustLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmTechEntrustLink">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="crm_settlement_business_type_enum" property="crmSettlementBusinessTypeEnum"/>
+        <result column="crm_project_information_warehousing_id" property="crmProjectInformationWarehousingId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , user_id, crm_settlement_business_type_enum, crm_project_information_warehousing_id
+    </sql>
+    <select id="list" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmTechEntrustLinkListDTO">
+        select
+        ctel.id as id,
+        ctel.create_time as createTime,
+        user_a.name as userName,
+        concat(ifnull(enter.country_name, ''), ifnull(enter.province_name, ''), ifnull(enter.city_name, ''),
+        ifnull(enter.region_name, ''))as regionNames,
+        cp.serial_number as crmProjectInformationWarehousingSerialNumber,
+        cp.project_name as crmProjectInformationWarehousingName,
+        enter.business_name as crmEnterpriseWarehousingName,
+        config.name as structureTypeConfigurationName,
+        ctel.crm_settlement_business_type_enum as crmSettlementBusinessTypeEnum,
+        cp.estimated_cost as estimatedCost,
+        user_b.name as createUserName
+        from crm_tech_entrust_link as ctel
+        left join crm_project_information_warehousing as cp
+        on ctel.crm_project_information_warehousing_id = cp.id and cp.bool_delete_enum = 0
+        left join sys_user as user_a on ctel.user_id = user_a.id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on ctel.create_user_id = user_b.id and user_b.bool_delete_enum = 0
+        left join crm_enterprise_warehousing as enter
+        on enter.id = cp.crm_enterprise_warehousing_id and enter.bool_delete_enum = 0
+        left join crm_project_information_config as config on cp.structure_type_configuration_id = config.id and
+        config.bool_delete_enum = 0
+        <where>
+            ctel.bool_delete_enum = 0
+            <if test="startDate != null">
+                and DATE_FORMAT(ctel.create_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                and DATE_FORMAT(ctel.create_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="crmSettlementBusinessTypeEnum != null">
+                and ctel.crm_settlement_business_type_enum = #{crmSettlementBusinessTypeEnum}
+            </if>
+            <if test="crmProjectInformationWarehousingId != null">
+                and ctel.crm_project_information_warehousing_id = #{crmProjectInformationWarehousingId}
+            </if>
+            <if test="userName != null and userName != '' ">
+                and user_a.user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="createUserName != null and createUserName != '' ">
+                and user_b.user_name like concat('%', #{createUserName}, '%')
+            </if>
+        </where>
+
+
+    </select>
+    <select id="getTechEntrustList" resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmTechEntrustListDTO">
+        select
+        project.id as id,
+        project.informant_date_time as informantDateTime,
+        project.informant_user_name as informantUserName,
+        project.serial_number as serialNumber,
+        project.project_name as projectName,
+        enter.business_name as crmEnterpriseWarehousingName,
+        project_config_a.name as structureTypeConfigurationName,
+        project.estimated_cost as estimatedCost,
+        project_config_b.name as projectLevelConfigName,
+        dept.name as departmentName,
+        ctel.crm_settlement_business_type_enum as crmSettlementBusinessTypeEnum,
+        concat(ifnull(enter.country_name, ''), ifnull(enter.province_name, ''), ifnull(enter.city_name, ''),
+        ifnull(enter.region_name, ''))as regionNames,
+        ctel.crm_submission_status_enum as crmSubmissionStatusEnum
+        from crm_project_information_warehousing as project
+        left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum = 0
+        left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_a
+        on project.structure_type_configuration_id = project_config_a.id and
+        project_config_a.bool_delete_enum = 0
+        left join crm_project_information_config as project_config_b
+        on project.project_level_config_id = project_config_b.id and
+        project_config_b.bool_delete_enum = 0
+        inner join crm_tech_entrust_link as ctel
+        on ctel.crm_project_information_warehousing_id = project.id and ctel.bool_delete_enum = 0
+        <where>
+            project.bool_delete_enum = 0
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                <choose>
+                    <when test="crmCanLookDeptIds.contains(0L)">
+                        and (project.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                        or ctel.user_id = #{currentUserId})
+                    </when>
+                    <otherwise>
+                        and project.department_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                and ctel.user_id = #{currentUserId}
+            </if>
+            <if test="crmSubmissionStatusEnum != null">
+                and ctel.crm_submission_status_enum = #{crmSubmissionStatusEnum}
+            </if>
+            <if test="startDate != null">
+                and DATE_FORMAT(project.informant_date_time, '%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                and DATE_FORMAT(project.informant_date_time, '%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="projectName != null and projectName != '' ">
+                and project.project_name like concat('%', #{projectName}, '%')
+            </if>
+            <if test="projectNumber != null and projectNumber != ''">
+                and project.serial_number like concat('%', #{projectNumber}, '%')
+            </if>
+        </where>
+        order by project.create_time desc
+    </select>
+
+</mapper>

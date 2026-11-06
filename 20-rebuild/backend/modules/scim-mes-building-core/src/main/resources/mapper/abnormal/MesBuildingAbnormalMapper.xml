@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.abnormal.MesBuildingAbnormalMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.abnormal.MesBuildingAbnormal">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="old_quantity" property="oldQuantity"/>
+        <result column="task_quantity" property="taskQuantity"/>
+        <result column="new_quantity" property="newQuantity"/>
+        <result column="change_type" property="changeType"/>
+        <result column="user_id" property="userId"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, monomer_id, area_id, product_id, product_type, old_quantity, task_quantity, new_quantity, change_type, user_id, bool_status_enum
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.MesBuildingAbnormalDO">
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.bool_delete_enum,
+        a.id,
+        a.monomer_id,
+        a.area_id,
+        a.product_id,
+        a.product_type,
+        a.old_quantity,
+        a.task_quantity,
+        a.new_quantity,
+        a.change_type,
+        a.artifact_serial_number,
+        a.assemble_serial_number,
+        a.user_id,
+        su.name user_name,
+        a.status,
+        a.type,
+        mba.project_id 'project.id',
+        mba.monomer_id 'monomer.id',
+        mba.area_id 'areaDetail.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'areaDetail.name',
+        mba.serial_number serial_number,
+        a.task_quantity total_task_quantity,
+        a.in_production_quantity total_in_production_quantity
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">,mba.used_quantity,mba.produced_quantity</if>
+        FROM
+        mes_building_abnormal a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        AND cp.bool_delete_enum =
+        FALSE
+        LEFT JOIN sys_user su ON a.user_id = su.id
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        AND pm.bool_delete_enum =
+        FALSE LEFT JOIN plan_area pd ON pd.id = a.area_id
+        AND pd.bool_delete_enum = FALSE
+        LEFT JOIN
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">tech_machine_part</if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">tech_artifact</if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">tech_enclosure</if>
+         <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">tech_assemble</if>
+        mba
+        ON mba.id=a.product_id
+        <where>
+            a.product_type =#{productType}
+            <if test="id!=null">
+                and id = #{id}
+            </if>
+            <if test="projectName!=null and projectName!=''">
+                and cp.name like %#{projectName}%
+            </if>
+            <if test="status!=null">
+                and a.status = #{status}
+            </if>
+            <if test="monomerId!=null">
+                and a.monomer_id = #{monomerId}
+            </if>
+            <if test="projectId!=null">
+                and a.project_id = #{projectId}
+            </if>
+            <if test="areaId!=null">
+                and a.area_id = #{areaId}
+            </if>
+            <if test="serialNumber!=null and serialNumber!=''">
+                and mba.serial_number like %#{serialNumber}%
+            </if>
+            <if test="date!=null and date!=''">
+                and date(a.create_time) = #{date}
+            </if>
+        </where>
+    </select>
+    <select id="selectDetailById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.MesBuildingAbnormalDO">
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.bool_delete_enum,
+        a.id,
+        a.monomer_id,
+        a.area_id,
+        a.product_id,
+        a.product_type,
+        a.old_quantity,
+        a.task_quantity,
+        a.new_quantity,
+        a.change_type,
+        a.user_id,
+        a.status,
+        b.total_task_quantity,
+        b.total_in_production_quantity
+        FROM
+        mes_building_abnormal a
+        LEFT JOIN(SELECT
+        product_id,
+        product_type,
+        SUM( task_quantity ) total_task_quantity,
+        SUM( in_production_quantity ) total_in_production_quantity
+        FROM
+        mes_building_task
+        GROUP BY
+        product_id,product_type) b ON a.product_id =b.product_id and a.product_type=b.product_type
+        <where>
+            a.id =#{id}
+        </where>
+    </select>
+    <select id="changePreview"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.AbnormalProcessPreviewDO">
+        SELECT
+            ta.serial_number,
+            factory.id 'factory.id',
+            factory.`name` 'factory.name',
+            workshop.id 'workshop.id',
+            workshop.`name` 'workshop.name',
+            production_line.id 'production_line.id',
+            production_line.`name` 'production_line.name',
+            project.id 'project.id',
+            project.`name` 'project.name',
+            project.short_name 'project.short_name',
+            monomer.id 'monomer.id',
+            monomer.`name` 'monomer.name',
+            area.id 'area.id',
+            area.`name` 'area.name',
+            process.id process_id,
+            process.`name` process_name,
+            a.sequence,
+            sum( a.complete_quantity ) complete_quantity
+        FROM
+            mes_building_task_process a
+                LEFT JOIN mes_building_factory factory ON factory.id = a.factory_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = a.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = a.production_line_id
+                LEFT JOIN contract_project project ON project.id = a.project_id
+                LEFT JOIN plan_monomer monomer ON monomer.id = a.monomer_id
+                LEFT JOIN plan_area area ON area.id = a.area_id
+                LEFT JOIN mes_building_process process ON process.id = a.process_id
+                 <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+                    LEFT JOIN tech_machine_part ta ON ta.id = a.product_id
+                </if>
+                 <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                    LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+                </if>
+                 <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ENCLOSURE.getType()">
+                    LEFT JOIN tech_enclosure ta ON ta.id = a.product_id
+                </if>
+                 <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+                    LEFT JOIN tech_assemble ta ON ta.id = a.product_id
+                </if>
+        where a.product_id=#{productId} and a.product_type=#{productType}
+        GROUP BY
+            ta.serial_number,
+            factory.id,
+            factory.`name`,
+            workshop.id,
+            workshop.`name`,
+            production_line.id,
+            production_line.`name`,
+            project.id,
+            project.`name`,
+            project.short_name,
+            monomer.id,
+            monomer.`name`,
+            area.id,
+            area.`name`,
+            process.id ,
+            process.`name`,
+        a.sequence
+        ORDER BY a.sequence asc
+    </select>
+    <select id="preview"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.abnormal.AbnormalPreviewDO">
+        <choose>
+            <when test="type==2">
+                SELECT
+                c.user_name,
+                sum(a.quantity)quantity,
+                date(a.create_time)create_time,
+                a.process_id,
+                date(task.ask_complete_time)ask_complete_time,
+                a.report_type,
+                process.`name` process_name,
+                factory.id 'factory.id',
+                factory.`name` 'factory.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name'
+                FROM
+                mes_building_produce_team_report a
+                LEFT JOIN mes_building_task task ON a.task_id = task.id
+                LEFT JOIN mes_building_process process ON a.process_id = process.id
+                LEFT JOIN mes_building_team_user_link c ON a.team_id = c.team_id
+                AND c.bool_leader_enum = 1
+                AND c.bool_delete_enum = 0
+                LEFT JOIN mes_building_factory factory ON factory.id = task.factory_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = task.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = task.production_line_id
+                where a.product_id=#{productId} and a.product_type=#{productType}
+                GROUP BY
+                c.user_name,
+                date(a.create_time),
+                a.process_id,
+                date(task.ask_complete_time),
+                a.report_type,
+                process.`name`,
+                factory.id ,
+                factory.`name`,
+                workshop.id ,
+                workshop.`name` ,
+                production_line.id ,
+                production_line.`name`
+            </when>
+            <otherwise>
+                SELECT
+                task.task_quantity,
+                date(task.ask_complete_time)ask_complete_time,
+                task.in_production_quantity,
+                task.complete_quantity,
+                factory.id 'factory.id',
+                factory.`name` 'factory.name',
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name'
+                FROM
+                mes_building_task task
+                LEFT JOIN mes_building_factory factory ON factory.id = task.factory_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = task.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = task.production_line_id
+                where task.product_id=#{productId} and task.product_type=#{productType}
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

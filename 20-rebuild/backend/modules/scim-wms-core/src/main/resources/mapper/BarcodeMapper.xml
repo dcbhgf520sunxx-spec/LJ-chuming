@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.BarcodeMapper">
+    <select id="getByMaterial" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Barcode">
+        select *
+        from wms_barcode
+        where
+        bool_delete_enum = 0
+        and material_is_whole = #{materialIsWhole}
+        and bool_party_a = #{boolPartyA}
+        and workshop_id = #{workshopId}
+        and warehouse_id = #{warehouseId}
+        and basic_class = #{basicClass}
+        and type = #{type}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            and project_id is null
+        </if>
+        <if test="monomerId != null">
+            and monomer_id = #{monomerId}
+        </if>
+        <if test="monomerId == null">
+            and monomer_id is null
+        </if>
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+        <if test="areaId == null">
+            and area_id is null
+        </if>
+        <if test="length != null  ">
+            and length = #{length}
+        </if>
+        <if test="length == null  ">
+            and length is null
+        </if>
+        <if test="width != null  ">
+            and width = #{width}
+        </if>
+        <if test="width == null  ">
+            and width is null
+        </if>
+        <if test="thickness != null ">
+            and thickness = #{thickness}
+        </if>
+        <if test="thickness == null ">
+            and thickness is null
+        </if>
+        <if test="brand != null and brand != ''">
+            and brand = #{brand}
+        </if>
+        <if test="brand == null ">
+            and brand is null
+        </if>
+        <if test="heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no = #{heatNoAndBatchNo}
+        </if>
+        <if test="heatNoAndBatchNo == null ">
+            and heat_no_and_batch_no is null
+        </if>
+        <if test="color != null and color != ''">
+            and color = #{color}
+        </if>
+        <if test="color == null ">
+            and color is null
+        </if>
+        <if test="standardId != null ">
+            and standard_id = #{standardId}
+        </if>
+        <if test="standardId == null ">
+            and standard_id is null
+        </if>
+        <if test="specification != null">
+            and specification = #{specification}
+        </if>
+        <if test="specification == null  ">
+            and specification is null
+        </if>
+    </select>
+</mapper>

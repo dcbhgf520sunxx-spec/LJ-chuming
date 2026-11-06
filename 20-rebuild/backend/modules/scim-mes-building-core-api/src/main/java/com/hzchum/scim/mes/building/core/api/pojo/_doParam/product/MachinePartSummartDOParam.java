@@ -1,0 +1,201 @@
+package com.hzchum.scim.mes.building.core.api.pojo._doParam.product;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
+
+@ApiModel(value = "MachinePartSummartDOParam", description = "零件汇总请求类")
+public class MachinePartSummartDOParam {
+   @ApiModelProperty(name = "projectId")
+   @JsonProperty("projectId")
+   @JSONField(name = "projectId")
+   private Long projectId;
+   @ApiModelProperty(name = "monomerId")
+   @JsonProperty("monomerId")
+   @JSONField(name = "monomerId")
+   private Long monomerId;
+   @ApiModelProperty(name = "areaIds")
+   @JsonProperty("areaIds")
+   @JSONField(name = "areaIds")
+   private List<Long> areaIds;
+   @ApiModelProperty(name = "boolAbnormalEnum", notes = "是否异常")
+   @JsonProperty("boolAbnormalEnum")
+   @JSONField(name = "boolAbnormalEnum")
+   private Boolean boolAbnormalEnum;
+
+   public static MachinePartSummartDOParam.MachinePartSummartDOParamBuilder builder() {
+      return new MachinePartSummartDOParam.MachinePartSummartDOParamBuilder();
+   }
+
+   public MachinePartSummartDOParam(final Long projectId, final Long monomerId, final List<Long> areaIds, final Boolean boolAbnormalEnum) {
+      this.projectId = projectId;
+      this.monomerId = monomerId;
+      this.areaIds = areaIds;
+      this.boolAbnormalEnum = boolAbnormalEnum;
+   }
+
+   public MachinePartSummartDOParam() {
+   }
+
+   public Long getProjectId() {
+      return this.projectId;
+   }
+
+   public Long getMonomerId() {
+      return this.monomerId;
+   }
+
+   public List<Long> getAreaIds() {
+      return this.areaIds;
+   }
+
+   public Boolean getBoolAbnormalEnum() {
+      return this.boolAbnormalEnum;
+   }
+
+   @JsonProperty("projectId")
+   public MachinePartSummartDOParam setProjectId(final Long projectId) {
+      this.projectId = projectId;
+      return this;
+   }
+
+   @JsonProperty("monomerId")
+   public MachinePartSummartDOParam setMonomerId(final Long monomerId) {
+      this.monomerId = monomerId;
+      return this;
+   }
+
+   @JsonProperty("areaIds")
+   public MachinePartSummartDOParam setAreaIds(final List<Long> areaIds) {
+      this.areaIds = areaIds;
+      return this;
+   }
+
+   @JsonProperty("boolAbnormalEnum")
+   public MachinePartSummartDOParam setBoolAbnormalEnum(final Boolean boolAbnormalEnum) {
+      this.boolAbnormalEnum = boolAbnormalEnum;
+      return this;
+   }
+
+   @Override
+   public String toString() {
+      return "MachinePartSummartDOParam(projectId="
+         + this.getProjectId()
+         + ", monomerId="
+         + this.getMonomerId()
+         + ", areaIds="
+         + this.getAreaIds()
+         + ", boolAbnormalEnum="
+         + this.getBoolAbnormalEnum()
+         + ")";
+   }
+
+   @Override
+   public boolean equals(final Object o) {
+      if (o == this) {
+         return true;
+      }
+
+      if (!(o instanceof MachinePartSummartDOParam)) {
+         return false;
+      }
+
+      MachinePartSummartDOParam other = (MachinePartSummartDOParam)o;
+      if (!other.canEqual(this)) {
+         return false;
+      }
+
+      Object this$projectId = this.getProjectId();
+      Object other$projectId = other.getProjectId();
+      if (this$projectId == null ? other$projectId == null : this$projectId.equals(other$projectId)) {
+         Object this$monomerId = this.getMonomerId();
+         Object other$monomerId = other.getMonomerId();
+         if (this$monomerId == null ? other$monomerId == null : this$monomerId.equals(other$monomerId)) {
+            Object this$boolAbnormalEnum = this.getBoolAbnormalEnum();
+            Object other$boolAbnormalEnum = other.getBoolAbnormalEnum();
+            if (this$boolAbnormalEnum == null ? other$boolAbnormalEnum == null : this$boolAbnormalEnum.equals(other$boolAbnormalEnum)) {
+               Object this$areaIds = this.getAreaIds();
+               Object other$areaIds = other.getAreaIds();
+               return this$areaIds == null ? other$areaIds == null : this$areaIds.equals(other$areaIds);
+            } else {
+               return false;
+            }
+         } else {
+            return false;
+         }
+      } else {
+         return false;
+      }
+   }
+
+   protected boolean canEqual(final Object other) {
+      return other instanceof MachinePartSummartDOParam;
+   }
+
+   @Override
+   public int hashCode() {
+      int PRIME = 59;
+      int result = 1;
+      Object $projectId = this.getProjectId();
+      result = result * 59 + ($projectId == null ? 43 : $projectId.hashCode());
+      Object $monomerId = this.getMonomerId();
+      result = result * 59 + ($monomerId == null ? 43 : $monomerId.hashCode());
+      Object $boolAbnormalEnum = this.getBoolAbnormalEnum();
+      result = result * 59 + ($boolAbnormalEnum == null ? 43 : $boolAbnormalEnum.hashCode());
+      Object $areaIds = this.getAreaIds();
+      return result * 59 + ($areaIds == null ? 43 : $areaIds.hashCode());
+   }
+
+   public static class MachinePartSummartDOParamBuilder {
+      private Long projectId;
+      private Long monomerId;
+      private List<Long> areaIds;
+      private Boolean boolAbnormalEnum;
+
+      MachinePartSummartDOParamBuilder() {
+      }
+
+      @JsonProperty("projectId")
+      public MachinePartSummartDOParam.MachinePartSummartDOParamBuilder projectId(final Long projectId) {
+         this.projectId = projectId;
+         return this;
+      }
+
+      @JsonProperty("monomerId")
+      public MachinePartSummartDOParam.MachinePartSummartDOParamBuilder monomerId(final Long monomerId) {
+         this.monomerId = monomerId;
+         return this;
+      }
+
+      @JsonProperty("areaIds")
+      public MachinePartSummartDOParam.MachinePartSummartDOParamBuilder areaIds(final List<Long> areaIds) {
+         this.areaIds = areaIds;
+         return this;
+      }
+
+      @JsonProperty("boolAbnormalEnum")
+      public MachinePartSummartDOParam.MachinePartSummartDOParamBuilder boolAbnormalEnum(final Boolean boolAbnormalEnum) {
+         this.boolAbnormalEnum = boolAbnormalEnum;
+         return this;
+      }
+
+      public MachinePartSummartDOParam build() {
+         return new MachinePartSummartDOParam(this.projectId, this.monomerId, this.areaIds, this.boolAbnormalEnum);
+      }
+
+      @Override
+      public String toString() {
+         return "MachinePartSummartDOParam.MachinePartSummartDOParamBuilder(projectId="
+            + this.projectId
+            + ", monomerId="
+            + this.monomerId
+            + ", areaIds="
+            + this.areaIds
+            + ", boolAbnormalEnum="
+            + this.boolAbnormalEnum
+            + ")";
+      }
+   }
+}

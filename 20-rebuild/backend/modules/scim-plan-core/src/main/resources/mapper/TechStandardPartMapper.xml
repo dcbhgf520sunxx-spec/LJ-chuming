@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechStandardPartMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechStandardPart">
+        <id column="id" property="id" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="category" property="category" />
+        <result column="enclosure_plan_id" property="enclosurePlanId" />
+        <result column="relation_type" property="relationType" />
+        <result column="use_property" property="useProperty" />
+        <result column="specification" property="specification" />
+        <result column="quantity" property="quantity" />
+        <result column="measure_unit" property="measureUnit" />
+        <result column="mete" property="mete" />
+        <result column="accounting_unit" property="accountingUnit" />
+        <result column="bool_weight_type_enum" property="boolWeightTypeEnum" />
+        <result column="remark" property="remark" />
+        <result column="user_id" property="userId" />
+        <result column="last_editor_id" property="lastEditorId" />
+        <result column="business_id" property="businessId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time
+        ,
+        bool_delete_enum,
+        version,
+        id, name, project_id, monomer_id, area_id, use_property, specification, measure_unit, quantity, mete, accounting_unit, bool_weight_type_enum, remark, user_id, last_editor_id, business_id
+    </sql>
+
+
+    <select id="listTechStandardPart" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechStandardPartDTO">
+        select
+        summary.id AS whId,
+        summary.product_id,
+        summary.user_name,
+        summary.quantity AS warehouseQuantity,
+        CONVERT(IFNULL(part.mete, 0) / part.quantity, DECIMAL(18,4)) * summary.quantity warehouseMete,
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        monomer.id AS 'monomer.id',
+        monomer.name AS 'monomer.name',
+        area.id AS 'monomer.id',
+        area.name AS 'area.name',
+        part.*
+        from mes_building_warehouse_summary summary
+        LEFT JOIN tech_standard_part part on summary.product_id = part.id  and  part.bool_delete_enum = 0  and part.use_property = 1
+        LEFT JOIN contract_project project on project.id = part.project_id
+        LEFT JOIN plan_monomer monomer on monomer.id = part.monomer_id
+        LEFT JOIN plan_area area on area.id = part.area_id
+        where summary.product_type = 8 and summary.type = 1  and summary.project_id = #{projectId}
+        and summary.warehouse_type = 0 and summary.bool_delete_enum = 0
+        <if test="monomerId != null">
+            and summary.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and summary.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and part.name like concat('%',#{name},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and part.specification like concat('%',#{specification},'%')
+        </if>
+    </select>
+
+</mapper>

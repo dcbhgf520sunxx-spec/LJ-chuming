@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.AnnualContractMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.AnnualContract">
+        <id column="id" property="id" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="basic_class" property="basicClass" />
+        <result column="time_start" property="timeStart" />
+        <result column="time_end" property="timeEnd" />
+        <result column="attachments" property="attachments" />
+        <result column="amount" property="amount" />
+        <result column="year_amount" property="yearAmount" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, serial_number, supplier_id, supplier_name, basic_class, time_start, time_end, attachments, amount, year_amount, applicant_name, applicant_id, status
+    </sql>
+
+</mapper>

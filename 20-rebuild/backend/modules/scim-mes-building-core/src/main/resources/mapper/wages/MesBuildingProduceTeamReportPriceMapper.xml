@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wages.MesBuildingProduceTeamReportPriceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wages.MesBuildingProduceTeamReportPrice">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="task_id" property="taskId"/>
+        <result column="task_process_id" property="taskProcessId"/>
+        <result column="process_id" property="processId"/>
+        <result column="scheduling_id" property="schedulingId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="team_id" property="teamId"/>
+        <result column="user_id" property="userId"/>
+        <result column="report_type" property="reportType"/>
+        <result column="wage_quota_type" property="wageQuotaType"/>
+        <result column="wage" property="wage"/>
+        <result column="price" property="price"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, task_process_id, process_id, scheduling_id, product_id, product_type, quantity, team_id, user_id, report_type, wage_quota_type, wage, price
+    </sql>
+    <select id="getPriceSummaryByCondition" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL( SUM( price ), 0 )
+        FROM
+        mes_building_produce_team_report_price
+        WHERE
+        <if test="timeTypeEnum==1">
+            DATE_FORMAT(create_time, '%Y' )= DATE_FORMAT( #{dateTime}, '%Y' )
+        </if>
+        <if test="timeTypeEnum==2">
+            DATE_FORMAT(create_time, '%Y-%m' )= DATE_FORMAT( #{dateTime}, '%Y-%m' )
+        </if>
+        <if test="timeTypeEnum==4">
+            DATE_FORMAT(create_time, '%Y-%m-%d' )= DATE_FORMAT( #{dateTime}, '%Y-%m-%d' )
+        </if>
+        <if test="taskTypeEnum!=null">
+            and task_type_enum = #{taskTypeEnum}
+        </if>
+    </select>
+    <select id="getProcessPriceList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProcessPriceDO">
+        SELECT
+        id 'process.id',
+        `name` 'process.name',
+        task_type_enum,
+        task_type_enum_sort,
+        sort,
+        IFNULL( sum( mete ), 0 ) mete,
+        IFNULL( sum( price ), 0 ) price
+        FROM
+        (
+        SELECT
+        price.id,
+        price.NAME,
+        price.task_type_enum,
+        price.task_type_enum_sort,
+        price.sort,
+        MAX(price.mete)mete,
+        SUM(price.price) price
+        FROM
+        (
+        SELECT
+        price.team_reoprt_id,
+        process.id,
+        process.`name`,
+        process.product_type task_type_enum,
+        CASE
+        process.product_type
+        WHEN 1 THEN
+        1
+        WHEN 2 THEN
+        3
+        WHEN 16 THEN
+        2
+        END task_type_enum_sort,
+        process.sort,
+        CASE
+        price.task_type_enum
+        WHEN 1 THEN
+        price.quantity * part.net_weight
+        WHEN 2 THEN
+        price.quantity * artifact.net_weight
+        WHEN 16 THEN
+        price.quantity * assemble.net_weight
+        END mete,
+        price.price
+        FROM
+        mes_building_produce_team_report_price price
+        LEFT JOIN tech_artifact artifact ON artifact.id = price.product_id
+        LEFT JOIN tech_assemble assemble ON assemble.id = price.product_id
+        LEFT JOIN tech_machine_part part ON part.id = price.product_id
+        LEFT JOIN mes_building_process process ON process.id = price.process_id
+        LEFT JOIN mes_building_produce_team_report report ON report.id = price.team_reoprt_id
+        LEFT JOIN mes_building_groups gro ON gro.id = report.groups_id
+        <where>
+            <if test="startTime!=null">
+                and date(price.create_time)>=date(#{startTime})
+            </if>
+            <if test="endTime!=null">
+                and date(price.create_time)&lt;= date(#{endTime})
+            </if>
+            <if test="workshopId!=null">
+                and gro.workshop_id =#{workshopId}
+            </if>
+        </where>
+        ) price
+        GROUP BY price.team_reoprt_id,
+        price.id
+        ) a
+        GROUP BY
+        id,
+        `name`,
+        task_type_enum,
+        task_type_enum_sort,
+        sort
+        ORDER BY
+        task_type_enum_sort,
+        sort
+    </select>
+    <select id="getProcessPriceDayDetailsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProcessPriceDetailsDO">
+        SELECT
+        workshop_id,
+        workshop_name,
+        production_line_id,
+        production_line_name,
+        team_id,
+        user_name team_name,
+        day_time,
+        IFNULL( sum( mete ), 0 ) mete,
+        IFNULL( sum( price ), 0 ) price
+        FROM
+        (
+        SELECT
+        workshop.id workshop_id,
+        workshop.`name` workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        price.team_id team_id,
+        user_link.user_name user_name,
+        DATE_FORMAT(price.create_time,'%Y/%m/%d') day_time,
+        CASE
+        price.task_type_enum
+        WHEN 1 THEN
+        price.inspection_quantity * part.net_weight
+        WHEN 2 THEN
+        price.inspection_quantity * artifact.net_weight
+        WHEN 16 THEN
+        price.inspection_quantity * assemble.net_weight
+        END mete,
+        price.price
+        FROM
+        mes_building_produce_team_report_price price
+        LEFT JOIN tech_artifact artifact ON artifact.id = price.product_id
+        LEFT JOIN tech_assemble assemble ON assemble.id = price.product_id
+        LEFT JOIN tech_machine_part part ON part.id = price.product_id
+        LEFT JOIN mes_building_produce_team_report report ON report.id = price.team_reoprt_id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = report.production_line_id
+        LEFT JOIN mes_building_workshop workshop ON workshop.id = production_line.workshop_id
+        LEFT JOIN mes_building_team_user_link user_link ON user_link.team_id = price.team_id AND user_link.bool_delete_enum=0
+        AND user_link.bool_leader_enum = 1
+        <where>
+            price.process_id=#{processId}
+            and price.inspection_quantity > 0
+            <if test="startTime!=null">
+                and date(price.create_time)>=date(#{startTime})
+            </if>
+            <if test="endTime!=null">
+                and date(price.create_time)&lt;= date(#{endTime})
+            </if>
+            <if test="workshopId!=null">
+                and workshop.id =#{workshopId}
+            </if>
+            <if test="userName!=null and userName!=''">
+                and user_link.user_name LIKE concat('%',#{userName},'%')
+            </if>
+        </where>
+        ) a
+        GROUP BY
+        workshop_id,
+        workshop_name,
+        production_line_id,
+        production_line_name,
+        team_id,
+        user_name,
+        day_time
+    </select>
+    <select id="getTeamProcessPriceDayDetailsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.TeamProcessPriceDetailsDO">
+        SELECT
+        price.team_reoprt_id,
+        workshop.id workshop_id,
+        workshop.`name` workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        gro.id groups_id,
+        gro.`name` groups_name,
+        price.team_id team_id,
+        user_link.user_name team_name,
+        price.day_time,
+        report.quantity,
+        project.name project_name,
+        project.serial_number project_serial_number,
+        price.wage_quota_type,
+        <if test="taskTypeEnum==1">
+            machine_part.serial_number,
+            machine_part.specification,
+            machine_part.net_weight,
+            CASE
+            price.wage_quota_type
+            WHEN 1 THEN
+            price.quantity * machine_part.net_weight / 1000
+            WHEN 2 THEN
+            price.quantity * machine_part.length / 1000
+            WHEN 4 THEN
+            price.quantity * machine_part.surface_area / 1000000 ELSE price.quantity
+            END mete,
+        </if>
+        <if test="taskTypeEnum==2">
+            classification.classification_name product_name,
+            artifact.net_weight,
+            CASE
+            price.wage_quota_type
+            WHEN 1 THEN
+            price.quantity * artifact.net_weight / 1000
+            WHEN 2 THEN
+            price.quantity * artifact.length / 1000
+            WHEN 4 THEN
+            price.quantity * artifact.surface_area / 1000000 ELSE price.quantity
+            END mete,
+        </if>
+        <if test="taskTypeEnum==16">
+            CASE
+            price.task_type_enum
+            WHEN 16 THEN
+            config.`name`
+            END product_name,
+
+            CASE
+            price.task_type_enum
+            WHEN 16 THEN
+            assemble.serial_number
+            END serial_number,
+
+            CASE
+            price.task_type_enum
+            WHEN 16 THEN
+            assemble.net_weight
+            END net_weight,
+
+            CASE
+            price.task_type_enum
+            WHEN 16 THEN
+            assemble.specification
+            END specification,
+
+            CASE
+            price.task_type_enum
+            WHEN 16 THEN
+            CASE
+            price.wage_quota_type
+            WHEN 1 THEN
+            price.quantity * assemble.net_weight / 1000
+            WHEN 2 THEN
+            price.quantity * assemble.length / 1000
+            WHEN 4 THEN
+            price.quantity * assemble.surface_area / 1000000 ELSE price.quantity
+            END
+            END mete,
+        </if>
+        price.wage,
+        price.wage_quota_type,
+        price.price
+        FROM
+        (
+        SELECT
+        DATE_FORMAT( create_time, '%Y/%m/%d' ) day_time,
+        task_id,
+        task_process_id,
+        process_id,
+        product_id,
+        quantity,
+        team_reoprt_id,
+        team_id,
+        wage_quota_type,
+        task_type_enum,
+        task_order_id,
+        sum( wage ) wage,
+        sum( price ) price
+        FROM
+        mes_building_produce_team_report_price
+        <where>
+            process_id=#{processId}
+            <if test="startTime!=null">
+                and date(create_time)>=date(#{startTime})
+            </if>
+            <if test="endTime!=null">
+                and date(create_time)&lt;= date(#{endTime})
+            </if>
+        </where>
+        GROUP BY
+        day_time,
+        task_id,
+        task_process_id,
+        process_id,
+        product_id,
+        quantity,
+        team_reoprt_id,
+        team_id,
+        wage_quota_type,
+        task_type_enum,
+        task_order_id
+        ) price
+        <if test="taskTypeEnum==1">
+            LEFT JOIN tech_machine_part machine_part ON machine_part.id = price.product_id
+        </if>
+        <if test="taskTypeEnum==2">
+            LEFT JOIN tech_artifact artifact ON artifact.id = price.product_id
+            LEFT JOIN sys_structure_classification classification ON classification.id = artifact.structure_class_id
+        </if>
+        <if test="taskTypeEnum==16">
+            LEFT JOIN tech_assemble assemble ON assemble.id = price.product_id
+            LEFT JOIN sys_assemble_config config ON config.id = assemble.assemble_config_id
+        </if>
+        LEFT JOIN mes_building_produce_team_report report ON report.id = price.team_reoprt_id
+        LEFT JOIN mes_building_task task ON report.task_id=task.id
+        LEFT JOIN contract_project project ON task.project_id=project.id
+        LEFT JOIN mes_building_groups gro ON gro.id = report.groups_id
+        LEFT JOIN mes_building_workshop workshop ON workshop.id = gro.workshop_id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = gro.production_line_id
+        LEFT JOIN mes_building_team_user_link user_link ON user_link.team_id = price.team_id
+        AND user_link.bool_leader_enum = 1
+        <where>
+            <if test="workshopId!=null">
+                and gro.workshop_id =#{workshopId}
+            </if>
+            <if test="userName!=null and userName!=''">
+                and user_link.user_name LIKE concat('%',#{userName},'%')
+            </if>
+        </where>
+        ORDER BY  price.day_time
+    </select>
+    <select id="getProjectPaintingPrice" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProjectPainingPriceDO">
+        SELECT
+            project_id 'project.id',
+            project_name 'project.name',
+            project_short_name 'project.short_name',
+            project_serial_number 'project.serial_number',
+            IFNULL(SUM(mete), 0 ) mete,
+            IFNULL(SUM(area), 0 ) area,
+            IFNULL(SUM(price), 0 ) price
+        FROM
+            (
+                SELECT
+                    project.id project_id,
+                    project.`name` project_name,
+                    project.short_name project_short_name,
+                    project.serial_number project_serial_number,
+                    price.quantity * artifact.net_weight mete,
+                    price.quantity * artifact.surface_area area,
+                    price.price
+                FROM
+                    (
+                        SELECT
+                            task_id,
+                            product_id,
+                            quantity,
+                            SUM( price ) price
+                        FROM
+                            mes_building_produce_team_report_price price
+                        WHERE
+                                price.process_id IN ( SELECT id FROM mes_building_process WHERE type = 1 AND product_type = 2 )
+                          AND price.task_type_enum = 2
+                        GROUP BY
+                            task_id,
+                            product_id,
+                            quantity
+                    ) price
+                        LEFT JOIN mes_building_task task ON price.task_id = task.id
+                        LEFT JOIN contract_project project ON project.id = task.project_id
+                        LEFT JOIN tech_artifact artifact ON artifact.id = price.product_id
+                WHERE
+                        DATE_FORMAT( project.create_time, '%Y' )= DATE_FORMAT(#{dateTime}, '%Y' )
+                ) a
+        GROUP BY
+            project_id,
+            project_name,
+            project_short_name,
+            project_serial_number
+        ORDER BY project_id
+    </select>
+
+    <select id="listWageSummaryByProjectId" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wages.FinanceProcessPriceDTO">
+        SELECT
+        temp.project_id,
+        temp.id,
+        temp.name,
+        temp.sort,
+        IFNULL(SUM(temp.mete), 0) mete,
+        SUM(temp.price) price
+        FROM (
+        SELECT
+        process.id,
+        process.`name`,
+        process.sort,
+        price.price,
+        task.project_id,
+        CASE
+        price.task_type_enum
+        WHEN 1 THEN
+        part.net_weight * price.quantity
+        WHEN 2 THEN
+        artifact.net_weight * price.quantity
+        ELSE assemble.net_weight * price.quantity
+        END mete
+        FROM mes_building_produce_team_report_price price
+        LEFT JOIN mes_building_process process ON process.id = price.process_id
+        LEFT JOIN mes_building_task task ON task.id = price.task_id
+        LEFT JOIN tech_artifact artifact ON artifact.id = price.product_id
+        AND price.task_type_enum = 2
+        LEFT JOIN tech_assemble assemble ON assemble.id = price.product_id
+        AND price.task_type_enum = 16
+        LEFT JOIN tech_machine_part part ON part.id = price.product_id
+        AND price.task_type_enum = 1
+        WHERE price.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND task.project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        ) temp
+        GROUP BY temp.project_id, temp.id
+        ORDER BY temp.project_id, temp.sort
+    </select>
+
+    <select id="selectByYear" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT DATE_FORMAT(create_time, '%m') month,
+               SUM(price) amount
+        FROM mes_building_produce_team_report_price
+        WHERE bool_delete_enum = 0
+          AND DATE_FORMAT(create_time, '%Y') = #{year}
+        GROUP BY month
+        ORDER BY month
+    </select>
+    <select id="selectByYearV2" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT
+        DATE_FORMAT(rprice.create_time, '%m') month,
+        SUM(price) amount
+        FROM mes_building_produce_team_report_price rprice
+        LEFT JOIN mes_building_task task ON task.id = rprice.task_id
+        WHERE rprice.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND task.project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(rprice.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = task.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND task.workshop_id = #{workshopId}
+        </if>
+        GROUP BY month
+    </select>
+
+</mapper>

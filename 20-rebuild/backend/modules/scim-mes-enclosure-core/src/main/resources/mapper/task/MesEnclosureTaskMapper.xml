@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.task.MesEnclosureTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.MesEnclosureTask">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="product_id" property="productId"/>
+        <result column="task_quantity" property="taskQuantity"/>
+        <result column="complete_quantity" property="completeQuantity"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, factory_id, scheduling_id, workshop_id, production_line_id, project_id, monomer_id, plan_id, product_id, product_type,product_process_id, task_quantity, complete_quantity, status, ask_complete_time, complete_time, user_id
+    </sql>
+    <select id="listAllProductDetail"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.TaskProductDetailDTO">
+        SELECT
+               task.task_order_id 'taskOrderId',
+               SUM( task.task_quantity )'taskQuantity',
+               SUM( task.complete_quantity ) 'completeQuantity',
+               SUM(( task.task_quantity - task.complete_quantity )* enc.length) 'totalLength'
+        FROM
+            mes_enclosure_task task
+                LEFT JOIN tech_enclosure enc ON task.product_id = enc.id
+        GROUP BY
+            task.task_order_id
+    </select>
+    <select id="listTasks"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.AppEnclosureTaskDTO">
+        SELECT
+        task.id,
+        pro.id 'project.id',
+        pro.`name`'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        ord.order_number,
+        ord.id 'orderId',
+        fac.id 'factory.id',
+        fac.`name` 'factory.name',
+        shop.id 'workshop.id',
+        shop.`name` 'workshop.name',
+        line.id 'productionLine.id',
+        line.`name` 'productionLine.name',
+        line.type 'line.type',
+        team.id,
+        plan.id 'plan.id',
+        plan.`name` 'plan.name',
+        plan.date 'plan.date',
+        plan.quantity_work 'plan.quantityWork',
+        enc.id 'productId',
+        enc.`name` 'name',
+        enc.length,
+        cess.id 'process.id',
+        cess.name 'process.name',
+        task.task_quantity 'taskQuantity',
+        task.complete_quantity 'completeQuantity',
+        task.ask_complete_time 'askCompleteTime',
+        enc.serial_number 'serialNumber',
+        enc.category 'category',
+        enc.plate,
+        enc.color,
+        enc.material,
+        enc.thickness,
+        enc.coating,
+        enc.plating
+        FROM
+        mes_enclosure_task_order ord
+        LEFT JOIN mes_enclosure_task task ON ord.id = task.task_order_id
+        LEFT JOIN tech_enclosure enc ON task.product_id = enc.id
+        LEFT JOIN enclosure_plan plan ON enc.enclosure_plan_id = plan.id
+        LEFT JOIN contract_project pro ON enc.project_id = pro.id
+        LEFT JOIN mes_building_factory fac ON task.factory_id = fac.id
+        LEFT JOIN mes_building_workshop shop ON task.workshop_id = shop.id
+        LEFT JOIN mes_enclosure_production_line line ON task.production_line_id = line.id
+        LEFT JOIN mes_enclosure_team team ON task.team_id = team.id
+        LEFT JOIN mes_enclosure_process cess ON task.process_id=cess.id
+        WHERE
+        task.bool_delete_enum = 0
+        <if test="serialNumber != null  and serialNumber != ''">
+            AND enc.serial_numberLIKE CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="areaId != null ">
+            AND enc.area_id =#{areaId}
+        </if>
+        <if test="projectId != null ">
+            AND enc.project_id =#{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="teamIds != null and teamIds.size() != 0">
+            AND task.team_id IN
+            <foreach collection="teamIds" item="teamId" separator="," close=")" open="(">
+                #{teamId}
+            </foreach>
+        </if>
+        <if test="taskOrderId != null ">
+            AND ord.id = #{taskOrderId}
+        </if>
+        and task.bool_complete_enum=0
+    </select>
+    <select id="listTasksV2"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.AppEnclosureTaskDTO">
+        SELECT
+        task.id,
+        pro.id 'project.id',
+        pro.`name`'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        ord.order_number,
+        ord.id 'orderId',
+        fac.id 'factory.id',
+        fac.`name` 'factory.name',
+        shop.id 'workshop.id',
+        shop.`name` 'workshop.name',
+        line.id 'productionLine.id',
+        line.`name` 'productionLine.name',
+        line.type 'line.type',
+        team.id,
+        pm.id 'monomer.id',
+        pm.name 'monomer.name',
+        area.id 'area.id',
+        area.`name` 'area.name',
+        enc.id 'productId',
+        enc.`name` 'name',
+        enc.length,
+        cess.id 'process.id',
+        cess.name 'process.name',
+        task.task_quantity 'taskQuantity',
+        task.complete_quantity 'completeQuantity',
+        task.ask_complete_time 'askCompleteTime',
+        enc.serial_number 'serialNumber',
+        enc.category 'category',
+        enc.plate,
+        enc.color,
+        enc.material,
+        enc.thickness,
+        enc.coating,
+        enc.plating
+        FROM
+        mes_enclosure_task_order ord
+        LEFT JOIN mes_enclosure_task task ON ord.id = task.task_order_id
+        LEFT JOIN tech_enclosure enc ON task.product_id = enc.id and enc.bool_delete_enum = 0
+        LEFT JOIN plan_monomer pm ON enc.monomer_id = pm.id and pm.bool_delete_enum = 0
+        LEFT JOIN plan_area area ON enc.area_id = area.id and area.bool_delete_enum = 0
+        LEFT JOIN contract_project pro ON enc.project_id = pro.id and area.bool_delete_enum = 0
+        LEFT JOIN mes_building_factory fac ON task.factory_id = fac.id and area.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop shop ON task.workshop_id = shop.id and area.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_production_line line ON task.production_line_id = line.id and area.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_team team ON task.team_id = team.id and area.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_process cess ON task.process_id=cess.id and area.bool_delete_enum = 0
+        WHERE
+        task.bool_delete_enum = 0
+        <if test="serialNumber != null  and serialNumber != ''">
+            AND enc.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="areaId != null ">
+            AND enc.area_id =#{areaId}
+        </if>
+        <if test="projectId != null ">
+            AND enc.project_id =#{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="teamIds != null and teamIds.size() != 0">
+            AND task.team_id IN
+            <foreach collection="teamIds" item="teamId" separator="," close=")" open="(">
+                #{teamId}
+            </foreach>
+        </if>
+        <if test="taskOrderId != null ">
+            AND ord.id = #{taskOrderId}
+        </if>
+        and task.bool_complete_enum=0
+    </select>
+    <select id="getYearList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.WorkshopMonthAndMeteDTO">
+        SELECT
+        <if test="type==1">
+            MONTH( mc.create_time) date,
+        </if>
+        <if test="type==2">
+            DAY( mc.create_time) date,
+        </if>
+            IFNULL( sum( enc.length * mc.quantity ), 0 )/1000 totalLength
+        FROM
+            mes_building_complete mc
+            LEFT JOIN tech_enclosure enc ON mc.product_id = enc.id
+            AND enc.bool_delete_enum = FALSE
+        WHERE
+            mc.bool_delete_enum = FALSE
+        and mc.task_type_enum=4
+        <if test="category != null ">
+            AND enc.category = #{category}
+        </if>
+        <if test="type==1">
+            AND date_format( mc.create_time, '%Y' ) = date_format( #{dateTime}, '%Y' )
+        </if>
+        <if test="type==2">
+            AND date_format( mc.create_time, '%Y%m' ) = date_format( #{dateTime}, '%Y%m' )
+        </if>
+        GROUP BY
+            date
+    </select>
+    <select id="getYearListV2"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.WorkshopMonthAndMeteDTO">
+        SELECT
+        <if test="type==1">
+            MONTH( mc.create_time) date,
+        </if>
+        <if test="type==2">
+            DAY( mc.create_time) date,
+        </if>
+        IFNULL( sum( enc.length * mc.quantity ), 0 )/1000 totalLength
+        FROM
+        mes_building_complete mc
+        LEFT JOIN tech_enclosure enc ON mc.product_id = enc.id
+        AND enc.bool_delete_enum = FALSE
+        WHERE
+        mc.bool_delete_enum = FALSE
+        and mc.task_type_enum = 4
+        <if test="dictionaryId != null ">
+            AND enc.dictionary_id = #{dictionaryId}
+        </if>
+        <if test="type==1">
+            AND date_format( mc.create_time, '%Y' ) = date_format( #{dateTime}, '%Y' )
+        </if>
+        <if test="type==2">
+            AND date_format( mc.create_time, '%Y%m' ) = date_format( #{dateTime}, '%Y%m' )
+        </if>
+        GROUP BY
+        date
+    </select>
+    <select id="getOverviewDetail"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.WorkshopSummaryDTO">
+        SELECT
+        enc.*,
+        pro.id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        com.quantity 'producedQuantity',
+        IFNULL(com.quantity*enc.length ,0) 'totalLength',
+        com.create_time 'completeTime',
+        com.user_id 'completeUserId',
+        us.name 'completeUserName'
+        FROM
+        mes_building_complete com
+        INNER JOIN tech_enclosure enc ON com.product_id = enc.id
+        LEFT JOIN contract_project pro ON pro.id = enc.project_id
+        LEFT JOIN sys_user us ON com.user_id = us.id
+        where com.bool_delete_enum=0
+        and com.task_type_enum=4
+        <if test="projectId != null ">
+            AND com.project_id = #{projectId}
+        </if>
+        <if test="category != null ">
+            AND enc.category = #{category}
+        </if>
+        <if test="startTime !=null ">
+            AND date(com.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime !=null ">
+            AND date(com.create_time) &lt;= date(#{endTime})
+        </if>
+
+    </select>
+
+    <select id="getOverviewDetailV2"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.WorkshopSummaryDTO">
+        SELECT
+        enc.*,
+        pro.id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        com.quantity 'producedQuantity',
+        IFNULL(com.quantity*enc.length ,0) 'totalLength',
+        com.create_time 'completeTime',
+        com.user_id 'completeUserId',
+        us.name 'completeUserName'
+        FROM
+        mes_building_complete com
+        INNER JOIN tech_enclosure enc ON com.product_id = enc.id
+        LEFT JOIN contract_project pro ON pro.id = enc.project_id
+        LEFT JOIN sys_user us ON com.user_id = us.id
+        where com.bool_delete_enum=0
+        and com.task_type_enum=4
+        <if test="projectId != null ">
+            AND com.project_id = #{projectId}
+        </if>
+        <if test="dictionaryId != null ">
+            AND enc.dictionary_id = #{dictionaryId}
+        </if>
+        <if test="startTime !=null ">
+            AND date(com.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime !=null ">
+            AND date(com.create_time) &lt;= date(#{endTime})
+        </if>
+
+    </select>
+    <select id="getOverviewTotal" resultType="java.math.BigDecimal">
+
+        SELECT
+        IFNULL(SUM(a.quantity*a.length ) ,0)/1000
+        FROM
+        (
+        SELECT
+        com.quantity,
+        enc.length
+        FROM
+        mes_building_complete com
+        LEFT JOIN tech_enclosure enc ON com.product_id = enc.id
+        WHERE
+        com.bool_delete_enum = 0
+        and com.task_type_enum=4
+        <if test="category != null ">
+            AND enc.category = #{category}
+        </if>
+        <if test="time!=null">
+            AND date_format ( com.create_time, '%Y' ) = date_format( #{time}, '%Y')
+        </if>
+        ) a
+    </select>
+
+    <select id="getOverviewTotalV2" resultType="java.math.BigDecimal">
+
+        SELECT
+        IFNULL(SUM(a.quantity*a.length ) ,0)/1000
+        FROM
+        (
+        SELECT
+        com.quantity,
+        enc.length
+        FROM
+        mes_building_complete com
+        LEFT JOIN tech_enclosure enc ON com.product_id = enc.id
+        WHERE
+        com.bool_delete_enum = 0
+        and com.task_type_enum=4
+        <if test="dictionaryId != null ">
+            AND enc.dictionary_id = #{dictionaryId}
+        </if>
+        <if test="time!=null">
+            AND date_format ( com.create_time, '%Y' ) = date_format( #{time}, '%Y')
+        </if>
+        ) a
+    </select>
+    <select id="getTeamProduce"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.TeamProduceDTO">
+        SELECT
+        pro.id 'project.id',
+        pro.name 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        shop.id 'workshop.id',
+        shop.name 'workshop.name',
+        rep.production_line_id 'line.id',
+        line.name 'line.name',
+        rep.team_id,
+        rep.price,
+        SUM( rep.quantity * enc.length ) 'totalLength'
+        FROM
+        mes_enclosure_produce_team_report rep
+        LEFT JOIN tech_enclosure enc ON rep.product_id = enc.id
+        LEFT JOIN contract_project pro ON enc.project_id = pro.id
+        LEFT JOIN mes_enclosure_production_line line ON rep.production_line_id=line.id
+        LEFT JOIN mes_building_workshop shop ON rep.workshop_id=shop.id
+        WHERE
+        rep.bool_delete_enum=0
+        <if test="projectId!=null">
+            AND pro.id =#{projectId}
+        </if>
+        <if test="projectIds.size()>0">
+            AND pro.id in
+            <foreach collection="projectIds" item="productId" open="(" close=")" separator=",">
+                #{productId}
+            </foreach>
+        </if>
+        <if test="category != null">
+            AND enc.category =#{category}
+        </if>
+        <if test="startTime !=null ">
+            AND date(rep.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime !=null ">
+            AND date(rep.create_time) &lt;= date(#{endTime})
+        </if>
+        GROUP BY
+        pro.id,
+        rep.workshop_id,
+        rep.production_line_id,
+        rep.team_id,
+        rep.price
+        ORDER BY
+        rep.workshop_id ASC,
+        rep.production_line_id ASC,
+        rep.team_id asc,
+        pro.id DESC,
+        rep.price ASC
+    </select>
+    <select id="listEnclosurePrint"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.EnclosureTaskPrintDTO">
+        SELECT
+            enc.id productId,
+            enc.id id,
+            task.id task_id,
+            task.factory_id,
+            task.workshop_id,
+            task.production_line_id,
+            enc.*,
+            task.task_quantity,
+            task.complete_quantity AS warehouse_quantity,
+            task.factory_id  ,
+            task.ask_complete_time,
+            pro.id 'project.id',
+            pro.NAME 'project.name',
+            pro.short_name 'project.short_name',
+            pro.serial_number 'project.serial_number',
+            plan.`id` 'plan.id',
+            plan.`name` 'plan.name',
+            task.bool_printed 'boolPrinted'
+        FROM
+            mes_enclosure_task task
+                LEFT JOIN tech_enclosure enc ON task.product_id = enc.id
+                AND enc.bool_delete_enum = 0
+                LEFT JOIN contract_project pro ON pro.id = enc.project_id
+                AND pro.bool_delete_enum = 0
+                LEFT JOIN enclosure_plan plan ON plan.id = enc.enclosure_plan_id
+                AND plan.bool_delete_enum = 0
+        WHERE
+            task.bool_delete_enum =0
+        <if test="projectId != null ">
+            AND task.project_id = #{projectId}
+        </if>
+        <if test="planId != null ">
+            AND task.plan_id = #{planId}
+        </if>
+          <if test="category != null ">
+            AND task.category = #{category}
+        </if>
+          <if test="lineId != null ">
+            AND task.production_line_id = #{lineId}
+        </if>
+          <if test="name != null and name != ''">
+            AND enc.name LIKE CONCAT('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND enc.serial_number LIKE CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND enc.specification LIKE CONCAT('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND enc.material LIKE CONCAT('%',#{material},'%')
+        </if>
+        <if test="warehousingStatusEnum != null and warehousingStatusEnum == 1">
+            AND task.complete_quantity = 0
+        </if>
+        <if test="warehousingStatusEnum != null and warehousingStatusEnum == 2">
+            AND (task.complete_quantity > 0 and task.complete_quantity &lt; task.task_quantity)
+        </if>
+        <if test="warehousingStatusEnum != null and warehousingStatusEnum == 4">
+            AND task.complete_quantity =  task.task_quantity
+        </if>
+    </select>
+    <select id="taskByTaskId"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.AppEnclosureTaskDTO">
+        SELECT task.id,
+               pro.id 'project.id', pro.`name` 'project.name', pro.short_name 'project.shortName', pro.serial_number 'project.serialNumber', ord.order_number,
+               ord.id 'orderId', fac.id 'factory.id', fac.`name` 'factory.name', shop.id 'workshop.id', shop.`name` 'workshop.name', line.id 'productionLine.id', line.`name` 'productionLine.name', line.type 'line.type', team.id,
+               plan.id 'plan.id', plan.`name` 'plan.name', plan.date 'plan.date', plan.quantity_work 'plan.quantityWork', enc.id 'productId', enc.`name` 'name', enc.length,
+               cess.id 'process.id', cess.NAME 'process.name', task.task_quantity 'taskQuantity', task.complete_quantity 'completeQuantity', task.ask_complete_time 'askCompleteTime', enc.serial_number 'serialNumber', enc.category 'category', enc.plate,
+               enc.color,
+               enc.material,
+               enc.thickness,
+               enc.coating,
+               enc.plating
+        FROM mes_enclosure_task task
+                 LEFT JOIN mes_enclosure_task_order ord ON ord.id = task.task_order_id
+                 LEFT JOIN tech_enclosure enc ON task.product_id = enc.id
+                 LEFT JOIN enclosure_plan plan ON enc.enclosure_plan_id = plan.id
+                 LEFT JOIN contract_project pro ON enc.project_id = pro.id
+                 LEFT JOIN mes_building_factory fac ON task.factory_id = fac.id
+                 LEFT JOIN mes_building_workshop shop ON task.workshop_id = shop.id
+                 LEFT JOIN mes_enclosure_production_line line ON task.production_line_id = line.id
+                 LEFT JOIN mes_enclosure_team team ON task.team_id = team.id
+                 LEFT JOIN mes_enclosure_process cess ON task.process_id = cess.id
+        WHERE task.bool_delete_enum = 0
+          AND task.id = #{id}
+          </select>
+    <select id="findProductReportCountByOrderId" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.MesEnclosureTask">
+        SELECT
+            task.*
+        FROM
+            mes_enclosure_task task
+                LEFT JOIN mes_enclosure_produce_team_report report ON task.product_id = report.product_id
+                AND task.id = report.task_id
+        where task.task_order_id = #{orderId}
+          and task.bool_delete_enum = 0
+          and report.bool_delete_enum = 0
+          and report.task_id is not null
+        GROUP BY task.id
+    </select>
+    <select id="getEnclosureTaskDetails" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        SELECT
+        enc.*,
+        task.task_quantity - task.complete_quantity as actualQuantity,
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        ar.id 'area.id',
+        ar.name 'area.name',
+        process.id as 'process.id',
+        process.name as 'process.name'
+        FROM
+        mes_enclosure_task task
+        INNER JOIN tech_enclosure enc ON task.product_id = enc.id
+        LEFT JOIN contract_project cp ON cp.id = enc.project_id
+        left join plan_monomer m on enc.monomer_id = m.id and m.bool_delete_enum = 0
+        left join plan_area ar on enc.area_id = ar.id and ar.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_process process ON task.process_id = process.id
+        where task.bool_delete_enum=0
+        AND task.task_quantity - task.complete_quantity > 0
+        <if test="areaId != null ">
+            AND task.area_id = #{areaId}
+        </if>
+        <if test="processId != null ">
+            AND task.process_id = #{processId}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.InventoryUseStatisticsMapper">
+
+
+    <select id="getInventoryUseStatistics"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.InventoryUseStatistics">
+        select
+            *
+        from wms_inventory_use_statistics
+        where
+            statistics_date_id = #{param.statisticsDateId}
+          <if test="param.workshopIds != null and param.workshopIds.size > 0">
+              and workshop_id in
+              <foreach collection="param.workshopIds" item="workshopId" open="(" separator="," close=")">
+                  #{workshopId}
+              </foreach>
+          </if>
+        <if test="param.orderSupplyType == 2 ">
+            and bool_party_a = 1
+        </if>
+        <if test="param.orderSupplyType == 1 ">
+            and bool_party_a = 0
+        </if>
+          <if test="param.projectWarehouseType != null and param.projectWarehouseType != ''">
+              and warehouse_type = #{param.projectWarehouseType}
+          </if>
+          <if test="param.basicClass != null and param.basicClass != ''">
+              and basic_class = #{param.basicClass}
+          </if>
+          <if test="param.classifyIds != null and param.classifyIds.size > 0">
+              and classify_id in
+              <foreach collection="param.classifyIds" item="classifyId" open="(" separator="," close=")">
+                  #{classifyId}
+              </foreach>
+          </if>
+          <if test="param.projectId != null and param.projectId != ''">
+              and project_id = #{param.projectId}
+          </if>
+          <if test="param.specification != null and param.specification != ''">
+              and specification like concat('%', #{param.specification}, '%')
+          </if>
+          <if test="param.brand != null and param.brand != ''">
+              and brand like concat('%', #{param.brand}, '%')
+          </if>
+          <if test="param.thickness != null and param.thickness != ''">
+              and thickness like concat('%', #{param.thickness}, '%')
+          </if>
+          <if test="param.theoryThickness != null and param.theoryThickness != ''">
+              and theory_thickness = #{param.theoryThickness}
+          </if>
+          <if test="param.width != null and param.width != ''">
+              and width = #{param.width}
+          </if>
+          <if test="param.length != null and param.length != ''">
+              and length = #{param.length}
+          </if>
+          <if test="param.color != null and param.color != ''">
+              and color like concat('%', #{param.color}, '%')
+          </if>
+          <if test="param.minLength != null and param.minLength != ''">
+              and length >= #{param.minLength}
+          </if>
+          <if test="param.materialIsWhole != null and param.materialIsWhole != ''">
+              and material_is_whole = #{param.materialIsWhole}
+          </if>
+    </select>
+
+    <select id="getInventoryUseStatisticsByMaterialInventory"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.InventoryUseStatistics">
+        select
+            *
+        from wms_inventory_use_statistics
+        where
+            bool_delete_enum = 0
+        and bool_party_a = #{param.boolPartyA}
+        and basic_class = #{param.basicClass}
+        and classify_id = #{param.classifyId}
+        and statistics_date_id = #{statisticsDateId}
+        <if test="param.specification != null">
+            and specification = #{param.specification}
+        </if>
+        <if test="param.specification == null">
+            and specification is null
+        </if>
+        <if test="param.model != null">
+            and model = #{param.model}
+        </if>
+        <if test="param.model == null">
+            and model is null
+        </if>
+        <if test="param.materialIsWhole != null">
+            and material_is_whole = #{param.materialIsWhole}
+        </if>
+        <if test="param.materialIsWhole == null">
+            and material_is_whole is null
+        </if>
+        <if test="param.warehouseType != null">
+            and warehouse_type = #{param.warehouseType}
+        </if>
+        <if test="param.warehouseType == null">
+            and warehouse_type is null
+        </if>
+        <if test="param.projectId != null">
+            and project_id = #{param.projectId}
+        </if>
+        <if test="param.projectId == null">
+            and project_id is null
+        </if>
+        <if test="param.length != null">
+            and length = #{param.length}
+        </if>
+        <if test="param.length == null">
+            and length is null
+        </if>
+        <if test="param.width != null">
+            and width = #{param.width}
+        </if>
+        <if test="param.width == null">
+            and width is null
+        </if>
+        <if test="param.thickness != null">
+            and thickness = #{param.thickness}
+        </if>
+        <if test="param.thickness == null">
+            and thickness is null
+        </if>
+        <if test="param.brand != null">
+            and brand = #{param.brand}
+        </if>
+        <if test="param.brand == null">
+            and brand is null
+        </if>
+        <if test="param.heatNoAndBatchNo != null">
+            and heat_no_and_batch_no = #{param.heatNoAndBatchNo}
+        </if>
+        <if test="param.heatNoAndBatchNo == null">
+            and heat_no_and_batch_no is null
+        </if>
+        <if test="param.color != null">
+            and color = #{param.color}
+        </if>
+        <if test="param.color == null">
+            and color is null
+        </if>
+        <if test="param.unitNet != null">
+            and unit_net = #{param.unitNet}
+        </if>
+        <if test="param.unitNet == null">
+            and unit_net is null
+        </if>
+        <if test="param.warehouseId != null">
+            and warehouse_id = #{param.warehouseId}
+        </if>
+        <if test="param.warehouseId == null">
+            and warehouse_id is null
+        </if>
+        <if test="param.standardId != null">
+            and standard_id = #{param.standardId}
+        </if>
+        <if test="param.standardId == null">
+            and standard_id is null
+        </if>
+        <if test="param.workshopId != null">
+            and workshop_id = #{param.workshopId}
+        </if>
+        <if test="param.workshopId == null">
+            and workshop_id is null
+        </if>
+        <if test="param.serialNumber != null">
+            and serial_number = #{param.serialNumber}
+        </if>
+        <if test="param.serialNumber == null">
+            and serial_number is null
+        </if>
+    </select>
+
+    <select id="getInventoryUseStatisticsNew" resultType="java.lang.String">
+        select
+            GROUP_CONCAT(id order by id SEPARATOR ',' )
+        from
+            wms_inventory_use_statistics
+        where
+            bool_delete_enum = 0 and
+        statistics_date_id = #{param.statisticsDateId}
+        <if test="param.workshopIds != null and param.workshopIds.size > 0">
+            and workshop_id in
+            <foreach collection="param.workshopIds" item="workshopId" open="(" separator="," close=")">
+                #{workshopId}
+            </foreach>
+        </if>
+        <if test="param.orderSupplyType == 2 ">
+            and bool_party_a = 1
+        </if>
+        <if test="param.orderSupplyType == 1 ">
+            and bool_party_a = 0
+        </if>
+        <if test="param.projectWarehouseType != null and param.projectWarehouseType != ''">
+            and warehouse_type = #{param.projectWarehouseType}
+        </if>
+        <if test="param.basicClass != null and param.basicClass != ''">
+            and basic_class = #{param.basicClass}
+        </if>
+        <if test="param.classifyIds != null and param.classifyIds.size > 0">
+            and classify_id in
+            <foreach collection="param.classifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        <if test="param.projectId != null and param.projectId != ''">
+            and project_id = #{param.projectId}
+        </if>
+        <if test="param.specification != null and param.specification != ''">
+            and specification like concat('%', #{param.specification}, '%')
+        </if>
+        <if test="param.brand != null and param.brand != ''">
+            and brand like concat('%', #{param.brand}, '%')
+        </if>
+        <if test="param.thickness != null and param.thickness != ''">
+            and thickness like concat('%', #{param.thickness}, '%')
+        </if>
+        <if test="param.theoryThickness != null and param.theoryThickness != ''">
+            and theory_thickness = #{param.theoryThickness}
+        </if>
+        <if test="param.width != null and param.width != ''">
+            and width = #{param.width}
+        </if>
+        <if test="param.length != null and param.length != ''">
+            and length = #{param.length}
+        </if>
+        <if test="param.color != null and param.color != ''">
+            and color like concat('%', #{param.color}, '%')
+        </if>
+        <if test="param.minLength != null and param.minLength != ''">
+            and length >= #{param.minLength}
+        </if>
+        <if test="param.materialIsWhole != null and param.materialIsWhole != ''">
+            and material_is_whole = #{param.materialIsWhole}
+        </if>
+        group  by
+            <trim suffixOverrides=",">
+            bool_party_a,
+            basic_class,
+            classify_id,
+            material_is_whole,
+            length,
+            width,
+            thickness,
+            unit_net,
+            standard_id,
+            specification,
+            <if test="config.brand == true">
+                brand,
+            </if>
+            <if test="config.projectId == true">
+                project_id,
+            </if>
+            <if test="config.workshopId == true">
+                workshop_id,
+            </if>
+            <if test="config.warehouseId == true">
+                warehouse_id,
+            </if>
+            <if test="config.color == true">
+                color,
+            </if>
+            <if test="config.heatNoAndBatchNo == true">
+                heat_no_and_batch_no,
+            </if>
+            </trim>
+    </select>
+
+</mapper>

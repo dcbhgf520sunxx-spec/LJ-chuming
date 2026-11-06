@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmProjectInformationWarehousingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationWarehousing">
+        <id column="id" property="id"/>
+        <result column="informant_user_id" property="informantUserId"/>
+        <result column="informant_user_name" property="informantUserName"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="crm_check_status_enum" property="crmCheckStatusEnum"/>
+        <result column="approve_record_id" property="approveRecordId"/>
+        <result column="project_name" property="projectName"/>
+        <result column="project_serial_number" property="projectSerialNumber"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="type_of_contractor_id" property="typeOfContractorId"/>
+        <result column="key_project_id" property="keyProjectId"/>
+        <result column="item_category_id" property="itemCategoryId"/>
+        <result column="configuration_of_architectural_form_id" property="configurationOfArchitecturalFormId"/>
+        <result column="structure_type_configuration_id" property="structureTypeConfigurationId"/>
+        <result column="industry_configuration_id" property="industryConfigurationId"/>
+        <result column="country_id" property="countryId"/>
+        <result column="country_name" property="countryName"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="province_name" property="provinceName"/>
+        <result column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+        <result column="region_id" property="regionId"/>
+        <result column="region_name" property="regionName"/>
+        <result column="address" property="address"/>
+        <result column="project_photo_attachments" property="projectPhotoAttachments"/>
+        <result column="project_overview" property="projectOverview"/>
+        <result column="estimated_works" property="estimatedWorks"/>
+        <result column="estimated_cost" property="estimatedCost"/>
+        <result column="area_of_structure" property="areaOfStructure"/>
+        <result column="bidding_method_id" property="biddingMethodId"/>
+        <result column="file_format_id" property="fileFormatId"/>
+        <result column="crm_enterprise_warehousing_id" property="crmEnterpriseWarehousingId"/>
+        <result column="difficulty_factor_id" property="difficultyFactorId"/>
+        <result column="is_project_manager_coordinate" property="isProjectManagerCoordinate"/>
+        <result column="is_senior_executive_doordinate" property="isSeniorExecutiveDoordinate"/>
+        <result column="project_attachments" property="projectAttachments"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , informant_user_id, informant_user_name, create_user_id, crm_check_status_enum, approve_record_id, project_name, project_serial_number, serial_number, type_of_contractor_id, key_project_id, item_category_id, configuration_of_architectural_form_id, structure_type_configuration_id, industry_configuration_id, country_id, country_name, province_id, province_name, city_id, city_name, region_id, region_name, address, project_photo_attachments, project_overview, estimated_works, estimated_cost, area_of_structure, bidding_method_id, file_format_id, crm_enterprise_warehousing_id, difficulty_factor_id, is_project_manager_coordinate, is_senior_executive_doordinate, project_attachments, remark
+    </sql>
+    <select id="getDetailByDelete"
+            resultType="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationWarehousing">
+        select *
+        from crm_project_information_warehousing
+        where id = #{id}
+    </select>
+    <select id="getNonDirectProjectSerialNumberCount" resultType="java.lang.Integer">
+        select count(1)
+        from crm_project_information_warehousing as cp
+        where cp.crm_settlement_business_type_enum = 2
+          -- 今日数据
+          and DATE_FORMAT(create_time, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+    </select>
+    <select id="getListByUser"
+            resultType="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationWarehousing">
+        select * from crm_project_information_warehousing as cp
+        <where>
+            <if test="crmProjectInformationWarehousingIds != null and crmProjectInformationWarehousingIds.size() != 0">
+                and cp.id in
+                <foreach collection="crmProjectInformationWarehousingIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="userId != null">
+                and cp.information_operator_user_id = #{userId}
+            </if>
+        </where>
+    </select>
+    <select id="getListByDeptIds"
+            resultType="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationWarehousing">
+        select * from crm_project_information_warehousing as cp
+        <where>
+            <if test="crmProjectInformationWarehousingIds != null and crmProjectInformationWarehousingIds.size() != 0">
+                and cp.id in
+                <foreach collection="crmProjectInformationWarehousingIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="deptSet != null and deptSet.size() != 0">
+                <choose>
+                    <when test="deptSet.contains(0L)">
+                        and (cp.information_operator_dept_id in
+                        <foreach collection="deptSet" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                        or cp.informant_user_id = #{userId})
+                    </when>
+                    <otherwise>
+                        and cp.information_operator_dept_id in
+                        <foreach collection="deptSet" item="item" open="(" separator="," close=")">
+                            #{item}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+    <select id="listByDelete"
+            resultType="com.hzchum.scim.crm.core.api.pojo._do.CrmProjectInformationWarehousing">
+        select *
+        from crm_project_information_warehousing as cp
+        -- 并且id 在集合中
+        where cp.id IN
+        <foreach collection="collect" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

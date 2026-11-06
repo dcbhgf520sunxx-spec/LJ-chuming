@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectInstallReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectInstallReport">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="project_type" property="projectType"/>
+        <result column="product_type" property="productType"/>
+        <result column="category" property="category"/>
+        <result column="product_id" property="productId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="name" property="name"/>
+        <result column="specification" property="specification"/>
+        <result column="report_quantity" property="reportQuantity"/>
+        <result column="report_mete" property="reportMete"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="user_id" property="userId"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="actual_quantity" property="actualQuantity"/>
+        <result column="actual_mete" property="actualMete"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="report_method" property="reportMethod"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, project_type, product_type, category, product_id, serial_number, name, specification, report_quantity, report_mete, supplier_id, supplier_name, user_id, audit_status, actual_quantity, actual_mete, audit_time, audit_user_id, report_method
+    </sql>
+
+    <select id="selectActualInstallMete" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectInstallMeteDO">
+        SELECT
+        IFNULL(SUM(actual_quantity), 0) AS actual_quantity,
+        IFNULL(SUM(actual_mete), 0) AS actual_mete,
+        IFNULL(SUM(actual_total_area), 0) AS actual_total_area
+        FROM project_install_report
+        WHERE bool_delete_enum = 0
+        AND audit_status = 2
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="projectId !=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND area_id = #{areaId}
+        </if>
+        <if test="productType != null">
+            AND product_type = #{productType}
+        </if>
+        <if test="category != null">
+            AND category = #{category}
+        </if>
+    </select>
+
+    <select id="selectInstallReportGroup"
+            resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectInstallReportGroupDO">
+        SELECT
+        pir.project_id,
+        cp.id as 'project.id',
+        cp.name as 'project.name',
+        cp.short_name AS 'project.short_name',
+        cp.serial_number as 'project.serial_number',
+        <if test="yearMonth != null and yearMonth != ''">
+            DATE_FORMAT(pir.create_time,'%Y/%m/%d') as report_date,
+        </if>
+        pir.supplier_id,
+        (SELECT `name` FROM scm_supplier WHERE id = pir.supplier_id ) as supplier_name,
+        pir.project_type,
+        pir.product_type,
+        pir.category,
+        SUM( pir.report_quantity ) AS report_quantity,
+        SUM( pir.report_mete ) AS report_mete,
+        SUM(pir.report_total_area) as report_total_area,
+        IFNULL( SUM( pir.actual_quantity ), 0 ) AS actual_quantity,
+        IFNULL( SUM( pir.actual_mete ), 0 ) AS actual_mete ,
+        IFNULL( SUM( pir.actual_total_area ), 0 ) AS actual_total_area
+        FROM project_install_report AS pir
+        LEFT JOIN contract_project AS cp ON cp.id = pir.project_id AND cp.bool_delete_enum = 0
+        WHERE pir.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND pir.project_id = #{projectId}
+        </if>
+        <if test="productType != null">
+            AND pir.product_type = #{productType}
+        </if>
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(pir.create_time,'%Y-%m') = #{yearMonth}
+        </if>
+        GROUP BY pir.project_id, pir.project_type, pir.supplier_id, pir.product_type, pir.category
+        <if test="yearMonth != null and yearMonth != ''">
+            , DATE_FORMAT(pir.create_time,'%Y/%m/%d')
+            order by report_date desc
+        </if>
+    </select>
+
+    <select id="selectUnCheckReportQuantity" resultType="java.math.BigDecimal">
+        select IFNULL(sum(report_quantity), 0)
+        from project_install_report
+        where bool_delete_enum = 0
+          and audit_status = 1
+          and project_type &amp; #{projectType}
+          and product_type = #{productType}
+          and product_id = #{productId}
+    </select>
+
+    <select id="selectInstallReportSummary"
+            resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectProductInstallSummaryDO">
+        SELECT
+        temp.*,
+        p.id AS 'project.id',
+        p.name AS 'project.name',
+        p.short_name AS 'project.shortName',
+        p.serial_number AS 'project.serialNumber',
+        m.id AS 'monomer.id',
+        m.`name` AS 'monomer.name',
+        a.id AS 'area.id',
+        a.`name` as 'area.name'
+        FROM
+        (SELECT
+        pir.product_type,
+        pir.product_id,
+        pir.project_id,
+        pir.monomer_id,
+        pir.area_id,
+        SUM( pir.actual_quantity ) AS actual_quantity,
+        SUM( pir.actual_mete ) AS actual_mete,
+        SUM( pir.actual_total_area ) / 1000000 AS actual_total_area
+        FROM
+        project_install_report AS pir
+        WHERE
+        pir.bool_delete_enum = 0
+        AND pir.audit_status = 2
+        <if test="projectId != null">
+            AND pir.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND pir.monomer_id = #{monomerId}
+        </if>
+        <!--    <if test="monomerDetailType == 1">
+            AND pir.product_type = 2
+        </if>
+        <if test="monomerDetailType != 1 ">
+            AND pir.product_type = 4 AND pir.category = #{monomerDetailType}
+        </if>-->
+        <if test="areaId != null">
+            AND pir.area_id = #{areaId}
+        </if>
+        <if test="supplierId != null">
+            AND pir.supplier_id = #{supplierId}
+        </if>
+        GROUP BY
+        pir.product_type, pir.product_id, pir.project_id, pir.monomer_id, pir.area_id
+        ORDER BY
+        pir.product_id
+        ) AS temp LEFT JOIN contract_project AS p ON temp.project_id = p.id AND p.bool_delete_enum = 0
+        LEFT JOIN plan_monomer AS m ON temp.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN plan_area AS a ON temp.area_id = a.id AND a.bool_delete_enum = 0
+    </select>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.project.core.api.pojo._do.ProjectInstallReport">
+        SELECT *
+        FROM project_install_report
+        WHERE bool_delete_enum = 0
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="supplierId!= null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="productType != null">
+            AND product_type = #{productType}
+        </if>
+        <if test="category != null">
+            AND category = #{category}
+        </if>
+        <if test="auditStatus != null">
+            AND audit_status = #{auditStatus}
+        </if>
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT( create_time, '%Y-%m' ) = #{yearMonth}
+        </if>
+        <if test="yearMonthDay != null and yearMonthDay != ''">
+            AND DATE_FORMAT( create_time, '%Y/%m/%d' ) = #{yearMonthDay}
+        </if>
+        <if test="startDate != null">
+            AND date(create_time) &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND date(create_time) &lt;= #{endDate}
+        </if>
+        <if test="reportMethod != null">
+            AND report_method = #{reportMethod}
+        </if>
+        ORDER BY audit_status ASC, create_time DESC
+    </select>
+
+    <select id="selectSumStatement" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectInstallStatementDTO">
+        SELECT
+        <if test="month == null">
+            DATE_FORMAT(create_time, '%m') date,
+        </if>
+        <if test="month != null">
+            DATE_FORMAT(create_time, '%d') date,
+        </if>
+        project_type,
+        product_type,
+        SUM(actual_quantity) as actual_quantity,
+        <if test="projectType == 1 or projectType == 2">
+            case product_type
+            when 4 then IFNULL(SUM(actual_mete),0)/1000
+            else IFNULL(SUM(actual_mete),0) end as actual_mete,
+            IFNULL(SUM(actual_total_area), 0)/1000000 as actual_total_area
+        </if>
+        FROM `project_install_report`
+        WHERE bool_delete_enum = 0
+        AND audit_status = 2
+        AND project_type &amp; #{projectType}
+        AND product_type = #{productType}
+        <if test="year != null">
+            AND DATE_FORMAT(create_time, '%Y') = #{year}
+        </if>
+
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id = #{supplierId}
+        </if>
+        <if test="month == null">
+            GROUP BY project_type, product_type, DATE_FORMAT(create_time, '%m')
+        </if>
+        <if test="month != null">
+            AND DATE_FORMAT(create_time, '%m') = #{month}
+            GROUP BY project_type, product_type, DATE_FORMAT(create_time, '%d')
+        </if>
+    </select>
+
+    <select id="selectInstallStatement" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectInstallSummaryDTO">
+        SELECT
+        project_id,
+        monomer_id as 'monomer.id',
+        (select name from plan_monomer where id = monomer_id and bool_delete_enum = 0) as 'monomer.name',
+        area_id as 'area.id',
+        (select name from plan_area where id = area_id and bool_delete_enum = 0) as 'area.name',
+        project_type,
+        product_type,
+        category,
+        product_id,
+        supplier_id,
+        (SELECT `name` FROM scm_supplier WHERE bool_delete_enum = 0 AND id = supplier_id) AS supplier_name,
+        serial_number,
+        `name`,
+        specification,
+        (case product_type when 2 then '件' when 4 then '张' else measure_unit end ) as measure_unit,
+        (case product_type when 2 then 'kg' when 4 then 'm' else accounting_unit end ) as accounting_unit,
+
+        (case product_type when 4 then IFNULL(SUM(actual_mete),0)/1000 else IFNULL(SUM(actual_mete),0) end ) as
+        actual_mete,
+        IFNULL(SUM(actual_quantity),0) AS actual_quantity,
+        IFNULL(SUM(actual_total_area),0)/1000000 AS actual_total_area
+        FROM
+        project_install_report
+        WHERE
+        bool_delete_enum = 0
+        AND audit_status = 2
+        <if test="productType != null">
+            AND product_type = #{productType}
+        </if>
+        <if test="projectId != null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND area_id = #{areaId}
+        </if>
+        <if test="supplierName != null and supplierName != ''">
+            AND supplier_name LIKE concat('%',#{supplierName},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND serial_number LIKE concat('%',#{serialNumber},'%')
+        </if>
+        <if test="name != null and name != ''">
+            AND name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="startDate != null">
+            AND DATE_FORMAT(create_time,'%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND DATE_FORMAT(create_time,'%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        GROUP BY
+        project_id,
+        monomer_id,
+        area_id,
+        project_type,
+        product_type,
+        category,
+        product_id,
+        supplier_id,
+        serial_number,
+        `name`,
+        specification,
+        measure_unit,
+        accounting_unit
+
+    </select>
+
+    <select id="selectUnAuditReportGroup"
+            resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectAppInstallReportGroupDO">
+        SELECT pir.project_id,
+        cp.id as 'project.id',
+        cp.name as 'project.name',
+        cp.short_name AS 'project.short_name',
+        cp.serial_number as 'project.serial_number',
+        pir.supplier_id,
+        (SELECT `name` FROM scm_supplier WHERE id = pir.supplier_id) AS supplier_name,
+        pir.project_type,
+        pir.product_type,
+        pir.category,
+        SUM( pir.report_quantity ) AS report_quantity,
+        SUM( pir.report_mete ) AS report_mete,
+        SUM(pir.report_total_area) as report_total_area,
+        IFNULL( SUM( pir.actual_quantity ), 0 ) AS actual_quantity,
+        IFNULL( SUM( pir.actual_mete ), 0 ) AS actual_mete ,
+        IFNULL( SUM( pir.actual_total_area ), 0 ) AS actual_total_area
+
+        FROM project_install_report AS pir
+        LEFT JOIN contract_project as cp on cp.id = pir.project_id AND cp.bool_delete_enum = 0
+        WHERE pir.bool_delete_enum = 0
+        AND pir.audit_status = 1
+        <if test="projectId != null">
+            AND pir.project_id = #{projectId}
+        </if>
+        <if test="productType != null">
+            AND pir.product_type = #{productType}
+        </if>
+        GROUP BY pir.project_id, pir.supplier_id, pir.project_type, pir.product_type, pir.category
+    </select>
+
+    <select id="selectUnCheckQuantity" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM project_install_report
+        WHERE bool_delete_enum = 0
+        AND audit_status = 1
+        AND supplier_id = #{supplierId}
+        AND product_type = #{productType}
+        AND project_id = #{projectId}
+        <if test="reportDate != null and reportDate != ''">
+            AND DATE_FORMAT(create_time,'%Y/%m/%d') = #{reportDate}
+        </if>
+        <if test="category != null">
+            AND category = #{category}
+        </if>
+        <if test="category == null">
+            AND category is null
+        </if>
+    </select>
+    <select id="getSupplierInstallArtifactSummary" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectSupplierInstallSummaryDTO">
+        select
+        supplier_id,
+        supplier_name,
+        product_type,
+        sum(report_mete) / 1000 as mete,
+        sum(report_quantity) as quantity,
+        SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN report_mete ELSE 0 END) / 1000 AS currentMonthMete,
+        SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m') THEN report_mete ELSE 0 END) / 1000 AS lastMonthMete,
+        SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN report_quantity ELSE 0 END)  AS currentMonthQuantity,
+        SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m') THEN report_quantity ELSE 0 END)  AS lastMonthQuantity
+        from project_install_report
+        where bool_delete_enum = 0
+        and audit_status = 2
+        and project_id = #{projectId}
+        group by supplier_id,supplier_name,product_type
+    </select>
+    <select id="getProjectInstallArtifactSummary" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectSupplierInstallSummaryDTO">
+        select
+            product_type,
+            sum(report_mete) / 1000 as mete,
+            SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN report_mete ELSE 0 END) / 1000 AS currentMonthMete,
+            SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m') THEN report_mete ELSE 0 END) / 1000 AS lastMonthMete,
+            sum(report_quantity) as quantity,
+            SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN report_quantity ELSE 0 END)  AS currentMonthQuantity,
+            SUM(CASE WHEN DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m') THEN report_quantity ELSE 0 END)  AS lastMonthQuantity
+        from project_install_report
+        where bool_delete_enum = 0
+          and audit_status = 2
+          and project_id = #{projectId}
+          and product_type = #{productType}
+    </select>
+    <select id="getProjectInstallDetails" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectInstallReportDTO">
+        select
+         a.*,
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        pa.id 'area.id',
+        pa.`name` 'area.name'
+        from (
+        select
+        product_id,
+        name,
+        serial_number,
+        specification,
+        monomer_id,
+        area_id,
+        measure_unit,
+        accounting_unit,
+        sum(report_quantity) as report_quantity,
+        sum(report_mete) as report_mete
+        from project_install_report
+        where bool_delete_enum = 0
+        and audit_status = 2
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        <if test="startDate != null">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d' ) >= DATE_FORMAT(#{startDate}, '%Y-%m-%d' )
+        </if>
+        <if test="endDate != null">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d' ) &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d' )
+        </if>
+        group by
+        product_id,
+        name,
+        serial_number,
+        specification,
+        monomer_id,
+        area_id,
+        measure_unit,
+        accounting_unit
+        )a
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = a.area_id
+    </select>
+</mapper>

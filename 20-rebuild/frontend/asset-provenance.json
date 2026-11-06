@@ -1,0 +1,20 @@
+[
+  {
+    "source": "10-reverse/private/server/home/plm7/dist/static/jpg/background-082192ef.jpg",
+    "destination": "public/assets/login-background.jpg",
+    "sha256": "082192ef414d54e9b6f9d28b2fb7822dad3a730f3f44084a7f2fdec13830ac35",
+    "kind": "original static image only"
+  },
+  {
+    "source": "10-reverse/private/server/home/plm7/dist/static/png/ZhongNan-logo-852ffde2.png",
+    "destination": "public/assets/zhongnan-logo.png",
+    "sha256": "852ffde2509f657ea0f28b1068eba67b4903d07b3c68b165268e0408b6cab646",
+    "kind": "original static image only"
+  },
+  {
+    "source": "10-reverse/private/server/home/plm7/dist/static/png/zhongnan-logo-white-f654e6d3.png",
+    "destination": "public/assets/zhongnan-logo-white.png",
+    "sha256": "f654e6d3553edd86b0aa2e7cb994a4d9aab6b1310a3ef3b325aac1c59a9bcb46",
+    "kind": "original static image only"
+  }
+]

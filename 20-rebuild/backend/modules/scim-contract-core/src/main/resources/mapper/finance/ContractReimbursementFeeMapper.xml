@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractReimbursementFeeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractReimbursementFee">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="reimbursement_date" property="reimbursementDate" />
+        <result column="branch_company_id" property="branchCompanyId" />
+        <result column="expense_type_id" property="expenseTypeId" />
+        <result column="project_id" property="projectId" />
+        <result column="reimbursement_amount" property="reimbursementAmount" />
+        <result column="dept_id" property="deptId" />
+        <result column="reimburser_id" property="reimburserId" />
+        <result column="reimbursement_voucher_number" property="reimbursementVoucherNumber" />
+        <result column="written_by_id" property="writtenById" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, reimbursement_date, branch_company_id, expense_type_id, project_id, reimbursement_amount, dept_id, reimburser_id, reimbursement_voucher_number, written_by_id
+    </sql>
+
+    <select id="listInfo" parameterType="com.hzchum.scim.contract.core.api.pojo.query.ContractReimbursementFeeQuery" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractReimbursementFeeDTO">
+        SELECT
+            crf.*,
+            sbc.name AS branch_company_name,
+            reimburser.name AS reimburser_name,
+            written_by.name AS written_by_name,
+            cp.name AS project_name,
+            cet.name AS expense_type_name,
+            sd.name AS dept_name
+        FROM contract_reimbursement_fee crf
+        LEFT JOIN sys_branch_company sbc ON sbc.bool_delete_enum = FALSE AND sbc.id = crf.branch_company_id
+        LEFT JOIN sys_user reimburser ON reimburser.bool_delete_enum = FALSE AND reimburser.id = crf.reimburser_id
+        LEFT JOIN sys_user written_by ON written_by.bool_delete_enum = FALSE AND written_by.id = crf.written_by_id
+        LEFT JOIN contract_expense_type cet ON cet.bool_delete_enum = FALSE AND cet.id = crf.expense_type_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = crf.project_id
+        LEFT JOIN sys_department sd ON sd.bool_delete_enum = FALSE AND sd.id = crf.dept_id
+        WHERE crf.bool_delete_enum = FALSE
+        <if test="startDate != null">
+            AND date_format(crf.reimbursement_date, '%Y-%m-%d') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND date_format(crf.reimbursement_date, '%Y-%m-%d') &lt;= #{endDate}
+        </if>
+        <if test="branchCompanyId != null">
+            AND crf.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="deptId != null">
+            AND crf.dept_id = #{deptId}
+        </if>
+        <if test="expenseTypeId != null">
+            AND crf.expense_type_id = #{expenseTypeId}
+        </if>
+        <if test="projectId != null">
+            AND crf.project_id = #{projectId}
+        </if>
+        <if test="reimburserName != null and reimburserName != ''">
+            <bind name="reimburserNameLike" value="'%' + reimburserName + '%'"/>
+            AND reimburser.name like #{reimburserNameLike}
+        </if>
+        <if test="writtenByName != null and writtenByName != ''">
+            <bind name="writtenByNameLike" value="'%' + writtenByName + '%'"/>
+            AND written_by.name like #{writtenByNameLike}
+        </if>
+    </select>
+
+</mapper>

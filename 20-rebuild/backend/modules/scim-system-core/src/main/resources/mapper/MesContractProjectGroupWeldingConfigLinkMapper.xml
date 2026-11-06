@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesContractProjectGroupWeldingConfigLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.system.core.api.pojo._do.MesContractProjectGroupWeldingConfigLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="assemble_config_id" property="assembleConfigId"/>
+        <result column="process" property="process"/>
+        <result column="statistics_mode" property="statisticsMode"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, contract_project_id, assemble_config_id, process, statistics_mode, pricing_manner, measurement_manner, organization_inside_price, organization_outside_price
+    </sql>
+
+    <resultMap id="MesContractProjectGroupWeldingConfigLinkDTOMap"
+               type="com.hzchum.scim.system.core.api.pojo.dto.MesContractProjectGroupWeldingConfigLinkDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="assemble_config_id" property="assembleConfigId"/>
+        <result column="process" property="process"/>
+        <result column="statistics_mode" property="statisticsMode"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="assemble_config_name" property="assembleConfigName"/>
+        <collection property="processIdList" ofType="Long">
+            <constructor>
+                <arg column="process_id"/>
+            </constructor>
+        </collection>
+        <collection property="processNameList" ofType="String">
+            <constructor>
+                <arg column="process_name"/>
+            </constructor>
+        </collection>
+        <collection property="assembleSpecPrefixList" ofType="String">
+            <constructor>
+                <arg column="assemble_spec_prefix"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesContractProjectGroupWeldingConfigLinkDTOMap">
+        SELECT
+            mcpgwcl.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mcpgwcl.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpgwcl.process) > 0
+        WHERE mcpgwcl.bool_delete_enum = FALSE AND mcpgwcl.contract_project_id = #{projectId}
+    </select>
+
+    <select id="listInfo_COUNT" resultType="int">
+        SELECT
+            count(0)
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        WHERE mcpgwcl.bool_delete_enum = FALSE AND mcpgwcl.contract_project_id = #{projectId}
+    </select>
+
+    <select id="listInfoByProjectIds" resultMap="MesContractProjectGroupWeldingConfigLinkDTOMap">
+        SELECT
+        mcpgwcl.*,
+        sac.name AS assemble_config_name,
+        mbp.id AS process_id,
+        mbp.name AS process_name,
+        sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mcpgwcl.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpgwcl.process) > 0
+        WHERE mcpgwcl.bool_delete_enum = FALSE
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND mcpgwcl.contract_project_id in (
+            <foreach collection="projectIds" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="listInfoByIds" resultMap="MesContractProjectGroupWeldingConfigLinkDTOMap">
+        SELECT
+        mcpgwcl.*,
+        sac.name        AS assemble_config_name,
+        mbp.id          AS process_id,
+        mbp.name        AS process_name,
+        sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mcpgwcl.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpgwcl.process) > 0
+        WHERE mcpgwcl.bool_delete_enum = FALSE
+        <if test="idList != null and idList.size() > 0">
+            AND mcpgwcl.id in (
+            <foreach collection="idList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="detailById" resultMap="MesContractProjectGroupWeldingConfigLinkDTOMap">
+        SELECT
+            mcpgwcl.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mcpgwcl.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpgwcl.process) > 0
+        WHERE mcpgwcl.bool_delete_enum = FALSE AND mcpgwcl.id = #{id}
+    </select>
+
+    <select id="getOneByCondition" resultMap="MesContractProjectGroupWeldingConfigLinkDTOMap">
+        SELECT
+            mcpgwcl.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_contract_project_group_welding_config_link mcpgwcl
+        LEFT JOIN sys_assemble_config sac ON sac.id = mcpgwcl.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mcpgwcl.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpgwcl.process) > 0
+        WHERE mcpgwcl.bool_delete_enum = FALSE
+        <if test="param.projectId != null">
+            AND mcpgwcl.contract_project_id = #{param.projectId}
+        </if>
+        <if test="param.assembleConfigId != null">
+            AND mcpgwcl.assemble_config_id = #{param.assembleConfigId}
+        </if>
+        <if test="param.processId != null">
+            AND FIND_IN_SET(#{param.processId}, mcpgwcl.process) > 0
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.laborManagement.MesBehaviorTotalScoreMapper">
+
+    <select id="getTotalScoreByYear" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.laborManagement.MesBehaviorTotalScore">
+            SELECT * FROM mes_behavior_total_score WHERE bool_delete_enum = 0 AND year = #{year}
+    </select>
+
+</mapper>

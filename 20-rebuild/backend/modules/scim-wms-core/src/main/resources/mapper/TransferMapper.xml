@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.TransferMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Transfer">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="direction_project_id" property="directionProjectId"/>
+        <result column="direction_factory_id" property="directionWorkshopId"/>
+        <result column="direction_warehouse_id" property="directionWarehouseId"/>
+        <result column="transfer_type" property="transferType"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="applicant_id" property="applicantId"/>
+        <result column="applicant_name" property="applicantName"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="editor_id" property="editorId"/>
+        <result column="editor_name" property="editorName"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="user_update_time" property="userUpdateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        approval_comments,
+        version,
+        borrow_project_id,
+        id,serial_number, basic_class, direction_project_id, direction_workshop_id, direction_warehouse_id, transfer_type, review_status, applicant_id, applicant_name, reviewer_id, reviewer_name, editor_id, editor_name, review_time,party_a_borrow_id, user_update_time
+    </sql>
+
+    <resultMap id="listInfo" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.TransferDTO">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="basic_class" property="basicClass" />
+        <result column="transfer_type" property="transferType" />
+        <result column="transfer_create_type" property="transferCreateType" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="reviewer_name" property="reviewerName" />
+        <result column="editor_name" property="editorName" />
+        <result column="review_time" property="reviewTime" />
+        <result column="user_update_time" property="userUpdateTime" />
+        <result column="approval_comments" property="approvalComments" />
+        <result column="bool_printed" property="boolPrinted" />
+        <result column="outbound_sn" property="outboundSn" />
+        <association property="direction"
+                     javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+            <result column="pmName" property="monomerName" />
+            <result column="paName" property="areaName" />
+            <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                <id property="id" column="pid"/>
+                <result property="name" column="pn"/>
+                <result property="serialNumber" column="pSN"/>
+                <result property="shortName" column="psName"/>
+            </association>
+            <association property="workshop"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                <id property="id" column="mbfId"/>
+                <result property="name" column="mbfName"/>
+            </association>
+            <association property="warehouse"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                <id property="id" column="wwId"/>
+                <result property="name" column="wwName"/>
+            </association>
+        </association>
+        <association property="borrowProject" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid2"/>
+            <result property="name" column="pn2"/>
+            <result property="serialNumber" column="pSN2"/>
+            <result property="shortName" column="psName2"/>
+        </association>
+    </resultMap>
+    <select id="listInfo" resultMap="listInfo">
+        select
+        DISTINCT wt.serial_number serial_numbers,
+        wt.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        p2.id pid2,
+        p2.short_name psName2,
+        p2.serial_number pSN2,
+        p2.name pn2,
+        pm.name                  pmName,
+        pa.name                  paName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from
+        wms_transfer wt
+        left join wms_transfer_detail wtd on wt.id = wtd.transfer_id
+        left join contract_project p on p.id = wt.direction_project_id
+        left join contract_project p2 on p2.id = wt.borrow_project_id
+        left join wms_workshop mbf on wt.direction_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wt.direction_warehouse_id
+        left join plan_monomer pm on pm.id = wt.direction_monomer_id
+        left join plan_area pa on pa.id = wt.direction_area_id
+        where
+        wt.bool_delete_enum = 0
+        <if test=" basicClass != null">
+            and wt.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wt.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="transferType != null ">
+            and wt.transfer_type = #{transferType}
+        </if>
+        <if test=" directionProjectId != null">
+            and wt.direction_project_id = #{directionProjectId}
+        </if>
+        <if test="sourceProjectId != null">
+            and wtd.source_project_id = #{sourceProjectId}
+        </if>
+        <if test="reviewStatus != null ">
+            and wt.review_status = #{reviewStatus}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and wt.create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wt.create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (wt.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wt.reviewer_name like CONCAT('%', #{operatorName},'%')
+            or wt.editor_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="transferCreateType != null ">
+            <choose>
+                <when test="transferCreateType == 1">
+                    and (wt.transfer_create_type =  1 or wt.transfer_create_type is null)
+                </when>
+                <when test="transferCreateType == 2">
+                    and wt.transfer_create_type = 2
+                </when>
+            </choose>
+        </if>
+        <if test="outboundSn != null and outboundSn != '' ">
+            and wt.outbound_sn like CONCAT('%', #{outboundSn},'%')
+        </if>
+    </select>
+
+    <resultMap id="getTransfer" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.TransferDTO">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="basic_class" property="basicClass" />
+        <result column="transfer_type" property="transferType" />
+        <result column="transfer_create_type" property="transferCreateType" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="reviewer_name" property="reviewerName" />
+        <result column="editor_name" property="editorName" />
+        <result column="review_time" property="reviewTime" />
+        <result column="user_update_time" property="userUpdateTime" />
+        <result column="approval_comments" property="approvalComments" />
+
+        <association property="direction"
+                     javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+            <result column="pmName" property="monomerName" />
+            <result column="paName" property="areaName" />
+            <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                <id property="id" column="pid"/>
+                <result property="name" column="pn"/>
+                <result property="serialNumber" column="pSN"/>
+                <result property="shortName" column="psName"/>
+            </association>
+            <association property="workshop"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                <id property="id" column="mbfId"/>
+                <result property="name" column="mbfName"/>
+            </association>
+            <association property="warehouse"
+                         javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                <id property="id" column="wwId"/>
+                <result property="name" column="wwName"/>
+            </association>
+        </association>
+    </resultMap>
+    <select id="getTransfer" resultMap="getTransfer">
+        select
+            wt.*,
+            p.id pid,
+            p.short_name psName,
+            p.serial_number pSN,
+            p.name pn,
+            p2.id pid2,
+            p2.short_name psName2,
+            p2.serial_number pSN2,
+            p2.name pn2,
+            pm.name                  pmName,
+            pa.name                  paName,
+            mbf.id mbfId,
+            mbf.name mbfName,
+            ww.id wwId,
+            ww.name wwName
+        from
+            wms_transfer wt
+                left join wms_transfer_detail wtd on wt.id = wtd.transfer_id
+                left join contract_project p on p.id = wt.direction_project_id
+                left join contract_project p2 on p2.id = wt.borrow_project_id
+                left join wms_workshop mbf on wt.direction_workshop_id = mbf.id
+                left join wms_warehouse ww on ww.id = wt.direction_warehouse_id
+                left join plan_monomer pm on pm.id = wt.direction_monomer_id
+                left join plan_area pa on pa.id = wt.direction_area_id
+        where
+            wt.bool_delete_enum = 0
+          and wt.id = #{id}
+
+    </select>
+</mapper>

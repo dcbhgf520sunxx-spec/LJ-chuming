@@ -1,0 +1,2167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.cargoList.MesBuildingCargoListProductLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.cargoList.MesBuildingCargoListProductLink">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="cargo_list_id" property="cargoListId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, cargo_list_id, product_id, product_type, quantity
+    </sql>
+    <select id="listArtifactNotPackById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.ArtifactDetailDO">
+        SELECT wbwr.id,
+               wbwr.quantity                                                            in_quantity,
+               wbwr.quantity - wbwr.package_quantity - wbwr.cargo_quantity + a.quantity un_package_quantity,
+               a.quantity                                                               package_quantity,
+               a.product_id,
+               workshop.id 'workshopInf.id',
+               workshop.name 'workshopInf.name',
+               workshop.id 'workshop.id',
+               workshop.name 'workshop.name',
+               a.id AS linkId,
+               b.name,
+               b.serial_number,
+               b.specification,
+               b.length,
+               b.material,
+               b.quantity,
+               b.net_weight,
+               b.total_net_weight,
+               b.gross_weight,
+               b.total_gross_weight,
+               b.coding_type,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pm.`id` 'monomer.id',
+               pm.`name` 'monomer.name',
+               pd.`id` 'area.id',
+               pd.`name` 'area.name',
+               mbf.`id` 'factory.id',
+               mbf.`name` 'factory.name',
+               wbwr.warehouse_type
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_artifact b ON a.product_id = b.id
+            AND b.bool_delete_enum = FALSE
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+            AND cp.bool_delete_enum = FALSE
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+            AND pm.bool_delete_enum = FALSE
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+            AND pd.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_warehouse_summary wbwr ON a.warehouse_record_id = wbwr.id
+            AND wbwr.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_factory mbf ON wbwr.factory_id = mbf.id
+            AND mbf.bool_delete_enum = FALSE
+            LEFT JOIN mes_building_workshop workshop ON wbwr.workshop_id = workshop.id
+            AND workshop.bool_delete_enum = FALSE
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+          and a.package_id is null
+          and a.bool_delete_enum = FALSE
+    </select>
+    <select id="listEnclosureNotPackById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.EnclosureDetailDO">
+        SELECT wbwr.id,
+               wbwr.quantity                                                            in_quantity,
+               wbwr.quantity - wbwr.package_quantity - wbwr.cargo_quantity + a.quantity un_package_quantity,
+               a.quantity                                                               package_quantity,
+               a.product_id,
+               b.category,
+               b.name,
+               b.serial_number,
+               b.plate,
+               b.color,
+               b.material,
+               b.weight,
+               b.thickness,
+               b.width,
+               b.length,
+               b.quantity,
+               b.total_length,
+               b.total_area,
+               b.brand,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               plan.`id` 'area.id',
+               plan.`name` 'area.name',
+               mbf.`id` 'factory.id',
+               mbf.`name` 'factory.name'
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_enclosure b ON a.product_id = b.id AND b.bool_delete_enum = FALSE
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id AND cp.bool_delete_enum = FALSE
+                 LEFT JOIN enclosure_plan plan ON plan.id = b.enclosure_plan_id AND plan.bool_delete_enum = 0
+                 LEFT JOIN mes_building_warehouse_summary wbwr ON a.warehouse_record_id = wbwr.id AND wbwr.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_factory mbf ON wbwr.factory_id = mbf.id AND mbf.bool_delete_enum = FALSE
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+          and a.package_id is null
+          and a.bool_delete_enum = FALSE
+    </select>
+    <select id="listAuxiliaryMaterialNotPackById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.TechStandardPartDetailDO">
+        SELECT wbwr.id,
+               wbwr.quantity                                                            in_quantity,
+               wbwr.quantity - wbwr.package_quantity - wbwr.cargo_quantity + a.quantity un_package_quantity,
+               a.quantity                                                               package_quantity,
+               a.product_id,
+               b.serial_number,
+               b.specification,
+               b.measure_unit,
+               b.quantity,
+               b.measure_precision,
+               b.accounting_unit,
+               b.mete,
+               b.accounting_precision,
+               b.color,
+               b.brand,
+               b.remark,
+               b.user_id,
+               b.classify_full_name,
+               b.classify_id,
+               b.classify_name,
+               b.use_property,
+               b.business_id,
+               b.print_quantity,
+               b.print_time,
+               b.unit_net,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pm.`id` 'monomer.id',
+               pm.`name` 'monomer.name'
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_auxiliary_material b ON a.product_id = b.id
+            AND b.bool_delete_enum = FALSE
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+            AND cp.bool_delete_enum = FALSE
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+            AND pm.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_warehouse_summary wbwr ON a.warehouse_record_id = wbwr.id
+            AND wbwr.bool_delete_enum = FALSE
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = 8
+          and a.package_id is null
+          and a.bool_delete_enum = FALSE
+    </select>
+    <select id="listArtifactAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ArtifactShipDO">
+        SELECT a.quantity                  ship_quantity,
+               summary.warehouse_type,
+               a.id AS linkId,
+               a.product_id AS cargoProductId,
+               a.product_type,
+               a.net_weight,
+               a.gross_weight,
+               a.net_weight * a.quantity   total_net_weight,
+               a.gross_weight * a.quantity total_gross_weight,
+               a.weight * a.quantity       total_weight,
+               a.weight,
+               b.length * a.quantity       total_length,
+               a.warehouse_record_id,
+               a.package_id,
+               b.name,
+               b.serial_number,
+               b.specification,
+               b.length,
+               b.material,
+               b.quantity,
+               b.bool_all_part_send_directly,
+               ba.unit_price  unit_price,
+               ba.pricing_manner,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pm.`id` 'monomer.id',
+               pm.`name` 'monomer.name',
+               pd.`id` 'area.id',
+               pd.`name` 'area.name',
+               workshop.id AS 'workshop.id',
+               workshop.name AS 'workshop.name',
+               workshop.name AS workshopName,
+               pack.serial_number AS packSerialNumber
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_artifact b ON a.product_id = b.id
+                 LEFT JOIN business_artifact ba on ba.id = b.business_id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+                 LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and
+                 summary.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                 LEFT JOIN mes_building_workshop workshop on workshop.id = summary.workshop_id
+                 LEFT JOIN mes_building_package pack on pack.id = a.package_id and pack.bool_delete_enum =0
+        where a.cargo_list_id = #{cargoListId}
+          and b.bool_all_part_send_directly = 0
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listPartSendAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.PartSendShipDO">
+    SELECT
+    link.product_id AS artifactId,
+    business.id,
+    sum(link.quantity ) AS quantity,
+    sum(link.quantity * part.net_weight) AS totalWeight,
+    sum(link.quantity * part.length) AS totalLength,
+    sum(part.net_weight) AS weight,
+    sum(part.length) AS length,
+    part.specification,
+    part.material,
+    business.unit_price  AS unit_price,
+    business.pricing_manner,
+    ANY_VALUE(link.warehouse_type) AS warehouseType
+    from
+    mes_building_cargo_list_product_link link
+    LEFT JOIN tech_machine_part part  on part .id = link.product_id and part.bool_delete_enum = 0
+    LEFT JOIn business_machine_part business on part.business_id = business.id and business.bool_delete_enum = 0
+     where link.cargo_list_id = #{cargoListId}
+          and link.product_type = 1
+          and part.bool_all_part_send_directly = 1
+          and link.bool_delete_enum = FALSE
+    GROUP BY part.specification,
+    part.material,business.id,link.product_id
+    union all
+    SELECT
+        link.product_id AS artifactId,
+        business.id,
+        sum(link.quantity ) AS quantity,
+        sum(link.quantity * ass.net_weight) AS totalWeight,
+        sum(link.quantity * ass.length) AS totalLength,
+        sum(ass.net_weight) AS weight,
+        sum(ass.length) AS length,
+        ass.specification,
+        ass.material,
+        ifnull(business.unit_price, 0) AS unit_price,
+        business.pricing_manner,
+        ANY_VALUE(link.warehouse_type) AS warehouseType
+    from
+        mes_building_cargo_list_product_link link
+            LEFT JOIN tech_assemble ass  on ass .id = link.product_id and ass.bool_delete_enum = 0
+            LEFT JOIn business_machine_part business on ass.business_id = business.id and business.bool_delete_enum = 0
+    where link.cargo_list_id = #{cargoListId}
+      and link.product_type = 16
+      and link.bool_delete_enum = FALSE
+      and ass.bool_all_part_send_directly = 1
+    GROUP BY ass.specification,
+             ass.material,business.id,link.product_id
+    </select>
+
+
+    <select id="listEnclosureAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.EnclosureShipDO">
+        SELECT a.quantity                  shipQuantity,
+               a.length,
+               a.surface_area,
+               a.length * a.quantity       total_length,
+               a.surface_area * a.quantity total_area,
+               a.product_id AS cargoProductId,
+               a.product_type,
+               a.warehouse_record_id,
+               a.package_id,
+               a.id AS linkId,
+               b.category,
+               b.name,
+               b.serial_number,
+               b.plate,
+               b.color,
+               b.material,
+               b.weight,
+               b.thickness,
+               b.width,
+               b.unfolded_width unfoldedWidth,
+               b.quantity,
+               b.brand,
+               ifnull(ba.unit_price, 0)    unit_price,
+               ba.pricing_manner,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pd.`id` 'area.id',
+               pd.`name` 'area.name',
+               workshop.id AS 'workshop.id',
+               workshop.name AS 'workshop.name',
+               workshop.name AS workshopName,
+               summary.warehouse_type AS warehouseType,
+               workshop.name AS workshopName,
+               pack.serial_number AS packSerialNumber
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_enclosure b ON a.product_id = b.id
+                 LEFT JOIN business_enclosure ba ON ba.id = b.business_id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id AND pd.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and
+                 summary.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                 LEFT JOIN mes_building_workshop workshop on workshop.id = summary.workshop_id
+                 LEFT JOIN mes_building_package pack on pack.id = a.package_id and pack.bool_delete_enum =0
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+          and a.bool_delete_enum = FALSE
+    </select>
+
+
+    <select id="listAuxiliaryMaterialAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.TechStandardPartShipDO">
+        SELECT a.quantity shipQuantity,
+              CASE b.bool_weight_type_enum
+              WHEN 1
+              THEN a.weight * a.quantity
+              ELSE CONVERT(IFNULL(b.mete, 0) / b.quantity, DECIMAL(18,4)) * a.quantity END shipMete,
+               a.product_id AS cargoProductId,
+               a.product_type,
+               a.warehouse_record_id,
+               a.package_id,
+               a.id AS linkId,
+               b.name,
+               b.serial_number,
+               b.specification 'specification',
+               b.quantity,
+               b.measure_unit,
+               IFNULL(b.mete, 0) mete,
+               b.accounting_unit,
+               b.bool_weight_type_enum,
+               ba.unit_price  unit_price,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pm.`id` 'monomer.id',
+               pm.`name` 'monomer.name',
+                pd.`id` 'area.id',
+               pd.`name` 'area.name',
+               pack.serial_number AS packSerialNumber,
+               pd.`name` 'area.name',
+                a.warehouse_type AS warehouseType
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_standard_part b ON a.product_id = b.id
+                 LEFT JOIN business_standard_part ba ON ba.id = b.business_id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+                 LEFT JOIN mes_building_package pack on pack.id = a.package_id and pack.bool_delete_enum =0
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = 8
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listArtifactShipByProjectId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ArtifactShipMeteDO">
+        SELECT a.weight * a.quantity       total_weight,
+               a.net_weight * a.quantity   total_net_weight,
+               a.gross_weight * a.quantity total_gross_weight,
+               b.length * a.quantity total_length,
+               ifnull(ba.unit_price, 0)    unit_price,
+               ba.pricing_manner,
+               a.warehouse_type warehouseType
+        FROM mes_building_cargo_list_product_link a
+                 INNER JOIN mes_building_cargo_list l on l.id = a.cargo_list_id
+                 LEFT JOIN tech_artifact b ON a.product_id = b.id
+                 LEFT JOIN business_artifact ba on ba.id = b.business_id
+        where l.project_id = #{projectId} AND l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+          and l.status in (4,8)
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listPartSendShipByProjectId" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.PartSendShipDO">
+    SELECT
+    business.id,
+    sum(link.quantity * partDetail.quantity) AS quantity,
+    sum(link.quantity * partDetail.quantity * part.net_weight) AS toTalWeight,
+    sum(link.quantity * partDetail.quantity * part.length) AS toTallLength,
+    part.specification,
+    part.material,
+    ifnull(business.unit_price, 0) unit_price,
+    business.pricing_manner,
+    ANY_VALUE(link.warehouse_type) warehouseType
+    from
+    mes_building_cargo_list_product_link link
+    INNER JOIN mes_building_cargo_list l on l.id = link.cargo_list_id
+    INNER JOIN tech_artifact artifact on artifact.id = link.product_id and artifact.bool_all_part_send_directly = 1 and artifact.bool_delete_enum = 0
+    LEFT JOIN tech_artifact_machine_part_link partDetail on partDetail.artifact_id = artifact.id and partDetail.bool_delete_enum = 0
+    LEFT JOIN tech_machine_part part  on part .id = partDetail.machine_part_id and part.bool_delete_enum = 0
+    LEFT JOIN business_machine_part business on part.business_id = business.id
+    where l.project_id = #{projectId} AND l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+    and l.status in (4,8) and link.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+    and link.bool_delete_enum = FALSE
+    GROUP BY part.specification,
+    part.material,business.id
+    </select>
+
+
+    <select id="listEnclosureShipByProjectId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.EnclosureShipMeteDO">
+        SELECT a.length * a.quantity       total_length,
+               a.surface_area * a.quantity total_area,
+               ifnull(ba.unit_price, 0)    unit_price,
+               a.warehouse_type warehouseType
+        FROM mes_building_cargo_list_product_link a
+                 INNER JOIN mes_building_cargo_list l on l.id = a.cargo_list_id
+                 LEFT JOIN tech_enclosure b ON a.product_id = b.id
+                 LEFT JOIN business_enclosure ba ON ba.id = b.business_id
+        where l.project_id = #{projectId} AND l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+          and l.status > 3
+          and a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listAuxiliaryMaterialShipByProjectId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.TechStandardPartShipDO">
+        SELECT
+            ifnull(a.quantity, 0) ship_quantity,
+            ifnull( b.quantity, 0) quantity,
+            ifnull(ba.unit_price, 0) unit_price,
+            a.warehouse_type warehouseType
+        FROM mes_building_cargo_list_product_link a
+                 INNER JOIN mes_building_cargo_list l on l.id = a.cargo_list_id
+                 LEFT JOIN tech_standard_part b ON a.product_id = b.id
+                 LEFT JOIN business_standard_part ba ON ba.id = b.business_id
+        where l.project_id = #{projectId} AND l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+          and l.status > 3
+          and a.product_type = 8
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listCargoListIdByCondition" resultType="java.lang.Long">
+        SELECT cargo_list_id
+        FROM mes_building_cargo_list_product_link l
+        INNER JOIN tech_artifact a ON a.id = l.product_id AND l.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        AND a.bool_all_part_send_directly = 0
+        <where>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="blurry != null">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        AND (a.name = #{blurry} OR a.serial_number = #{blurry})
+                    </when>
+                    <otherwise>
+                        AND (a.name LIKE CONCAT('%',#{blurry},'%') OR a.serial_number LIKE CONCAT('%',#{blurry},'%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        union
+        SELECT cargo_list_id
+        FROM mes_building_cargo_list_product_link l
+        INNER JOIN tech_enclosure a ON a.id = l.product_id AND l.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        <where>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="blurry != null">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        AND (a.name = #{blurry} OR a.serial_number = #{blurry})
+                    </when>
+                    <otherwise>
+                        AND (a.name LIKE CONCAT('%',#{blurry},'%') OR a.serial_number LIKE CONCAT('%',#{blurry},'%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        union
+        SELECT cargo_list_id
+        FROM mes_building_cargo_list_product_link l
+        INNER JOIN tech_machine_part a ON a.id = l.product_id AND l.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+        and a.bool_send_directly = 1
+        <where>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="blurry != null">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        AND (a.name = #{blurry} OR a.serial_number = #{blurry})
+                    </when>
+                    <otherwise>
+                        AND (a.name LIKE CONCAT('%',#{blurry},'%') OR a.serial_number LIKE CONCAT('%',#{blurry},'%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        union
+        SELECT cargo_list_id
+        FROM mes_building_cargo_list_product_link l
+        INNER JOIN tech_assemble a ON a.id = l.product_id AND l.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+        and a.bool_send_directly = 1
+        <where>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+        </where>
+        union
+        SELECT cargo_list_id
+        FROM mes_building_cargo_list_product_link l
+        INNER JOIN tech_standard_part a ON a.id = l.product_id AND l.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@AUXILIARY_MATERIAL.getType()}
+        <where>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="blurry != null">
+                <choose>
+                    <when test="boolAccurateQuery != null and boolAccurateQuery == 1">
+                        AND (a.name = #{blurry})
+                    </when>
+                    <otherwise>
+                        AND (a.name LIKE CONCAT('%',#{blurry},'%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <select id="listShipByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProductShipDO">
+        select p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        d.`id` 'area.id',
+        d.`name` 'area.name',
+        cl.structure_measure_mode,
+        clpl.measure_mode enclosure_measure_mode,
+        cl.license_plate,
+        cl.audit_time,
+        2 product_type,
+        clpl.product_id,
+        0 category,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.material,
+        '件' measureUnit,
+        a.net_weight * clpl.quantity meteOne,
+        't' accountingUnit,
+        a.length * clpl.quantity  meteTwo,
+        clpl.weight * clpl.quantity    meteThree,
+        clpl.quantity shipQuantity,
+        ifnull(ba.unit_price,0) unit_price
+        from mes_building_cargo_list_product_link clpl
+        inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id
+        inner join tech_artifact a on a.id = clpl.product_id
+        left join contract_project p on p.id = a.project_id
+        left join plan_monomer m on m.id = a.monomer_id
+        left join plan_area d on d.id = a.area_id
+        LEFT JOIN business_artifact ba on ba.id = a.business_id
+        <where>
+            and cl.status > 2
+            and cl.bool_delete_enum = 0
+            AND cl.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+            and clpl.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+            <if test="projectId != null">
+                and a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and a.monomer_id = #{monomerId}
+            </if>
+            <if test="productType != null">
+                and clpl.product_type &amp; #{productType} = 2
+            </if>
+            <if test="name != null and name != ''">
+                and a.name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and a.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and a.specification like CONCAT('%',#{specification},'%')
+            </if>
+            <if test="material != null and material != ''">
+                and a.material like CONCAT('%',#{material},'%')
+            </if>
+            <if test="auditStartDate != null">
+                and date(cl.audit_time) >= date(#{auditStartDate})
+            </if>
+            <if test="auditEndDate != null">
+                and date(cl.audit_time) &lt;= date(#{auditEndDate})
+            </if>
+        </where>
+        union all
+        select p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        d.`id` 'area.id',
+        d.`name` 'area.name',
+        cl.structure_measure_mode,
+        clpl.measure_mode enclosure_measure_mode,
+        cl.license_plate,
+        cl.audit_time,
+        4 product_type,
+        clpl.product_id,
+        a.category,
+        a.name,
+        a.serial_number,
+        concat(a.plate,'*',0+cast(a.length AS CHAR),'*',0+cast(a.thickness AS CHAR),'*',a.color) specification,
+        '-' material,
+        '只' measureUnit,
+        a.length * clpl.quantity  meteOne,
+        'm' accountingUnit,
+        a.unfolded_width * a.length * clpl.quantity meteTwo,
+        0 meteThree,
+        clpl.quantity shipQuantity,
+        ifnull(ba.unit_price,0) unit_price
+        from mes_building_cargo_list_product_link clpl
+        inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id
+        inner join tech_enclosure a on a.id = clpl.product_id
+        left join contract_project p on p.id = a.project_id
+        left join plan_monomer m on m.id = a.monomer_id
+        left join plan_area d on d.id = a.area_id
+        LEFT JOIN business_enclosure ba on ba.id = a.business_id
+        <where>
+            and cl.status > 2
+            and cl.bool_delete_enum = 0
+            AND cl.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+            and clpl.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+            <if test="projectId != null">
+                and a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and a.monomer_id = #{monomerId}
+            </if>
+            <if test="productType != null">
+                and clpl.product_type &amp; #{productType} = 4
+            </if>
+            <if test="name != null and name != ''">
+                and a.name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and a.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and (a.plate like CONCAT('%',#{specification},'%')
+                or 0+cast(a.length AS CHAR) like CONCAT('%',#{specification},'%')
+                or 0+cast(a.thickness AS CHAR) like CONCAT('%',#{specification},'%')
+                or a.color like CONCAT('%',#{specification},'%')
+                )
+            </if>
+            <if test="auditStartDate != null">
+                and date(cl.audit_time) >= date(#{auditStartDate})
+            </if>
+            <if test="auditEndDate != null">
+                and date(cl.audit_time) &lt;= date(#{auditEndDate})
+            </if>
+        </where>
+        union all
+        select p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name',
+        null 'area.id',
+        null 'area.name',
+        cl.structure_measure_mode,
+        clpl.measure_mode enclosure_measure_mode,
+        cl.license_plate,
+        cl.audit_time,
+        8 product_type,
+        clpl.product_id,
+        0 category,
+        a.classify_name NAME,
+        a.serial_number,
+        a.specification,
+        '-' material,
+        a.quantity meteOne,
+        a.measure_unit,
+        a.mete * clpl.quantity / a.quantity meteTwo,
+        0                                   meteThree,
+        a.accounting_unit,
+        clpl.quantity shipQuantity,
+        ifnull(ba.unit_price,0) unit_price
+        from mes_building_cargo_list_product_link clpl
+        inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id
+        inner join tech_auxiliary_material a on a.id = clpl.product_id
+        left join contract_project p on p.id = a.project_id
+        left join plan_monomer m on m.id = a.monomer_id
+        LEFT JOIN business_auxiliary_material ba on ba.id = a.business_id
+        <where>
+            and cl.status > 2
+            and cl.bool_delete_enum = 0
+            AND cl.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+            and clpl.product_type = 8
+            <if test="projectId != null">
+                and a.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and a.monomer_id = #{monomerId}
+            </if>
+            <if test="productType != null">
+                and clpl.product_type &amp; #{productType} = 8
+            </if>
+            <if test="name != null and name != ''">
+                and a.classify_name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and a.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and a.specification like CONCAT('%',#{specification},'%')
+            </if>
+            <if test="auditStartDate != null">
+                and date(cl.audit_time) >= date(#{auditStartDate})
+            </if>
+            <if test="auditEndDate != null">
+                and date(cl.audit_time) &lt;= date(#{auditEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="listShipByProjectId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ProductShipDO">
+        select clpl.measure_mode              enclosure_measure_mode,
+               cl.structure_measure_mode,
+               cl.license_plate,
+               cl.audit_time,
+               2                              product_type,
+               clpl.product_id,
+               a.name,
+               a.serial_number,
+               a.specification,
+               a.material,
+               '件'                           measureUnit,
+               a.net_weight * clpl.quantity   meteOne,
+               ''                            accountingUnit,
+               a.length * clpl.quantity       meteTwo,
+               clpl.weight * clpl.quantity    meteThree,
+               clpl.quantity                  shipQuantity,
+               ifnull(ba.unit_price, 0)       unit_price
+        from mes_building_cargo_list_product_link clpl
+                 inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id and cl.status > 2 and cl.shipment_status != 2
+                 inner join tech_artifact a on a.id = clpl.product_id
+                 inner JOIN business_artifact ba on ba.id = a.business_id
+        where cl.project_id = #{projectId}
+          and cl.status > 2
+          and cl.bool_delete_enum = 0
+          and clpl.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        union all
+        select clpl.measure_mode                           enclosure_measure_mode,
+               cl.structure_measure_mode,
+               cl.license_plate,
+               cl.audit_time,
+               4                                           product_type,
+               clpl.product_id,
+               a.name,
+               a.serial_number,
+               concat(a.plate, '*', 0 + cast(a.length AS CHAR), '*', 0 + cast(a.thickness AS CHAR), '*',
+                      a.color)                             specification,
+               '-'                                         material,
+               '张'                                        measureUnit,
+               a.length * clpl.quantity                    meteOne,
+               ''                                         accountingUnit,
+               a.unfolded_width * a.length * clpl.quantity meteTwo,
+               0                                           meteThree,
+               clpl.quantity                               shipQuantity,
+               ifnull(ba.unit_price, 0)                    unit_price
+        from mes_building_cargo_list_product_link clpl
+                 inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id and cl.status > 2 and cl.shipment_status != 2
+                 inner join tech_enclosure a on a.id = clpl.product_id
+                 inner JOIN business_enclosure ba on ba.id = a.business_id
+        where cl.project_id = #{projectId}
+          and cl.status > 2
+          and cl.bool_delete_enum = 0
+          and clpl.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        union all
+        select clpl.measure_mode                   enclosure_measure_mode,
+               cl.structure_measure_mode,
+               cl.license_plate,
+               cl.audit_time,
+               8                                   product_type,
+               clpl.product_id,
+               a.classify_name                     name,
+               a.serial_number,
+               a.specification,
+               '-'                                 material,
+               a.measure_unit,
+               a.quantity                          meteOne,
+               a.accounting_unit,
+               a.mete * clpl.quantity / a.quantity meteTwo,
+               0                                   meteThree,
+               clpl.quantity                       shipQuantity,
+               ifnull(ba.unit_price, 0)            unit_price
+        from mes_building_cargo_list_product_link clpl
+                 inner join mes_building_cargo_list cl on cl.id = clpl.cargo_list_id and cl.status > 2 and cl.shipment_status != 2
+                 inner join tech_auxiliary_material a on a.id = clpl.product_id
+                 inner JOIN business_auxiliary_material ba on ba.id = a.business_id
+        where cl.project_id = #{projectId}
+          and cl.status > 2
+          and cl.bool_delete_enum = 0
+          and clpl.product_type = 8
+    </select>
+
+    <select id="sumShipmentGroupByProject"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.ProductProjectSumDO">
+        select p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        temp.quantity,
+        temp.mete
+        from contract_project p
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            inner join (
+            select a.project_id, sum(r.quantity) quantity, sum(r.quantity * a.net_weight) mete
+            from mes_building_cargo_list_product_link r
+            inner join mes_building_cargo_list cl on cl.id = r.cargo_list_id
+            inner join tech_artifact a on a.id = r.product_id and r.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+            where r.bool_delete_enum = 0 and cl.status > 2 and cl.bool_delete_enum = 0
+            <if test="startDate != null">
+                and date(cl.audit_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(cl.audit_time) &lt;= date(#{endDate})
+            </if>
+            group by a.project_id) temp on temp.project_id = p.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            inner join (
+            select a.project_id, sum(r.quantity) quantity, sum(r.quantity * a.length) mete
+            from mes_building_cargo_list_product_link r
+            inner join mes_building_cargo_list cl on cl.id = r.cargo_list_id
+            inner join tech_enclosure a on a.id = r.product_id and r.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+            where r.bool_delete_enum = 0 and cl.status > 2 and cl.bool_delete_enum = 0
+            <if test="startDate != null">
+                and date(cl.audit_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(cl.audit_time) &lt;= date(#{endDate})
+            </if>
+            group by a.project_id) temp on temp.project_id = p.id
+        </if>
+        where p.bool_delete_enum = 0
+    </select>
+    <select id="listArtifactShipment"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.AppArtifactShipDO">
+        select
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.length,
+        a.material,
+        a.net_weight,
+        a.gross_weight,
+        ifnull(temp.quantity,0) quantity,
+        ifnull(temp.quantity,0) * a.net_weight totalNetWeight,
+        ifnull(temp.quantity,0) * a.gross_weight totalGrossWeight,
+        temp.license_plate
+        from tech_artifact a
+        inner join contract_project p on p.id = a.project_id
+        inner join (select product_id,license_plate,
+        sum(r.quantity) quantity
+        from mes_building_cargo_list_product_link r
+        inner join mes_building_cargo_list cl on cl.id = r.cargo_list_id
+        where r.bool_delete_enum = 0 and cl.status > 2 and cl.bool_delete_enum = 0 and r.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        <if test="startDate != null">
+            and date(cl.audit_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cl.audit_time) &lt;= date(#{endDate})
+        </if>
+        group by product_id,license_plate
+        ) temp on temp.product_id = a.id
+        where ifnull(temp.quantity,0) > 0
+        <if test="name != null and name != ''">
+            and (p.name like CONCAT('%',#{name},'%')
+            or p.short_name like CONCAT('%',#{name},'%'))
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        order by p.create_time desc
+    </select>
+    <select id="listEnclosureShipment"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.AppEnclosureShipDO">
+        select
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        a.category,
+        a.name,
+        a.serial_number,
+        a.plate,
+        a.color,
+        a.material,
+        a.thickness,
+        a.width,
+        a.length,
+        a.length * a.width surfaceArea,
+        ifnull(temp.quantity,0) quantity,
+        ifnull(temp.quantity,0) * a.length totalLength,
+        ifnull(temp.quantity,0) * a.length * a.width totalArea,
+        temp.license_plate
+        from tech_enclosure a
+        inner join contract_project p on p.id = a.project_id
+        inner join (select product_id,license_plate,
+        sum(r.quantity) quantity
+        from mes_building_cargo_list_product_link r
+        inner join mes_building_cargo_list cl on cl.id = r.cargo_list_id
+        where r.bool_delete_enum = 0 and cl.status > 2 and cl.bool_delete_enum = 0 and r.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        <if test="startDate != null">
+            and date(cl.audit_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(cl.audit_time) &lt;= date(#{endDate})
+        </if>
+        group by product_id,license_plate
+        ) temp on temp.product_id = a.id
+        where ifnull(temp.quantity,0) > 0
+        <if test="name != null and name != ''">
+            and (p.name like CONCAT('%',#{name},'%')
+            or p.short_name like CONCAT('%',#{name},'%'))
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+    </select>
+    <select id="sumShipQuantityByProduct" resultType="java.lang.Integer">
+        select ifnull(sum(r.quantity), 0)
+        from mes_building_cargo_list_product_link r
+                 inner join mes_building_cargo_list cl
+                            on cl.id = r.cargo_list_id and cl.bool_delete_enum = 0 and cl.status > 2
+                            AND cl.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        where r.bool_delete_enum = 0
+          and r.product_id = #{productId}
+          and r.product_type = #{productType}
+    </select>
+    <select id="listPartAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.PartShipDO">
+        SELECT a.quantity ship_quantity,
+               a.id AS linkId,
+               a.product_id AS cargoProductId,
+               b.net_weight,
+               b.gross_weight,
+               b.net_weight * a.quantity   total_net_weight,
+               b.gross_weight * a.quantity total_gross_weight,
+               a.weight * a.quantity       total_weight,
+               b.length * a.quantity       total_length,
+               a.warehouse_record_id,
+               a.package_id,
+               a.product_type,
+               b.name,
+               b.serial_number,
+               b.specification,
+               b.length,
+               b.material,
+               b.quantity,
+               b.bool_all_part_send_directly,
+               business.unit_price,
+               business.pricing_manner,
+               cp.id 'project.id',
+            cp.name 'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+                pm.`id` 'monomer.id',
+                pm.`name` 'monomer.name',
+                pd.`id` 'area.id',
+                pd.`name` 'area.name',
+               workshop.id AS 'workshop.id',
+               workshop.name AS 'workshop.name',
+               workshop.name AS workshopName,
+               pack.serial_number AS packSerialNumber
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_machine_part b ON a.product_id = b.id and b.bool_delete_enum =FALSE
+                 LEFT JOIN business_machine_part business on b.business_id = business.id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+                 LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and summary.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                 LEFT JOIN mes_building_workshop workshop on workshop.id = summary.workshop_id
+                 LEFT JOIN mes_building_package pack on pack.id = a.package_id and pack.bool_delete_enum =0
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type= ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+          and a.bool_delete_enum = FALSE
+          and b.bool_send_directly = 1
+          and b.relation_type in (2,16)
+    </select>
+
+    <select id="listAssembleAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.PartShipDO">
+        SELECT a.quantity ship_quantity,
+               a.id AS linkId,
+               a.product_id AS cargoProductId,
+               b.net_weight,
+               b.gross_weight,
+               b.net_weight * a.quantity   total_net_weight,
+               b.gross_weight * a.quantity total_gross_weight,
+               a.weight * a.quantity       total_weight,
+               b.length * a.quantity       total_length,
+               business.unit_price,
+               business.pricing_manner,
+               a.warehouse_record_id,
+               a.package_id,
+               a.product_type,
+               b.serial_number,
+               b.specification,
+               b.length,
+               b.material,
+               b.quantity,
+               '直发件' AS name,
+               b.bool_all_part_send_directly,
+               cp.id 'project.id',
+                cp.name 'project.name',
+                cp.short_name 'project.short_name',
+                cp.serial_number 'project.serial_number',
+                pm.`id` 'monomer.id',
+                pm.`name` 'monomer.name',
+                pd.`id` 'area.id',
+                pd.`name` 'area.name',
+               workshop.id AS 'workshop.id',
+               workshop.name AS 'workshop.name',
+               workshop.name AS workshopName
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_assemble b ON a.product_id = b.id and b.bool_delete_enum =FALSE
+                 LEFT JOIN business_machine_part business on b.business_id = business.id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+                 LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and summary.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                 LEFT JOIN mes_building_workshop workshop on workshop.id = summary.workshop_id
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type= ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+          and a.bool_delete_enum = FALSE
+          and b.bool_send_directly = 1
+
+    </select>
+    <select id="listPartNotPackById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.SendDirectlyDetailDO">
+        SELECT wbwr.id,
+               workshop.id 'workshop.id',
+               workshop.name 'workshop.name',
+               wbwr.quantity                                                            in_quantity,
+               wbwr.quantity - wbwr.package_quantity - wbwr.cargo_quantity + a.quantity un_package_quantity,
+               a.quantity                                                               package_quantity,
+               a.product_id,
+               a.product_type,
+               b.name,
+               b.serial_number,
+               b.specification ,
+               b.length,
+               b.material,
+               b.quantity,
+               b.net_weight,
+               b.total_net_weight,
+               b.gross_weight,
+               b.total_gross_weight,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+                pm.`id` 'monomer.id',
+                pm.`name` 'monomer.name',
+                pd.`id` 'area.id',
+                pd.`name` 'area.name',
+                mbf.`id` 'factory.id',
+                mbf.`name` 'factory.name'
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_machine_part b ON a.product_id = b.id
+            AND b.bool_delete_enum = FALSE and b.relation_type !=18
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+            AND cp.bool_delete_enum = FALSE
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+            AND pm.bool_delete_enum = FALSE
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+            AND pd.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_warehouse_summary wbwr ON a.warehouse_record_id = wbwr.id
+            AND wbwr.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_factory mbf ON wbwr.factory_id = mbf.id
+            AND mbf.bool_delete_enum = FALSE
+                LEFT JOIN mes_building_workshop workshop ON wbwr.workshop_id = workshop.id
+            AND workshop.bool_delete_enum = FALSE
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+          and a.package_id is null
+          and a.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listAssembleNotPackById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.SendDirectlyDetailDO">
+        SELECT wbwr.id,
+               wbwr.quantity                                                            in_quantity,
+               workshop.id 'workshop.id',
+               workshop.name 'workshop.name',
+               wbwr.quantity - wbwr.package_quantity - wbwr.cargo_quantity + a.quantity un_package_quantity,
+               a.quantity                                                               package_quantity,
+               a.product_id,
+               a.product_type,
+               b.serial_number,
+               b.specification ,
+               b.length,
+               b.material,
+               b.quantity,
+               b.net_weight,
+               b.total_net_weight,
+               cp.id 'project.id',
+                cp.name 'project.name',
+                cp.short_name 'project.short_name',
+                cp.serial_number 'project.serial_number',
+                pm.`id` 'monomer.id',
+                pm.`name` 'monomer.name',
+                pd.`id` 'area.id',
+                pd.`name` 'area.name',
+                mbf.`id` 'factory.id',
+                mbf.`name` 'factory.name'
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_assemble b ON a.product_id = b.id
+            AND b.bool_delete_enum = FALSE
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+            AND cp.bool_delete_enum = FALSE
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+            AND pm.bool_delete_enum = FALSE
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+            AND pd.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_warehouse_summary wbwr ON a.warehouse_record_id = wbwr.id
+            AND wbwr.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_factory mbf ON wbwr.factory_id = mbf.id
+            AND mbf.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_workshop workshop ON wbwr.workshop_id = workshop.id
+            AND workshop.bool_delete_enum = FALSE
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type= ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+          and a.package_id is null
+          and a.bool_delete_enum = FALSE
+    </select>
+
+
+    <select id="listAssembleNotCargoListByIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.SendDirectlyDetailDO">
+        ( SELECT
+        assembleLink.artifact_id,
+        assemble.id AS productId,
+        '' AS name,
+        0 AS status,
+        assemble.specification,
+        assemble.length,
+        assemble.material,
+        assemble.net_weight,
+        0 AS gross_weight,
+        assemble.serial_number,
+        assemble.quantity,
+        sum(wbwr.quantity) AS in_quantity,
+        16 as productType,
+        artifact.quantity * assembleLink.quantity - sum(ifnull(wbwr.cargo_quantity,0)) - sum(ifnull(wbwr.package_quantity,0))
+        un_package_quantity
+        FROM tech_assemble_detail assembleLink
+        INNER JOIN tech_artifact artifact on artifact.id = assembleLink.artifact_id and artifact.bool_delete_enum =
+        FALSE
+        INNER JOIN tech_assemble assemble on assemble.id = assembleLink.assemble_id and assemble.bool_send_directly = 1
+        and assemble.bool_all_part_send_directly=0
+        and assemble.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_warehouse_summary wbwr ON assemble.id = wbwr.product_id and wbwr.type = 1 and
+        wbwr.product_type = 16
+        AND wbwr.bool_delete_enum = FALSE
+        where assembleLink.bool_delete_enum = FALSE
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and assembleLink.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        GROUP BY assemble.id,assembleLink.quantity,assembleLink.artifact_id
+        )
+        UNION ALL
+        ( SELECT
+        link.artifact_id ,
+        part.id AS productId,
+        part.name,
+        0 AS status,
+        part.specification,
+        part.length,
+        part.material,
+        part.net_weight,
+        part.gross_weight,
+        part.serial_number,
+        part.quantity,
+        sum(wbwr.quantity) AS in_quantity,
+        1 as productType,
+        a.quantity * link.quantity - sum(ifnull(wbwr.cargo_quantity,0)) - sum(ifnull(wbwr.package_quantity,0)) un_package_quantity
+        FROM tech_artifact_machine_part_link link
+        INNER JOIN tech_artifact a on a.id = link.artifact_id and a.bool_delete_enum = FALSE
+        INNER JOIN tech_machine_part part on part.id = link.machine_part_id and part.bool_send_directly = 1 and
+        part.bool_all_part_send_directly=0
+        and part.bool_delete_enum = FALSE and part.relation_type != 18
+        LEFT JOIN mes_building_warehouse_summary wbwr ON part.id = wbwr.product_id and wbwr.type = 1 and
+        wbwr.product_type = 1
+        AND wbwr.bool_delete_enum = FALSE
+        where link.bool_delete_enum = FALSE
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and link.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        GROUP BY part.id,link.quantity,link.artifact_id
+        )
+
+    </select>
+
+
+
+
+
+    <select id="listAssembleNotLoadedByIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.SendDirectlyDetailDO">
+     (  SELECT
+        link.artifact_id ,
+        part.id AS productId,
+        part.name,
+        1 AS status,
+        part.specification,
+        part.length,
+        part.material,
+        part.net_weight,
+        part.gross_weight,
+        part.serial_number,
+        part.quantity,
+        packLink.quantity AS un_package_quantity,
+        1 as productType,
+        pack.serial_number AS packSerialNumber
+        FROM tech_artifact_machine_part_link link
+        INNER JOIN tech_artifact a on a.id = link.artifact_id and a.bool_delete_enum = FALSE
+        INNER JOIN tech_machine_part part on part.id = link.machine_part_id and part.bool_send_directly = 1 and part.bool_all_part_send_directly=0
+        and part.bool_delete_enum = FALSE and part.relation_type != 18
+        inner JOIN mes_building_package_link packLink ON part.id = packLink.product_id  and packLink.product_type = 1 AND packLink.bool_delete_enum = FALSE
+        INNER JOIN  mes_building_package pack on pack.id = packLink.package_id AND pack.bool_delete_enum = FALSE
+        where link.bool_delete_enum = FALSE  and pack.status = 0
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and link.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        order by pack.serial_number)
+        UNION ALL
+        (SELECT
+        assembleLink.artifact_id,
+        assemble.id AS productId,
+        '' as name,
+        1 AS status,
+        assemble.specification,
+        assemble.length,
+        assemble.material,
+        assemble.net_weight,
+        0 as gross_weight,
+        assemble.serial_number,
+        assemble.quantity,
+        packLink.quantity AS un_package_quantity,
+        16 as productType,
+        pack.serial_number AS packSerialNumber
+        FROM  tech_assemble_detail assembleLink
+        INNER JOIN tech_artifact artifact on artifact.id = assembleLink.artifact_id and artifact.bool_delete_enum = FALSE
+        INNER JOIN tech_assemble assemble on assemble.id = assembleLink.assemble_id and assemble.bool_send_directly = 1
+        and assemble.bool_delete_enum = FALSE and assemble.bool_all_part_send_directly=0
+        inner JOIN mes_building_package_link packLink ON assemble.id = packLink.product_id  and packLink.product_type = 16 AND packLink.bool_delete_enum = FALSE
+        INNER JOIN  mes_building_package pack on pack.id = packLink.package_id AND pack.bool_delete_enum = FALSE
+        where assembleLink.bool_delete_enum = FALSE  and pack.status = 0
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and assembleLink.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        order by pack.serial_number)
+    </select>
+
+
+
+    <select id="listAssembleNotShippedLoadedByIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do._package.SendDirectlyDetailDO">
+      (  SELECT
+        assembleLink.artifact_id,
+        assemble.id AS productId,
+        '' as name,
+        2 AS status,
+        assemble.specification,
+        assemble.length,
+        assemble.material,
+        assemble.net_weight,
+        0 as gross_weight,
+        assemble.serial_number,
+        assemble.quantity,
+        cargoLink.quantity AS un_package_quantity,
+        16  as product_type,
+        cargo.license_plate
+        FROM  tech_assemble_detail assembleLink
+        INNER JOIN tech_artifact artifact on artifact.id = assembleLink.artifact_id and artifact.bool_delete_enum = FALSE
+        INNER JOIN tech_assemble assemble on assemble.id = assembleLink.assemble_id and assemble.bool_send_directly = 1
+        and assemble.bool_delete_enum = FALSE and assemble.bool_all_part_send_directly=0
+        inner JOIN mes_building_cargo_list_product_link cargoLink ON assemble.id = cargoLink.product_id  and cargoLink.product_type = 16 AND cargoLink.bool_delete_enum = FALSE
+        INNER JOIN  mes_building_cargo_list cargo on cargo.id = cargoLink.cargo_list_id AND cargo.bool_delete_enum = FALSE
+        where assembleLink.bool_delete_enum = FALSE  and cargo.status in (1,2)
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and assembleLink.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        order by  cargo.license_plate)
+        UNION ALL
+       ( SELECT
+        link.artifact_id ,
+        part.id AS productId,
+        part.name,
+        2 AS status,
+        part.specification,
+        part.length,
+        part.material,
+        part.net_weight,
+        part.gross_weight,
+        part.serial_number,
+        part.quantity,
+        cargoLink.quantity AS un_package_quantity,
+        1  as product_type,
+        cargo.license_plate
+        FROM tech_artifact_machine_part_link link
+        INNER JOIN tech_artifact a on a.id = link.artifact_id and a.bool_delete_enum = FALSE
+        INNER JOIN tech_machine_part part on part.id = link.machine_part_id and part.bool_send_directly = 1
+        and part.bool_delete_enum = FALSE and part.relation_type != 18 and part.bool_all_part_send_directly=0
+        inner JOIN mes_building_cargo_list_product_link cargoLink ON part.id = cargoLink.product_id  and cargoLink.product_type = 1 AND cargoLink.bool_delete_enum = FALSE
+        INNER JOIN  mes_building_cargo_list cargo on cargo.id = cargoLink.cargo_list_id AND cargo.bool_delete_enum = FALSE
+        where link.bool_delete_enum = FALSE  and cargo.status  in (1,2)
+        <if test="artifactIds != null and artifactIds.size() > 0">
+            and link.artifact_id in
+            <foreach collection="artifactIds" open="(" separator="," close=")" item="artifactId">
+                #{artifactId}
+            </foreach>
+        </if>
+        order by  cargo.license_plate)
+    </select>
+
+    <select id="artifactSourceReportCargoList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListDetailsDTO">
+        SELECT
+        distinct b.*
+        FROM
+        mes_building_cargo_list_product_link a
+        LEFT JOIN mes_building_cargo_list_product_number_link n_link ON n_link.cargo_list_link_id=a.id and n_link.bool_delete_enum = 0
+        LEFT  JOIN mes_building_cargo_list b ON b.id = a.cargo_list_id AND b.product_type &amp; 2 &gt; 0 and b.bool_delete_enum = 0
+        WHERE
+        a.bool_delete_enum = 0
+        AND a.product_type = 2
+        AND a.product_id = #{productId}
+        <if test="number!=null">
+            AND n_link.number=#{number}
+        </if>
+    </select>
+
+
+    <!--发运跟踪-构件-->
+    <select id="artifactCargoShipDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ArtifactBasicsDO">
+        SELECT
+        a.id AS link_id,
+        COUNT(rc.id) AS bool_exist_return,
+        a.product_id AS productIds,
+        mbw.name AS workshopNames,
+        b.bool_all_part_send_directly,
+        monomer.name AS 'monomer.name',
+        monomer.id AS 'monomer.id',
+        area.name AS 'area.name',
+        area.id AS 'area.id',
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        l.user_name,
+        supplier.name AS supplierName,
+        b.name,
+        b.serial_number,
+        b.specification,
+        b.material,
+        a.measure_mode As structureMeasureMode,
+        <!-- ifnull(ba.unit_price, 0) unit_price,-->
+        <!-- ba.pricing_manner,-->
+        l.audit_time AS create_time,
+        a.quantity AS totalQuantity,
+        a.quantity * a.weight AS total_weight ,
+        a.quantity * a.net_weight AS total_net_weight,
+        a.quantity * a.gross_weight AS total_gross_weight,
+        a.quantity * b.length AS total_length,
+        a.warehouse_type AS warehouseType
+        FROM
+        mes_building_cargo_list_product_link a
+        INNER JOIN mes_building_cargo_list l ON l.id = a.cargo_list_id and l.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_supplier_price AS sp ON sp.id = l.supplier_price_id and sp.bool_delete_enum = FALSE
+        LEFT JOIN scm_supplier supplier on supplier.id = sp.supplier_id and supplier.bool_delete_enum = FALSE
+        LEFT JOIN tech_artifact b ON a.product_id = b.id and b.bool_delete_enum = FALSE
+        <!--LEFT JOIN business_artifact ba ON ba.id = b.business_id and ba.bool_delete_enum = FALSE-->
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and summary.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_workshop mbw ON summary.workshop_id= mbw.id AND mbw.bool_delete_enum=FALSE
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer monomer on monomer.id = b.monomer_id and monomer.bool_delete_enum = FALSE
+        LEFT JOIN plan_area area on area.id = b.area_id and area.bool_delete_enum = FALSE
+        LEFT JOIN project_return_product_child AS rc ON a.id = rc.cargo_link_id AND rc.bool_delete_enum = 0
+        AND rc.audit_status = 2
+        WHERE
+        l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. STATUS IN (4, 8)
+        AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        AND a.bool_delete_enum = FALSE
+        AND a.warehouse_type IN (0, 2)
+        AND b.bool_all_part_send_directly = 0
+        <if test="projectId != null">
+            AND l.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND b.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND b.area_id = #{areaId}
+        </if>
+        <if test="handleMethod != null">
+            AND rc.handle_method = #{handleMethod}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND b.specification like CONCAT('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND b.material like CONCAT('%',#{material},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND b.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="name != null and name != ''">
+            AND b.name like CONCAT('%',#{name},'%')
+        </if>
+        <if test="monomerName != null and monomerName != ''">
+            AND monomer.name like CONCAT('%',#{monomerName},'%')
+        </if>
+        <if test="areaName != null and areaName != ''">
+            AND area.name like CONCAT('%',#{areaName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY a.id
+        order by a.id DESC
+    </select>
+
+
+    <!--发运跟踪-围护-->
+    <select id="enclosureCargoShipDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.EnclosureShipDO">
+        SELECT
+        a.id AS link_id,
+        a.product_id AS productIds,
+        mbw.name AS workshopNames,
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        l.user_name,
+        supplier.name AS supplierName,
+        pd.name AS 'area.name',
+        pd.id AS 'area.id',
+        b.name,
+        b.serial_number,
+        b.plate,
+        b.material,
+        b.length,
+        b.surface_area,
+        b.category,
+        a.quantity AS totalQuantity,
+        <!-- ifnull(ba.unit_price, 0) unit_price,-->
+        <!-- ba.pricing_manner,-->
+        l.audit_time AS create_time,
+        a.quantity * b.length AS totalLength ,
+        a.quantity * b.surface_area AS totalArea,
+        a.warehouse_type AS warehouseType
+        FROM
+        mes_building_cargo_list_product_link a
+        INNER JOIN mes_building_cargo_list l ON l.id = a.cargo_list_id
+        LEFT JOIN mes_building_supplier_price AS sp ON sp.id = l.supplier_price_id and sp.bool_delete_enum = FALSE
+        LEFT JOIN scm_supplier supplier on supplier.id = sp.supplier_id and supplier.bool_delete_enum = FALSE
+        LEFT JOIN tech_enclosure b ON a.product_id = b.id
+        <!-- LEFT JOIN business_enclosure ba ON ba.id = b.business_id-->
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and summary.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_workshop mbw ON summary.workshop_id= mbw.id AND mbw.bool_delete_enum=FALSE
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN enclosure_plan pd ON b.enclosure_plan_id = pd.id AND pd.bool_delete_enum = FALSE
+        WHERE
+        l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. STATUS IN (4, 8)
+        AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        AND a.bool_delete_enum = FALSE
+        AND a.warehouse_type IN (0, 2)
+        <if test="projectId != null">
+            AND l.project_id = #{projectId}
+        </if>
+        <if test="enclosurePlanId != null">
+            AND b.plan_id = #{enclosurePlanId}
+        </if>
+        <if test="plate != null and plate != ''">
+            AND b.plate like CONCAT('%',#{plate},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND b.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="name != null and name != ''">
+            AND b.name like CONCAT('%',#{name},'%')
+        </if>
+        <if test="planName != null and planName != ''">
+            AND pd.name like CONCAT('%',#{planName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY a.id
+        order by a.id desc
+    </select>
+
+
+
+    <select id="partSendCargoShipDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.TechMachinePartShipDTO">
+        SELECT
+        part.id AS id,
+        business.id 'businessId',
+        monomer.name AS 'monomer.name',
+        monomer.id AS 'monomer.id',
+        area.name AS 'area.name',
+        area.id AS 'area.id',
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        part.name,
+        part.serial_number,
+        part.specification,
+        part.material,
+        link.measure_mode As structureMeasureMode,
+        l.actual_time,
+        part.bool_all_part_send_directly,
+        sum(link.quantity * partDetail.quantity) AS quantity,
+        sum(link.quantity * partDetail.quantity * part.net_weight) AS totalWeight,
+        sum(link.quantity * partDetail.quantity * part.length) AS totalLength,
+        sum(partDetail.quantity * part.net_weight) AS weight,
+        sum(partDetail.quantity * part.length) AS length,
+        ifnull(business.unit_price, 0) AS unit_price,
+        business.pricing_manner
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN mes_building_cargo_list l ON l.id = link.cargo_list_id
+        INNER JOIN tech_artifact artifact on artifact.id = link.product_id and artifact.bool_delete_enum = 0
+        LEFT JOIN tech_artifact_machine_part_link partDetail on partDetail.artifact_id = artifact.id and partDetail.bool_delete_enum = 0
+        LEFT JOIN tech_machine_part part  on part .id = partDetail.machine_part_id and part.bool_delete_enum = 0
+        LEFT JOIn business_machine_part business on part.business_id = business.id and business.bool_delete_enum = 0
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer monomer on monomer.id = artifact.monomer_id
+        LEFT JOIN plan_area area on area.id = artifact.area_id
+        where
+         l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. STATUS IN (4, 8)
+        and link.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        and link.bool_delete_enum = FALSE
+        and part.bool_send_directly = 1
+        and part.bool_all_part_send_directly = 0
+        <if test="projectId != null">
+           and l.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND part.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND part.area_id = #{areaId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND part.specification like CONCAT('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND part.material like CONCAT('%',#{material},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND part.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="monomerName != null and monomerName != ''">
+            AND monomer.name like CONCAT('%',#{monomerName},'%')
+        </if>
+        <if test="areaName != null and areaName != ''">
+            AND area.name like CONCAT('%',#{areaName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY
+        part.id,
+        part.name,
+        part.serial_number,
+        l.actual_time,
+        link.measure_mode,
+        unit_price,
+        business.pricing_manner,
+        part.specification,
+        part.material,
+        part.length,
+        monomer.id,
+        project.id,
+        area.id,
+        part.bool_all_part_send_directly,
+        l.serial_number,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name
+    </select>
+
+    <!--发运跟踪-直发件-->
+    <select id="partPurLineSendCargoShipDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.TechMachinePartShipDTO">
+        SELECT
+        t.*
+        FROM
+        (SELECT
+        link.id AS link_id,
+        part.id AS id,
+        <!--business.id 'businessId',-->
+        monomer.name AS 'monomer.name',
+        monomer.id AS 'monomer.id',
+        area.name AS 'area.name',
+        area.id AS 'area.id',
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        l.user_name,
+        part.name,
+        part.serial_number,
+        part.specification,
+        part.material,
+        link.measure_mode As structureMeasureMode,
+        l.audit_time AS actual_time,
+        part.bool_all_part_send_directly,
+        link.quantity,
+        link.quantity * part.net_weight AS totalWeight,
+        link.quantity * part.length AS totalLength,
+        link.quantity * part.net_weight AS weight,
+        part.length,
+        <!-- ifnull(business.unit_price, 0) AS unit_price,-->
+        <!-- business.pricing_manner,-->
+        link.warehouse_type
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN mes_building_cargo_list l ON l.id = link.cargo_list_id
+        LEFT JOIN tech_machine_part part  on part.id = link.product_id and part.bool_delete_enum = 0 and link.product_type = 1
+        <!-- LEFT JOIn business_machine_part business on part.business_id = business.id and business.bool_delete_enum = 0 -->
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer monomer on monomer.id = part.monomer_id
+        LEFT JOIN plan_area area on area.id = part.area_id
+        where
+        l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. STATUS IN (4, 8)
+        and link.bool_delete_enum = FALSE
+        and part.bool_send_directly = 1
+        and part.relation_type = 2
+        <if test="projectId != null">
+            and l.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND part.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND part.area_id = #{areaId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND part.specification like CONCAT('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND part.material like CONCAT('%',#{material},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND part.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="monomerName != null and monomerName != ''">
+            AND monomer.name like CONCAT('%',#{monomerName},'%')
+        </if>
+        <if test="areaName != null and areaName != ''">
+            AND area.name like CONCAT('%',#{areaName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY link.id
+        union all
+        SELECT
+        link.id AS link_id,
+        ass.id AS id,
+        <!--business.id 'businessId',-->
+        monomer.name AS 'monomer.name',
+        monomer.id AS 'monomer.id',
+        area.name AS 'area.name',
+        area.id AS 'area.id',
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        l.user_name,
+        ass.name,
+        ass.serial_number,
+        ass.specification,
+        ass.material,
+        link.measure_mode As structureMeasureMode,
+        l.audit_time AS actual_time,
+        ass.bool_all_part_send_directly,
+        link.quantity,
+        link.quantity * ass.net_weight AS totalWeight,
+        link.quantity * ass.length AS totalLength,
+        link.quantity * ass.net_weight AS weight,
+        ass.length AS length,
+        <!--ifnull(business.unit_price, 0) AS unit_price,-->
+        <!--business.pricing_manner,-->
+        link.warehouse_type
+        from
+        mes_building_cargo_list_product_link link
+        INNER JOIN mes_building_cargo_list l ON l.id = link.cargo_list_id
+        LEFT JOIN tech_assemble ass  on ass.id = link.product_id and ass.bool_delete_enum = 0 and link.product_type = 16
+        LEFT JOIn business_machine_part business on ass.business_id = business.id and business.bool_delete_enum = 0
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer monomer on monomer.id = ass.monomer_id
+        LEFT JOIN plan_area area on area.id = ass.area_id
+        where
+        l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. STATUS IN (4, 8)
+        and link.bool_delete_enum = FALSE
+        and ass.bool_send_directly = 1
+        <if test="projectId != null">
+            and l.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND ass.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ass.area_id = #{areaId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND ass.specification like CONCAT('%',#{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND ass.material like CONCAT('%',#{material},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND ass.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="monomerName != null and monomerName != ''">
+            AND monomer.name like CONCAT('%',#{monomerName},'%')
+        </if>
+        <if test="areaName != null and areaName != ''">
+            AND area.name like CONCAT('%',#{areaName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY link.id) t ORDER BY t.link_id DESC
+    </select>
+
+    <!--发运跟踪-配套件-->
+    <select id="listStandardPartCargoShipDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.TechStandardPartShipDO">
+        SELECT
+        a.id AS link_id,
+        project.id AS 'project.id',
+        project.name AS 'project.name',
+        project.short_name AS 'project.shortName',
+        project.serial_number AS 'project.serialNumber',
+        l.serial_number AS cargoSerialNumber,
+        l.license_plate,
+        l.actual_user_name,
+        l.audit_user_name,
+        l.user_name,
+        supplier.name AS supplierName,
+        monomer.name AS 'monomer.name',
+        monomer.id AS 'monomer.id',
+        area.name AS 'area.name',
+        area.id AS 'area.id',
+        CASE b.bool_weight_type_enum
+        WHEN 1
+        THEN IFNULL(a.weight * a.quantity, 0)
+        ELSE IFNULL(b.mete * a.quantity / b.quantity, 0) END shipMete,
+        b.name,
+        b.specification,
+        ROUND(a.quantity * b.mete / b.quantity, 2) AS mete,
+        b.accounting_unit AS accountingUnit,
+        l.audit_time AS create_time,
+        b.measure_unit,
+        b.remark,
+        b.bool_return,
+        a.quantity AS ship_quantity,
+        b.quantity,
+        <!--ifnull(ba.unit_price, 0) unit_price,-->
+        a.warehouse_type
+        FROM mes_building_cargo_list_product_link a
+        INNER JOIN mes_building_cargo_list l on l.id = a.cargo_list_id
+        LEFT JOIN mes_building_supplier_price AS sp ON sp.id = l.supplier_price_id and sp.bool_delete_enum = FALSE
+        LEFT JOIN scm_supplier supplier on supplier.id = sp.supplier_id and supplier.bool_delete_enum = FALSE
+        LEFT JOIN tech_standard_part b ON a.product_id = b.id
+        <!-- LEFT JOIN business_standard_part ba ON ba.id = b.business_id-->
+        LEFT JOIN contract_project project on project.id = l.project_id and project.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer monomer on monomer.id = b.monomer_id
+        LEFT JOIN plan_area area on area.id = b.area_id
+        where  l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        and l.status IN (4, 8)
+        and a.product_type = 8
+        and a.bool_delete_enum = FALSE
+        AND a.warehouse_type IN (0, 2)
+        and b.use_property = 1
+        <if test="projectId != null">
+            AND l.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND b.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND b.area_id = #{areaId}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND b.specification  like CONCAT('%',#{specification},'%')
+        </if>
+        <if test="name != null and name != ''">
+            AND b.name like CONCAT('%',#{name},'%')
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+        group by a.id
+        order by a.id desc
+    </select>
+
+    <select id="selectShipProductRecord"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListProductLinkDTO">
+
+        select temp.*
+        from
+        (SELECT
+        list.project_id,
+        (case link.product_type when 1 then mp.monomer_id when 2 then a.monomer_id when 8 then sp.monomer_id when 16 then ass.monomer_id else null end) monomer_id,
+        (case link.product_type when 1 then mp.area_id when 2 then a.area_id when 8 then sp.area_id when 16 then ass.area_id else e.enclosure_plan_id end) area_id,
+        list.audit_time,
+        ( CASE link.product_type when 1 then mp.name WHEN 2 THEN a.name when 4 then e.name when 16 then ass.name ELSE sp.name END ) name,
+        ( CASE link.product_type when 1 then mp.serial_number WHEN 2 THEN a.serial_number when 4 then e.serial_number when 16 then ass.serial_number ELSE null END ) serial_number,
+        ( CASE link.product_type when 1 then mp.specification WHEN 2 THEN a.specification when 8 then sp.specification when 16 then ass.specification ELSE null END ) specification,
+        ( CASE link.product_type when 1 then mp.material WHEN 2 THEN a.material when 4 then e.material when 16 then ass.material ELSE null END ) material,
+        link.weight AS mete,
+        link.*
+        FROM
+        mes_building_cargo_list list
+        INNER JOIN mes_building_cargo_list_product_link AS link ON list.id = link.cargo_list_id AND link.warehouse_type in(0,2)
+        LEFT JOIN tech_artifact a ON link.product_type = 2 AND link.product_id = a.id AND a.bool_delete_enum = 0
+        LEFT JOIN tech_enclosure e ON link.product_type = 4 AND link.product_id = e.id AND e.bool_delete_enum = 0
+        LEFT JOIN tech_standard_part sp ON link.product_type = 8 AND link.product_id = sp.id AND sp.bool_delete_enum = 0
+        LEFT JOIN tech_machine_part mp ON link.product_type = 1 AND link.product_id = mp.id AND mp.bool_delete_enum = 0
+        LEFT JOIN tech_assemble ass ON link.product_type = 16 AND link.product_id = ass.id AND ass.bool_delete_enum = 0
+        WHERE
+        list.bool_delete_enum = 0
+        AND link.bool_delete_enum = 0
+        AND list.`status` IN ( 4, 8 )
+        AND list.delivery_status = 1
+        AND (link.product_type IN ( 4, 8 )
+        or (link.product_type = 1 and mp.bool_all_part_send_directly = 1)
+        or (link.product_type = 2 and a.bool_all_part_send_directly = 0)
+        or (link.product_type = 16 and ass.bool_all_part_send_directly = 1))
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND list.project_id IN
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="productType != null">
+            AND link.product_type = #{productType}
+        </if>
+        <if test="auditStartDate != null">
+            and date(list.audit_time) &gt;= date(#{auditStartDate})
+        </if>
+        <if test="auditEndDate != null">
+            and date(list.audit_time) &lt;= date(#{auditEndDate})
+        </if>
+        ) temp
+        <where>
+            <if test="monomerId != null">
+                AND temp.monomer_id = #{monomerId}
+            </if>
+            <if test="name != null and name != ''">
+                AND temp.name like concat('%',#{name},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != '' ">
+                AND temp.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+        </where>
+        order by temp.audit_time desc, temp.id desc
+
+    </select>
+    <select id="listQuantity"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.CarGoQuantityPackageQuantityDTO">
+        SELECT
+        link.quantity quantity,
+        link.package_id packageId
+        FROM
+        mes_building_cargo_list_product_link link
+        LEFT JOIN mes_building_cargo_list list ON link.cargo_list_id = list.id
+        LEFT JOIN mes_building_warehouse_record record ON link.warehouse_record_id = record.id
+        AND record.bool_delete_enum = 0
+        WHERE
+        link.bool_delete_enum = 0
+        AND link.product_type = #{taskType}
+        AND link.product_id = #{productId}
+        AND record.workshop_id = #{shopId}
+        AND list.`status` != 2
+        AND list.bool_delete_enum = 0
+    </select>
+
+    <select id="listPurlinPartAllById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.PartShipDO">
+        SELECT a.quantity ship_quantity,
+               a.id AS linkId,
+               a.product_id AS cargoProductId,
+               b.net_weight,
+               b.gross_weight,
+               b.net_weight * a.quantity total_net_weight,
+               b.gross_weight * a.quantity total_gross_weight,
+               b.net_weight * a.quantity total_weight,
+               b.length * a.quantity       total_length,
+               a.warehouse_record_id,
+               a.package_id,
+               a.product_type,
+               b.name,
+               b.serial_number,
+               b.specification,
+               b.length,
+               b.material,
+               b.quantity,
+               cp.id 'project.id',
+               cp.name 'project.name',
+               cp.short_name 'project.short_name',
+               cp.serial_number 'project.serial_number',
+               pm.`id` 'monomer.id',
+               pm.`name` 'monomer.name',
+               pd.`id` 'area.id',
+               pd.`name` 'area.name',
+               business.pricing_manner,
+               ifnull(business.unit_price,0) AS unitPrice,
+               workshop.id AS 'workshop.id',
+               workshop.name AS 'workshop.name',
+               workshop.name AS workshopName
+        FROM mes_building_cargo_list_product_link a
+                 LEFT JOIN tech_machine_part b ON a.product_id = b.id and b.bool_delete_enum =FALSE
+                 LEFT JOIN business_machine_part business on b.business_id = business.id
+                 LEFT JOIN contract_project cp ON b.project_id = cp.id
+                 LEFT JOIN plan_monomer pm ON b.monomer_id = pm.id
+                 LEFT JOIN plan_area pd ON b.area_id = pd.id
+                 LEFT JOIN mes_building_warehouse_summary summary on summary.id = a.warehouse_record_id and summary.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                 LEFT JOIN mes_building_workshop workshop on workshop.id = summary.workshop_id
+        where a.cargo_list_id = #{cargoListId}
+          and a.product_type= ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+          and a.bool_delete_enum = FALSE
+          and b.bool_send_directly = 1
+          and b.bool_all_part_send_directly = 1
+          and b.relation_type in (2,16)
+    </select>
+    <select id="selectAllProductRecord"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.cargoList.CargoListProductLinkDTO">
+
+        select temp.*
+        from
+        (SELECT
+        list.project_id,
+        (case link.product_type when 1 then mp.monomer_id when 2 then a.monomer_id when 8 then sp.monomer_id when 16 then ass.monomer_id else null end) monomer_id,
+        (case link.product_type when 1 then mp.area_id when 2 then a.area_id when 8 then sp.area_id when 16 then ass.area_id else e.enclosure_plan_id end) area_id,
+        list.audit_time,
+        ( CASE link.product_type when 1 then mp.name WHEN 2 THEN a.name when 4 then e.name when 16 then ass.name ELSE sp.name END ) name,
+        ( CASE link.product_type when 1 then mp.serial_number WHEN 2 THEN a.serial_number when 4 then e.serial_number when 16 then ass.serial_number ELSE null END ) serial_number,
+        ( CASE link.product_type when 1 then mp.specification WHEN 2 THEN a.specification when 8 then sp.specification when 16 then ass.specification ELSE null END ) specification,
+        ( CASE link.product_type when 1 then mp.material WHEN 2 THEN a.material when 4 then e.material when 16 then ass.material ELSE null END ) material,
+        ( CASE link.product_type when 1 then mp.remark WHEN 2 THEN a.remark when 4 then e.remark when 16 then ass.remark ELSE null END ) remark,
+        list.serial_number AS cargoSerialNumber,
+        list.license_plate,
+        list.actual_user_name,
+        list.audit_user_name,
+        supplier.name AS supplierName,
+        mbw.name AS workshopNames,
+        link.weight AS mete,
+        (case link.product_type when 8 then sp.bool_return else 0 end) bool_return,
+        link.*
+        FROM
+        mes_building_cargo_list list
+        INNER JOIN mes_building_cargo_list_product_link AS link ON list.id = link.cargo_list_id and link.warehouse_type in(0,2)
+        LEFT JOIN mes_building_supplier_price AS mbsp ON mbsp.id = list.supplier_price_id and mbsp.bool_delete_enum = 0
+        LEFT JOIN scm_supplier supplier on supplier.id = mbsp.supplier_id and supplier.bool_delete_enum = 0
+        LEFT JOIN tech_artifact a ON link.product_type = 2 AND link.product_id = a.id AND a.bool_delete_enum = 0
+        LEFT JOIN tech_enclosure e ON link.product_type = 4 AND link.product_id = e.id AND e.bool_delete_enum = 0
+        LEFT JOIN tech_standard_part sp ON link.product_type = 8 AND link.product_id = sp.id AND sp.bool_delete_enum = 0
+        LEFT JOIN tech_machine_part mp ON link.product_type = 1 AND link.product_id = mp.id AND mp.bool_delete_enum = 0
+        LEFT JOIN tech_assemble ass ON link.product_type = 16 AND link.product_id = ass.id AND ass.bool_delete_enum = 0
+        LEFT JOIN mes_building_warehouse_summary summary on summary.id = link.warehouse_record_id and summary.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop mbw ON summary.workshop_id= mbw.id AND mbw.bool_delete_enum=0
+        WHERE
+        list.bool_delete_enum = 0
+        AND link.bool_delete_enum = 0
+        AND list.`status` IN ( 4, 8 )
+        AND list.delivery_status = 1
+        AND (link.product_type IN ( 4, 8 )
+        or (link.product_type = 1 and mp.bool_send_directly = 1)
+        or (link.product_type = 2 and a.bool_all_part_send_directly = 0)
+        or (link.product_type = 16 and ass.bool_send_directly = 1))
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND list.project_id IN
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="productType != null">
+            AND link.product_type = #{productType}
+        </if>
+        <if test="auditStartDate != null">
+            and date(list.audit_time) &gt;= date(#{auditStartDate})
+        </if>
+        <if test="auditEndDate != null">
+            and date(list.audit_time) &lt;= date(#{auditEndDate})
+        </if>
+        ) temp
+        <where>
+            <if test="monomerId != null">
+                AND temp.monomer_id = #{monomerId}
+            </if>
+            <if test="name != null and name != ''">
+                AND temp.name like concat('%',#{name},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != '' ">
+                AND temp.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+        </where>
+        order by temp.audit_time desc, temp.id desc
+
+    </select>
+
+    <select id="artifactCargoShipSum"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.cargoList.ArtifactBasicsDO">
+        SELECT
+        SUM(
+        CASE
+        ba.pricing_manner
+        WHEN 0 THEN
+        (
+        CASE
+        a.measure_mode
+        WHEN 1 THEN
+        IFNULL( a.quantity, 0 ) * a.net_weight  * IFNULL( ba.unit_price, 0 ) ELSE IFNULL( a.quantity, 0 ) * a.weight  * IFNULL( ba.unit_price, 0 )
+        END
+        ) ELSE IFNULL( a.quantity, 0 ) * b.length  * IFNULL( ba.unit_price, 0 )
+        END
+        ) / 1000 AS totalPrice ,
+
+        SUM(
+        CASE
+        a.measure_mode
+        WHEN 1 THEN
+        IFNULL( a.quantity, 0 ) * a.net_weight  ELSE IFNULL( a.quantity, 0 ) * a.weight
+        END
+        ) AS weight
+        FROM
+        mes_building_cargo_list_product_link a
+        INNER JOIN mes_building_cargo_list l ON l.id = a.cargo_list_id
+        AND l.bool_delete_enum =
+        FALSE LEFT JOIN tech_artifact b ON a.product_id = b.id
+        AND b.bool_delete_enum =
+        FALSE LEFT JOIN business_artifact ba ON ba.id = b.business_id
+        AND ba.bool_delete_enum = FALSE
+        WHERE
+        l.shipment_status != ${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ShipmentStatusEnum@ABOLISH_DELIVERY.getType()}
+        AND l. status IN (4, 8)
+        AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        AND a.bool_delete_enum = FALSE
+        AND b.bool_all_part_send_directly = 0
+        AND warehouse_type != 1
+        <if test="projectId != null">
+            AND l.project_id = #{projectId}
+        </if>
+        <if test="startDate != null">
+            and date(l.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(l.audit_time) &lt;= date(#{endDate})
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftProductPassTaskRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftProductPassTaskRecord">
+        <id column="id" property="id"/>
+        <result column="tech_capp_craft_product_pass_task_id" property="techCappCraftProductPassTaskId"/>
+        <result column="electricity" property="electricity"/>
+        <result column="voltage" property="voltage"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , tech_capp_craft_product_pass_task_id, electricity, voltage
+    </sql>
+    <select id="weldingGatherList"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardWeldingGatherVO">
+        select
+        tcp.id as passId,
+        product.id as productId,
+        product.serial_number as productSerialNumber,
+        product.name as productName,
+        tcpwt.welding_serial_number as weldingSerialNumber,
+        tcpwt.product_type as productType,
+        tcccs.serial_number as techCappCraftCardStorehouseSerialNumber,
+        tcccs.welding_base_welding_position as weldingBaseWeldingPosition,
+        cppl.welding_craft_parameter_pass as weldingCraftParameterPass,
+        tcp.equiment_serial_number as equimentSerialNumber,
+        tcp.equiment_code as equimentCode,
+        tcp.equiment_name as equimentName,
+        tcp.weld_user_name as weldUserName,
+        tcp.start_time as startTime,
+        tcp.end_time as endTime,
+        cppl.electricity as ratedElectricity,
+        cppl.voltage as ratedVoltage
+        from
+        tech_capp_craft_product_pass_task as tcp
+        left join tech_capp_craft_card_storehouse as tcccs on tcp.tech_capp_craft_card_storehouse_id = tcccs.id
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON tcp.product_id = product.id and product.bool_delete_enum = 0
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble product ON tcp.product_id = product.id and product.bool_delete_enum = 0
+        </if>
+        left join tech_capp_craft_product_weld_task as tcpwt on tcpwt.id = tcp.tech_capp_craft_product_weld_task_id and
+        tcpwt.bool_delete_enum = 0
+        left join tech_capp_craft_card_storehouse_craft_parameter_pass_link as cppl on cppl.id =
+        tcp.tech_capp_craft_card_storehouse_craft_parameter_pass_link_id
+        <where>
+            tcp.bool_delete_enum = 0
+            and tcp.tech_capp_product_task_work_type = 4
+            <if test="projectId != null">
+                and tcp.project_id = #{projectId}
+            </if>
+            <if test="weldSerialNumber != null and weldSerialNumber != ''">
+                and tcpwt.welding_serial_number like concat('%',#{weldSerialNumber},'%')
+            </if>
+            <if test="monomerId != null ">
+                and tcp.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                and tcp.area_id = #{areaId}
+            </if>
+            <if test="productType != null ">
+                and tcp.product_type = #{productType}
+            </if>
+            <if test="productSerialNumber != null and productSerialNumber != '' ">
+                and product.serial_number like concat('%',#{productSerialNumber},'%')
+            </if>
+            <if test="productName != null and productName != '' ">
+                and product.name like concat('%',#{productName},'%')
+            </if>
+            <if test="techCappCraftCardStorehouseSerialNumber != null and techCappCraftCardStorehouseSerialNumber != '' ">
+                and tcccs.serial_number like concat('%',#{techCappCraftCardStorehouseSerialNumber},'%')
+            </if>
+        </where>
+        order by product.serial_number, cppl.sort, tcp.create_time
+
+    </select>
+    <select id="weldingGatherDetail"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductCurrentVoltageVO">
+        select
+        ptr.id as id,
+        ptr.create_time as createTime,
+        ptr.electricity as electricity,
+        ptr.voltage as voltage
+        from
+        tech_capp_craft_product_pass_task_record as ptr
+        <where>
+            ptr.bool_delete_enum = 0
+            and ptr.tech_capp_craft_product_pass_task_id = #{passId}
+            <if test="isWithinTheRatedRange != null and isWithinTheRatedRange == true">
+                and ptr.electricity between #{ratedMinElectricity} and #{ratedMaxElectricity}
+                and ptr.voltage between #{ratedMinVoltage} and #{ratedMaxVoltage}
+            </if>
+            <if test="isWithinTheRatedRange != null and isWithinTheRatedRange == false">
+                and (
+                ptr.electricity not between #{ratedMinElectricity} and #{ratedMaxElectricity}
+                or ptr.voltage not between #{ratedMinVoltage} and #{ratedMaxVoltage}
+                )
+            </if>
+        </where>
+        order by ptr.create_time
+    </select>
+
+</mapper>

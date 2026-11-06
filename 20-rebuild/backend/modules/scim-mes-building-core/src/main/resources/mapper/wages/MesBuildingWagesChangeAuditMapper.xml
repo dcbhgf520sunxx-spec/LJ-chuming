@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wages.MesBuildingWagesChangeAuditMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wages.MesBuildingWagesChangeAudit">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="user_id" property="userId" />
+        <result column="audit_user_id" property="auditUserId" />
+        <result column="audit_status" property="auditStatus" />
+        <result column="audit_time" property="auditTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, user_id, audit_user_id, audit_status, audit_time
+    </sql>
+    <select id="auditList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.AuditListDO">
+        SELECT
+        a.id,
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        a.create_time,
+        a.process_id,
+        mbp.`name` process_name,
+        a.audit_time,
+        a.user_id,
+        u1.`name` user_name,
+        a.audit_user_id,
+        audit.`name` audit_user_name,
+        a.audit_status
+        FROM
+        mes_building_wages_change_audit a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        AND cp.bool_delete_enum =
+        FALSE LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        AND pm.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_process mbp ON a.process_id=mbp.id
+        LEFT JOIN sys_user u1 ON u1.id=a.user_id
+        LEFT JOIN sys_user audit ON audit.id=a.audit_user_id
+        <where>
+            <if test="projectId">
+                a.organization_type=#{organizationType}
+            </if>
+            <if test="projectId">
+               and  a.project_id=#{projectId}
+            </if>
+            <if test="monomerId">
+                and a.monomer_id=#{monomerId}
+            </if>
+            <if test="processId">
+                and a.process_id=#{processId}
+            </if>
+            <if test="status">
+                and a.audit_status=#{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.warehouse.MesBuildingWarehouseStorageProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.warehouse.MesBuildingWarehouseStorageProduct">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="warehouse_record_id" property="warehouseRecordId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_id" property="productId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="number" property="number"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_workshop_id" property="warehouseWorkshopId"/>
+        <result column="warehouse_factory_id" property="warehouseFactoryId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, warehouse_record_id, project_id, monomer_id, area_id, product_type, product_id, quantity, number, warehouse_id, warehouse_workshop_id, warehouse_factory_id, user_id
+    </sql>
+
+    <select id="selectUnSavedWarehouseProductList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.WarehouseProductDTO">
+        SELECT
+        s.workshop_id AS 'workshop.id',
+        ws.`name` AS 'workshop.name',
+        s.project_id AS 'project.id',
+        cp.`name` AS 'project.name',
+        cp.short_name AS 'project.short_name',
+        cp.serial_number AS 'project.serial_number',
+        s.monomer_id AS 'monomer.id',
+        pm.`name` AS 'monomer.name',
+        s.area_id AS 'area.id',
+        pa.`name` AS 'area.name',
+        s.product_type,
+        s.product_id,
+        a.`name`,
+        a.serial_number,
+        a.specification,
+        a.material,
+        a.length,
+        s.quantity,
+        a.quantity AS list_quantity,
+        a.net_weight,
+        a.net_weight * s.quantity AS total_net_weight,
+        a.gross_weight,
+        a.gross_weight * s.quantity AS total_gross_weight
+        FROM
+        (select
+        s.workshop_id,
+        s.warehouse_type,
+        s.project_id,
+        s.monomer_id,
+        s.area_id,
+        s.product_type,
+        s.product_id,
+        SUM(s.quantity) AS quantity
+        FROM
+        (SELECT
+        s.id,
+        s.workshop_id,
+        s.warehouse_type,
+        s.project_id,
+        s.monomer_id,
+        s.area_id,
+        s.product_type,
+        s.product_id,
+        s.quantity - IFNULL( sum( wsp.quantity ), 0 ) AS quantity
+        FROM
+        mes_building_warehouse_record AS s
+        LEFT JOIN mes_building_warehouse_storage_product AS wsp ON s.id = wsp.warehouse_record_id
+        AND wsp.bool_delete_enum = 0
+        WHERE s.bool_delete_enum = 0
+        AND s.type = 1
+        AND s.status = 1
+        AND s.product_type = 2
+        AND s.warehouse_type IN ( 0, 2 )
+        <if test="workshopId != null">
+            AND s.workshop_id = #{workshopId}
+        </if>
+        <if test="projectId != null">
+            AND s.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND s.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND s.area_id = #{areaId}
+        </if>
+        group by s.id
+        having quantity > 0
+        ) s
+        GROUP BY s.workshop_id, s.warehouse_type, s.project_id, s.monomer_id, s.area_id, s.product_type, s.product_id
+        ) s
+        INNER JOIN tech_artifact AS a ON s.product_id = a.id AND a.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop AS ws ON s.workshop_id = ws.id
+        LEFT JOIN contract_project AS cp ON s.project_id = cp.id
+        LEFT JOIN plan_monomer AS pm ON s.monomer_id = pm.id
+        LEFT JOIN plan_area AS pa ON s.area_id = pa.id
+        <if test="name != null and name != ''">
+            AND a.name LIKE concat('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number LIKE concat('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND a.specification LIKE concat('%', #{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND a.material LIKE concat('%', #{material},'%')
+        </if>
+        ORDER BY s.product_id
+    </select>
+
+
+    <select id="selectUnOutWarehouseProductList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.WarehouseProductDTO">
+        SELECT
+        wsp.warehouse_id,
+        wsp.warehouse_id 'warehouse.id',
+        wh.name 'warehouse.name',
+        wsp.project_id AS 'project.id',
+        cp.`name` AS 'project.name',
+        cp.short_name AS 'project.short_name',
+        cp.serial_number AS 'project.serial_number',
+        wsp.monomer_id AS 'monomer.id',
+        pm.`name` AS 'monomer.name',
+        wsp.area_id AS 'area.id',
+        pa.`name` AS 'area.name',
+        wsp.product_type,
+        wsp.product_id,
+        a.`name`,
+        a.serial_number,
+        a.specification,
+        a.material,
+        a.length,
+        a.quantity AS list_quantity,
+        sum( wsp.quantity ) AS quantity,
+        a.net_weight,
+        a.net_weight * sum( wsp.quantity ) AS total_net_weight,
+        a.gross_weight,
+        a.gross_weight * sum( wsp.quantity ) AS total_gross_weight
+        FROM
+        mes_building_warehouse_storage_product AS wsp
+        INNER JOIN mes_building_warehouse_record wr ON wsp.warehouse_record_id = wr.id
+        INNER JOIN tech_artifact AS a ON wsp.product_id = a.id
+        LEFT JOIN contract_project AS cp ON wsp.project_id = cp.id
+        LEFT JOIN plan_monomer AS pm ON wsp.monomer_id = pm.id
+        LEFT JOIN plan_area AS pa ON wsp.area_id = pa.id
+        LEFT JOIN mes_building_warehouse AS wh ON wsp.warehouse_id = wh.id
+        WHERE
+        wsp.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND a.bool_delete_enum = 0
+        AND wsp.product_type = 2
+        AND wr.`status` = 1
+        <if test="workshopId != null">
+            AND wsp.warehouse_workshop_id = #{workshopId}
+        </if>
+        <if test="warehouseId != null">
+            AND wsp.warehouse_id = #{warehouseId}
+        </if>
+        <if test="projectId != null">
+            AND wsp.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND wsp.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND wsp.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            AND a.name LIKE concat('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND a.serial_number LIKE concat('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            AND a.specification LIKE concat('%', #{specification},'%')
+        </if>
+        <if test="material != null and material != ''">
+            AND a.material LIKE concat('%', #{material},'%')
+        </if>
+        GROUP BY wsp.project_id, wsp.monomer_id, wsp.area_id, wsp.product_id, wsp.warehouse_id
+        ORDER BY wsp.product_id, wsp.warehouse_id
+    </select>
+
+</mapper>

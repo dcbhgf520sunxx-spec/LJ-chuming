@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ProjectInspectionUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.ProjectInspectionUser">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="user_id" property="userId" />
+        <result column="project_id" property="projectId" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="patrols_time" property="patrolsTime" />
+        <result column="avoid_time" property="avoidTime" />
+        <result column="mandatory_inspection" property="mandatoryInspection" />
+        <result column="interval_time" property="intervalTime" />
+        <result column="status" property="status" />
+        <result column="is_sort" property="isSort" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, user_id, project_id, start_time, end_time, patrols_time, avoid_time, mandatory_inspection, interval_time, status, is_sort
+    </sql>
+
+</mapper>

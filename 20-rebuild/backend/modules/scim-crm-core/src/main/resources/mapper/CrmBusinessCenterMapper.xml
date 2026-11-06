@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmBusinessCenterMapper">
+
+    <select id="getCrmCenterProjectList"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmCenterProjectListDTO">
+        select
+        project.* ,
+        enter.business_name as crmEnterpriseWarehousingName,
+        a.name as structureTypeConfigurationName,
+        project.estimated_cost as estimatedCost,
+        b.name as projectLevelConfigName,
+        dept.name as departmentName,
+        user_a.name as createUserName,
+        user_b.name as informationOperatorUserName
+        from crm_project_information_warehousing as project
+        left join crm_enterprise_warehousing as enter on enter.id = project.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum = 0
+        left join crm_project_information_config as a on project.structure_type_configuration_id = a.id and
+        a.bool_delete_enum = 0
+        left join crm_project_information_config as b on project.project_level_config_id = b.id and b.bool_delete_enum =
+        0
+        left join sys_department as dept on dept.id = project.department_id and dept.bool_delete_enum = 0
+        left join sys_user as user_a on user_a.id = project.create_user_id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on user_b.id = project.information_operator_user_id and user_a.bool_delete_enum = 0
+        <where>
+            project.bool_delete_enum = 0
+            and project.crm_check_status_enum = 2
+            and project.crm_project_schedule_type_enum != 11
+            and project.crm_project_schedule_type_enum != 7
+            <if test="startDate!=null">
+                AND DATE(project.informant_date_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(project.informant_date_time)&lt;=DATE(#{endDate})
+            </if>
+            <if test="countryId != null">
+                and enter.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null">
+                and enter.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and enter.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and enter.region_id = #{regionId}
+            </if>
+            <if test="structureTypeConfigurationId != null">
+                and project.structure_type_configuration_id = #{structureTypeConfigurationId}
+            </if>
+            <if test="departmentIds != null and departmentIds.size() != 0">
+                and project.department_id IN
+                <foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
+                    #{deptId}
+                </foreach>
+            </if>
+            <if test="projectName != null and projectName != ''">
+                and project.project_name like concat('%',#{projectName},'%')
+            </if>
+            <if test="crmEnterpriseWarehousingName != null and crmEnterpriseWarehousingName != ''">
+                and enter.business_name like concat('%',#{crmEnterpriseWarehousingName},'%')
+            </if>
+            <if test="informantUserName != null and informantUserName != '' ">
+                and user_a.name like concat('%',#{informantUserName},'%')
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() != 0">
+                <choose>
+                    <when test="crmCanLookDeptIds.contains(0L)">
+                        and (project.information_operator_dept_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                        or project.information_operator_user_id = #{userId})
+                    </when>
+                    <otherwise>
+                        and project.information_operator_dept_id IN
+                        <foreach collection="crmCanLookDeptIds" item="deptId" open="(" separator="," close=")">
+                            #{deptId}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="crmCanLookDeptIds != null and crmCanLookDeptIds.size() == 0">
+                -- 只查看自己的内容
+                and project.information_operator_user_id = #{userId}
+            </if>
+        </where>
+        order by project.informant_date_time desc
+    </select>
+    <select id="getCrmSupplierWarehousingPage"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmSupplierWarehousingPageDTO">
+        select
+        supplier.id as id,
+        supplier.create_time as informantDateTime,
+        supplier.ca_lock_date as caLockDate,
+        supplier.deadline_for_acceptance_time as deadlineForAcceptanceTime,
+        enter.business_name as businessName,
+        enter.credit_code as creditCode,
+        supplier.country_name as countryName,
+        supplier.province_name as provinceName,
+        supplier.city_name as cityName,
+        supplier.region_name as regionName,
+        basice_config1.name as unitPropertyAllocationConfigName,
+        basice_config2.name as unitClassConfigurationName,
+        basice_config3.name as industryConfigurationName,
+        basice_config4.name as unitReputationAllocationConfigName,
+        user_a.name as informantUserName,
+        user_b.name as createUserName,
+        supplier.attachment_ids as attachmentIdsByString,
+        enter.business_phone as businessPhone,
+        enter.business_email as businessEmail,
+        warehousing.project_name as projectName
+        from crm_supplier_warehousing as supplier
+        left join crm_project_information_warehousing as warehousing on warehousing.id =
+        supplier.crm_project_information_warehousing_id and warehousing.bool_delete_enum = 0
+        left join crm_enterprise_warehousing as enter on enter.id = supplier.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum = 0
+        left join crm_basics_config as basice_config1 on basice_config1.id = enter.unit_property_allocation_config_id
+        and
+        basice_config1.bool_delete_enum = 0
+        left join crm_basics_config as basice_config2 on basice_config2.id = enter.unit_class_configuration_id
+        and
+        basice_config2.bool_delete_enum = 0
+        left join crm_basics_config as basice_config3 on basice_config3.id = enter.industry_configuration_id
+        and
+        basice_config3.bool_delete_enum = 0
+        left join crm_basics_config as basice_config4 on basice_config4.id = enter.unit_reputation_allocation_config_id
+        and
+        basice_config4.bool_delete_enum = 0
+        left join sys_user as user_a on user_a.id = supplier.informant_user_id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on user_b.id = supplier.create_user_id and user_b.bool_delete_enum = 0
+        <where>
+            supplier.bool_delete_enum =0
+            <if test="crmCheckStatusEnum != null">
+                and supplier.crm_check_status_enum = #{crmCheckStatusEnum}
+            </if>
+            <if test="checkRecord != null">
+                and supplier.crm_record_type_enum = #{checkRecord}
+            </if>
+            <if test="startDate != null">
+                and date(supplier.create_time) >= date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                and date(supplier.create_time) &lt;= date(#{endDate})
+            </if>
+            <if test="countryId != null">
+                and supplier.countr_id = #{countryId}
+            </if>
+            <if test="provinceId != null">
+                and supplier.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and supplier.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and supplier.region_id = #{regionId}
+            </if>
+            <if test="unitPropertyAllocationConfigId != null">
+                and enter.unit_property_allocation_config_id = #{unitPropertyAllocationConfigId}
+            </if>
+            <if test="unitClassConfigurationId != null ">
+                and enter.unit_class_configuration_id = #{unitClassConfigurationId}
+            </if>
+            <if test="industryConfigurationId != null ">
+                and enter.industry_configuration_id = #{industryConfigurationId}
+            </if>
+            <if test="unitReputationAllocationConfigId != null">
+                and enter.unit_reputation_allocation_config_id = #{unitReputationAllocationConfigId}
+            </if>
+            <if test="businessName != null and businessName != ''">
+                and enter.business_name like concat('%',#{businessName},'%')
+            </if>
+            <if test="creditCode != null and creditCode != '' ">
+                and enter.credit_code like concat('%',#{creditCode},'%')
+            </if>
+            <if test="informantUserName != null and informantUserName != ''">
+                and user_a.name like concat('%',#{informantUserName},'%')
+            </if>
+        </where>
+        order by supplier.create_time desc
+    </select>
+    <select id="getGovernmentList"
+            resultType="com.hzchum.scim.crm.core.api.pojo.dto.CrmGovernmentWarehousingPageDTO">
+        select gover.*,
+        <if test="checkRecord != null and checkRecord == 1">
+            gover.create_time as informantDateTime,
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            gover.informant_date_time as informantDateTime,
+        </if>
+        enter.business_name as businessName,
+        enter.address as address,
+        project_warehousing.id as crmProjectInformationWarehousingId,
+        project_warehousing.project_name as crmProjectInformationWarehousingName,
+        basice_config1.name as unitPropertyAllocationConfigName,
+        basice_config2.name as unitClassConfigurationName,
+        basice_config3.name as industryConfigurationName,
+        basice_config4.name as unitReputationAllocationConfigName,
+        user_a.name as informantUserName,
+        user_b.name as createUserName
+        from crm_government_warehousing as gover
+        left join crm_enterprise_warehousing as enter on enter.id = gover.crm_enterprise_warehousing_id and
+        enter.bool_delete_enum = 0
+        left join crm_basics_config as basice_config1 on basice_config1.id = enter.unit_property_allocation_config_id
+        and
+        basice_config1.bool_delete_enum = 0
+        left join crm_basics_config as basice_config2 on basice_config2.id = enter.unit_class_configuration_id
+        and
+        basice_config2.bool_delete_enum = 0
+        left join crm_basics_config as basice_config3 on basice_config3.id = enter.industry_configuration_id
+        and
+        basice_config3.bool_delete_enum = 0
+        left join crm_basics_config as basice_config4 on basice_config4.id = enter.unit_reputation_allocation_config_id
+        and
+        basice_config4.bool_delete_enum = 0
+        left join sys_user as user_a on user_a.id = enter.informant_user_id and user_a.bool_delete_enum = 0
+        left join sys_user as user_b on user_b.id = enter.create_user_id and user_b.bool_delete_enum = 0
+        left join crm_project_information_warehousing as project_warehousing on project_warehousing.id =
+        gover.crm_project_information_warehousing_id and project_warehousing.bool_delete_enum = 0
+        <where>
+            gover.bool_delete_enum = 0
+            <if test="checkRecord != null ">
+                and gover.crm_record_type_enum = #{checkRecord}
+            </if>
+            <if test="crmCheckStatusEnum != null">
+                and gover.crm_check_status_enum = #{crmCheckStatusEnum}
+            </if>
+            <if test="checkRecord != null and checkRecord == 1">
+                <if test="startDate != null ">
+                    and gover.create_time >= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and gover.create_time &lt;= #{endDate}
+                </if>
+            </if>
+            <if test="checkRecord != null and checkRecord == 2">
+                <if test="startDate != null ">
+                    and gover.informant_date_time >= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and gover.informant_date_time &lt;= #{endDate}
+                </if>
+            </if>
+
+            <if test="countryId != null ">
+                and enter.country_id = #{countryId}
+            </if>
+            <if test="provinceId != null ">
+                and enter.province_id = #{provinceId}
+            </if>
+            <if test="cityId != null">
+                and enter.city_id = #{cityId}
+            </if>
+            <if test="regionId != null">
+                and enter.region_id = #{regionId}
+            </if>
+            <if test="unitPropertyAllocationConfigId != null">
+                and enter.unit_property_allocation_config_id = #{unitPropertyAllocationConfigId}
+            </if>
+            <if test="unitClassConfigurationId != null">
+                and enter.unit_class_configuration_id = #{unitClassConfigurationId}
+            </if>
+            <if test="industryConfigurationId != null">
+                and enter.industry_configuration_id = #{industryConfigurationId}
+            </if>
+            <if test="unitReputationAllocationConfigId != null ">
+                and enter.unit_reputation_allocation_config_id = #{unitReputationAllocationConfigId}
+            </if>
+            <if test="businessName != null and businessName != '' ">
+                and enter.business_name like concat('%',#{businessName},'%')
+            </if>
+            <if test="creditCode != null and creditCode != ''">
+                and enter.credit_code like concat('%',#{creditCode},'%')
+            </if>
+            <if test="informantUserName != null and informantUserName != ''">
+                and user_a.name like concat('%',#{informantUserName},'%')
+            </if>
+        </where>
+        <if test="checkRecord != null and checkRecord == 1">
+            order by gover.create_time desc
+        </if>
+        <if test="checkRecord != null and checkRecord == 2">
+            order by gover.informant_date_time desc
+        </if>
+    </select>
+</mapper>

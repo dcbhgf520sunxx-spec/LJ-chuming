@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractWasteMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractWaste">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="purchaser" property="purchaser"/>
+        <result column="user_id" property="userId"/>
+        <result column="last_edit_user_id" property="lastEditUserId"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, purchaser, user_id, last_edit_user_id, last_edit_time
+    </sql>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractWasteDTO">
+        select
+        cw.*,
+        u1.name as user_name,
+        u2.name as last_edit_user_name
+        from contract_waste AS cw
+        left join sys_user u1 on cw.user_id = u1.id
+        left join sys_user u2 on cw.last_edit_user_id = u2.id
+        where cw.bool_delete_enum = 0
+        <if test="serialNumber != null and serialNumber != ''">
+            and cw.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            and cw.purchaser like concat('%',#{purchaser},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+            and u1.name like concat('%',#{userName},'%')
+        </if>
+    </select>
+
+    <select id="listWasteLedger" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractWasteLedgerDTO">
+        SELECT
+        temp.*,
+        ROUND( temp.collection_amount / temp.total_amount, 4 ) AS collection_rate,
+        ROUND( temp.invoice_amount / temp.total_amount, 4 ) AS invoice_rate
+        FROM
+        (SELECT
+        ws.contract_waste_id,
+        cw.serial_number,
+        cw.purchaser,
+        ws.branch_company_id,
+        bc.`name` AS branch_company_name,
+        <!--出售总额-->
+        (SELECT SUM(total_amount) FROM wms_waste_sale WHERE bool_delete_enum = 0
+        AND contract_waste_id = ws.contract_waste_id AND branch_company_id = ws.branch_company_id AND audit_status_enum = 2)
+        total_amount,
+        <!--已收款额-->
+        (SELECT IFNULL(SUM(collection_amount), 0) FROM contract_collection WHERE bool_delete_enum = 0 AND type = 2
+        AND contract_waste_id = ws.contract_waste_id AND collection_unit_id = ws.branch_company_id AND audit_status = 2)
+        collection_amount,
+        <!--已开票额-->
+        (SELECT IFNULL(SUM(invoice_amount), 0) FROM contract_invoice WHERE bool_delete_enum = 0 AND type = 2
+        AND contract_waste_id = ws.contract_waste_id AND invoice_unit_id = ws.branch_company_id AND audit_status = 2)
+        invoice_amount,
+        <!--未审核收款数-->
+        (SELECT COUNT(id) FROM contract_collection WHERE bool_delete_enum = 0 AND type = 2
+        AND contract_waste_id = ws.contract_waste_id AND collection_unit_id = ws.branch_company_id AND audit_status = 1)
+        un_check_collection_count,
+        <!--未审核开票数-->
+        (SELECT COUNT(id) FROM contract_invoice WHERE bool_delete_enum = 0 AND type = 2
+        AND contract_waste_id = ws.contract_waste_id AND invoice_unit_id = ws.branch_company_id AND audit_status = 1)
+        un_check_invoice_count
+        FROM
+        wms_waste_sale AS ws
+        LEFT JOIN wms_waste_sale_detail AS wsd ON ws.id = wsd.waste_sale_id
+        LEFT JOIN contract_waste AS cw ON ws.contract_waste_id = cw.id
+        LEFT JOIN sys_branch_company AS bc ON ws.branch_company_id = bc.id
+        WHERE
+        ws.bool_delete_enum = 0
+        AND ws.audit_status_enum = 2
+        AND wsd.bool_delete_enum = 0
+        <if test="startDate != null">
+            AND DATE(ws.sale_date) &gt;= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE(ws.sale_date) &lt;= DATE(#{endDate})
+        </if>
+        <if test="contractWasteId != null">
+            AND ws.contract_waste_id = #{contractWasteId}
+        </if>
+        <if test="branchCompanyId != null">
+            AND ws.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="wasteClassificationId != null">
+            AND wsd.waste_classification_id = #{wasteClassificationId}
+        </if>
+        GROUP BY ws.contract_waste_id, ws.branch_company_id
+        ) AS temp
+        ORDER BY temp.contract_waste_id, temp.branch_company_id
+    </select>
+
+</mapper>

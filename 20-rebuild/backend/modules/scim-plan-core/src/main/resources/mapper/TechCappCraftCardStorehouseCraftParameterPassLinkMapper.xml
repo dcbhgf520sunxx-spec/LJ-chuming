@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardStorehouseCraftParameterPassLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouseCraftParameterPassLink">
+        <id column="id" property="id" />
+        <result column="welding_craft_parameter_pass" property="weldingCraftParameterPass" />
+        <result column="welding_base_welding_method" property="weldingBaseWeldingMethod" />
+        <result column="welding_material_trademark" property="weldingMaterialTrademark" />
+        <result column="welding_craft_parameter_rod_or_wire_designation" property="weldingCraftParameterRodOrWireDesignation" />
+        <result column="welding_craft_parameter_welding_flux_or_shielding_gas" property="weldingCraftParameterWeldingFluxOrShieldingGas" />
+        <result column="welding_craft_parameter_shielding_gas_flow" property="weldingCraftParameterShieldingGasFlow" />
+        <result column="electricity" property="electricity" />
+        <result column="voltage" property="voltage" />
+        <result column="welding_speed" property="weldingSpeed" />
+        <result column="thermal_input" property="thermalInput" />
+        <result column="remark" property="remark" />
+        <result column="tech_capp_craft_card_storehouse_id" property="techCappCraftCardStorehouseId" />
+        <result column="sort" property="sort" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, welding_craft_parameter_pass, welding_base_welding_method, welding_material_trademark, welding_craft_parameter_rod_or_wire_designation, welding_craft_parameter_welding_flux_or_shielding_gas, welding_craft_parameter_shielding_gas_flow, electricity, voltage, welding_speed, thermal_input, remark, tech_capp_craft_card_storehouse_id, sort
+    </sql>
+    <select id="getAllList"
+            resultType="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouseCraftParameterPassLink">
+        select * from  tech_capp_craft_card_storehouse_craft_parameter_pass_link
+    </select>
+
+</mapper>

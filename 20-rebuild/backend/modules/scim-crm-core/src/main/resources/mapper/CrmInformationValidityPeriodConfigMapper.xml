@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmInformationValidityPeriodConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmInformationValidityPeriodConfig">
+        <id column="id" property="id" />
+        <result column="crm_information_validity_period_config_enum" property="crmInformationValidityPeriodConfigEnum" />
+        <result column="validity_of_registration" property="validityOfRegistration" />
+        <result column="remind_in_advance" property="remindInAdvance" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, crm_information_validity_period_config_enum, validity_of_registration, remind_in_advance
+    </sql>
+
+</mapper>

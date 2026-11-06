@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.SectionSteelSpecStandardDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.SectionSteelSpecStandardDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="standard_id" property="standardId" />
+        <result column="spec_id" property="specId" />
+        <result column="unit_net" property="unitNet" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, standard_id, spec_id, unitNet
+    </sql>
+
+    <select id="getBySpecId" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.SectionSteelSpecStandardDetail">
+        SELECT id did,standard_id,unit_net FROM wms_section_steel_spec_standard_detail WHERE spec_id = #{id}
+    </select>
+    <select id="download" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.DownloadSectionSteelDO">
+        SELECT
+            sss.specification,
+            sssd.unit_net
+        FROM
+            wms_section_steel_spec sss
+                LEFT JOIN wms_section_steel_spec_standard_detail sssd ON sssd.spec_id = sss.id and sssd.bool_delete_enum = false
+
+        WHERE sss.bool_delete_enum = false and sss.section_steel_id = #{sectionSteelId} and sssd.standard_id = #{standardId}
+    </select>
+
+    <select id="selectDetailBySpecId" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.SectionSteelSpecStandardDetailDTO">
+        SELECT
+            ssssd.standard_id id,
+            ssssd.unit_net unitNet,
+            s.name standard_name
+        FROM
+            wms_section_steel_spec_standard_detail ssssd
+            LEFT JOIN wms_standard s ON s.id = ssssd.standard_id AND s.bool_delete_enum = false
+        WHERE
+            ssssd.bool_delete_enum = false
+        AND ssssd.spec_id = #{specId}
+    </select>
+</mapper>

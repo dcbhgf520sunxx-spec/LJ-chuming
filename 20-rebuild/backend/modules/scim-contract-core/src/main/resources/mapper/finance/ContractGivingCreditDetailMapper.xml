@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractGivingCreditDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractGivingCreditDetail">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="user_id" property="userId" />
+        <result column="credit_id" property="creditId" />
+        <result column="project_id" property="projectId" />
+        <result column="Purchase_id" property="purchaseId" />
+        <result column="use_amount" property="useAmount" />
+        <result column="residue_amount" property="residueAmount" />
+        <result column="payment_reason_id" property="paymentReasonId" />
+        <result column="audit_status" property="auditStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        id, user_id, credit_id, project_id, Purchase_id, use_amount, residue_amount, payment_reason_id, audit_status
+    </sql>
+
+</mapper>

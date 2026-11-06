@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsPickingApproveMapper">
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `wms_picking_approve`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsPickingApprove">
+        SELECT
+            *
+        FROM `wms_picking_approve`
+        WHERE bool_delete_enum = 0
+        <if test="param.serialNumber != null and param.serialNumber != ''">
+            and serial_number like concat('%',#{param.serialNumber},'%')
+        </if>
+        <if test="param.taskOrderNumber != null and param.taskOrderNumber != ''">
+            and task_order_numbers like concat('%',#{param.taskOrderNumber},'%')
+        </if>
+        <if test="param.createTimeList != null and param.createTimeList.size() > 0">
+            and create_time between #{param.createTimeList[0]} and #{param.createTimeList[1]}
+        </if>
+        <if test="param.applicationName != null and param.applicationName != ''">
+            and application_name like concat('%',#{param.applicationName},'%')
+        </if>
+        <if test="param.reviewStatus != null and param.reviewStatus != ''">
+            and review_status = #{param.reviewStatus}
+        </if>
+    </select>
+
+    <select id="getProjectPickingSteelMete"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ProjectPickingDTO">
+        SELECT
+        wmod.basic_class basicClass,
+        wmod.thickness  thickness,
+        wmod.specification specification,
+        sum(wmod.mete) meteCount
+        FROM
+        wms_move_outbound_detail wmod
+        WHERE
+        EXISTS (
+        SELECT
+        1
+        FROM
+        wms_picking_approve_detail wpad
+        INNER JOIN wms_picking_approve wpa ON wpa.id = wpad.picking_approve_id AND wpa.review_status = 2
+        INNER JOIN wms_picking_detail wpd ON wpad.picking_detail_id = wpd.id AND wpd.bool_delete_enum = 0
+        INNER JOIN wms_picking wp ON wpd.picking_id = wp.id AND wp.bool_delete_enum = 0
+        <if test="projectId != null">
+            and wp.project_id = #{projectId}
+        </if>
+        <if test="workShopId">
+            and wp.mes_workshop_id = #{workShopId}
+        </if>
+        WHERE
+        wmod.id = wpad.out_detail_id
+        )
+        AND wmod.bool_delete_enum = 0 AND wmod.basic_class = 1
+        group by wmod.basic_class,wmod.thickness,wmod.specification
+    </select>
+
+
+    <select id="getProjectPickingSectionSteelMete"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ProjectPickingDTO">
+        SELECT
+        wmod.basic_class basicClass,
+        wmod.specification  specification,
+        sum(wmod.mete) meteCount
+        FROM
+        wms_move_outbound_detail wmod
+        WHERE
+        EXISTS (
+        SELECT
+        1
+        FROM
+        wms_picking_approve_detail wpad
+        INNER JOIN wms_picking_approve wpa ON wpa.id = wpad.picking_approve_id AND wpa.review_status = 2
+        INNER JOIN wms_picking_detail wpd ON wpad.picking_detail_id = wpd.id AND wpd.bool_delete_enum = 0
+        INNER JOIN wms_picking wp ON wpd.picking_id = wp.id AND wp.bool_delete_enum = 0
+        <if test="projectId != null">
+            and wp.project_id = #{projectId}
+        </if>
+        <if test="workShopId">
+            and wp.mes_workshop_id = #{workShopId}
+        </if>
+        WHERE
+        wmod.id = wpad.out_detail_id
+        )
+        AND wmod.bool_delete_enum = 0 AND wmod.basic_class = 2
+        group by wmod.basic_class,wmod.specification
+    </select>
+
+
+</mapper>

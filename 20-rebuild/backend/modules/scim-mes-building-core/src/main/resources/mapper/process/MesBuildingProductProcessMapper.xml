@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.process.MesBuildingProductProcessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProductProcess">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="product_type" property="productType"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_type, bool_enabled_enum, sort, user_id
+    </sql>
+    <select id="selectByNameAndType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.process.MesBuildingProductProcessDO">
+        SELECT *
+        FROM mes_building_product_process
+        WHERE name =#{name}
+            AND bool_delete_enum=FALSE
+            AND product_type =#{productType}
+    </select>
+
+    <select id="listProcessByProductType" resultType="java.lang.String">
+        SELECT name
+        FROM mes_building_product_process
+        WHERE bool_delete_enum= 0
+          AND bool_enabled_enum = 1
+          AND product_type =#{productType}
+    </select>
+    <select id="selectByType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.process.MesBuildingProductProcess">
+        SELECT *
+        FROM mes_building_product_process
+        WHERE bool_delete_enum = 0
+          AND product_type &amp; #{productType}>0
+    </select>
+
+    <select id="selectByProductTypeAndProcessIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.process.MesBuildingProductProcessDTO">
+        SELECT
+            mbppl.*,
+            mbpp.product_type,
+            mbpp.type_id
+        FROM mes_building_product_process_link mbppl
+        LEFT JOIN mes_building_product_process mbpp ON mbpp.bool_delete_enum = FALSE AND mbpp.id = mbppl.product_process_id
+        WHERE mbppl.bool_delete_enum = FALSE
+          AND mbpp.product_type = 1 AND mbppl.process_id IN ()
+    </select>
+    <select id="selectProductLineAndProcessByTeamIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.process.MesBuildingProductProcessDTO"></select>
+
+</mapper>

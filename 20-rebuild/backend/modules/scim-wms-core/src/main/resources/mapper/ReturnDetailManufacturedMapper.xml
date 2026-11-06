@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.ReturnDetailManufacturedMapper">
+
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.ReturnDetailManufactured">
+        select
+        wrdm.*
+        from wms_return_detail_manufactured wrdm
+        join wms_return_manufactured wrd on wrdm.return_manufactured_id = wrd.id and wrd.bool_delete_enum = 0 and wrd.review_status = 2
+        where wrdm.bool_delete_enum = 0
+        <if test=" basicClass != null">
+            and wrdm.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and wrdm.project_id = #{projectId}
+        </if>
+        <if test="applicationTime != null and applicationTime.size() > 0">
+            <if test="applicationTime[0] != null">
+                and wrd.application_time &gt; #{applicationTime[0]}
+            </if>
+            <if test="applicationTime[1] != null">
+                and wrd.application_time &lt; #{applicationTime[1]}
+            </if>
+        </if>
+        <if test="reviewPassTime != null and reviewPassTime.size() > 0">
+            <if test="reviewPassTime[0] != null">
+                and wrd.review_pass_time &gt;= #{reviewPassTime[0]}
+            </if>
+            <if test="reviewPassTime[1] != null">
+                and wrd.review_pass_time &lt;= #{reviewPassTime[1]}
+            </if>
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wrd.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and wrdm.specification like concat('%',#{specification},'%')
+        </if>
+    </select>
+</mapper>

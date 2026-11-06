@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_manage.MesCoatingProcessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesCoatingProcess">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="artifact_quantity" property="artifactQuantity"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="create_user_id" property="createUserId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, contract_project_id, artifact_quantity, total_area, create_user_id
+    </sql>
+
+    <resultMap id="MesCoatingProcessDTOMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesCoatingProcessDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="artifact_quantity" property="artifactQuantity"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="create_user_name" property="createUserName"/>
+        <result column="contract_project_serial_number" property="contractProjectSerialNumber"/>
+        <result column="contract_project_short_name" property="contractProjectShortName"/>
+        <collection property="detailList"
+                    ofType="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesCoatingProcessDetail">
+            <id column="detail_id" property="id"/>
+            <result column="detail_create_time" property="createTime"/>
+            <result column="detail_update_time" property="updateTime"/>
+            <result column="detail_bool_delete_enum" property="boolDeleteEnum"/>
+            <result column="detail_version" property="version"/>
+            <result column="detail_coating_process_id" property="coatingProcessId"/>
+            <result column="detail_paint_type" property="paintType"/>
+            <result column="detail_paint_brand" property="paintBrand"/>
+            <result column="detail_paint_category" property="paintCategory"/>
+            <result column="detail_thickness" property="thickness"/>
+            <result column="detail_remark" property="remark"/>
+            <result column="detail_use_quantity" property="useQuantity"/>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesCoatingProcessDTOMap">
+        SELECT
+            mcp.*,
+            mcpd.id AS detail_id,
+            mcpd.create_time AS detail_create_time,
+            mcpd.update_time AS detail_update_time,
+            mcpd.bool_delete_enum AS detail_bool_delete_enum,
+            mcpd.version AS detail_version,
+            mcpd.coating_process_id AS detail_coating_process_id,
+            mcpd.paint_type AS detail_paint_type,
+            mcpd.paint_brand AS detail_paint_brand,
+            mcpd.paint_category AS detail_paint_category,
+            mcpd.thickness AS detail_thickness,
+            mcpd.remark AS detail_remark,
+            mcpd.use_quantity AS detail_use_quantity,
+            su.name AS create_user_name,
+            cp.short_name AS contract_project_short_name,
+            cp.serial_number AS contract_project_serial_number
+        FROM mes_coating_process mcp
+        LEFT JOIN mes_coating_process_detail mcpd ON mcpd.bool_delete_enum = FALSE AND mcpd.coating_process_id = mcp.id
+        LEFT JOIN sys_user su ON su.id = mcp.create_user_id
+        LEFT JOIN contract_project cp ON cp.id = mcp.contract_project_id
+        WHERE mcp.bool_delete_enum = FALSE AND mcp.contract_project_id = #{contractProjectId}
+    </select>
+
+    <select id="listInfoByContractProjectIds" resultMap="MesCoatingProcessDTOMap">
+        SELECT
+        mcp.*,
+        mcpd.id AS detail_id,
+        mcpd.create_time AS detail_create_time,
+        mcpd.update_time AS detail_update_time,
+        mcpd.bool_delete_enum AS detail_bool_delete_enum,
+        mcpd.version AS detail_version,
+        mcpd.coating_process_id AS detail_coating_process_id,
+        mcpd.paint_type AS detail_paint_type,
+        mcpd.paint_brand AS detail_paint_brand,
+        mcpd.paint_category AS detail_paint_category,
+        mcpd.thickness AS detail_thickness,
+        mcpd.remark AS detail_remark,
+        mcpd.use_quantity AS detail_use_quantity,
+        su.name AS create_user_name,
+        cp.short_name AS contract_project_short_name,
+        cp.serial_number AS contract_project_serial_number
+        FROM mes_coating_process mcp
+        LEFT JOIN mes_coating_process_detail mcpd ON mcpd.bool_delete_enum = FALSE AND mcpd.coating_process_id = mcp.id
+        LEFT JOIN sys_user su ON su.id = mcp.create_user_id
+        LEFT JOIN contract_project cp ON cp.id = mcp.contract_project_id
+        WHERE mcp.bool_delete_enum = FALSE
+        <if test="contractProjectIds != null and contractProjectIds.size() > 0">
+            AND mcp.contract_project_id IN (
+            <foreach collection="contractProjectIds" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="detailById" resultMap="MesCoatingProcessDTOMap">
+        SELECT
+            mcp.*,
+            mcpd.id AS detail_id,
+            mcpd.create_time AS detail_create_time,
+            mcpd.update_time AS detail_update_time,
+            mcpd.bool_delete_enum AS detail_bool_delete_enum,
+            mcpd.version AS detail_version,
+            mcpd.coating_process_id AS detail_coating_process_id,
+            mcpd.paint_type AS detail_paint_type,
+            mcpd.paint_brand AS detail_paint_brand,
+            mcpd.paint_category AS detail_paint_category,
+            mcpd.thickness AS detail_thickness,
+            mcpd.remark AS detail_remark,
+            mcpd.use_quantity AS detail_use_quantity,
+            cp.serial_number as contract_project_serial_number,
+            cp.short_name    as contract_project_short_name
+        FROM mes_coating_process mcp
+        LEFT JOIN mes_coating_process_detail mcpd ON mcpd.bool_delete_enum = FALSE AND mcpd.coating_process_id = mcp.id
+        LEFT JOIN contract_project cp ON cp.id = mcp.contract_project_id
+        WHERE mcp.bool_delete_enum = FALSE AND mcp.id = #{id}
+    </select>
+
+    <select id="getMaxSerialNumber" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(MAX(CAST(SUBSTRING_INDEX(serial_number, '-', -1) AS SIGNED)), 0) AS max_serial_number
+        FROM mes_coating_process
+        WHERE bool_delete_enum = FALSE
+    </select>
+
+    <select id="artifactTypeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesCoatingProcessArtifactTypeDTO">
+        SELECT
+        t.*,
+        ssc.classification_name AS artifact_type_name,
+        IFNULL(t1.associated_quantity, 0) AS associated_quantity,
+        IFNULL(t2.operable_quantity, 0) as operable_quantity
+        FROM (
+        SELECT
+        ta.structure_class_id AS artifact_type_id,
+        COUNT(ta.structure_class_id) AS list_quantity
+        FROM tech_artifact ta
+        WHERE ta.bool_delete_enum = FALSE
+        <if test="projectId != null">
+            AND ta.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ta.area_id = #{areaId}
+        </if>
+        GROUP BY ta.structure_class_id
+        ) t
+        LEFT JOIN (
+        SELECT
+        st.structure_class_id,
+        COUNT(st.artifact_id) AS associated_quantity
+        FROM (
+        SELECT
+        sta.structure_class_id,
+        stae.artifact_id
+        FROM tech_artifact_ext stae
+        LEFT JOIN tech_artifact sta ON sta.id = stae.artifact_id
+        WHERE stae.bool_delete_enum = FALSE
+        AND stae.boolean_painting = TRUE
+        <if test="projectId != null">
+            AND stae.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND stae.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND stae.area_id = #{areaId}
+        </if>
+        GROUP BY sta.structure_class_id, stae.artifact_id
+        ) st
+        GROUP BY st.structure_class_id
+        ) t1 ON t1.structure_class_id = t.artifact_type_id
+        LEFT JOIN (
+        SELECT
+        st.structure_class_id,
+        sum(st.operable_quantity) AS operable_quantity
+        FROM (
+        SELECT
+        sta.structure_class_id,
+        stae.artifact_id,
+        sum(ifnull(stae.quantity, 0)) as operable_quantity
+        FROM tech_artifact_ext stae
+        LEFT JOIN tech_artifact sta ON sta.id = stae.artifact_id
+        WHERE stae.bool_delete_enum = FALSE
+          AND stae.boolean_painting IS NULL
+        <if test="projectId != null">
+            AND stae.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND stae.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND stae.area_id = #{areaId}
+        </if>
+        GROUP BY sta.structure_class_id, stae.artifact_id
+        ) st
+        GROUP BY st.structure_class_id
+        ) t2 ON t2.structure_class_id = t.artifact_type_id
+        LEFT JOIN sys_structure_classification ssc ON ssc.bool_delete_enum = FALSE AND ssc.id = t.artifact_type_id
+    </select>
+
+    <select id="artifactList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesCoatingProcessArtifactDTO">
+        SELECT
+        ta.id,
+        ta.create_time,
+        ta.update_time,
+        ta.bool_delete_enum,
+        ta.version,
+        ta.project_id,
+        ta.monomer_id,
+        ta.area_id,
+        ta.old_artifact_id,
+        ta.old_artifact_serial_number,
+        ta.bool_status_enum,
+        ta.bool_abnormal_enum,
+        ta.name,
+        ta.serial_number,
+        ta.specification,
+        ta.length,
+        ta.material,
+        ta.net_weight,
+        ta.total_net_weight,
+        ta.gross_weight,
+        ta.total_gross_weight,
+        ta.surface_area,
+        ta.drawing_number,
+        ta.remark,
+        ta.user_id,
+        ta.business_id,
+        ta.produced_quantity,
+        ta.area_type,
+        ta.spec_prefix,
+        ta.smart_line_mark_word,
+        ta.artifact_type,
+        ta.bool_coating_enum,
+        ta.bool_scheduling_enum,
+        ta.coding_type,
+        ta.structure_class_id,
+        ta.bool_single_part_enum,
+        ta.purchase_quantity,
+        ta.bool_all_part_send_directly,
+        ta.bool_send_directly,
+        ta.building_type,
+        ta.drawing_weight,
+        ta.drawing_total_weight,
+        ta.serial_number_prefix,
+        cp.name AS project_name,
+        pm.name AS monomer_name,
+        pa.name AS area_name,
+        t1.quantity
+        FROM tech_artifact ta
+        INNER JOIN (
+        SELECT
+        taext.artifact_id,
+        SUM(IFNULL(taext.quantity, 0)) AS quantity
+        FROM tech_artifact_ext taext
+        WHERE taext.bool_delete_enum = FALSE AND taext.boolean_painting IS NULL
+        GROUP BY taext.artifact_id
+        ) t1 ON t1.artifact_id = ta.id
+        LEFT JOIN contract_project cp ON cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = ta.area_id
+        WHERE ta.bool_delete_enum = FALSE
+        <if test="projectId != null">
+            AND ta.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ta.area_id = #{areaId}
+        </if>
+        <if test="artifactTypeId != null">
+            AND ta.structure_class_id = #{artifactTypeId}
+        </if>
+        <if test="name != null and name != ''">
+            <bind name="nameLike" value="'%' + name + '%'"/>
+            AND ta.name LIKE #{nameLike}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            <bind name="serialNumberLike" value="'%' + serialNumber + '%'"/>
+            AND ta.serial_number LIKE #{serialNumberLike}
+        </if>
+        <if test="specification != null and specification != ''">
+            <bind name="specificationLike" value="'%' + specification + '%'"/>
+            AND ta.specification LIKE #{specificationLike}
+        </if>
+        <if test="material != null and material != ''">
+            <bind name="materialLike" value="'%' + material + '%'"/>
+            AND ta.material LIKE #{material}
+        </if>
+    </select>
+
+    <select id="coatingProcessArtifactList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesCoatingProcessArtifactDTO">
+        SELECT
+        ta.id,
+        ta.create_time,
+        ta.update_time,
+        ta.bool_delete_enum,
+        ta.version,
+        ta.project_id,
+        ta.monomer_id,
+        ta.area_id,
+        ta.old_artifact_id,
+        ta.old_artifact_serial_number,
+        ta.bool_status_enum,
+        ta.bool_abnormal_enum,
+        ta.name,
+        ta.serial_number,
+        ta.specification,
+        ta.length,
+        ta.material,
+        ta.net_weight,
+        ta.total_net_weight,
+        ta.gross_weight,
+        ta.total_gross_weight,
+        ta.drawing_number,
+        ta.remark,
+        ta.user_id,
+        ta.business_id,
+        ta.produced_quantity,
+        ta.area_type,
+        ta.spec_prefix,
+        ta.smart_line_mark_word,
+        ta.artifact_type,
+        ta.bool_coating_enum,
+        ta.bool_scheduling_enum,
+        ta.coding_type,
+        ta.structure_class_id,
+        ta.bool_single_part_enum,
+        ta.purchase_quantity,
+        ta.bool_all_part_send_directly,
+        ta.bool_send_directly,
+        ta.building_type,
+        ta.drawing_weight,
+        ta.drawing_total_weight,
+        ta.serial_number_prefix,
+        cp.name AS project_name,
+        pm.name AS monomer_name,
+        pa.name AS area_name,
+        t1.quantity,
+        t1.area AS surface_area
+        FROM (
+        SELECT
+        taext.artifact_id,
+        taext.area,
+        SUM(IFNULL(taext.quantity, 0)) AS quantity
+        FROM tech_artifact_ext taext
+        WHERE taext.bool_delete_enum = FALSE
+        AND taext.boolean_painting IS NOT NULL
+        <if test="id != null">
+            AND taext.coating_process_id = #{id}
+        </if>
+        GROUP BY taext.artifact_id, taext.area
+        ) t1
+        LEFT JOIN tech_artifact ta ON ta.id = t1.artifact_id
+        LEFT JOIN contract_project cp ON cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = ta.area_id
+        <where>
+            <if test="name != null and name != ''">
+                <bind name="nameLike" value="'%' + name + '%'"/>
+                AND ta.name LIKE #{nameLike}
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                <bind name="serialNumberLike" value="'%' + serialNumber + '%'"/>
+                AND ta.serial_number LIKE #{serialNumberLike}
+            </if>
+            <if test="specification != null and specification != ''">
+                <bind name="specificationLike" value="'%' + specification + '%'"/>
+                AND ta.specification LIKE #{specificationLike}
+            </if>
+            <if test="material != null and material != ''">
+                <bind name="materialLike" value="'%' + material + '%'"/>
+                AND ta.material LIKE #{material}
+            </if>
+        </where>
+    </select>
+
+    <select id="coatingProcessArtifactDetailList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_manage.MesCoatingProcessArtifactDTO">
+        SELECT
+            taext.id,
+            ta.project_id,
+            ta.monomer_id,
+            ta.area_id,
+            ta.name,
+            ta.serial_number,
+            ta.specification,
+            ta.length,
+            ta.material,
+            cp.name AS project_name,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            taext.quantity,
+            taext.area AS surface_area,
+            taext.bool_task,
+            taext.sort_number
+        FROM tech_artifact_ext taext
+        LEFT JOIN tech_artifact ta ON ta.id = taext.artifact_id
+        LEFT JOIN contract_project cp ON cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.id = ta.area_id
+        WHERE taext.bool_delete_enum = FALSE
+        <if test="id != null">
+            AND taext.coating_process_id = #{id}
+            AND taext.boolean_painting = true
+        </if>
+        <if test="artifactId != null">
+            AND taext.artifact_id = #{artifactId}
+        </if>
+        <if test="area != null">
+            AND taext.area = #{area}
+        </if>
+        <if test="boolProduced != null">
+            AND taext.bool_task = #{boolProduced}
+        </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.process.MesEnclosureProcessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.process.MesEnclosureProcess">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="report_type" property="reportType" />
+        <result column="inspect_type" property="inspectType" />
+        <result column="type" property="type" />
+        <result column="product_type" property="productType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, report_type, inspect_type, type, product_type
+    </sql>
+    <select id="listByUserId"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.process.MesEnclosureProcess">
+        <if test="type ==true">
+            SELECT distinct
+            b.process_id id,c.`name`
+            FROM
+            mes_enclosure_team_user_link a
+            LEFT JOIN mes_enclosure_team b ON a.team_id=b.id AND  b.bool_delete_enum=FALSE
+            LEFT JOIN mes_enclosure_process c ON b.process_id=c.id and  c.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND a.user_id=#{userId}
+        </if>
+        <if test="type ==false">
+            SELECT distinct
+            b.process_id id,c.`name`,c.product_type
+            FROM
+            mes_enclosure_inspection_team_user_link a
+            LEFT JOIN mes_enclosure_inspection_team b ON a.inspection_team_id=b.id  AND  b.bool_delete_enum=FALSE
+            LEFT JOIN mes_enclosure_process c ON b.process_id=c.id AND  c.bool_delete_enum=FALSE
+            WHERE a.bool_delete_enum=FALSE
+            AND a.user_id=#{userId} AND c.product_type=#{taskTypeEnum}
+       </if>
+    </select>
+    <select id="listByProductionLineId"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.process.MesEnclosureProcess">
+        SELECT DISTINCT
+            b.id,
+            b.`name`
+        FROM
+            mes_enclosure_team a
+                LEFT JOIN mes_enclosure_process b ON a.process_id = b.id
+        <where>
+            a.bool_delete_enum = FALSE
+            <if test="productionLineId!=null">
+                AND a.production_line_id =#{productionLineId}
+            </if>
+            <if test="productionLineId!=null">
+                AND b.product_type =#{productType}
+            </if>
+        </where>
+
+    </select>
+    <select id="selectProcessByLine"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.process.MesEnclosureProcess">
+        SELECT
+            process.*
+        FROM
+            mes_enclosure_process process
+        WHERE
+            process.bool_delete_enum = 0
+          AND process.id IN (
+            SELECT
+                team.process_id
+            FROM
+                mes_enclosure_production_line line
+                    LEFT JOIN mes_enclosure_groups gro ON gro.production_line_id = line.id
+                    AND gro.bool_delete_enum = 0
+                    LEFT JOIN mes_enclosure_groups_team_link link ON link.groups_id = gro.id
+                    AND link.bool_delete_enum = 0
+                    LEFT JOIN mes_enclosure_team team ON team.id = link.team_id
+                    AND team.bool_delete_enum = 0
+            WHERE
+                line.bool_delete_enum = 0
+              AND line.id = #{productionLineId}
+        )
+    </select>
+    <select id="getWorkshopByProcessList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.process.MesEnclosureProcessDTO">
+        SELECT
+            process.*
+        FROM
+            mes_enclosure_process process
+        WHERE
+            process.bool_delete_enum = 0
+          AND process.id IN (
+            SELECT
+                team.process_id
+            FROM
+                mes_enclosure_workshop workshop
+                    LEFT JOIN mes_enclosure_production_line line ON line.workshop_id = workshop.id
+                    LEFT JOIN mes_enclosure_groups gro ON gro.production_line_id = line.id
+                    AND gro.bool_delete_enum = 0
+                    LEFT JOIN mes_enclosure_groups_team_link link ON link.groups_id = gro.id
+                    AND link.bool_delete_enum = 0
+                    LEFT JOIN mes_enclosure_team team ON team.id = link.team_id
+                    AND team.bool_delete_enum = 0
+            WHERE
+                workshop.bool_delete_enum = 0
+              AND workshop.id = #{workshopId})
+        ORDER BY
+            process.product_type ASC,
+            process.sort ASC
+    </select>
+
+</mapper>

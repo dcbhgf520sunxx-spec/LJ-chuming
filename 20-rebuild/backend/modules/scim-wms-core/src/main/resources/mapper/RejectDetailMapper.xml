@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.RejectDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RejectDetail">
+        <id column="id" property="id"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVat"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="brand" property="brand"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="color" property="color"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="input_vat" property="inputVat"/>
+        <result column="length" property="length"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="project_id" property="projectId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="reject_id" property="rejectId"/>
+        <result column="specification" property="specification"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+        <result column="thickness" property="thickness"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_type" property="warehouseType"/>
+        <result column="width" property="width"/>
+        <result column="mete" property="mete"/>
+        <result column="material_inventory_id" property="materialInventoryId"/>
+        <result column="inbound_detail_id" property="inboundDetailId"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="standardName"/>
+    </resultMap>
+
+    <resultMap id="RejectDetailDO" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDetailDO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="brand" property="brand"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVAT"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="input_vat" property="inputVAT"/>
+        <result column="rejectSN" property="rejectSN"/>
+        <result column="rejectId" property="rejectId"/>
+        <result column="applicantName" property="applicantName"/>
+        <result column="createTime" property="createTime"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="length" property="length"/>
+        <result column="thickness" property="thickness"/>
+        <result column="width" property="width"/>
+        <result column="rejectTime" property="rejectTime"/>
+        <result column="reviewTime" property="reviewTime"/>
+        <result column="reviewerName" property="reviewerName"/>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="warehouseId"/>
+            <result property="name" column="warehouseName"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="projectId"/>
+            <result property="name" column="projectName"/>
+            <result property="shortName" column="projectShortName"/>
+            <result property="serialNumber" column="projectSN"/>
+            <result property="endDate" column="projectEndDate"/>
+            <result property="businessType" column="projectBusinessType"/>
+        </association>
+        <association property="inboundReceipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.InboundReceiptDTO">
+            <id property="id" column="inboundID"/>
+            <result property="serialNumber" column="inboundSN"/>
+        </association>
+        <association property="purchaseOrder" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+                <id property="id" column="purchaseId"/>
+            <result property="serialNumber" column="purchaseInboundSN"/>
+        </association>
+        <association property="supplier" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="supplierId"/>
+            <result property="name" column="supplierName"/>
+        </association>
+        <association property="rejectDO" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDO">
+            <id property="id" column="rejectId"/>
+            <result property="serialNumber" column="rejectSN"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="getDownLoadDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="material_sn" property="materialSn"/>
+        <!--        <result column="serial_number" property="serialNumber"/>-->
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="specification" property="specification"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVat"/>
+        <result column="amount" property="amount"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="wrt" property="reviewTime"/>
+        <result column="remark" property="remark"/>
+        <result column="wsn" property="serialNumber"/>
+        <result column="ssn" property="purchaseSN"/>
+        <result column="sn" property="supplierName"/>
+        <result property="projectName" column="psName"/>
+        <result property="projectNumber" column="psNumber"/>
+        <result property="monomerName" column="pmName"/>
+        <result property="areaName" column="paName"/>
+        <result property="warehouseName" column="wwName"/>
+        <result property="rejectReviewTime" column="wrTime"/>
+        <result property="inboundId" column="inbound_id"/>
+        <result property="rejectSerialNumber" column="rejectSerialNumber"/>
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="classification_id" property="classificationId"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+        </association>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum
+        ,
+        create_time,
+        update_time,
+        version,
+        id, amount, amount_excluding_vat, basic_class, brand, classify_id, color, workshop_id, heat_no_and_batch_no, input_vat, length, material_is_whole, project_id, quantity, reject_id, remark, specification, theory_thickness, thickness, type, unit_price, warehouse_id, warehouse_type, width, mete, material_inventory_id, inbound_detail_id, unit_net, tax_rate, invoice_type, weighted_average_price_id, standard_id, standard_name
+    </sql>
+
+
+    <select id="getDetailDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select ifnull(sum(ifnull(wrd.mete, 0)), 0)                 mete,
+               ifnull(sum(ifnull(wrd.quantity, 0)), 0)             quantity,
+               ifnull(sum(ifnull(wrd.input_VAT, 0)), 0)            inputVAT,
+               ifnull(sum(ifnull(wrd.amount, 0)), 0)               amount,
+               ifnull(sum(ifnull(wrd.amount_excluding_VAT, 0)), 0) amountExcludingVAT,
+               ifnull((select unit_price_excluding_VAT
+                       from wms_reject_detail
+                       order by create_time desc LIMIT 1),0)       unitPriceExcludingVAT
+        from wms_reject_detail wrd
+                 left join wms_reject wr on wr.id = wrd.reject_id
+        where wrd.weighted_average_price_id = #{wapId}
+          and wr.review_status = 2
+          and wrd.bool_delete_enum = 0
+    </select>
+
+    <resultMap id="getByReId" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="wq" property="quantity"/>
+        <result column="wm" property="mete"/>
+        <result column="mete" property="rejectMete"/>
+        <result column="quantity" property="rejectQuantity"/>
+        <result column="thickness" property="thickness"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVAT"/>
+        <result column="input_VAT" property="inputVAT"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="remark" property="remark"/>
+
+        <result column="wmu" property="measureUnit" />
+        <result column="wmp" property="measurePrecision" />
+        <result column="wau" property="accountingUnit" />
+        <result column="wap" property="accountingPrecision" />
+
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+
+        <!--    申购单编号    <result column="standard_name" property=""/>-->
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getByReId" resultMap="getByReId">
+        select wrd.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName,
+               pm.name                  pmName,
+               pa.name                  paName,
+               ww.id           wwId,
+               ww.name         wwName,
+               wm.measure_unit wmu,
+               wm.measure_precision wmp,
+               wm.accounting_unit wau,
+               wm.accounting_precision wap,
+               wid.mete        wm,
+               wid.quantity    wq
+        from wms_reject_detail wrd
+                 left join contract_project p on p.id = wrd.project_id
+                 left join wms_workshop mbf on wrd.workshop_id = mbf.id
+                 left join wms_warehouse ww on ww.id = wrd.warehouse_id
+                 left join wms_inbound_detail wid on wid.id = wrd.inbound_detail_id
+                 left join wms_measure wm on wm.classification_id = wrd.classify_id
+                 left join plan_monomer pm on pm.id = wrd.monomer_id
+                 left join plan_area pa on pa.id = wrd.area_id
+        where wrd.bool_delete_enum = 0
+          and wrd.reject_id = #{id}
+
+    </select>
+
+    <select id="getDetailByInboundDetailId" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RejectDetail">
+        select  wrd.*
+        from wms_reject_detail wrd
+                 left join wms_reject wr on wr.id = wrd.reject_id
+        where wrd.inbound_detail_id = #{id}
+          and wr.review_status = 2
+          and wr.bool_delete_enum = 0
+          and wrd.bool_delete_enum = 0
+
+    </select>
+
+    <select id="getByYear" resultType="java.math.BigDecimal">
+        select ifnull(sum(a.mete),0)
+        from wms_reject_detail a
+                left join wms_reject b on b.id = a.reject_id
+        where
+           b.review_status = 2
+          and b.bool_delete_enum = 0
+          and a.bool_delete_enum = 0
+          and a.basic_class &amp; #{basicClass} &gt; 0
+          and DATE_FORMAT(a.create_time, '%Y%m') = #{year}
+    </select>
+
+    <select id="getList" resultMap="RejectDetailDO">
+        select
+        wr.review_time rejectTime,
+        wr.review_time reviewTime,
+        cp.id projectId,
+        cp.name projectName,
+        wr.serial_number rejectSN,
+        wr.id rejectId,
+        spo.id purchaseId,
+        spo.serial_number purchaseInboundSN,
+        wi.id inboundID,
+        wi.serial_number inboundSN,
+        cp.short_name    projectShortName,
+        cp.serial_number projectSN,
+        ss.name supplierName,
+        wr.applicant_name applicantName,
+        wr.create_time createTime,
+        wr.editor_name editorName,
+        wr.reviewer_name reviewerName,
+        wrd.*,
+        ww.id warehouseId,
+        ww.name warehouseName,
+        mf.name workshopName
+        from wms_reject_detail wrd
+        left join wms_reject wr on wr.id = wrd.reject_id
+        left join wms_inbound wi on wi.id = wr.inbound_id
+        left join wms_warehouse ww on ww.id = wrd.warehouse_id
+        left join wms_workshop mf on mf.id = wrd.workshop_id
+        left join scm_supplier ss on ss.id = wr.supplier_id
+        left join scm_purchase_order spo on spo.id = wr.purchase_order_id
+        left join contract_project cp on cp.id = wrd.project_id
+        where
+        wrd.bool_delete_enum = 0
+        and wr.review_status = 2
+        <if test="basicClass != null and basicClass != ''">
+            and wrd.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="supplierId != null and supplierId != ''">
+            and wr.supplier_id = #{supplierId}
+        </if>
+        <if test="warehouseId != null and warehouseId != ''">
+            and wrd.warehouse_id = #{warehouseId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wrd.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wrd.project_id IS NOT NULL
+        </if>
+        <if test="rejectSN != null and rejectSN != '' ">
+            and wr.serial_number like CONCAT('%', #{rejectSN},'%')
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wr.purchase_sn like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundSN != null and inboundSN != '' ">
+            and wr.inbound_sn like CONCAT('%', #{inboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wr.editor_name like CONCAT('%', #{operatorName},'%')
+            or wr.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wr.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectId != null and projectId != ''">
+            AND wrd.project_id = #{projectId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wrd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wr.review_time &gt; #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wr.review_time &lt; #{reviewTime[1]}
+            </if>
+        </if>
+        <if test="rejectTime != null and rejectTime.size()>0">
+            <if test="rejectTime[0] != null">
+                and wr.review_time &gt;= #{rejectTime[0]}
+            </if>
+            <if test="rejectTime[1] != null">
+                and wr.review_time &lt;= #{rejectTime[1]}
+            </if>
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wrd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wrd.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" workshopIds != null and workshopIds.size() > 0 ">
+            and wrd.workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="getListCount" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDetailDO">
+        select
+        sum(wrd.quantity) as quantityCount,
+        sum(wrd.mete) as meteCount,
+        sum(wrd.amount) as amountCount,
+        sum(wrd.amount_excluding_VAT) as amountExcludingVatCount
+        from wms_reject_detail wrd
+        left join wms_reject wr on wr.id = wrd.reject_id
+        where
+        wrd.bool_delete_enum = 0
+        and wr.review_status = 2
+        <if test="basicClass != null and basicClass != ''">
+            and wrd.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="supplierId != null and supplierId != ''">
+            and wr.supplier_id = #{supplierId}
+        </if>
+        <if test="warehouseId != null and warehouseId != ''">
+            and wrd.warehouse_id = #{warehouseId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wrd.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wrd.project_id IS NOT NULL
+        </if>
+        <if test="rejectSN != null and rejectSN != '' ">
+            and wr.serial_number like CONCAT('%', #{rejectSN},'%')
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wr.purchase_sn like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundSN != null and inboundSN != '' ">
+            and wr.inbound_sn like CONCAT('%', #{inboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wr.editor_name like CONCAT('%', #{operatorName},'%')
+            or wr.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wr.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectId != null and projectId != ''">
+            AND wrd.project_id = #{projectId}
+        </if>
+        <if test="classifyId != null and classifyId.size()>0">
+            and wrd.classify_id in
+            <foreach collection="classifyId" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wr.review_time &gt; #{inboundTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wr.review_time &lt; #{inboundTime[1]}
+            </if>
+        </if>
+        <if test="rejectTime != null and rejectTime.size()>0">
+            <if test="rejectTime[0] != null">
+                and wr.review_time &gt;= #{rejectTime[0]}
+            </if>
+            <if test="rejectTime[1] != null">
+                and wr.review_time &lt;= #{rejectTime[1]}
+            </if>
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wrd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wrd.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" workshopIds != null and workshopIds.size() > 0">
+            and wrd.workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getDownLoadDetail" resultMap="getDownLoadDetail">
+        select wrd.*,
+        wc.name classifyName,
+        wi.review_time wrt,
+        wr.serial_number rejectSerialNumber,
+        wm.*,
+        p.short_name psName,
+        p.serial_number psNumber,
+        pm.name pmName,
+        pa.name paName,
+        ww.name wwName,
+        wi.serial_number wsn,
+        spo.serial_number ssn,
+        ss.name sn,
+        wr.review_time wrTime
+        from wms_reject_detail wrd
+        left join wms_reject wr on wr.id=wrd.reject_id
+        left join wms_inbound wi on wr.inbound_id = wi.id
+        left join wms_classification wc on wrd.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wrd.classify_id
+        left join scm_supplier ss on ss.id = wi.supplier_id
+        left join scm_purchase_order spo on spo.id = wi.purchase_id
+        left join contract_project p on p.id = wrd.project_id
+        left join plan_monomer pm on pm.id = wrd.monomer_id
+        left join plan_area pa on pa.id = wrd.area_id
+        left join wms_warehouse ww on wrd.warehouse_id = ww.id
+        where
+        wrd.bool_delete_enum = 0
+        and wr.review_status = 2
+        <if test="basicClass != null and basicClass != ''">
+            and wrd.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="supplierId != null and supplierId != ''">
+            and wr.supplier_id = #{supplierId}
+        </if>
+        <if test="warehouseId != null and warehouseId != ''">
+            and wrd.warehouse_id = #{warehouseId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wrd.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wrd.project_id IS NOT NULL
+        </if>
+        <if test="rejectSN != null and rejectSN != '' ">
+            and wr.serial_number like CONCAT('%', #{rejectSN},'%')
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wr.purchase_sn like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundSN != null and inboundSN != '' ">
+            and wr.inbound_sn like CONCAT('%', #{inboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wr.editor_name like CONCAT('%', #{operatorName},'%')
+            or wr.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wr.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectId != null and projectId != ''">
+            AND wrd.project_id = #{projectId}
+        </if>
+        <if test="classifyId != null and classifyId.size()>0">
+            and wrd.classify_id in
+            <foreach collection="classifyId" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wr.review_time &gt; #{inboundTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wr.review_time &lt; #{inboundTime[1]}
+            </if>
+        </if>
+        <if test="rejectTime != null and rejectTime.size()>0">
+            <if test="rejectTime[0] != null">
+                and wr.review_time &gt;= #{rejectTime[0]}
+            </if>
+            <if test="rejectTime[1] != null">
+                and wr.review_time &lt;= #{rejectTime[1]}
+            </if>
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wrd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wrd.brand like CONCAT('%', #{brand},'%')
+        </if>
+        <if test=" workshopIds != null and workshopIds.size() > 0">
+            and wrd.workshop_id in
+            <foreach collection="workshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by wrd.id desc
+    </select>
+    <select id="getDetailByInboundDetailIds"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RejectDetail">
+        select  wrd.*
+        from wms_reject_detail wrd
+                 left join wms_reject wr on wr.id = wrd.reject_id
+        where
+            wrd.inbound_detail_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                 #{id}
+            </foreach>
+          and wr.review_status = 2
+          and wr.bool_delete_enum = 0
+          and wrd.bool_delete_enum = 0
+
+    </select>
+    <select id="selectPassDetailByInboundDetailIds"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.RejectDetail">
+        select  wrd.*
+        from wms_reject_detail wrd
+                 left join wms_reject wr on wr.id = wrd.reject_id and wr.bool_delete_enum = 0
+        where
+            wrd.bool_delete_enum = 0
+        and wr.review_status = 2
+        and wrd.inbound_detail_id in
+            <foreach collection="inboundDetailIds" item="id" open="(" separator="," close=")">
+                 #{id}
+            </foreach>
+    </select>
+
+    <select id="selectCountMeteAndAmount"
+            resultType="com.hzchum.scim.common.core.api.pojo.dto.BasicClassMeteAndAmountDTO">
+        select
+        wrd.basic_class basicClass,
+        sum(wrd.mete) mete,
+        sum(wrd.amount) amount,
+        DATE_FORMAT(wr.review_time, '%Y/%m') time
+        from wms_reject_detail wrd
+        left join wms_reject wr ON wrd.reject_id = wr.id and wr.bool_delete_enum = 0
+        where wrd.bool_delete_enum = 0
+        <if test="reviewStatus != null and reviewStatus != ''">
+            and wr.review_status = #{reviewStatus}
+        </if>
+        <if test="basicClass != null">
+            and wrd.basic_class = #{basicClass}
+        </if>
+        <if test="timeList != null and timeList.size > 0">
+            and
+            <foreach collection="timeList" item="time" open="(" separator=" or " close=")">
+                DATE_FORMAT(wr.review_time, '%Y/%m') = #{time}
+            </foreach>
+        </if>
+        <if test="projectId != null">
+            and wrd.project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            and wrd.project_id is null
+        </if>
+        <if test="notClassifyIds != null and notClassifyIds.size > 0">
+            and wrd.classify_id not in
+            <foreach collection="notClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        <if test="getClassifyIds != null and getClassifyIds.size > 0">
+            and wrd.classify_id in
+            <foreach collection="getClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        group by wrd.basic_class,DATE_FORMAT(wr.review_time, '%Y/%m')
+
+    </select>
+    <select id="getPurchaseRejectMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.ReceiptMeteDTO">
+        select
+        wr.purchase_order_id as id,
+        IFNULL(sum(wrd.mete),0) as mete
+        from wms_reject_detail wrd
+        left join wms_reject wr on wrd.reject_id = wr.id
+        where
+        wrd.bool_delete_enum = 0
+        and wr.review_status  = 2
+        <if test="purchaseIds != null and purchaseIds.size > 0">
+            and wr.purchase_order_id in
+            <foreach collection="purchaseIds" item="purchaseId" open="(" separator="," close=")">
+                #{purchaseId}
+            </foreach>
+        </if>
+        group by wr.purchase_order_id
+    </select>
+    <select id="selectPassDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.RejectDetailDO">
+        select
+            wrd.amount  amount,
+            wrd.amount_excluding_vat amountExcludingVat,
+            wrd.basic_class basicClass,
+            wr.review_time reviewTime
+        from wms_reject_detail wrd
+        left join wms_reject wr on wr.id = wrd.reject_id and wr.bool_delete_enum = 0 and wr.review_status = 2
+        where
+            wrd.bool_delete_enum = 0
+        <if test="workshopId != null and workshopId != ''">
+            and wrd.workshop_id = #{workshopId}
+        </if>
+        <if test="startDay != null">
+            and wr.review_time &gt;= #{startDay}
+        </if>
+        <if test="endDay != null">
+            and wr.review_time &lt;= #{endDay}
+        </if>
+    </select>
+
+</mapper>

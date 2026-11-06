@@ -1,0 +1,100 @@
+{
+  "name": "ljaps-rebuild",
+  "services": {
+    "backend": {
+      "image": "eclipse-temurin:8-jdk",
+      "working_dir": "/app",
+      "command": [
+        "java",
+        "-Xms128m",
+        "-Xmx1536m",
+        "-cp",
+        "/app/app.jar:/app/modules/*:/app/lib/*",
+        "com.ljaps.rebuild.RebuildApplication"
+      ],
+      "volumes": [
+        "./runtime/app:/app:ro",
+        "./runtime/rsa-private.pem:/run/secrets/rsa-private.pem:ro",
+        "./runtime/rsa-public.pem:/run/secrets/rsa-public.pem:ro",
+        "./business.properties:/run/config/business.properties:ro",
+        "./runtime/files:/data/files",
+        "../standalone/assets/MemberSectionImg:/data/files/MemberSectionImg:ro",
+        "./runtime/verification:/evidence"
+      ],
+      "environment": {
+        "TZ": "Asia/Shanghai",
+        "SERVER_PORT": "8080",
+        "SPRING_MAIN_BANNER_MODE": "off",
+        "SPRING_DATASOURCE_URL": "jdbc:mysql://mysql:3306/${LJAPS_DB_NAME}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai",
+        "SPRING_DATASOURCE_USERNAME": "${LJAPS_DB_USER}",
+        "SPRING_DATASOURCE_DRIVER_CLASS_NAME": "com.mysql.jdbc.Driver",
+        "SPRING_DATASOURCE_PASSWORD": "${LJAPS_DB_PASSWORD}",
+        "SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE": "4",
+        "SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE": "1",
+        "SERVER_ERROR_INCLUDE_MESSAGE": "never",
+        "SERVER_ERROR_INCLUDE_STACKTRACE": "never",
+        "LJAPS_RSA_PRIVATE_KEY_PATH": "/run/secrets/rsa-private.pem",
+        "LJAPS_RSA_PUBLIC_KEY_PATH": "/run/secrets/rsa-public.pem",
+        "LJAPS_JWT_SECRET": "${LJAPS_JWT_SECRET}",
+        "SPRING_CONFIG_ADDITIONAL_LOCATION": "file:/run/config/business.properties",
+        "LJAPS_INITIAL_USER_PASSWORD": "${LJAPS_INITIAL_USER_PASSWORD:?Initialize the private local user password}"
+      },
+      "networks": [
+        "database",
+        "isolated"
+      ],
+      "mem_limit": "2g",
+      "depends_on": [
+        "redis"
+      ]
+    },
+    "web": {
+      "image": "nginx:alpine",
+      "ports": [
+        "127.0.0.1:3120:80",
+        "127.0.0.1:3119:81"
+      ],
+      "volumes": [
+        "./runtime/web:/usr/share/nginx/html:ro",
+        "./nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+      ],
+      "networks": [
+        "isolated",
+        "entry"
+      ],
+      "depends_on": [
+        "backend"
+      ],
+      "mem_limit": "128m"
+    },
+    "redis": {
+      "image": "redis:alpine",
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes"
+      ],
+      "volumes": [
+        "./runtime/redis:/data"
+      ],
+      "networks": {
+        "isolated": {
+          "aliases": [
+            "rebuild-redis"
+          ]
+        }
+      },
+      "mem_limit": "256m"
+    }
+  },
+  "networks": {
+    "database": {
+      "external": true,
+      "name": "ljaps-local_isolated"
+    },
+    "isolated": {
+      "internal": true
+    },
+    "entry": {}
+  }
+}

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.ClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Classification">
+        <result column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="path" property="path"/>
+        <result column="bool_last_enum" property="boolLastEnum"/>
+        <result column="level" property="level"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="name" property="name"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="code" property="code"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        path, bool_last_enum, level, parent_id, name, material_type, code
+    </sql>
+
+    <update id="updateClassifyUpdateStatusApply">
+        UPDATE wms_classification wc
+        SET wc.classify_update_status = 3
+        WHERE
+            id IN (
+                SELECT DISTINCT
+                    ( sapd.classify_id )
+                FROM
+                    scm_apply_purchase_detail sapd
+                        LEFT JOIN scm_apply_purchase sap ON sap.id = sapd.apply_purchase_id
+                        AND sap.bool_delete_enum = 0
+            );
+    </update>
+
+    <update id="updateClassifyUpdateStatusPurchase">
+        UPDATE wms_classification wc
+        SET wc.classify_update_status = 3
+        WHERE
+            id IN (
+                SELECT DISTINCT
+                    ( spod.classify_id )
+                FROM
+                    scm_purchase_order_detail spod
+                        LEFT JOIN scm_purchase_order spo ON spo.id = spod.purchase_id
+                        AND spo.bool_delete_enum = 0
+            );
+    </update>
+
+    <update id="updateClassifyUpdateStatusInbound">
+        UPDATE wms_classification wc
+        SET wc.classify_update_status = 3
+        WHERE
+            id IN (
+                SELECT DISTINCT
+                    ( wid.classify_id )
+                FROM
+                    wms_inbound_detail wid
+                        LEFT JOIN wms_inbound wi ON wi.id = wid.inbound_id
+                        AND wi.bool_delete_enum = 0
+            );
+    </update>
+    <update id="updateClassifyUpdateStatusClass">
+        UPDATE wms_classification wc
+            JOIN wms_classification wc1 ON wc.id = wc1.parent_id
+            SET wc.classify_update_status = 2
+        WHERE
+            wc.classify_update_status = 1
+          AND wc1.classify_update_status IN ( 3, 2 );
+    </update>
+    <select id="getClassificationByBasicClassAndUnit"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Classification">
+        SELECT
+            wc.*
+        FROM
+        wms_classification wc
+        JOIN wms_measure wm ON wc.id = wm.classification_id AND wm.bool_delete_enum = 0
+        WHERE
+            wc.bool_delete_enum = 0
+        AND wc.bool_last_enum = 1
+        AND wc.basic_class = #{basicClass}
+        AND wm.accounting_unit = #{unit}
+    </select>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.notification.SysPushNotificationConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.notification.SysPushNotificationConfig">
+        <id column="id" property="id" />
+        <result column="operational_module_type_enum" property="operationalModuleTypeEnum" />
+        <result column="notification_type_enum" property="notificationTypeEnum" />
+        <result column="status" property="status" />
+        <result column="duration" property="duration" />
+        <result column="time_type_Enum" property="timeTypeEnum" />
+        <result column="number" property="number" />
+        <result column="notification_mode_type_enum" property="notificationModeTypeEnum" />
+        <result column="suitable_object_type_enum" property="suitableObjectTypeEnum" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, operational_module_type_enum, notification_type_enum, status, duration, time_type_Enum, number, notification_mode_type_enum,suitable_object_type_enum
+    </sql>
+
+</mapper>

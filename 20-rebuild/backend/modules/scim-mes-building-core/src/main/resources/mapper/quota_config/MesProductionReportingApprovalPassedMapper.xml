@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesProductionReportingApprovalPassedMapper">
+
+    <select id="dateExistsUnapprovedDataList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalDateDTO">
+        SELECT
+            t.date,
+            IFNULL(t1.bool_exists, 0) AS bool_exists_unapproved_data
+        FROM (
+            <foreach collection="dateList" item="date" separator="union all">
+                select #{date} AS date
+            </foreach>
+        ) t
+        LEFT JOIN (
+            SELECT
+                st.in_year_month_day_date,
+                COUNT(1) > 0 AS bool_exists
+            FROM (
+                SELECT
+                    mbptr.id,
+                    mbptr.in_year_month_day_date,
+                    mbptr.in_year_month_date,
+                    mbptr.workshop_id,
+                    mbptr.task_type_enum
+                FROM mes_building_produce_team_report mbptr
+                WHERE mbptr.bool_delete_enum = 0
+                    AND mbptr.in_year_month_date = DATE_FORMAT(#{yearMonth}, '%Y-%m')
+                    AND mbptr.inspection_quantity > 0
+                    AND NOT EXISTS(
+                        SELECT 1
+                        FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                        WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum != ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = mbptr.id
+                    )
+                UNION ALL
+                SELECT
+                    meptr.id,
+                    DATE(meptr.create_time) AS in_year_month_day_date,
+                    DATE_FORMAT(meptr.create_time, '%Y-%m') AS in_year_month_date,
+                    meptr.workshop_id,
+                    ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()} AS task_type_enum
+                FROM mes_enclosure_produce_team_report meptr
+                WHERE meptr.bool_delete_enum = 0
+                    AND DATE_FORMAT(meptr.create_time, '%Y-%m') = DATE_FORMAT(#{yearMonth}, '%Y-%m')
+                    AND meptr.quantity > 0
+                    AND NOT EXISTS(
+                        SELECT 1
+                        FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                        WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = meptr.id
+                    )
+            ) st
+            <where>
+                <if test="workshopId != null">
+                    AND st.workshop_id = #{workshopId}
+                </if>
+                <if test="productTypeEnum != null">
+                    AND st.task_type_enum = #{productTypeEnum}
+                </if>
+            </where>
+            GROUP BY st.in_year_month_day_date
+        ) t1 ON t1.in_year_month_day_date = t.date
+        ORDER BY t.date
+    </select>
+
+    <select id="dateExistsApprovedDataList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalDateDTO">
+        SELECT
+            t.date,
+            IFNULL(t1.bool_exists, 0) AS bool_exists_approved_data
+        FROM (
+        <foreach collection="dateList" item="date" separator="union all">
+            select #{date} AS date
+        </foreach>
+        ) t
+        LEFT JOIN (
+            SELECT
+                DATE(mprap.approval_date) AS year_month_day,
+                COUNT(1) > 0 AS bool_exists
+            FROM mes_production_reporting_approval_passed mprap
+            WHERE mprap.bool_delete_enum = 0
+                AND DATE_FORMAT(mprap.approval_date, '%Y-%m') = DATE_FORMAT(#{yearMonth}, '%Y-%m')
+            <if test="workshopId != null">
+                AND mprap.workshop_id = #{workshopId}
+            </if>
+            <if test="productTypeEnum != null">
+                AND mprap.product_type_enum = #{productTypeEnum}
+            </if>
+            GROUP BY DATE(mprap.approval_date)
+        ) t1 ON t1.year_month_day = t.date
+    </select>
+
+    <select id="teamReportSummaryList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalTeamReportSummaryDTO">
+        SELECT
+            t.product_type_enum,
+            t.report_quantity,
+            mbw.id AS 'workshop.id',
+            mbw.name AS 'workshop.name',
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name',
+            mbp.type AS 'process.type',
+            mbtul.team_id AS 'team.id',
+            mbtul.user_name AS 'team.name'
+        FROM (
+            SELECT
+                mbptr.workshop_id,
+                mbptr.process_id,
+                mbptr.task_type_enum AS product_type_enum,
+                mbptr.team_id,
+                SUM(mbptr.inspection_quantity) AS report_quantity
+            FROM (
+                SELECT
+                    s1.id,
+                    s1.in_year_month_day_date,
+                    s1.in_year_month_date,
+                    s1.workshop_id,
+                    s1.task_type_enum,
+                    s1.team_id,
+                    s1.process_id,
+                    s1.inspection_quantity
+                FROM mes_building_produce_team_report s1
+                WHERE s1.bool_delete_enum = 0
+                    AND s1.inspection_quantity > 0
+                    AND NOT EXISTS(
+                        SELECT 1
+                        FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                        WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum != ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = s1.id
+                    )
+                UNION ALL
+                SELECT
+                    s2.id,
+                    DATE(s2.create_time) AS in_year_month_day_date,
+                    DATE_FORMAT(s2.create_time, '%Y-%m') AS in_year_month_date,
+                    s2.workshop_id,
+                    ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()} AS task_type_enum,
+                    s2.team_id,
+                    s2.process_id,
+                    s2.quantity
+                FROM mes_enclosure_produce_team_report s2
+                WHERE s2.bool_delete_enum = 0
+                    AND s2.quantity > 0
+                    AND NOT EXISTS(
+                        SELECT 1
+                        FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                        WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = s2.id
+                    )
+            ) mbptr
+            WHERE mbptr.in_year_month_day_date = #{date}
+            <if test="workshopId != null">
+                AND mbptr.workshop_id = #{workshopId}
+            </if>
+            <if test="productTypeEnum != null">
+                AND mbptr.task_type_enum = #{productTypeEnum}
+            </if>
+            GROUP BY mbptr.workshop_id, mbptr.process_id, mbptr.task_type_enum, mbptr.team_id
+            ) t
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = 0 AND mbw.id = t.workshop_id
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = t.process_id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = t.team_id
+    </select>
+
+    <select id="teamReportApprovedSummaryList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalTeamReportSummaryDTO">
+        SELECT
+            t.product_type_enum,
+            t.report_quantity,
+            mbw.id AS 'workshop.id',
+            mbw.name AS 'workshop.name',
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name',
+            mbtul.team_id AS 'team.id',
+            mbtul.user_name AS 'team.name'
+        FROM (
+            SELECT
+                mprap.workshop_id,
+                mprap.process_id,
+                mprap.product_type_enum,
+                mprap.team_id,
+                SUM(mprap.report_quantity) AS report_quantity
+            FROM mes_production_reporting_approval_passed mprap
+            WHERE mprap.bool_delete_enum = 0
+                AND DATE(mprap.approval_date) = #{date}
+            <if test="workshopId != null">
+                AND mprap.workshop_id = #{workshopId}
+            </if>
+            <if test="productTypeEnum != null">
+                AND mprap.product_type_enum = #{productTypeEnum}
+            </if>
+            GROUP BY mprap.workshop_id, mprap.process_id, mprap.product_type_enum, mprap.team_id
+            ) t
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = 0 AND mbw.id = t.workshop_id
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = t.process_id
+        LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = t.team_id
+    </select>
+
+    <select id="unapprovedList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalReportSummaryDTO">
+        SELECT
+            t.produce_team_report_ids,
+            t.in_year_month_day_date AS report_date,
+            t.report_quantity,
+            t.perforate_quantity,
+            (t.report_quantity * product.net_weight) AS report_weight,
+            p.contract_sign_body_id AS branch_company_id,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            m.id AS 'monomer.id',
+            m.name AS 'monomer.name',
+            a.id AS 'area.id',
+            a.name AS 'area.name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name',
+            process.type AS 'process.type',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            product.id AS 'product.id',
+            product.name AS 'product.name',
+            product.serial_number AS 'product.serial_number',
+            product.monomer_id AS 'product.monomer_id',
+            #{productTypeEnum} AS 'product.product_type_enum',
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                product.structure_class_id AS 'product.class_id',
+                pc.classification_name AS 'product.class_name',
+                product.artifact_type AS 'product.product_classification_enum',
+                product.surface_area AS 'product.surface_area',
+                IFNULL(ampq.machine_part_quantity, 0) AS 'product.machine_part_quantity',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                product.assemble_config_id AS 'product.class_id',
+                pc.name AS 'product.class_name',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                product.steel_id AS 'product.class_id',
+                product.name AS 'product.class_name',
+                product.product_classification_enum AS 'product.product_classification_enum',
+                IF(product.product_classification_enum = 4, NULL, product.thick)  AS 'product.thick',
+            </when>
+        </choose>
+            product.quantity AS 'product.quantity',
+            product.net_weight AS 'product.net_weight',
+            product.length AS 'product.length',
+            product.specification AS 'product.specification',
+            user.id AS 'reportPerson.id',
+            user.name AS 'reportPerson.name',
+            areaBatch.id AS 'areaBatch.id',
+            areaBatch.name AS 'areaBatch.name'
+        FROM (
+            SELECT
+                group_concat(DISTINCT mbptr.id) AS produce_team_report_ids,
+                mbptr.in_year_month_day_date,
+                mbptr.task_type_enum,
+                mbptr.workshop_id,
+                mbptr.process_id,
+                mbptr.team_id,
+                mbptr.project_id,
+                mbptr.monomer_id,
+                mbptr.area_id,
+                mbptr.product_id,
+                mbptr.user_id,
+                sum(mbptr.inspection_quantity) AS report_quantity,
+                sum(IFNULL(mbptr.perforate_quantity, 0)) AS perforate_quantity
+            FROM mes_building_produce_team_report mbptr
+            WHERE mbptr.bool_delete_enum = 0
+                AND mbptr.inspection_quantity > 0
+                AND NOT EXISTS(
+                    SELECT 1
+                    FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                    WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum != ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = mbptr.id
+                )
+                AND mbptr.in_year_month_day_date = #{date}
+                AND mbptr.workshop_id = #{workshopId}
+                AND mbptr.task_type_enum = #{productTypeEnum}
+                AND mbptr.process_id = #{processId}
+                AND mbptr.team_id = #{teamId}
+                <if test="projectId != null">
+                    AND mbptr.project_id = #{projectId}
+                </if>
+            GROUP BY mbptr.in_year_month_day_date,
+                     mbptr.task_type_enum,
+                     mbptr.workshop_id,
+                     mbptr.process_id,
+                     mbptr.team_id,
+                     mbptr.project_id,
+                     mbptr.monomer_id,
+                     mbptr.area_id,
+                     mbptr.product_id,
+                     mbptr.user_id
+            ) t
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = t.project_id
+        LEFT JOIN plan_monomer m ON m.bool_delete_enum = 0 AND m.id = t.monomer_id
+        LEFT JOIN plan_area a ON a.bool_delete_enum = 0 AND a.id = t.area_id
+        LEFT JOIN mes_building_workshop workshop on workshop.bool_delete_enum = 0 and workshop.id = t.workshop_id
+        LEFT JOIN mes_building_process process on process.bool_delete_enum = 0 and process.id = t.process_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = t.team_id
+        LEFT JOIN sys_user user ON user.bool_delete_enum = 0 AND user.id = t.user_id
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_structure_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.structure_class_id
+                LEFT JOIN (
+                    SELECT
+                        artifact_id,
+                        sum(quantity) AS machine_part_quantity
+                    FROM tech_artifact_machine_part_link
+                    WHERE bool_delete_enum = 0
+                    GROUP BY artifact_id
+                ) ampq ON ampq.artifact_id = product.id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_assemble_config pc ON pc.bool_delete_enum = 0 AND pc.id = product.assemble_config_id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_steel_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.steel_id
+            </when>
+        </choose>
+        LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = product.area_batch_id
+        <where>
+            <if test="productSerialNumber != null and productSerialNumber != ''">
+                AND product.serial_number LIKE concat('%', #{productSerialNumber}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="unapprovedEnclosureList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalReportSummaryDTO">
+        SELECT
+            t.produce_team_report_ids,
+            t.report_date,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name',
+            process.type AS 'process.type',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            dict.id AS 'dict.id',
+            dict.label AS 'dict.label',
+            t.serial_numbers AS product_serial_numbers,
+            t.report_quantity,
+            mqce.unit AS measure_unit,
+            if(mqce.unit IS NOT NULL, t.measurement_quantity, NULL) AS measurement_quantity,
+            mqce.price,
+            (t.measurement_quantity * mqce.price) AS amount,
+            mqce.id AS quota_config_id,
+            mqce.serial_number AS quota_config_serial_number,
+            #{productTypeEnum} AS 'product.product_type_enum',
+            user.id AS 'reportPerson.id',
+            user.name AS 'reportPerson.name'
+        FROM (
+            SELECT
+                group_concat(DISTINCT meptr.id) AS produce_team_report_ids,
+                DATE(meptr.create_time) AS report_date,
+                meptr.workshop_id,
+                meptr.process_id,
+                meptr.team_id,
+                meptr.project_id,
+                product.dictionary_id,
+                meptr.user_id,
+                sum(meptr.quantity) AS report_quantity,
+                sum(product.length / 1000) AS measurement_quantity,
+                group_concat(DISTINCT product.serial_number) AS serial_numbers
+            FROM mes_enclosure_produce_team_report meptr
+            LEFT JOIN tech_enclosure product ON product.bool_delete_enum = 0 AND product.id = meptr.product_id
+            WHERE meptr.bool_delete_enum = 0
+                AND DATE(meptr.create_time) = #{date}
+                AND NOT EXISTS(
+                    SELECT 1
+                    FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                    WHERE mprapptrl.bool_delete_enum = 0
+                        AND mprapptrl.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        AND mprapptrl.produce_team_report_id = meptr.id
+                )
+                AND meptr.workshop_id = #{workshopId}
+                AND ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()} = #{productTypeEnum}
+                AND meptr.process_id = #{processId}
+                AND meptr.team_id = #{teamId}
+                <if test="projectId != null">
+                    AND meptr.project_id = #{projectId}
+                </if>
+            GROUP BY DATE(meptr.create_time),
+                     meptr.workshop_id,
+                     meptr.process_id,
+                     meptr.team_id,
+                     meptr.project_id,
+                     product.dictionary_id,
+                     meptr.user_id
+            ) t
+        LEFT JOIN sys_dictionary dict ON dict.bool_delete_enum = 0 AND dict.id = t.dictionary_id
+        LEFT JOIN mes_quota_config_enclosure mqce ON mqce.bool_delete_enum = 0 AND mqce.enclosure_type_dictionary_id = t.dictionary_id
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = t.project_id
+        LEFT JOIN mes_building_workshop workshop on workshop.bool_delete_enum = 0 and workshop.id = t.workshop_id
+        LEFT JOIN mes_building_process process on process.bool_delete_enum = 0 and process.id = t.process_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = t.team_id
+        LEFT JOIN sys_user user ON user.bool_delete_enum = 0 AND user.id = t.user_id
+    </select>
+
+    <select id="approvedList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalReportSummaryDTO">
+        SELECT
+            mprap.*,
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                monomer.id AS 'monomer.id',
+                monomer.name AS 'monomer.name',
+                area.id AS 'area.id',
+                area.name AS 'area.name',
+                product.id AS 'product.id',
+                product.name AS 'product.name',
+                product.serial_number AS 'product.serial_number',
+                #{productTypeEnum} AS 'product.product_type_enum',
+                product.structure_class_id AS 'product.class_id',
+                pc.classification_name AS 'product.class_name',
+                product.artifact_type AS 'product.product_classification_enum',
+                product.surface_area AS 'product.surface_area',
+                product.quantity AS 'product.quantity',
+                product.net_weight AS 'product.net_weight',
+                product.length AS 'product.length',
+                product.specification AS 'product.specification',
+                process.id AS 'process.id',
+                process.name AS 'process.name',
+                (mprap.report_quantity * product.net_weight) AS report_weight,
+                areaBatch.id AS 'areaBatch.id',
+                areaBatch.name AS 'areaBatch.name',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                monomer.id AS 'monomer.id',
+                monomer.name AS 'monomer.name',
+                area.id AS 'area.id',
+                area.name AS 'area.name',
+                product.id AS 'product.id',
+                product.name AS 'product.name',
+                product.serial_number AS 'product.serial_number',
+                #{productTypeEnum} AS 'product.product_type_enum',
+                product.assemble_config_id AS 'product.class_id',
+                pc.name AS 'product.class_name',
+                product.quantity AS 'product.quantity',
+                product.net_weight AS 'product.net_weight',
+                product.length AS 'product.length',
+                product.specification AS 'product.specification',
+                process.id AS 'process.id',
+                process.name AS 'process.name',
+                (mprap.report_quantity * product.net_weight) AS report_weight,
+                areaBatch.id AS 'areaBatch.id',
+                areaBatch.name AS 'areaBatch.name',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                monomer.id AS 'monomer.id',
+                monomer.name AS 'monomer.name',
+                area.id AS 'area.id',
+                area.name AS 'area.name',
+                product.id AS 'product.id',
+                product.name AS 'product.name',
+                product.serial_number AS 'product.serial_number',
+                #{productTypeEnum} AS 'product.product_type_enum',
+                product.steel_id AS 'product.class_id',
+                pc.name AS 'product.class_name',
+                product.product_classification_enum AS 'product.product_classification_enum',
+                product.thick AS 'product.thick',
+                product.quantity AS 'product.quantity',
+                product.net_weight AS 'product.net_weight',
+                product.length AS 'product.length',
+                product.specification AS 'product.specification',
+                process.id AS 'process.id',
+                process.name AS 'process.name',
+                (mprap.report_quantity * product.net_weight) AS report_weight,
+                areaBatch.id AS 'areaBatch.id',
+                areaBatch.name AS 'areaBatch.name',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                dict.id AS 'dict.id',
+                dict.label AS 'dict.label',
+                process.id AS 'process.id',
+                process.name AS 'process.name',
+            </when>
+        </choose>
+            project.id AS 'project.id',
+            project.name AS 'project.name',
+            project.serial_number AS 'project.serial_number',
+            project.short_name AS 'project.short_name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            approver.id AS 'approver.id',
+            approver.name AS 'approver.name',
+            reportPerson.id AS 'reportPerson.id',
+            reportPerson.name AS 'reportPerson.name'
+        FROM mes_production_reporting_approval_passed mprap
+        LEFT JOIN sys_user approver ON approver.bool_delete_enum = 0 AND approver.id = mprap.approver_id
+        LEFT JOIN contract_project project ON project.bool_delete_enum = 0 AND project.id = mprap.project_id
+        LEFT JOIN mes_building_workshop workshop ON workshop.bool_delete_enum = 0 AND workshop.id = mprap.workshop_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = mprap.team_id
+        LEFT JOIN sys_user reportPerson ON reportPerson.bool_delete_enum = 0 AND reportPerson.id = mprap.report_person_id
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+                LEFT JOIN sys_structure_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.structure_class_id
+                LEFT JOIN plan_monomer monomer ON monomer.bool_delete_enum = 0 AND monomer.id = mprap.monomer_id
+                LEFT JOIN plan_area area ON area.bool_delete_enum = 0 AND area.id = mprap.area_id
+                LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = mprap.process_id
+                LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = product.area_batch_id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+                LEFT JOIN sys_assemble_config pc ON pc.bool_delete_enum = 0 AND pc.id = product.assemble_config_id
+                LEFT JOIN plan_monomer monomer ON monomer.bool_delete_enum = 0 AND monomer.id = mprap.monomer_id
+                LEFT JOIN plan_area area ON area.bool_delete_enum = 0 AND area.id = mprap.area_id
+                LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = mprap.process_id
+                LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = product.area_batch_id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+                LEFT JOIN sys_steel_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.steel_id
+                LEFT JOIN plan_monomer monomer ON monomer.bool_delete_enum = 0 AND monomer.id = mprap.monomer_id
+                LEFT JOIN plan_area area ON area.bool_delete_enum = 0 AND area.id = mprap.area_id
+                LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = mprap.process_id
+                LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = product.area_batch_id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                LEFT JOIN sys_dictionary dict ON dict.bool_delete_enum = 0 AND dict.id = mprap.dictionary_id
+                LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = mprap.process_id
+            </when>
+        </choose>
+        WHERE mprap.bool_delete_enum = 0
+            AND DATE(mprap.approval_date) = #{date}
+            AND mprap.workshop_id = #{workshopId}
+            AND mprap.product_type_enum = #{productTypeEnum}
+            AND mprap.process_id = #{processId}
+            AND mprap.team_id = #{teamId}
+            <if test="projectId != null">
+                AND mprap.project_id = #{projectId}
+            </if>
+            <if test="productSerialNumber != null and productSerialNumber != ''">
+                AND product.serial_number LIKE concat('%', #{productSerialNumber}, '%')
+            </if>
+    </select>
+
+    <select id="teamSalaryList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesTeamSalaryDTO">
+        SELECT
+            t.*,
+            '吨' AS unit,
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name'
+        FROM (
+            SELECT
+                mprap.workshop_id,
+                mprap.team_id,
+                SUM(ROUND((mprap.report_quantity *
+                           CASE mprap.product_type_enum
+                               WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN artifact.net_weight
+                               WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()} THEN assemble.net_weight
+                               WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN machinePart.net_weight
+                           END) / 1000, 6)) AS production_volume,
+                sum(mprap.amount) AS total_salary
+            FROM mes_production_reporting_approval_passed mprap
+            LEFT JOIN tech_artifact artifact ON artifact.bool_delete_enum = 0 AND artifact.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+            LEFT JOIN tech_assemble assemble ON assemble.bool_delete_enum = 0 AND assemble.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+            LEFT JOIN tech_machine_part machinePart ON machinePart.bool_delete_enum = 0 AND machinePart.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+            WHERE mprap.bool_delete_enum = 0
+            <if test="workshopId != null">
+                AND mprap.workshop_id = #{workshopId}
+            </if>
+            <if test="teamId != null">
+                AND mprap.team_id = #{teamId}
+            </if>
+            <if test="processId != null">
+                AND mprap.process_id = #{processId}
+            </if>
+            <if test="startDate != null">
+                AND DATE(mprap.report_date) >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND DATE(mprap.report_date) &lt;= #{endDate}
+            </if>
+            GROUP BY mprap.workshop_id, mprap.team_id
+        ) t
+        LEFT JOIN mes_building_workshop workshop ON workshop.bool_delete_enum = 0 AND workshop.id = t.workshop_id
+        LEFT JOIN (
+                SELECT
+                    mbt.*,
+                    mbtul.user_name AS name
+                FROM mes_building_team mbt
+                LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+                WHERE mbt.bool_delete_enum = 0
+                ) team ON team.id = t.team_id
+    </select>
+
+    <select id="teamSalaryEnclosureList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesTeamSalaryDTO">
+        SELECT
+            t.*,
+            '米' AS unit,
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name'
+        FROM (
+            SELECT
+                mprap.workshop_id,
+                mprap.team_id,
+                SUM(ROUND((mprap.report_quantity * enclosure.length) / 1000, 6)) AS production_volume,
+                sum(mprap.amount) AS total_salary
+            FROM mes_production_reporting_approval_passed mprap
+            LEFT JOIN tech_enclosure enclosure ON enclosure.bool_delete_enum = 0 AND enclosure.id = mprap.product_id
+            WHERE mprap.bool_delete_enum = 0 AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                <if test="workshopId != null">
+                    AND mprap.workshop_id = #{workshopId}
+                </if>
+                <if test="teamId != null">
+                    AND mprap.team_id = #{teamId}
+                </if>
+                <if test="processId != null">
+                    AND mprap.process_id = #{processId}
+                </if>
+                <if test="startDate != null">
+                    AND DATE(mprap.report_date) >= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    AND DATE(mprap.report_date) &lt;= #{endDate}
+                </if>
+            GROUP BY mprap.workshop_id, mprap.team_id
+        ) t
+        LEFT JOIN mes_building_workshop workshop ON workshop.bool_delete_enum = 0 AND workshop.id = t.workshop_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = t.team_id
+    </select>
+
+    <select id="teamProductionList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesTeamSalaryTeamProductionDTO">
+        SELECT
+            t.*,
+            areaBatch.id AS 'areaBatch.id',
+            areaBatch.name AS 'areaBatch.name'
+        FROM (
+            SELECT
+                mprap.id,
+                project.id AS 'project.id',
+                project.name AS 'project.name',
+                project.serial_number AS 'project.serial_number',
+                project.short_name AS 'project.short_name',
+                mprap.product_id AS 'product.id',
+                CASE mprap.product_type_enum
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                        THEN artifact.serial_number
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                        THEN assemble.serial_number
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                        THEN machinePart.serial_number
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        THEN enclosure.serial_number
+                END AS 'product.serial_number',
+                CASE mprap.product_type_enum
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                        THEN artifact.specification
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                        THEN assemble.specification
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                        THEN machinePart.specification
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                        THEN enclosure.plate
+                END AS 'product.specification',
+                CASE mprap.product_type_enum
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                        THEN artifact.area_batch_id
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                        THEN assemble.area_batch_id
+                    WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                        THEN machinePart.area_batch_id
+                END AS area_batch_id,
+                process.id AS 'process.id',
+                process.name AS 'process.name',
+                mprap.quota_config_id,
+                mprap.quota_config_serial_number,
+                mprap.measure_unit,
+                mprap.measurement_quantity,
+                mprap.price,
+                mprap.amount,
+                mprap.report_date,
+                approver.id AS 'approver.id',
+                approver.name AS 'approver.name',
+                mprap.approval_date,
+                reportPerson.id AS 'reportPerson.id',
+                reportPerson.name AS 'reportPerson.name'
+            FROM mes_production_reporting_approval_passed mprap
+            LEFT JOIN contract_project project ON project.bool_delete_enum = 0 AND project.id = mprap.project_id
+            LEFT JOIN mes_building_process process ON process.bool_delete_enum = 0 AND process.id = mprap.process_id
+            LEFT JOIN sys_user approver ON approver.bool_delete_enum = 0 AND approver.id = mprap.approver_id
+            LEFT JOIN tech_artifact artifact ON artifact.bool_delete_enum = 0 AND artifact.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+            LEFT JOIN tech_assemble assemble ON assemble.bool_delete_enum = 0 AND assemble.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+            LEFT JOIN tech_machine_part machinePart ON machinePart.bool_delete_enum = 0 AND machinePart.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+            LEFT JOIN tech_enclosure enclosure ON enclosure.bool_delete_enum = 0 AND enclosure.id = mprap.product_id
+                    AND mprap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+            LEFT JOIN sys_user reportPerson ON reportPerson.bool_delete_enum = 0 AND reportPerson.id = mprap.report_person_id
+            WHERE mprap.bool_delete_enum = 0
+              AND mprap.workshop_id = #{workshopId}
+              AND mprap.team_id = #{teamId}
+            <if test="startDate != null">
+                AND DATE(mprap.report_date) >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND DATE(mprap.report_date) &lt;= #{endDate}
+            </if>
+        ) t
+        LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = t.area_batch_id
+        <where>
+            <if test="productSerialNumber != null and productSerialNumber != ''">
+                AND t.`product.serial_number` LIKE concat('%', #{productSerialNumber}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalPassedDTO">
+        SELECT
+            <if test="productTypeEnum != null">
+                product.id AS 'product.id',
+                product.serial_number AS 'product.serial_number',
+            </if>
+            project.id AS 'project.id',
+            project.name AS 'project.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            mprap.*
+        FROM mes_production_reporting_approval_passed mprap
+        LEFT JOIN contract_project project ON project.bool_delete_enum = 0 AND project.id = mprap.project_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = mprap.team_id
+        <choose>
+            <when test="productTypeEnum != null and productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+            </when>
+            <when test="productTypeEnum != null and productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+            </when>
+            <when test="productTypeEnum != null and productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+            </when>
+            <when test="productTypeEnum != null and productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                LEFT JOIN tech_enclosure product ON product.bool_delete_enum = 0 AND product.id = mprap.product_id
+            </when>
+        </choose>
+        WHERE mprap.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND mprap.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND mprap.monomer_id = #{monomerId}
+        </if>
+        <if test="productTypeEnum != null">
+            AND mprap.product_type_enum = #{productTypeEnum}
+        </if>
+        <if test="productSerialNumberList != null and productSerialNumberList.size() > 0">
+            AND product.serial_number
+            <foreach collection="productSerialNumberList" item="i" open="in (" separator="," close=")">
+                #{i}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="whitelistUnapprovedList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalReportSummaryDTO">
+        SELECT
+            t.produce_team_report_ids,
+            t.report_date,
+            t.report_quantity,
+            (t.report_quantity * product.net_weight) AS report_weight,
+            p.contract_sign_body_id AS branch_company_id,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            m.id AS 'monomer.id',
+            m.name AS 'monomer.name',
+            a.id AS 'area.id',
+            a.name AS 'area.name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            product.id AS 'product.id',
+            product.name AS 'product.name',
+            product.serial_number AS 'product.serial_number',
+            product.monomer_id AS 'product.monomer_id',
+            t.product_type_enum AS 'product.product_type_enum',
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                product.structure_class_id AS 'product.class_id',
+                pc.classification_name AS 'product.class_name',
+                product.artifact_type AS 'product.product_classification_enum',
+                product.surface_area AS 'product.surface_area',
+                IFNULL(ampq.machine_part_quantity, 0) AS 'product.machine_part_quantity',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                product.assemble_config_id AS 'product.class_id',
+                pc.name AS 'product.class_name',
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                product.steel_id AS 'product.class_id',
+                product.name AS 'product.class_name',
+                product.product_classification_enum AS 'product.product_classification_enum',
+                product.thick AS 'product.thick',
+            </when>
+        </choose>
+            product.quantity AS 'product.quantity',
+            product.net_weight AS 'product.net_weight',
+            product.length AS 'product.length',
+            product.specification AS 'product.specification',
+            user.id AS 'reportPerson.id',
+            user.name AS 'reportPerson.name',
+            areaBatch.id AS 'areaBatch.id',
+            areaBatch.name AS 'areaBatch.name'
+        FROM (
+            SELECT
+                group_concat(DISTINCT mbptr.id) AS produce_team_report_ids,
+                mbptr.workshop_id,
+                mbptr.process_id,
+                mbptr.team_id,
+                mbptr.task_type_enum AS product_type_enum,
+                mbptr.project_id,
+                mbptr.monomer_id,
+                mbptr.area_id,
+                mbptr.product_id,
+                mbptr.user_id,
+                DATE(mbptr.create_time) AS report_date,
+                sum(mbptr.inspection_quantity) AS report_quantity
+            FROM mes_building_produce_team_report mbptr
+            WHERE mbptr.bool_delete_enum = 0
+                AND mbptr.inspection_quantity > 0
+                AND NOT EXISTS(
+                    SELECT 1
+                    FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                    WHERE mprapptrl.bool_delete_enum = 0
+                    AND mprapptrl.product_type_enum != ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                    AND mprapptrl.produce_team_report_id = mbptr.id
+                )
+                AND DATE(mbptr.create_time) &lt; #{date}
+                AND mbptr.task_type_enum = #{productTypeEnum}
+                AND mbptr.workshop_id IN (<foreach collection="workshopIdList" item="i" separator=",">#{i}</foreach>)
+                AND mbptr.process_id IN (<foreach collection="processIdList" item="i" separator=",">#{i}</foreach>)
+                AND mbptr.team_id IN (<foreach collection="teamIdList" item="i" separator=",">#{i}</foreach>)
+            GROUP BY
+                DATE(mbptr.create_time),
+                mbptr.workshop_id,
+                mbptr.process_id,
+                mbptr.team_id,
+                mbptr.task_type_enum,
+                mbptr.project_id,
+                mbptr.monomer_id,
+                mbptr.area_id,
+                mbptr.product_id,
+                mbptr.user_id
+        ) t
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = t.project_id
+        LEFT JOIN plan_monomer m ON m.bool_delete_enum = 0 AND m.id = t.monomer_id
+        LEFT JOIN plan_area a ON a.bool_delete_enum = 0 AND a.id = t.area_id
+        LEFT JOIN mes_building_workshop workshop on workshop.bool_delete_enum = 0 and workshop.id = t.workshop_id
+        LEFT JOIN mes_building_process process on process.bool_delete_enum = 0 and process.id = t.process_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = t.team_id
+        LEFT JOIN sys_user user ON user.bool_delete_enum = 0 AND user.id = t.user_id
+        <choose>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                LEFT JOIN tech_artifact product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_structure_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.structure_class_id
+                LEFT JOIN (
+                    SELECT
+                    artifact_id,
+                    sum(quantity) AS machine_part_quantity
+                    FROM tech_artifact_machine_part_link
+                    WHERE bool_delete_enum = 0
+                    GROUP BY artifact_id
+                ) ampq ON ampq.artifact_id = product.id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                LEFT JOIN tech_assemble product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_assemble_config pc ON pc.bool_delete_enum = 0 AND pc.id = product.assemble_config_id
+            </when>
+            <when test="productTypeEnum == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                LEFT JOIN tech_machine_part product ON product.bool_delete_enum = 0 AND product.id = t.product_id
+                LEFT JOIN sys_steel_classification pc ON pc.bool_delete_enum = 0 AND pc.id = product.steel_id
+            </when>
+        </choose>
+        LEFT JOIN plan_area_batch areaBatch ON areaBatch.bool_delete_enum = 0 and areaBatch.id = product.area_batch_id
+    </select>
+
+    <select id="whitelistUnapprovedEnclosureList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesProductionReportingApprovalReportSummaryDTO">
+        SELECT
+            t.produce_team_report_ids,
+            t.report_date,
+            p.id AS 'project.id',
+            p.name AS 'project.name',
+            p.serial_number AS 'project.serial_number',
+            p.short_name AS 'project.short_name',
+            workshop.id AS 'workshop.id',
+            workshop.name AS 'workshop.name',
+            process.id AS 'process.id',
+            process.name AS 'process.name',
+            process.type AS 'process.type',
+            team.id AS 'team.id',
+            team.name AS 'team.name',
+            team.organization_type AS 'team.organization_type',
+            dict.id AS 'dict.id',
+            dict.label AS 'dict.label',
+            t.serial_numbers AS product_serial_numbers,
+            t.report_quantity,
+            mqce.unit AS measure_unit,
+            if(mqce.unit IS NOT NULL, t.measurement_quantity, NULL) AS measurement_quantity,
+            mqce.price,
+            (t.measurement_quantity * mqce.price) AS amount,
+            mqce.id AS quota_config_id,
+            mqce.serial_number AS quota_config_serial_number,
+            ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()} AS 'product.product_type_enum',
+            user.id AS 'reportPerson.id',
+            user.name AS 'reportPerson.name'
+        FROM (
+            SELECT
+                group_concat(DISTINCT meptr.id) AS produce_team_report_ids,
+                DATE(meptr.create_time) AS report_date,
+                meptr.workshop_id,
+                meptr.process_id,
+                meptr.team_id,
+                meptr.project_id,
+                product.dictionary_id,
+                meptr.user_id,
+                sum(meptr.quantity) AS report_quantity,
+                sum(product.length / 1000) AS measurement_quantity,
+                group_concat(DISTINCT product.serial_number) AS serial_numbers
+            FROM mes_enclosure_produce_team_report meptr
+            LEFT JOIN tech_enclosure product ON product.bool_delete_enum = 0 AND product.id = meptr.product_id
+            WHERE meptr.bool_delete_enum = 0
+                AND meptr.quantity > 0
+                AND NOT EXISTS(
+                    SELECT 1
+                    FROM mes_production_reporting_approval_passed_produce_team_report mprapptrl
+                    WHERE mprapptrl.bool_delete_enum = 0
+                    AND mprapptrl.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+                    AND mprapptrl.produce_team_report_id = meptr.id
+                )
+                AND DATE(meptr.create_time) &lt; #{date}
+                AND meptr.workshop_id IN (<foreach collection="workshopIdList" item="i" separator=",">#{i}</foreach>)
+                AND meptr.process_id IN (<foreach collection="processIdList" item="i" separator=",">#{i}</foreach>)
+                AND meptr.team_id IN (<foreach collection="teamIdList" item="i" separator=",">#{i}</foreach>)
+            GROUP BY
+                DATE(meptr.create_time),
+                meptr.workshop_id,
+                meptr.process_id,
+                meptr.team_id,
+                meptr.project_id,
+                product.dictionary_id,
+                meptr.user_id
+        ) t
+        LEFT JOIN sys_dictionary dict ON dict.bool_delete_enum = 0 AND dict.id = t.dictionary_id
+        LEFT JOIN mes_quota_config_enclosure mqce ON mqce.bool_delete_enum = 0 AND mqce.enclosure_type_dictionary_id = t.dictionary_id
+        LEFT JOIN contract_project p ON p.bool_delete_enum = 0 AND p.id = t.project_id
+        LEFT JOIN mes_building_workshop workshop on workshop.bool_delete_enum = 0 and workshop.id = t.workshop_id
+        LEFT JOIN mes_building_process process on process.bool_delete_enum = 0 and process.id = t.process_id
+        LEFT JOIN (
+            SELECT
+                mbt.*,
+                mbtul.user_name AS name
+            FROM mes_building_team mbt
+            LEFT JOIN mes_building_team_user_link mbtul ON mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1 AND mbtul.team_id = mbt.id
+            WHERE mbt.bool_delete_enum = 0
+        ) team ON team.id = t.team_id
+        LEFT JOIN sys_user user ON user.bool_delete_enum = 0 AND user.id = t.user_id
+    </select>
+
+</mapper>

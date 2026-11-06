@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MoveMaterialDetailMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, basic_class, classify_id, specification, quantity, mete, length, width, thickness, unit_net, factory_id, warehouse_id, brand, color, heat_no_and_batch_no, bool_party_a, invoice_type, material_is_whole, tax_rate, theory_thickness, standard_id, standard_name, monomer_id, area_id, remark
+    </sql>
+
+    <resultMap id="getMoveMaterialDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.MoveMaterialMaterialDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="color" property="color"/>
+        <result column="weighted_average_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="input_vat" property="inputVAT"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="serialNumber" property="serialNumber"/>
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.MoveMaterialDO">
+            <id column="wmmId" property="id"/>
+            <result column="wmmSN" property="serialNumber"/>
+            <result column="wmmfName" property="applicantName"/>
+            <result column="wmmrName" property="reviewerName"/>
+            <result column="review_time" property="reviewTime"/>
+            <result column="wmmcTime" property="createTime"/>
+            <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+                <id property="id" column="pid"/>
+                <result property="name" column="pn"/>
+                <result property="serialNumber" column="pSN"/>
+                <result property="shortName" column="psName"/>
+            </association>
+            <association property="source" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+                <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="mbfId"/>
+                    <result property="name" column="mbfName"/>
+                </association>
+                <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="wwId"/>
+                    <result property="name" column="wwName"/>
+                </association>
+            </association>
+            <association property="direction" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.DTO">
+                <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="mbfId2"/>
+                    <result property="name" column="mbfName2"/>
+                </association>
+                <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+                    <id property="id" column="wwId2"/>
+                    <result property="name" column="wwName2"/>
+                </association>
+            </association>
+        </association>
+    </resultMap>
+
+    <resultMap id="MoveMaterialDetailCount" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.MoveMaterialMaterialDO">
+        <result column="quantityCount" property="quantityCount"/>
+        <result column="meteCount" property="meteCount"/>
+        <result column="amountCount" property="amountCount"/>
+        <result column="amountExcludingVatCount" property="amountExcludingVatCount"/>
+    </resultMap>
+
+    <resultMap id="getDownLoadDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="specification" property="specification"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="wmmSN" property="serialNumber"/>
+        <result column="applicantName" property="applicantName"/>
+        <result column="applicantTime" property="applicantTime"/>
+        <result column="projectName" property="projectName"/>
+        <result column="projectNumber" property="projectNumber"/>
+        <result column="warehouseName" property="warehouseName"/>
+        <result column="directionWareHouseName" property="directionWareHouseName"/>
+        <result column="wmsWorkshopName" property="wmsWorkshopName"/>
+        <result column="directionWmsWorkshopName" property="directionWmsWorkshopName"/>
+
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="classification_id" property="classificationId"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+        </association>
+    </resultMap>
+
+    <select id="getMoveMaterialDetailList" resultMap="getMoveMaterialDetail">
+        select
+        wmmd.*,
+        wmm.id wmmId,
+        wmm.serial_number wmmSN,
+        wmm.applicant_name wmmfName,
+        wmm.review_end_time review_time,
+        wmm.reviewer_names wmmrName,
+        wmm.create_time wmmcTime,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf2.id mbfId2,
+        mbf2.name mbfName2,
+        ww2.id wwId2,
+        ww2.name wwName2,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_move_material_detail wmmd
+        left join wms_move_material wmm on wmm.id = wmmd.move_material_id
+        left join contract_project p on p.id = wmmd.project_id
+        left join wms_workshop mbf on wmmd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmmd.source_warehouse_id
+        left join wms_workshop mbf2 on wmm.direction_workshop_id = mbf2.id
+        left join wms_warehouse ww2 on ww2.id = wmm.direction_warehouse_id
+        where
+        wmmd.bool_delete_enum = 0
+        and wmm.review_status = 2
+        <if test="basicClass != null ">
+            and wmmd.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wmmd.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wmmd.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wmmd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="workshopId != null ">
+            and (wmmd.source_workshop_id = #{workshopId} or wmm.direction_workshop_id = #{workshopId})
+        </if>
+        <if test="warehouseId != null ">
+            AND wmmd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test="projectId != null ">
+            AND wmmd.project_Id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND wmmd.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wmm.review_end_time &gt; #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wmm.review_end_time &lt; #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="moveMaterialSN != null and moveMaterialSN != '' ">
+            and wmm.serial_number like CONCAT('%', #{moveMaterialSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wmm.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wmm.reviewer_names like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmmd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" width != null">
+            and wmmd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wmmd.length = #{length}
+        </if>
+        <if test=" minLength != null">
+            and wmmd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wmmd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wmmd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wmmd.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wmmd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wmmd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wmmd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wmmd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wmmd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+
+    <select id="getMoveMaterialDetailCount" resultMap="MoveMaterialDetailCount">
+        select
+        sum(wmmd.quantity) as quantityCount,
+        sum(wmmd.mete) as meteCount,
+        sum(wmmd.amount) as amountCount,
+        sum(wmmd.amount_excluding_VAT) as amountExcludingVatCount
+        from wms_move_material_detail wmmd
+        left join wms_move_material wmm on wmm.id = wmmd.move_material_id
+        left join contract_project p on p.id = wmmd.project_id
+        left join wms_workshop mbf on wmmd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmmd.source_warehouse_id
+        left join wms_workshop mbf2 on wmm.direction_workshop_id = mbf2.id
+        left join wms_warehouse ww2 on ww2.id = wmm.direction_warehouse_id
+        where
+        wmmd.bool_delete_enum = 0
+        and wmm.review_status = 2
+        <if test="basicClass != null ">
+            and wmmd.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wmmd.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wmmd.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wmmd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="workshopId != null ">
+            and (wmmd.source_workshop_id = #{workshopId} or wmm.direction_workshop_id = #{workshopId})
+        </if>
+        <if test="warehouseId != null ">
+            AND wmmd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test="sourceProjectId != null ">
+            AND wmmd.project_Id = #{sourceProjectId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wmm.review_end_time &gt; #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wmm.review_end_time &lt; #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="moveMaterialSN != null and moveMaterialSN != '' ">
+            and wmm.serial_number like CONCAT('%', #{moveMaterialSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wmm.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wmm.reviewer_names like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmmd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" width != null">
+            and wmmd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wmmd.length = #{length}
+        </if>
+        <if test=" minLength != null">
+            and wmmd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wmmd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wmmd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wmmd.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wmmd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wmmd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wmmd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wmmd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wmmd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="getDownLoadDetail" resultMap="getDownLoadDetail">
+        select
+        wmmd.*,
+        wc.name classifyName,
+        wm.*,
+        wmm.id wmmId,
+        wmm.serial_number wmmSN,
+        wmm.applicant_name applicantName,
+        wmm.review_end_time review_time,
+        wmm.create_time applicantTime,
+        p.short_name projectName,
+        p.serial_number projectNumber,
+        p.name projectName,
+        mbf2.name directionWmsWorkshopName,
+        ww2.name directionWareHouseName,
+        mbf.name wmsWorkshopName,
+        ww.name warehouseName
+        from wms_move_material_detail wmmd
+        left join wms_move_material wmm on wmm.id = wmmd.move_material_id
+        left join contract_project p on p.id = wmmd.project_id
+        left join wms_workshop mbf on wmmd.source_workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmmd.source_warehouse_id
+        left join wms_workshop mbf2 on wmm.direction_workshop_id = mbf2.id
+        left join wms_warehouse ww2 on ww2.id = wmm.direction_warehouse_id
+        left join wms_classification wc on wmmd.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wmmd.classify_id
+        where
+        wmmd.bool_delete_enum = 0
+        and wmm.review_status = 2
+        <if test="basicClass != null ">
+            and wmmd.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wmmd.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wmmd.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wmmd.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="workshopId != null ">
+            and (wmmd.source_workshop_id = #{workshopId} or wmm.direction_workshop_id = #{workshopId})
+        </if>
+        <if test="warehouseId != null ">
+            AND wmmd.source_warehouse_id = #{warehouseId}
+        </if>
+        <if test="sourceProjectId != null ">
+            AND wmmd.project_Id = #{sourceProjectId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wmm.review_end_time &gt; #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wmm.review_end_time &lt; #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="moveMaterialSN != null and moveMaterialSN != '' ">
+            and wmm.serial_number like CONCAT('%', #{moveMaterialSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wmm.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wmm.reviewer_names like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmmd.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test=" width != null">
+            and wmmd.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wmmd.length = #{length}
+        </if>
+        <if test=" minLength != null">
+            and wmmd.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wmmd.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wmmd.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wmmd.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wmmd.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wmmd.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wmmd.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wmmd.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wmmd.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

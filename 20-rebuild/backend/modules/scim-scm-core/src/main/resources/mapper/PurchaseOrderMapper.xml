@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.PurchaseOrderMapper">
+
+
+    <select id="listInfo" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select
+        *
+        from
+        scm_purchase_order
+        where
+        bool_delete_enum = 0
+        <if test=" purchaseType != null">
+            and  purchase_type = #{purchaseType}
+        </if>
+        <if test=" materialType != null">
+            and  material_type = #{materialType}
+        </if>
+        <if test=" purchaseStatus != null">
+            and purchase_status = #{purchaseStatus}
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="settlementStatus != null">
+            and settlement_status = #{settlementStatus}
+        </if>
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test="branchCompanyId != null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (last_operator_name like CONCAT('%', #{operatorName},'%') or applicant_name like
+            CONCAT('%',#{operatorName},'%'))
+        </if>
+        <if test="projectId != null">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+    </select>
+
+    <select id="simpleListInfo" resultType="com.hzchum.scim.scm.core.api.pojo.dto.SimpleListDTO">
+        select id, serial_number name
+        from scm_purchase_order
+        where purchase_status = 0
+    </select>
+
+    <select id="getCountByDate" resultType="integer">
+        SELECT COUNT(*)
+        FROM `scm_purchase_order`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(NOW(), '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <select id="getCountByDateNew" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `scm_purchase_order`
+        WHERE DATE_FORMAT(NOW(), '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <!--采购订单付款列表-->
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.supplier.SupplierPaymentRecordDTO">
+        SELECT
+        p.*,
+        s.name as supplier_name,
+        s.bank_name as supplier_bank_name,
+        s.bank_account as supplier_bank_account,
+
+        (select IFNULL(sum(actually_payment_amount),0)
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+        and audit_status = 2
+        and order_id = p.id
+        and property_type in (1, 4)
+        ) as payment_amount,
+
+        (SELECT COUNT(*) FROM contract_supplier_payment
+        WHERE bool_delete_enum = 0
+        AND audit_status = 1
+        AND order_id = p.id
+        AND property_type in (1, 4)
+        ) AS un_check_payment_count,
+
+        (select IFNULL(sum(invoice_amount),0) from contract_supplier_invoice
+        where bool_delete_enum = 0
+          and audit_status = 2
+          and order_id = p.id
+          and property_type in (1, 4)
+        ) as invoice_amount,
+
+        (SELECT COUNT(*) FROM contract_supplier_invoice
+        WHERE bool_delete_enum = 0
+        AND audit_status = 1
+        AND order_id = p.id
+        AND property_type in (1, 4)
+        ) AS un_check_invoice_count,
+
+        (SELECT COUNT(*) FROM contract_supplier_settlement
+        WHERE bool_delete_enum = 0
+        AND audit_status = 1
+        AND order_id = p.id
+        AND order_class in (1, 2)
+        ) AS un_check_settlement_count,
+
+        (SELECT IFNULL(sum(amount),0) FROM contract_supplier_settlement
+        WHERE bool_delete_enum = 0
+        AND audit_status = 1
+        AND order_id = p.id
+        AND order_class in (1, 2)
+        ) AS un_check_settlement_amount,
+        c.name as branchCompanyName
+
+        FROM scm_purchase_order as p
+        LEFT JOIN scm_supplier as s on s.id = p.supplier_id AND s.bool_delete_enum = 0
+        LEFT JOIN sys_branch_company AS c on c.id = p.branch_company_id AND c.bool_delete_enum = 0 AND c.enabled = 1
+
+        WHERE p.bool_delete_enum = 0
+
+        <if test="purchaseType != null">
+            AND p.purchase_type = #{purchaseType}
+        </if>
+
+        <if test="startDate != null">
+            AND date(p.create_time) &gt;= #{startDate}
+        </if>
+
+        <if test="endDate != null">
+            AND date(p.create_time) &lt;= #{endDate}
+        </if>
+
+        <if test="basicClass != null">
+            AND p.basic_class &amp; #{basicClass} > 0
+        </if>
+
+        <if test="supplierId != null">
+            and p.supplier_id = #{supplierId}
+        </if>
+
+        <if test="supplierName != null and supplierName != ''">
+            and s.name like CONCAT('%',#{supplierName},'%')
+        </if>
+
+        <if test="serialNumber != null and serialNumber != ''">
+            and p.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="settlementStatus != null">
+            and p.settlement_status = #{settlementStatus}
+        </if>
+        <if test="projectId != null">
+            and find_in_set(#{projectId},p.project_ids)
+        </if>
+        order by p.create_time desc
+
+    </select>
+
+
+    <!--根据供应商汇总(采购订单付款列表)-->
+    <select id="listSupplierSum" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseSupplierSummaryDTO">
+        SELECT
+        spo.supplier_id,
+        ss.name as supplier_name,
+        SUM(spo.amount) AS amount
+        FROM scm_purchase_order AS spo
+        INNER JOIN scm_supplier AS ss ON spo.supplier_id = ss.id AND ss.bool_delete_enum = 0
+        WHERE spo.bool_delete_enum = 0
+
+        <if test="supplierName != null and supplierName != ''">
+            and ss.name like concat('%',#{supplierName},'%')
+        </if>
+        <if test="startDate != null">
+            and date(spo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(spo.create_time) &lt;= date(#{endDate})
+        </if>
+        GROUP BY spo.supplier_id
+    </select>
+
+
+    <select id="selectByProjectId" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select *
+        from scm_purchase_order
+        where bool_delete_enum = 0
+          and find_in_set(#{projectId}, project_ids)
+    </select>
+
+
+    <select id="selectPayableList" resultType="com.hzchum.scim.scm.core.api.pojo.dto.SupplierPayableSummaryDTO">
+        SELECT
+        temp.supplier_id,
+        temp.supplier_name,
+        SUM( temp.amount ) AS amount,
+        IFNULL(SUM( temp.settlement_amount ),0) AS settlement_amount,
+        SUM( temp.payment_amount ) AS payment_amount,
+        SUM( temp.invoice_amount ) AS invoice_amount
+        FROM
+        (
+        SELECT
+        spo.id,
+        spo.serial_number,
+        IFNULL( spo.amount, 0 ) AS amount,
+        spo.supplier_id,
+        ( SELECT NAME FROM scm_supplier WHERE bool_delete_enum = 0 AND id = spo.supplier_id ) AS supplier_name,
+        spo.settlement_status,
+        ( SELECT amount FROM contract_supplier_settlement WHERE spo.id = order_id AND bool_delete_enum = 0 AND
+        audit_status = 2 ) AS settlement_amount,
+        (SELECT IFNULL( SUM( actually_payment_amount ), 0 ) FROM contract_supplier_payment WHERE property_type = 1 AND
+        order_id = SPO.id AND bool_delete_enum = 0 AND audit_status = 2) AS payment_amount,
+        ( SELECT IFNULL( SUM( invoice_amount ), 0 ) FROM contract_supplier_invoice WHERE property_type = 1 AND order_id
+        = spo.id AND bool_delete_enum = 0 AND audit_status = 2 ) AS invoice_amount
+        FROM
+        scm_purchase_order AS spo
+        WHERE
+        spo.bool_delete_enum = 0
+        <if test="startDate != null">
+            and spo.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and spo.create_time &lt;= #{endDate}
+        </if>
+        <if test="purchaseType != null">
+            and spo.purchase_type = #{purchaseType}
+        </if>
+        ) AS temp
+        WHERE 1=1
+        <if test="payable != null and payable == 1">
+            and temp.payment_amount &lt; ( CASE temp.settlement_status WHEN 0 THEN temp.amount ELSE
+            temp.settlement_amount END )
+        </if>
+        <if test="payable != null and payable == 2">
+            and temp.payment_amount &gt;= ( CASE temp.settlement_status WHEN 0 THEN temp.amount ELSE
+            temp.settlement_amount END )
+        </if>
+
+        <if test="isTaxArrears != null and isTaxArrears == 1">
+            AND temp.invoice_amount &lt; ( CASE temp.settlement_status WHEN 0 THEN temp.amount ELSE
+            temp.settlement_amount END )
+        </if>
+        <if test="isTaxArrears != null and isTaxArrears == 2">
+            AND temp.invoice_amount &gt;= ( CASE temp.settlement_status WHEN 0 THEN temp.amount ELSE
+            temp.settlement_amount END )
+        </if>
+        <if test="supplierName != null and supplierName != ''">
+            AND temp.supplier_name like concat('%',#{supplierName},'%')
+        </if>
+        GROUP BY
+        temp.supplier_id,
+        temp.supplier_name
+    </select>
+
+    <select id="selectPurchaseAmountSum" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(amount),0)
+        FROM scm_purchase_order
+        WHERE bool_delete_enum = 0
+        <if test="startDate != null">
+            and create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and create_time &lt;= #{endDate}
+        </if>
+        <if test="supplierId != null">
+            and supplier_id= #{supplierId}
+        </if>
+        <if test="branchCompanyId != null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="purchaseType != null">
+            and purchase_type = #{purchaseType}
+        </if>
+
+    </select>
+
+    <select id="getCountByClassId" resultType="int">
+        SELECT count(*)
+        FROM scm_purchase_order
+        WHERE bool_delete_enum = 0
+          and find_in_set(#{classId}, aux_material_ids)
+    </select>
+
+    <select id="getSNByYear" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseOrderDTO">
+        SELECT spo.*,
+               spo.supplier_id 'supplier.id',
+        ss.name 'supplier.name'
+        FROM scm_purchase_order AS spo
+        LEFT JOIN scm_supplier AS ss ON spo.supplier_id = ss.id AND ss.bool_delete_enum = 0
+        WHERE spo.bool_delete_enum = 0
+        <if test="year != null">
+            and DATE_FORMAT(#{year}, '%Y') = DATE_FORMAT(spo.create_time, '%Y')
+        </if>
+    </select>
+
+    <select id="listInfoV2" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select
+        spo.*
+        from
+        scm_purchase_order spo
+        left join scm_supplier ss on ss.id=spo.supplier_id
+        left join sys_user u on spo.project_manager_id = u.id
+        where
+        spo.bool_delete_enum = 0
+        and spo.bool_temporary_storage = 0
+        and spo.data_status !=0
+        <if test=" basicClass !=null">
+            and spo.basic_class &amp; #{basicClass}
+        </if>
+        <if test=" purchaseType != null">
+            and  spo.purchase_type = #{purchaseType}
+        </if>
+        <if test=" materialType != null">
+            and #{materialType} &amp; spo.basic_class
+        </if>
+        <if test=" purchaseStatus != null">
+            and spo.purchase_status = #{purchaseStatus}
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and spo.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and DATE_FORMAT(spo.create_time,'%Y-%m-%d') >= DATE_FORMAT(#{createTime[0]},'%Y-%m-%d')
+            </if>
+            <if test="createTime[1] != null">
+                and DATE_FORMAT(spo.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{createTime[1]},'%Y-%m-%d')
+            </if>
+        </if>
+        <if test="settlementStatus != null">
+            and spo.settlement_status = #{settlementStatus}
+        </if>
+        <if test="supplierId != null">
+            and spo.supplier_id = #{supplierId}
+        </if>
+        <if test="supplierName != null and supplierName != ''">
+            and ss.name like CONCAT('%', #{supplierName},'%')
+        </if>
+        <if test="applicantName != null and applicantName != ''">
+            and spo.applicant_name like CONCAT('%', #{applicantName},'%')
+        </if>
+        <if test="branchCompanyId != null">
+            and spo.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (spo.last_operator_name like CONCAT('%', #{operatorName},'%') or spo.applicant_name like
+            CONCAT('%',#{operatorName},'%'))
+        </if>
+        <if test="projectId != null">
+            and find_in_set(#{projectId},spo.project_ids)
+        </if>
+        <if test="level != null">
+            and spo.level = #{level}
+        </if>
+        <if test="orderPlace != null">
+            and spo.order_place = #{orderPlace}
+        </if>
+        <if test="reviewStatus !=null">
+            and spo.review_status = #{reviewStatus}
+        </if>
+        <if test="dataStatus != null">
+            and spo.data_status = #{dataStatus}
+        </if>
+        <if test="boolAnnual!=null">
+            and spo.bool_annual = #{boolAnnual}
+        </if>
+        <if test="projectAttributes != null and projectAttributes.size() > 0 ">
+            and spo.project_attribute in
+            <foreach item="item" index="index" collection="projectAttributes" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="projectManagerName != null and projectManagerName != ''">
+            and u.name like concat('%',#{projectManagerName},'%')
+        </if>
+        <if test="workshopId != null">
+            and spo.workshop_id = #{workshopId}
+        </if>
+        <if test="boolDetail != null">
+            and spo.bool_detail = #{boolDetail}
+        </if>
+        <if test="purchaseAmount != null and purchaseAmount.size()>0">
+            <if test="purchaseAmount[0] != null">
+                and spo.amount &gt;= #{purchaseAmount[0]}
+            </if>
+            <if test="purchaseAmount[1] != null">
+                and spo.amount &lt;= #{purchaseAmount[1]}
+            </if>
+        </if>
+    </select>
+    <select id="purchaseCount" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select
+        spo.*
+        from
+        scm_purchase_order spo
+        left join scm_supplier ss on ss.id=spo.supplier_id
+        where
+        spo.bool_delete_enum = 0
+        and spo.bool_temporary_storage = 0
+        and spo.data_status !=0
+        and spo.project_attribute = 1
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and DATE_FORMAT(spo.create_time,'%Y-%m-%d') >= DATE_FORMAT(#{createTime[0]},'%Y-%m-%d')
+            </if>
+            <if test="createTime[1] != null">
+                and DATE_FORMAT(spo.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{createTime[1]},'%Y-%m-%d')
+            </if>
+        </if>
+    </select>
+
+    <select id="getPurchaseOrder"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.SupplierSettlementDto">
+        SELECT p.amount,
+        p.basic_class,
+        p.settlement_amount,
+        p.branch_company_id,
+        c.`name` as branch_company_name
+        FROM scm_purchase_order AS p
+        LEFT JOIN sys_branch_company AS c ON c.id = p.branch_company_id
+        AND c.bool_delete_enum = 0
+        AND c.enabled = 1
+        where
+        p.bool_delete_enum = 0
+        <if test=" orderId != null">
+            and p.id = #{orderId}
+        </if>
+    </select>
+
+    <select id="getSecondaryUnitAll" resultType="com.hzchum.scim.contract.core.api.pojo.dto.supplier.PurchaseStandingBookDTO">
+        SELECT
+        a.id as orderId,
+        a.serial_number as purchaseContractNumber,
+        a.material_type,
+        a.settlement_status as settlementStatus,
+        a.standing_book_is_print as standingBookIsPrint,
+        b.short_name as contractSignBodyName
+        FROM
+        `scm_purchase_order` a
+        LEFT JOIN sys_branch_company b on b.id = a.branch_company_id
+        <!--  and b.bool_delete_enum = 0 -->
+        WHERE
+        a.bool_delete_enum = 0
+        AND a.project_attribute = 1
+        AND a.data_status = 2
+        AND a.review_status = 2
+        <!--  AND b.is_parent = 0 -->
+        <if test="supplierId != null">
+            AND a.supplier_id = #{supplierId}
+        </if>
+        <if test="settlementStatus != null">
+            AND a.settlement_status = #{settlementStatus}
+        </if>
+        <if test="serialNumber != null">
+            AND a.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="basicClass != null">
+            AND a.basic_class &amp; #{basicClass}
+        </if>
+        <if test="branchCompanyId != null">
+            AND a.branch_company_id = #{branchCompanyId}
+        </if>
+        ORDER BY a.settlement_status ASC, a.id DESC
+    </select>
+    <select id="selectAgainOrder" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        SELECT
+            spo1.*
+        FROM
+            scm_purchase_order spo1
+                JOIN (
+                SELECT
+                    spo.pass_parent_id
+                FROM
+                    scm_purchase_order spo
+                        JOIN wms_approve_record war ON spo.id = war.data_id
+                WHERE
+                    war.STATUS = 1
+                  AND war.approve_process_type = 20018
+            ) AS subquery ON spo1.id = subquery.pass_parent_id
+        WHERE
+            spo1.serial_number = #{serialNumber};
+    </select>
+    <select id="getPurchaseSummary" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseOrderSummaryDTO">
+        select
+        material_type,
+        count(1) as numbers,
+        sum(amount) as amount
+        from scm_purchase_order where
+        bool_delete_enum = 0
+        and bool_temporary_storage = 0
+        and data_status !=0
+        and review_status = 2
+        and bool_detail = 1 <!-- 有详情的采购单 -->
+        and material_type is not null
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(create_time, "%Y")=DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        group by material_type
+    </select>
+    <select id="getGroupMonth" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseOrderGroupMonthDTO">
+        select
+        DATE_FORMAT(create_time, "%Y-%m") as dateTime,
+        count(1) as numbers,
+        sum(amount) as amount
+        from scm_purchase_order where
+        bool_delete_enum = 0
+        and bool_temporary_storage = 0
+        and data_status !=0
+        and review_status = 2
+        and bool_detail = 1 <!-- 有详情的采购单 -->
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(create_time, "%Y")=DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        group by dateTime
+    </select>
+    <select id="getGroupDetail" resultType="com.hzchum.scim.scm.core.api.pojo.dao.PurchaseOrderGroupDetailDO">
+        SELECT
+        <if test="yearGroup == 1">
+            DATE_FORMAT( create_time, "%Y-%m" ) AS dateTime,
+        </if>
+        <if test="yearGroup == 0">
+            DATE_FORMAT( create_time, "%Y-%m-%d" ) AS dateTime,
+        </if>
+            material_type,
+            supplier_id,
+            sum( amount ) AS amount
+        FROM
+            scm_purchase_order
+        WHERE
+            bool_delete_enum = 0
+           and bool_temporary_storage = 0
+          and data_status !=0
+          AND review_status = 2
+          AND bool_detail = 1
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearGroup == 1">
+            AND DATE_FORMAT( create_time, "%Y" )= DATE_FORMAT( #{yearDate}, "%Y" )
+        </if>
+        <if test="yearGroup == 0">
+            AND DATE_FORMAT( create_time, "%Y%m" )= DATE_FORMAT( #{yearDate}, "%Y%m" )
+        </if>
+        GROUP BY
+            dateTime,
+            material_type,
+            supplier_id
+    </select>
+    <select id="getSupplierSummary" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseOrderSummaryDTO">
+        select
+        material_type,
+        COUNT(DISTINCT supplier_id)  as numbers,
+        sum(amount) as amount
+        from scm_purchase_order where
+        bool_delete_enum = 0
+        and bool_temporary_storage = 0
+        and data_status !=0
+        and review_status = 2
+        and bool_detail = 1 <!-- 有详情的采购单 -->
+        and material_type is not null
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(create_time, "%Y")=DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        group by material_type
+    </select>
+    <select id="getSupplierGroupDetail" resultType="com.hzchum.scim.scm.core.api.pojo.dto.PurchaseOrderGroupSupplierDetailDTO">
+        select
+            b.material_type,
+            a.name as supplierName,
+            a.social_code,
+            a.create_time,
+            a.supplier_classification
+        from scm_supplier a
+        right join (
+        SELECT
+            material_type,
+            supplier_id
+        FROM
+            scm_purchase_order
+        WHERE
+            bool_delete_enum = 0
+           and bool_temporary_storage = 0
+           and data_status !=0
+          AND review_status = 2
+          AND bool_detail = 1
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(create_time, "%Y")=DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        GROUP BY
+            material_type,
+            supplier_id
+        )b on a.id = b.supplier_id
+        order by b.material_type desc,a.create_time desc
+    </select>
+    <select id="getPurchaseOrderList" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select
+        *
+        from scm_purchase_order
+        where
+        bool_delete_enum = 0
+        and bool_temporary_storage = 0
+        and data_status !=0
+        and review_status = 2
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test="branchCompanyId!=null">
+            and branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(create_time, "%Y")=DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+    </select>
+    <select id="listAllByIds" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        select
+        *
+        from scm_purchase_order
+        <where>
+            <if test="ids != null and ids != ''">
+                id in
+                <foreach item="item" collection="list" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
+    <update id="updateBoolDeleteById">
+        update scm_purchase_order set bool_delete_enum = 0 where id = #{id}
+    </update>
+
+
+    <select id="update" resultType="java.lang.Boolean">
+        update scm_purchase_order
+        set bool_delete_enum = 0
+        where id = #{id}
+    </select>
+
+    <select id="getById" resultType="com.hzchum.scim.scm.core.api.pojo._do.PurchaseOrder">
+        SELECT *
+        FROM scm_purchase_order
+        where id = #{id}
+    </select>
+
+    <update id="initUpdateOrderPlace">
+        update scm_purchase_order set order_place = `level` where order_place is null
+    </update>
+</mapper>

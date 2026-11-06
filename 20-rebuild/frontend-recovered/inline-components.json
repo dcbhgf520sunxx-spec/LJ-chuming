@@ -1,0 +1,2492 @@
+[
+  {
+    "component": "contract/contract-catalog-manage/pre-register/module/detail.vue",
+    "namespace": "Yfe",
+    "map_source_offset": 447863,
+    "adapter": "src/views/contract/contract-catalog-manage/pre-register/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4261961,
+    "definition_source_end": 4262066,
+    "alias": "recoveredInline_0"
+  },
+  {
+    "component": "contract/contract-catalog-manage/pre-register/module/form.vue",
+    "namespace": "tge",
+    "map_source_offset": 447991,
+    "adapter": "src/views/contract/contract-catalog-manage/pre-register/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4272151,
+    "definition_source_end": 4272256,
+    "alias": "recoveredInline_1"
+  },
+  {
+    "component": "contract/contract-catalog-manage/pre-register/module/review-form.vue",
+    "namespace": "Vfe",
+    "map_source_offset": 448367,
+    "adapter": "src/views/contract/contract-catalog-manage/pre-register/module/review-form.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4254310,
+    "definition_source_end": 4254415,
+    "alias": "recoveredInline_2"
+  },
+  {
+    "component": "contract/contract-catalog-manage/review-register/module/detail.vue",
+    "namespace": "$ge",
+    "map_source_offset": 448839,
+    "adapter": "src/views/contract/contract-catalog-manage/review-register/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4291913,
+    "definition_source_end": 4292018,
+    "alias": "recoveredInline_3"
+  },
+  {
+    "component": "contract/contract-catalog-manage/review-register/module/form.vue",
+    "namespace": "Z1e",
+    "map_source_offset": 448970,
+    "adapter": "src/views/contract/contract-catalog-manage/review-register/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4327128,
+    "definition_source_end": 4327233,
+    "alias": "recoveredInline_4"
+  },
+  {
+    "component": "contract/examine-manage/components/approval-status-collection.vue",
+    "namespace": "TEe",
+    "map_source_offset": 461907,
+    "adapter": "src/views/contract/examine-manage/components/approval-status-collection.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4338100,
+    "definition_source_end": 4338205,
+    "alias": "recoveredInline_5"
+  },
+  {
+    "component": "contract/examine-manage/components/detail-v2.vue",
+    "namespace": "Ape",
+    "map_source_offset": 462263,
+    "adapter": "src/views/contract/examine-manage/components/detail-v2.vue.js",
+    "definition_fragment": "src/shared/segments/058.fragment.js",
+    "definition_source_start": 4187260,
+    "definition_source_end": 4187365,
+    "alias": "recoveredInline_6"
+  },
+  {
+    "component": "contract/examine-manage/module/drawer/index.vue",
+    "namespace": "fpe",
+    "map_source_offset": 463070,
+    "adapter": "src/views/contract/examine-manage/module/drawer/index.vue.js",
+    "definition_fragment": "src/shared/segments/057.fragment.js",
+    "definition_source_start": 4179501,
+    "definition_source_end": 4179606,
+    "alias": "recoveredInline_7"
+  },
+  {
+    "component": "contract/standing-book/common/components/estabish/collection-audit.vue",
+    "namespace": "PEe",
+    "map_source_offset": 596309,
+    "adapter": "src/views/contract/standing-book/common/components/estabish/collection-audit.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4344054,
+    "definition_source_end": 4344159,
+    "alias": "recoveredInline_8"
+  },
+  {
+    "component": "crm/check-detail/check-antecedent-trial.vue",
+    "namespace": "qde",
+    "map_source_offset": 653924,
+    "adapter": "src/views/crm/check-detail/check-antecedent-trial.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4104657,
+    "definition_source_end": 4104762,
+    "alias": "recoveredInline_9"
+  },
+  {
+    "component": "crm/check-detail/check-direct-detail.vue",
+    "namespace": "ame",
+    "map_source_offset": 654032,
+    "adapter": "src/views/crm/check-detail/check-direct-detail.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4117735,
+    "definition_source_end": 4117840,
+    "alias": "recoveredInline_10"
+  },
+  {
+    "component": "crm/check-detail/check-follow-up.vue",
+    "namespace": "Wde",
+    "map_source_offset": 654137,
+    "adapter": "src/views/crm/check-detail/check-follow-up.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4099736,
+    "definition_source_end": 4099841,
+    "alias": "recoveredInline_11"
+  },
+  {
+    "component": "crm/check-detail/check-give-up.vue",
+    "namespace": "zde",
+    "map_source_offset": 654238,
+    "adapter": "src/views/crm/check-detail/check-give-up.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4102048,
+    "definition_source_end": 4102153,
+    "alias": "recoveredInline_12"
+  },
+  {
+    "component": "crm/check-detail/check-record.vue",
+    "namespace": "eme",
+    "map_source_offset": 654337,
+    "adapter": "src/views/crm/check-detail/check-record.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4114925,
+    "definition_source_end": 4115030,
+    "alias": "recoveredInline_13"
+  },
+  {
+    "component": "crm/check-detail/check-tender.vue",
+    "namespace": "Zde",
+    "map_source_offset": 654435,
+    "adapter": "src/views/crm/check-detail/check-tender.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4108849,
+    "definition_source_end": 4108954,
+    "alias": "recoveredInline_14"
+  },
+  {
+    "component": "crm/check-detail/confirm-dialog.vue",
+    "namespace": "Ude",
+    "map_source_offset": 654533,
+    "adapter": "src/views/crm/check-detail/confirm-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4097270,
+    "definition_source_end": 4097375,
+    "alias": "recoveredInline_15"
+  },
+  {
+    "component": "crm/check-detail/reject-dialog.vue",
+    "namespace": "kde",
+    "map_source_offset": 654633,
+    "adapter": "src/views/crm/check-detail/reject-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4096101,
+    "definition_source_end": 4096206,
+    "alias": "recoveredInline_16"
+  },
+  {
+    "component": "mes/process-manage/coating-process/module/detail-V2.vue",
+    "namespace": "xme",
+    "map_source_offset": 842636,
+    "adapter": "src/views/mes/process-manage/coating-process/module/detail-V2.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4152628,
+    "definition_source_end": 4152733,
+    "alias": "recoveredInline_17"
+  },
+  {
+    "component": "mes/reporting-manage-v2/reporting-approval/wage-adjustment/module/detail.vue",
+    "namespace": "_me",
+    "map_source_offset": 940399,
+    "adapter": "src/views/mes/reporting-manage-v2/reporting-approval/wage-adjustment/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4124623,
+    "definition_source_end": 4124728,
+    "alias": "recoveredInline_18"
+  },
+  {
+    "component": "mes/scheduling-manage/machine-part/module/detail.vue",
+    "namespace": "Upe",
+    "map_source_offset": 965938,
+    "adapter": "src/views/mes/scheduling-manage/machine-part/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/059.fragment.js",
+    "definition_source_start": 4197657,
+    "definition_source_end": 4197762,
+    "alias": "recoveredInline_19"
+  },
+  {
+    "component": "plan/technical-data-manage/components/public-detail/detail.vue",
+    "namespace": "aue",
+    "map_source_offset": 1116238,
+    "adapter": "src/views/plan/technical-data-manage/components/public-detail/detail.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3948785,
+    "definition_source_end": 3948890,
+    "alias": "recoveredInline_20"
+  },
+  {
+    "component": "project-manage/installation-manage/visa-manage/module/detail.vue",
+    "namespace": "Cde",
+    "map_source_offset": 1202260,
+    "adapter": "src/views/project-manage/installation-manage/visa-manage/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4094935,
+    "definition_source_end": 4095040,
+    "alias": "recoveredInline_21"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/components/price-set-columns.vue",
+    "namespace": "wZ",
+    "map_source_offset": 1306715,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/components/price-set-columns.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2727870,
+    "definition_source_end": 2727974,
+    "alias": "recoveredInline_22"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/manuf-select-list.vue",
+    "namespace": "qZ",
+    "map_source_offset": 1306872,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/manuf-select-list.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2838835,
+    "definition_source_end": 2838939,
+    "alias": "recoveredInline_23"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/manuf-select-summary.vue",
+    "namespace": "qQ",
+    "map_source_offset": 1307018,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/manuf-select-summary.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2701997,
+    "definition_source_end": 2702101,
+    "alias": "recoveredInline_24"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/manufactured/index.vue",
+    "namespace": "sZ",
+    "map_source_offset": 1307167,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/manufactured/index.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2717226,
+    "definition_source_end": 2717330,
+    "alias": "recoveredInline_25"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/manufactured/module/enclosure-list.vue",
+    "namespace": "nZ",
+    "map_source_offset": 1307314,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/manufactured/module/enclosure-list.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2715055,
+    "definition_source_end": 2715159,
+    "alias": "recoveredInline_26"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/manufactured/module/structure-list.vue",
+    "namespace": "$Q",
+    "map_source_offset": 1307477,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/manufactured/module/structure-list.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2708163,
+    "definition_source_end": 2708267,
+    "alias": "recoveredInline_27"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/other-table/index.vue",
+    "namespace": "zZ",
+    "map_source_offset": 1307640,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/other-table/index.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2827724,
+    "definition_source_end": 2827828,
+    "alias": "recoveredInline_28"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/other-table/module/auxiliary-material.vue",
+    "namespace": "xZ",
+    "map_source_offset": 1307786,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/other-table/module/auxiliary-material.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2801162,
+    "definition_source_end": 2801266,
+    "alias": "recoveredInline_29"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/other-table/module/gas.vue",
+    "namespace": "KZ",
+    "map_source_offset": 1307952,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/other-table/module/gas.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2813561,
+    "definition_source_end": 2813665,
+    "alias": "recoveredInline_30"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/other-table/module/other.vue",
+    "namespace": "FZ",
+    "map_source_offset": 1308103,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/other-table/module/other.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2825581,
+    "definition_source_end": 2825685,
+    "alias": "recoveredInline_31"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/steel/index.vue",
+    "namespace": "OZ",
+    "map_source_offset": 1308523,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2788541,
+    "definition_source_end": 2788645,
+    "alias": "recoveredInline_32"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/steel/module/other-steel-material-table.vue",
+    "namespace": "PZ",
+    "map_source_offset": 1308663,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/steel/module/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2785512,
+    "definition_source_end": 2785616,
+    "alias": "recoveredInline_33"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/steel/module/section-steel-table.vue",
+    "namespace": "NZ",
+    "map_source_offset": 1308831,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/steel/module/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2758368,
+    "definition_source_end": 2758472,
+    "alias": "recoveredInline_34"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/steel/module/steel-coil-table.vue",
+    "namespace": "LZ",
+    "map_source_offset": 1308992,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/steel/module/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2772724,
+    "definition_source_end": 2772828,
+    "alias": "recoveredInline_35"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/application/steel/module/steel-plate-table.vue",
+    "namespace": "MZ",
+    "map_source_offset": 1309150,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/application/steel/module/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2743554,
+    "definition_source_end": 2743658,
+    "alias": "recoveredInline_36"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/detail-table/index.vue",
+    "namespace": "sx",
+    "map_source_offset": 1309309,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/detail-table/index.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1999974,
+    "definition_source_end": 2000078,
+    "alias": "recoveredInline_37"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/detail-table/module/manufactured.vue",
+    "namespace": "lx",
+    "map_source_offset": 1309444,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/detail-table/module/manufactured.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1985781,
+    "definition_source_end": 1985885,
+    "alias": "recoveredInline_38"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/detail-table/module/raw-material.vue",
+    "namespace": "nx",
+    "map_source_offset": 1309593,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/detail-table/module/raw-material.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1999196,
+    "definition_source_end": 1999300,
+    "alias": "recoveredInline_39"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/excel-export-button/index.vue",
+    "namespace": "EJ",
+    "map_source_offset": 1309742,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/excel-export-button/index.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2867115,
+    "definition_source_end": 2867219,
+    "alias": "recoveredInline_40"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/auxiliary-material.vue",
+    "namespace": "CJ",
+    "map_source_offset": 1309884,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/auxiliary-material.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2903593,
+    "definition_source_end": 2903697,
+    "alias": "recoveredInline_41"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/gas.vue",
+    "namespace": "OJ",
+    "map_source_offset": 1310040,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/gas.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2909627,
+    "definition_source_end": 2909731,
+    "alias": "recoveredInline_42"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/other-steel-material-table.vue",
+    "namespace": "LJ",
+    "map_source_offset": 1310181,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2897544,
+    "definition_source_end": 2897648,
+    "alias": "recoveredInline_43"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/other.vue",
+    "namespace": "DJ",
+    "map_source_offset": 1310345,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/other.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2915663,
+    "definition_source_end": 2915767,
+    "alias": "recoveredInline_44"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/price-set-columns-vxe.vue",
+    "namespace": "yJ",
+    "map_source_offset": 1310488,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/price-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2868250,
+    "definition_source_end": 2868354,
+    "alias": "recoveredInline_45"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/section-steel-table.vue",
+    "namespace": "wJ",
+    "map_source_offset": 1310647,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2883998,
+    "definition_source_end": 2884102,
+    "alias": "recoveredInline_46"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/steel-coil-table.vue",
+    "namespace": "RJ",
+    "map_source_offset": 1310804,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2891373,
+    "definition_source_end": 2891477,
+    "alias": "recoveredInline_47"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/detail-import/steel-plate-table.vue",
+    "namespace": "_J",
+    "map_source_offset": 1310958,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/detail-import/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2876506,
+    "definition_source_end": 2876610,
+    "alias": "recoveredInline_48"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/import/import-review-dialog.vue",
+    "namespace": "UJ",
+    "map_source_offset": 1311113,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/import/import-review-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2918158,
+    "definition_source_end": 2918262,
+    "alias": "recoveredInline_49"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/index.vue",
+    "namespace": "Uq",
+    "map_source_offset": 1311482,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2512045,
+    "definition_source_end": 2512149,
+    "alias": "recoveredInline_50"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/auxiliary-material/index.vue",
+    "namespace": "Iq",
+    "map_source_offset": 1311621,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2508230,
+    "definition_source_end": 2508334,
+    "alias": "recoveredInline_51"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/requisition-order.vue",
+    "namespace": "aq",
+    "map_source_offset": 1312033,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/requisition-order.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2480954,
+    "definition_source_end": 2481058,
+    "alias": "recoveredInline_52"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/index.vue",
+    "namespace": "vq",
+    "map_source_offset": 1312191,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2504379,
+    "definition_source_end": 2504483,
+    "alias": "recoveredInline_53"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/other-steel-material-table.vue",
+    "namespace": "bq",
+    "map_source_offset": 1312343,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2499320,
+    "definition_source_end": 2499424,
+    "alias": "recoveredInline_54"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/section-steel-table.vue",
+    "namespace": "dq",
+    "map_source_offset": 1312523,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2491248,
+    "definition_source_end": 2491352,
+    "alias": "recoveredInline_55"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/steel-coil-table.vue",
+    "namespace": "fq",
+    "map_source_offset": 1312696,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2495390,
+    "definition_source_end": 2495494,
+    "alias": "recoveredInline_56"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/steel-plate-table.vue",
+    "namespace": "sq",
+    "map_source_offset": 1312866,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/requisition-list/module/steel/module/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2485955,
+    "definition_source_end": 2486059,
+    "alias": "recoveredInline_57"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/components/submit-preview.vue",
+    "namespace": "bZ",
+    "map_source_offset": 1313307,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/components/submit-preview.vue.js",
+    "definition_fragment": "src/shared/segments/050.fragment.js",
+    "definition_source_start": 2723551,
+    "definition_source_end": 2723655,
+    "alias": "recoveredInline_58"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/detail/index.vue",
+    "namespace": "Lx",
+    "map_source_offset": 1313438,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/detail/index.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 2011768,
+    "definition_source_end": 2011872,
+    "alias": "recoveredInline_59"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/form/has-detail-form.vue",
+    "namespace": "pX",
+    "map_source_offset": 1313822,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/form/has-detail-form.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2973901,
+    "definition_source_end": 2974005,
+    "alias": "recoveredInline_60"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/form/index.vue",
+    "namespace": "MX",
+    "map_source_offset": 1313948,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/form/index.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 3010951,
+    "definition_source_end": 3011055,
+    "alias": "recoveredInline_61"
+  },
+  {
+    "component": "supply-chain/purchase-order-V2/module/form/raw-material.vue",
+    "namespace": "VX",
+    "map_source_offset": 1314064,
+    "adapter": "src/views/supply-chain/purchase-order-V2/module/form/raw-material.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2993823,
+    "definition_source_end": 2993927,
+    "alias": "recoveredInline_62"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/components/application/auxiliary-material/index.vue",
+    "namespace": "eG",
+    "map_source_offset": 1344585,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/components/application/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2531283,
+    "definition_source_end": 2531387,
+    "alias": "recoveredInline_63"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/components/detail-table/index.vue",
+    "namespace": "Kk",
+    "map_source_offset": 1346372,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/components/detail-table/index.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1893779,
+    "definition_source_end": 1893883,
+    "alias": "recoveredInline_64"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/components/detail-table/module/raw-material.vue",
+    "namespace": "Yk",
+    "map_source_offset": 1346758,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/components/detail-table/module/raw-material.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1893186,
+    "definition_source_end": 1893290,
+    "alias": "recoveredInline_65"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/components/manuf-list.vue",
+    "namespace": "Jq",
+    "map_source_offset": 1346907,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/components/manuf-list.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2521565,
+    "definition_source_end": 2521669,
+    "alias": "recoveredInline_66"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/components/submit-preview.vue",
+    "namespace": "hG",
+    "map_source_offset": 1349811,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/components/submit-preview.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2536040,
+    "definition_source_end": 2536144,
+    "alias": "recoveredInline_67"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/detail/index.vue",
+    "namespace": "sD",
+    "map_source_offset": 1349942,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/detail/index.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1902247,
+    "definition_source_end": 1902351,
+    "alias": "recoveredInline_68"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/form/has-detail-form.vue",
+    "namespace": "UG",
+    "map_source_offset": 1350326,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/form/has-detail-form.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2573702,
+    "definition_source_end": 2573806,
+    "alias": "recoveredInline_69"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/form/index.vue",
+    "namespace": "dQ",
+    "map_source_offset": 1350452,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/form/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2605036,
+    "definition_source_end": 2605140,
+    "alias": "recoveredInline_70"
+  },
+  {
+    "component": "supply-chain/purchase-order-bg/module/form/raw-material.vue",
+    "namespace": "rQ",
+    "map_source_offset": 1350568,
+    "adapter": "src/views/supply-chain/purchase-order-bg/module/form/raw-material.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2597142,
+    "definition_source_end": 2597246,
+    "alias": "recoveredInline_71"
+  },
+  {
+    "component": "supply-chain/purchase-order/module/components/detail-table/index.vue",
+    "namespace": "ioe",
+    "map_source_offset": 1367502,
+    "adapter": "src/views/supply-chain/purchase-order/module/components/detail-table/index.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3627217,
+    "definition_source_end": 3627322,
+    "alias": "recoveredInline_72"
+  },
+  {
+    "component": "supply-chain/purchase-order/module/components/detail-table/module/manufactured.vue",
+    "namespace": "eoe",
+    "map_source_offset": 1367635,
+    "adapter": "src/views/supply-chain/purchase-order/module/components/detail-table/module/manufactured.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3625417,
+    "definition_source_end": 3625522,
+    "alias": "recoveredInline_73"
+  },
+  {
+    "component": "supply-chain/purchase-order/module/components/detail-table/module/raw-material.vue",
+    "namespace": "toe",
+    "map_source_offset": 1367782,
+    "adapter": "src/views/supply-chain/purchase-order/module/components/detail-table/module/raw-material.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3626590,
+    "definition_source_end": 3626695,
+    "alias": "recoveredInline_74"
+  },
+  {
+    "component": "supply-chain/purchase-order/module/detail/index.vue",
+    "namespace": "_oe",
+    "map_source_offset": 1370909,
+    "adapter": "src/views/supply-chain/purchase-order/module/detail/index.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3633315,
+    "definition_source_end": 3633420,
+    "alias": "recoveredInline_75"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/auxiliary-material/index.vue",
+    "namespace": "HB",
+    "map_source_offset": 1379935,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2401859,
+    "definition_source_end": 2401963,
+    "alias": "recoveredInline_76"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/auxiliary-material/module/aux-mat-table.vue",
+    "namespace": "KB",
+    "map_source_offset": 1380075,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/auxiliary-material/module/aux-mat-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2396488,
+    "definition_source_end": 2396592,
+    "alias": "recoveredInline_77"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/components/capsule-label/index.vue",
+    "namespace": "LB",
+    "map_source_offset": 1380230,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/components/capsule-label/index.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2373816,
+    "definition_source_end": 2373920,
+    "alias": "recoveredInline_78"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/components/common-footer.vue",
+    "namespace": "kz",
+    "map_source_offset": 1380376,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/components/common-footer.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2299587,
+    "definition_source_end": 2299691,
+    "alias": "recoveredInline_79"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/components/common-wrapper.vue",
+    "namespace": "Bz",
+    "map_source_offset": 1380516,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/components/common-wrapper.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2311132,
+    "definition_source_end": 2311236,
+    "alias": "recoveredInline_80"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/components/confirm-dialog.vue",
+    "namespace": "jz",
+    "map_source_offset": 1380657,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/components/confirm-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2309520,
+    "definition_source_end": 2309624,
+    "alias": "recoveredInline_81"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/components/inventory-drawer.vue",
+    "namespace": "vB",
+    "map_source_offset": 1380798,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/components/inventory-drawer.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2371346,
+    "definition_source_end": 2371450,
+    "alias": "recoveredInline_82"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/gas/index.vue",
+    "namespace": "TH",
+    "map_source_offset": 1381241,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/gas/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2436994,
+    "definition_source_end": 2437098,
+    "alias": "recoveredInline_83"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/manufactured/index.vue",
+    "namespace": "nH",
+    "map_source_offset": 1381366,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/manufactured/index.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2422039,
+    "definition_source_end": 2422143,
+    "alias": "recoveredInline_84"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/manufactured/module/enclosure-table.vue",
+    "namespace": "qB",
+    "map_source_offset": 1381500,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/manufactured/module/enclosure-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2405623,
+    "definition_source_end": 2405727,
+    "alias": "recoveredInline_85"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/manufactured/module/structure-table.vue",
+    "namespace": "GB",
+    "map_source_offset": 1381651,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/manufactured/module/structure-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2408886,
+    "definition_source_end": 2408990,
+    "alias": "recoveredInline_86"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/other/index.vue",
+    "namespace": "pH",
+    "map_source_offset": 1381802,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/other/index.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2431922,
+    "definition_source_end": 2432026,
+    "alias": "recoveredInline_87"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/steel/index.vue",
+    "namespace": "xB",
+    "map_source_offset": 1381929,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2384865,
+    "definition_source_end": 2384969,
+    "alias": "recoveredInline_88"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/steel/module/other-steel-materials-table.vue",
+    "namespace": "bB",
+    "map_source_offset": 1382056,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/steel/module/other-steel-materials-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2362902,
+    "definition_source_end": 2363006,
+    "alias": "recoveredInline_89"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/steel/module/section-steel-table.vue",
+    "namespace": "hB",
+    "map_source_offset": 1382212,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/steel/module/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2346810,
+    "definition_source_end": 2346914,
+    "alias": "recoveredInline_90"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/steel/module/steel-coil-table.vue",
+    "namespace": "TB",
+    "map_source_offset": 1382360,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/steel/module/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2355585,
+    "definition_source_end": 2355689,
+    "alias": "recoveredInline_91"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/application/steel/module/steel-plate-table.vue",
+    "namespace": "mB",
+    "map_source_offset": 1382505,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/application/steel/module/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/048.fragment.js",
+    "definition_source_start": 2338016,
+    "definition_source_end": 2338120,
+    "alias": "recoveredInline_92"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/detail.vue",
+    "namespace": "zH",
+    "map_source_offset": 1382651,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2470940,
+    "definition_source_end": 2471044,
+    "alias": "recoveredInline_93"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/form.vue",
+    "namespace": "SH",
+    "map_source_offset": 1382761,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2444757,
+    "definition_source_end": 2444861,
+    "alias": "recoveredInline_94"
+  },
+  {
+    "component": "supply-chain/requisitions-V2/module/procurement-tracking.vue",
+    "namespace": "IH",
+    "map_source_offset": 1383274,
+    "adapter": "src/views/supply-chain/requisitions-V2/module/procurement-tracking.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2457409,
+    "definition_source_end": 2457513,
+    "alias": "recoveredInline_95"
+  },
+  {
+    "component": "supply-chain/supplier/evaluation-manage/evaluation-operate/module/approval-detail.vue",
+    "namespace": "uEe",
+    "map_source_offset": 1430207,
+    "adapter": "src/views/supply-chain/supplier/evaluation-manage/evaluation-operate/module/approval-detail.vue.js",
+    "definition_fragment": "src/shared/segments/060.fragment.js",
+    "definition_source_start": 4333543,
+    "definition_source_end": 4333648,
+    "alias": "recoveredInline_96"
+  },
+  {
+    "component": "wms/inbound-price-adjust/price-adjust-record/module/detail.vue",
+    "namespace": "EF",
+    "map_source_offset": 1450697,
+    "adapter": "src/views/wms/inbound-price-adjust/price-adjust-record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2228154,
+    "definition_source_end": 2228258,
+    "alias": "recoveredInline_97"
+  },
+  {
+    "component": "wms/inventory-loss/loss-list/module/detail.vue",
+    "namespace": "NF",
+    "map_source_offset": 1451744,
+    "adapter": "src/views/wms/inventory-loss/loss-list/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2238789,
+    "definition_source_end": 2238893,
+    "alias": "recoveredInline_98"
+  },
+  {
+    "component": "wms/inventory-loss/loss-list/module/form/table-content.vue",
+    "namespace": "MF",
+    "map_source_offset": 1454463,
+    "adapter": "src/views/wms/inventory-loss/loss-list/module/form/table-content.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2235892,
+    "definition_source_end": 2235996,
+    "alias": "recoveredInline_99"
+  },
+  {
+    "component": "wms/inventory-profit/profit-list/module/detail.vue",
+    "namespace": "FF",
+    "map_source_offset": 1460579,
+    "adapter": "src/views/wms/inventory-profit/profit-list/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2245846,
+    "definition_source_end": 2245950,
+    "alias": "recoveredInline_100"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/material-freeze-record.vue",
+    "namespace": "JF",
+    "map_source_offset": 1469683,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/material-freeze-record.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2257181,
+    "definition_source_end": 2257285,
+    "alias": "recoveredInline_101"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze-info.vue",
+    "namespace": "MK",
+    "map_source_offset": 1469817,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze-info.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2163657,
+    "definition_source_end": 2163761,
+    "alias": "recoveredInline_102"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/components/common-form-item.vue",
+    "namespace": "XD",
+    "map_source_offset": 1469942,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/components/common-form-item.vue.js",
+    "definition_fragment": "src/shared/segments/044.fragment.js",
+    "definition_source_start": 1982680,
+    "definition_source_end": 1982784,
+    "alias": "recoveredInline_103"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/components/common-material-info.vue",
+    "namespace": "VU",
+    "map_source_offset": 1470090,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/components/common-material-info.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2060997,
+    "definition_source_end": 2061101,
+    "alias": "recoveredInline_104"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/index.vue",
+    "namespace": "PU",
+    "map_source_offset": 1470242,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/index.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2075350,
+    "definition_source_end": 2075454,
+    "alias": "recoveredInline_105"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/module/aux-mat.vue",
+    "namespace": "RU",
+    "map_source_offset": 1470368,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/module/aux-mat.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2062743,
+    "definition_source_end": 2062847,
+    "alias": "recoveredInline_106"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/module/gas.vue",
+    "namespace": "MU",
+    "map_source_offset": 1470503,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/module/gas.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2062974,
+    "definition_source_end": 2063078,
+    "alias": "recoveredInline_107"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/module/section-steel.vue",
+    "namespace": "SU",
+    "map_source_offset": 1470634,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/module/section-steel.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2062006,
+    "definition_source_end": 2062110,
+    "alias": "recoveredInline_108"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/module/steel-coil.vue",
+    "namespace": "vU",
+    "map_source_offset": 1470775,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/module/steel-coil.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2062508,
+    "definition_source_end": 2062612,
+    "alias": "recoveredInline_109"
+  },
+  {
+    "component": "wms/material-freeze/raw-material/components/unfreeze/module/steel-plate.vue",
+    "namespace": "wU",
+    "map_source_offset": 1470913,
+    "adapter": "src/views/wms/material-freeze/raw-material/components/unfreeze/module/steel-plate.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2061529,
+    "definition_source_end": 2061633,
+    "alias": "recoveredInline_110"
+  },
+  {
+    "component": "wms/material-inbound/raw-material/components/inbound-info-table.vue",
+    "namespace": "Zse",
+    "map_source_offset": 1481347,
+    "adapter": "src/views/wms/material-inbound/raw-material/components/inbound-info-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3868166,
+    "definition_source_end": 3868271,
+    "alias": "recoveredInline_111"
+  },
+  {
+    "component": "wms/material-inbound/raw-material/components/logistics-form.vue",
+    "namespace": "pne",
+    "map_source_offset": 1481785,
+    "adapter": "src/views/wms/material-inbound/raw-material/components/logistics-form.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3721221,
+    "definition_source_end": 3721326,
+    "alias": "recoveredInline_112"
+  },
+  {
+    "component": "wms/material-inbound/raw-material/components/price-set-columns.vue",
+    "namespace": "Xq",
+    "map_source_offset": 1481913,
+    "adapter": "src/views/wms/material-inbound/raw-material/components/price-set-columns.vue.js",
+    "definition_fragment": "src/shared/segments/049.fragment.js",
+    "definition_source_start": 2523139,
+    "definition_source_end": 2523243,
+    "alias": "recoveredInline_113"
+  },
+  {
+    "component": "wms/material-inbound/raw-material/components/title-after-info.vue",
+    "namespace": "yee",
+    "map_source_offset": 1482291,
+    "adapter": "src/views/wms/material-inbound/raw-material/components/title-after-info.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3221505,
+    "definition_source_end": 3221610,
+    "alias": "recoveredInline_114"
+  },
+  {
+    "component": "wms/material-inventory/steel/module/convert-confirm-list/module/detail.vue",
+    "namespace": "pF",
+    "map_source_offset": 1503847,
+    "adapter": "src/views/wms/material-inventory/steel/module/convert-confirm-list/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2222737,
+    "definition_source_end": 2222841,
+    "alias": "recoveredInline_115"
+  },
+  {
+    "component": "wms/material-moving-inventory/raw-material/record/module/detail.vue",
+    "namespace": "jK",
+    "map_source_offset": 1516755,
+    "adapter": "src/views/wms/material-moving-inventory/raw-material/record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2173473,
+    "definition_source_end": 2173577,
+    "alias": "recoveredInline_116"
+  },
+  {
+    "component": "wms/material-moving-inventory/raw-material/review/module/common-title-info.vue",
+    "namespace": "xK",
+    "map_source_offset": 1517673,
+    "adapter": "src/views/wms/material-moving-inventory/raw-material/review/module/common-title-info.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2168856,
+    "definition_source_end": 2168960,
+    "alias": "recoveredInline_117"
+  },
+  {
+    "component": "wms/material-moving-inventory/raw-material/review/module/detail.vue",
+    "namespace": "gde",
+    "map_source_offset": 1517815,
+    "adapter": "src/views/wms/material-moving-inventory/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4081870,
+    "definition_source_end": 4081975,
+    "alias": "recoveredInline_118"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/index.vue",
+    "namespace": "hre",
+    "map_source_offset": 1530508,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3898328,
+    "definition_source_end": 3898433,
+    "alias": "recoveredInline_119"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/module/aux-mat-begin-table.vue",
+    "namespace": "ure",
+    "map_source_offset": 1530663,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/module/aux-mat-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3889927,
+    "definition_source_end": 3890032,
+    "alias": "recoveredInline_120"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/module/aux-mat-table.vue",
+    "namespace": "ere",
+    "map_source_offset": 1530839,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/auxiliary-material/module/aux-mat-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3877817,
+    "definition_source_end": 3877922,
+    "alias": "recoveredInline_121"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/components/begin-confirm.vue",
+    "namespace": "jse",
+    "map_source_offset": 1531009,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/components/begin-confirm.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3851027,
+    "definition_source_end": 3851132,
+    "alias": "recoveredInline_122"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/components/common-footer.vue",
+    "namespace": "cne",
+    "map_source_offset": 1531164,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/components/common-footer.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3718490,
+    "definition_source_end": 3718595,
+    "alias": "recoveredInline_123"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/components/common-header.vue",
+    "namespace": "tne",
+    "map_source_offset": 1531319,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/components/common-header.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3716263,
+    "definition_source_end": 3716368,
+    "alias": "recoveredInline_124"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/components/common-wrapper.vue",
+    "namespace": "Rne",
+    "map_source_offset": 1531474,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/components/common-wrapper.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3740010,
+    "definition_source_end": 3740115,
+    "alias": "recoveredInline_125"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/components/confirm-dialog.vue",
+    "namespace": "wne",
+    "map_source_offset": 1531630,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/components/confirm-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3737154,
+    "definition_source_end": 3737259,
+    "alias": "recoveredInline_126"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/gas/index.vue",
+    "namespace": "Wre",
+    "map_source_offset": 1532909,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/gas/index.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3938519,
+    "definition_source_end": 3938624,
+    "alias": "recoveredInline_127"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/gas/module/gas-begin-table.vue",
+    "namespace": "Dre",
+    "map_source_offset": 1533049,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/gas/module/gas-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3930537,
+    "definition_source_end": 3930642,
+    "alias": "recoveredInline_128"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/other/index.vue",
+    "namespace": "Mre",
+    "map_source_offset": 1533488,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/other/index.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3918431,
+    "definition_source_end": 3918536,
+    "alias": "recoveredInline_129"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/other/module/office-begin-table.vue",
+    "namespace": "Vre",
+    "map_source_offset": 1533630,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/other/module/office-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3910414,
+    "definition_source_end": 3910519,
+    "alias": "recoveredInline_130"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/index.vue",
+    "namespace": "Gse",
+    "map_source_offset": 1533792,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3866841,
+    "definition_source_end": 3866946,
+    "alias": "recoveredInline_131"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/other-steel-begin-material-table.vue",
+    "namespace": "Wse",
+    "map_source_offset": 1533934,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/other-steel-begin-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3849911,
+    "definition_source_end": 3850016,
+    "alias": "recoveredInline_132"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/section-steel-begin-table.vue",
+    "namespace": "_se",
+    "map_source_offset": 1534116,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/section-steel-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3824842,
+    "definition_source_end": 3824947,
+    "alias": "recoveredInline_133"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/steel-coil-begin-table.vue",
+    "namespace": "Cse",
+    "map_source_offset": 1534291,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/steel-coil-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3837442,
+    "definition_source_end": 3837547,
+    "alias": "recoveredInline_134"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/steel-plate-begin-table.vue",
+    "namespace": "rse",
+    "map_source_offset": 1534463,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/begin/steel-plate-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3808842,
+    "definition_source_end": 3808947,
+    "alias": "recoveredInline_135"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/other-steel-material-table.vue",
+    "namespace": "Qne",
+    "map_source_offset": 1534636,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3793819,
+    "definition_source_end": 3793924,
+    "alias": "recoveredInline_136"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/section-steel-table.vue",
+    "namespace": "Une",
+    "map_source_offset": 1534806,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3771950,
+    "definition_source_end": 3772055,
+    "alias": "recoveredInline_137"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/steel-coil-table.vue",
+    "namespace": "Fne",
+    "map_source_offset": 1534969,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3783245,
+    "definition_source_end": 3783350,
+    "alias": "recoveredInline_138"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/application/steel/module/steel-plate-table.vue",
+    "namespace": "Pne",
+    "map_source_offset": 1535129,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/application/steel/module/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3756561,
+    "definition_source_end": 3756666,
+    "alias": "recoveredInline_139"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/inbound-info-table.vue",
+    "namespace": "Nne",
+    "map_source_offset": 1535290,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/inbound-info-table.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3741938,
+    "definition_source_end": 3742043,
+    "alias": "recoveredInline_140"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/inspection-return-info.vue",
+    "namespace": "AY",
+    "map_source_offset": 1535438,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/inspection-return-info.vue.js",
+    "definition_fragment": "src/shared/segments/046.fragment.js",
+    "definition_source_start": 2100248,
+    "definition_source_end": 2100352,
+    "alias": "recoveredInline_141"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/logistics-form.vue",
+    "namespace": "BY",
+    "map_source_offset": 1535589,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/logistics-form.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2111957,
+    "definition_source_end": 2112061,
+    "alias": "recoveredInline_142"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/project-set-columns-sepcial-vxe.vue",
+    "namespace": "ote",
+    "map_source_offset": 1536260,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/project-set-columns-sepcial-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3290912,
+    "definition_source_end": 3291017,
+    "alias": "recoveredInline_143"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/project-set-columns-vxe.vue",
+    "namespace": "hne",
+    "map_source_offset": 1536694,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/project-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3722342,
+    "definition_source_end": 3722447,
+    "alias": "recoveredInline_144"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/title-after-info.vue",
+    "namespace": "RY",
+    "map_source_offset": 1537111,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/title-after-info.vue.js",
+    "definition_fragment": "src/shared/segments/046.fragment.js",
+    "definition_source_start": 2094937,
+    "definition_source_end": 2095041,
+    "alias": "recoveredInline_145"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/components/warehouse-set-columns-vxe.vue",
+    "namespace": "fne",
+    "map_source_offset": 1537535,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/components/warehouse-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3723711,
+    "definition_source_end": 3723816,
+    "alias": "recoveredInline_146"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/record/module/form.vue",
+    "namespace": "Fre",
+    "map_source_offset": 1538583,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/record/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3941386,
+    "definition_source_end": 3941491,
+    "alias": "recoveredInline_147"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/review/module/detail.vue",
+    "namespace": "lK",
+    "map_source_offset": 1539409,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2135518,
+    "definition_source_end": 2135622,
+    "alias": "recoveredInline_148"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/review/module/pagination.vue",
+    "namespace": "qY",
+    "map_source_offset": 1539904,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/review/module/pagination.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2117332,
+    "definition_source_end": 2117436,
+    "alias": "recoveredInline_149"
+  },
+  {
+    "component": "wms/material-partyA/material-inbound/raw-material/review/module/partyA-detail.vue",
+    "namespace": "Ble",
+    "map_source_offset": 1540046,
+    "adapter": "src/views/wms/material-partyA/material-inbound/raw-material/review/module/partyA-detail.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3622165,
+    "definition_source_end": 3622270,
+    "alias": "recoveredInline_150"
+  },
+  {
+    "component": "wms/material-partyA/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/common-form-item.vue",
+    "namespace": "bU",
+    "map_source_offset": 1562988,
+    "adapter": "src/views/wms/material-partyA/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/common-form-item.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2059177,
+    "definition_source_end": 2059281,
+    "alias": "recoveredInline_151"
+  },
+  {
+    "component": "wms/material-partyA/warehouse-management/material-outbound/raw-material/review/module/detail.vue",
+    "namespace": "cue",
+    "map_source_offset": 1570758,
+    "adapter": "src/views/wms/material-partyA/warehouse-management/material-outbound/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3954789,
+    "definition_source_end": 3954894,
+    "alias": "recoveredInline_152"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/manufactured/index.vue",
+    "namespace": "Ule",
+    "map_source_offset": 1571605,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/manufactured/index.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3604886,
+    "definition_source_end": 3604991,
+    "alias": "recoveredInline_153"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/manufactured/module/encl-manuf-table.vue",
+    "namespace": "Ple",
+    "map_source_offset": 1571740,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/manufactured/module/encl-manuf-table.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3596676,
+    "definition_source_end": 3596781,
+    "alias": "recoveredInline_154"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/manufactured/module/struc-manuf-table.vue",
+    "namespace": "Ale",
+    "map_source_offset": 1571893,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/manufactured/module/struc-manuf-table.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3592108,
+    "definition_source_end": 3592213,
+    "alias": "recoveredInline_155"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/index.vue",
+    "namespace": "xae",
+    "map_source_offset": 1572047,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3529948,
+    "definition_source_end": 3530053,
+    "alias": "recoveredInline_156"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/module/aux-mat-begin-table.vue",
+    "namespace": "Iae",
+    "map_source_offset": 1572213,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/module/aux-mat-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3515920,
+    "definition_source_end": 3516025,
+    "alias": "recoveredInline_157"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/module/aux-mat-table.vue",
+    "namespace": "_ae",
+    "map_source_offset": 1572400,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/auxiliary-material/module/aux-mat-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3501017,
+    "definition_source_end": 3501122,
+    "alias": "recoveredInline_158"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/begin-confirm.vue",
+    "namespace": "xX",
+    "map_source_offset": 1572581,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/begin-confirm.vue.js",
+    "definition_fragment": "src/shared/segments/052.fragment.js",
+    "definition_source_start": 3014195,
+    "definition_source_end": 3014299,
+    "alias": "recoveredInline_159"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-footer.vue",
+    "namespace": "B$",
+    "map_source_offset": 1572746,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-footer.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3188030,
+    "definition_source_end": 3188134,
+    "alias": "recoveredInline_160"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-header.vue",
+    "namespace": "D$",
+    "map_source_offset": 1572911,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-header.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3185817,
+    "definition_source_end": 3185921,
+    "alias": "recoveredInline_161"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-wrapper.vue",
+    "namespace": "Nee",
+    "map_source_offset": 1573076,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/common-wrapper.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3243857,
+    "definition_source_end": 3243962,
+    "alias": "recoveredInline_162"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/confirm-dialog.vue",
+    "namespace": "Ree",
+    "map_source_offset": 1573243,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/confirm-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3240715,
+    "definition_source_end": 3240820,
+    "alias": "recoveredInline_163"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/aux-mat-table.vue",
+    "namespace": "eae",
+    "map_source_offset": 1573410,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/aux-mat-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3460933,
+    "definition_source_end": 3461038,
+    "alias": "recoveredInline_164"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/other-steel-material-table.vue",
+    "namespace": "Xie",
+    "map_source_offset": 1573590,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3454883,
+    "definition_source_end": 3454988,
+    "alias": "recoveredInline_165"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/section-steel-table.vue",
+    "namespace": "Bie",
+    "map_source_offset": 1573783,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3441331,
+    "definition_source_end": 3441436,
+    "alias": "recoveredInline_166"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/steel-coil-table.vue",
+    "namespace": "Gie",
+    "map_source_offset": 1573969,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3448721,
+    "definition_source_end": 3448826,
+    "alias": "recoveredInline_167"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/steel-plate-table.vue",
+    "namespace": "jie",
+    "map_source_offset": 1574152,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/detail-import/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3433254,
+    "definition_source_end": 3433359,
+    "alias": "recoveredInline_168"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/import-amount-error-fix-dialog.vue",
+    "namespace": "V$",
+    "map_source_offset": 1574336,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/import-amount-error-fix-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/052.fragment.js",
+    "definition_source_start": 3140903,
+    "definition_source_end": 3141007,
+    "alias": "recoveredInline_169"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/import-review-dialog.vue",
+    "namespace": "iae",
+    "map_source_offset": 1574518,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/import-review-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3462912,
+    "definition_source_end": 3463017,
+    "alias": "recoveredInline_170"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/inbound-quantity-column-coil.vue",
+    "namespace": "qte",
+    "map_source_offset": 1574691,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/inbound-quantity-column-coil.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3360710,
+    "definition_source_end": 3360815,
+    "alias": "recoveredInline_171"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/inbound-quantity-column.vue",
+    "namespace": "Dee",
+    "map_source_offset": 1574872,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/inbound-quantity-column.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3262127,
+    "definition_source_end": 3262232,
+    "alias": "recoveredInline_172"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/index.vue",
+    "namespace": "BJ",
+    "map_source_offset": 1575320,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/index.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2924404,
+    "definition_source_end": 2924508,
+    "alias": "recoveredInline_173"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/other-search.vue",
+    "namespace": "jJ",
+    "map_source_offset": 1575484,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/other-search.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2922043,
+    "definition_source_end": 2922147,
+    "alias": "recoveredInline_174"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/section-steel-search.vue",
+    "namespace": "KJ",
+    "map_source_offset": 1575662,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/section-steel-search.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2919991,
+    "definition_source_end": 2920095,
+    "alias": "recoveredInline_175"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/steel-coil-search.vue",
+    "namespace": "WJ",
+    "map_source_offset": 1575848,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/steel-coil-search.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2921456,
+    "definition_source_end": 2921560,
+    "alias": "recoveredInline_176"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/steel-plate-search.vue",
+    "namespace": "YJ",
+    "map_source_offset": 1576031,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/components/search/module/steel-plate-search.vue.js",
+    "definition_fragment": "src/shared/segments/051.fragment.js",
+    "definition_source_start": 2919359,
+    "definition_source_end": 2919463,
+    "alias": "recoveredInline_177"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/gas/index.vue",
+    "namespace": "Ele",
+    "map_source_offset": 1576811,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/gas/index.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3586877,
+    "definition_source_end": 3586982,
+    "alias": "recoveredInline_178"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/gas/module/gas-begin-table.vue",
+    "namespace": "dle",
+    "map_source_offset": 1576962,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/gas/module/gas-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3573373,
+    "definition_source_end": 3573478,
+    "alias": "recoveredInline_179"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/other/index.vue",
+    "namespace": "ele",
+    "map_source_offset": 1577130,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/other/index.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3558528,
+    "definition_source_end": 3558633,
+    "alias": "recoveredInline_180"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/other/module/office-begin-table.vue",
+    "namespace": "Gae",
+    "map_source_offset": 1577283,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/other/module/office-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3544830,
+    "definition_source_end": 3544935,
+    "alias": "recoveredInline_181"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/index.vue",
+    "namespace": "rae",
+    "map_source_offset": 1577456,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3486328,
+    "definition_source_end": 3486433,
+    "alias": "recoveredInline_182"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/other-steel-begin-material-table.vue",
+    "namespace": "Kie",
+    "map_source_offset": 1577609,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/other-steel-begin-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3425278,
+    "definition_source_end": 3425383,
+    "alias": "recoveredInline_183"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/section-steel-begin-table.vue",
+    "namespace": "Bte",
+    "map_source_offset": 1577802,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/section-steel-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3348815,
+    "definition_source_end": 3348920,
+    "alias": "recoveredInline_184"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/steel-coil-begin-table.vue",
+    "namespace": "yie",
+    "map_source_offset": 1577988,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/steel-coil-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3395526,
+    "definition_source_end": 3395631,
+    "alias": "recoveredInline_185"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/steel-plate-begin-table.vue",
+    "namespace": "_te",
+    "map_source_offset": 1578171,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/begin/steel-plate-begin-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3308662,
+    "definition_source_end": 3308767,
+    "alias": "recoveredInline_186"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/other-steel-material-table.vue",
+    "namespace": "Nie",
+    "map_source_offset": 1578355,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/other-steel-material-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3410473,
+    "definition_source_end": 3410578,
+    "alias": "recoveredInline_187"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/section-steel-table.vue",
+    "namespace": "Ite",
+    "map_source_offset": 1578536,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/section-steel-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3330754,
+    "definition_source_end": 3330859,
+    "alias": "recoveredInline_188"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/steel-coil-table.vue",
+    "namespace": "lie",
+    "map_source_offset": 1578710,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/steel-coil-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3378860,
+    "definition_source_end": 3378965,
+    "alias": "recoveredInline_189"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/steel-plate-table.vue",
+    "namespace": "Jee",
+    "map_source_offset": 1578881,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/application/steel/module/steel-plate-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3285437,
+    "definition_source_end": 3285542,
+    "alias": "recoveredInline_190"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/inbound-info-table.vue",
+    "namespace": "Cee",
+    "map_source_offset": 1579053,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/inbound-info-table.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3246318,
+    "definition_source_end": 3246423,
+    "alias": "recoveredInline_191"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/logistics-form.vue",
+    "namespace": "uee",
+    "map_source_offset": 1579545,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/logistics-form.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3211844,
+    "definition_source_end": 3211949,
+    "alias": "recoveredInline_192"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/price-set-columns-vxe.vue",
+    "namespace": "Lee",
+    "map_source_offset": 1579700,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/price-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3244993,
+    "definition_source_end": 3245098,
+    "alias": "recoveredInline_193"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/price-set-columns.vue",
+    "namespace": "b$",
+    "map_source_offset": 1579862,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/price-set-columns.vue.js",
+    "definition_fragment": "src/shared/segments/052.fragment.js",
+    "definition_source_start": 3138751,
+    "definition_source_end": 3138855,
+    "alias": "recoveredInline_194"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/project-set-columns-v2.vue",
+    "namespace": "Pee",
+    "map_source_offset": 1580019,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/project-set-columns-v2.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3247574,
+    "definition_source_end": 3247679,
+    "alias": "recoveredInline_195"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/project-set-columns-vxe.vue",
+    "namespace": "cee",
+    "map_source_offset": 1580182,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/project-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3214719,
+    "definition_source_end": 3214824,
+    "alias": "recoveredInline_196"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/title-after-info.vue",
+    "namespace": "Kme",
+    "map_source_offset": 1580621,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/title-after-info.vue.js",
+    "definition_fragment": "src/shared/segments/057.fragment.js",
+    "definition_source_start": 4156593,
+    "definition_source_end": 4156698,
+    "alias": "recoveredInline_197"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-select.vue",
+    "namespace": "ate",
+    "map_source_offset": 1580778,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-select.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3288007,
+    "definition_source_end": 3288112,
+    "alias": "recoveredInline_198"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-manuf-vxe.vue",
+    "namespace": "gee",
+    "map_source_offset": 1580935,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-manuf-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3220181,
+    "definition_source_end": 3220286,
+    "alias": "recoveredInline_199"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-v2.vue",
+    "namespace": "Oee",
+    "map_source_offset": 1581406,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-v2.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3248944,
+    "definition_source_end": 3249049,
+    "alias": "recoveredInline_200"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe-begin.vue",
+    "namespace": "lte",
+    "map_source_offset": 1581571,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe-begin.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3289715,
+    "definition_source_end": 3289820,
+    "alias": "recoveredInline_201"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe-dialog.vue",
+    "namespace": "mee",
+    "map_source_offset": 1581743,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe-dialog.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3217717,
+    "definition_source_end": 3217822,
+    "alias": "recoveredInline_202"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe.vue",
+    "namespace": "xee",
+    "map_source_offset": 1581916,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/components/warehouse-set-columns-vxe.vue.js",
+    "definition_fragment": "src/shared/segments/053.fragment.js",
+    "definition_source_start": 3263496,
+    "definition_source_end": 3263601,
+    "alias": "recoveredInline_203"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/manuf-record/module/detail.vue",
+    "namespace": "qme",
+    "map_source_offset": 1582712,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/manuf-record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/057.fragment.js",
+    "definition_source_start": 4166477,
+    "definition_source_end": 4166582,
+    "alias": "recoveredInline_204"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/manuf-record/module/form.vue",
+    "namespace": "Qme",
+    "map_source_offset": 1582868,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/manuf-record/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/057.fragment.js",
+    "definition_source_start": 4168390,
+    "definition_source_end": 4168495,
+    "alias": "recoveredInline_205"
+  },
+  {
+    "component": "wms/material-purchase/material-inbound-purchase/raw-material/record/module/form.vue",
+    "namespace": "Kle",
+    "map_source_offset": 1583933,
+    "adapter": "src/views/wms/material-purchase/material-inbound-purchase/raw-material/record/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/054.fragment.js",
+    "definition_source_start": 3608093,
+    "definition_source_end": 3608198,
+    "alias": "recoveredInline_206"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-inventory/steel/module/convert-confirm-list/module/detail.vue",
+    "namespace": "vde",
+    "map_source_offset": 1603519,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-inventory/steel/module/convert-confirm-list/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4089690,
+    "definition_source_end": 4089795,
+    "alias": "recoveredInline_207"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/common-form-item.vue",
+    "namespace": "pU",
+    "map_source_offset": 1611321,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/common-form-item.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2051291,
+    "definition_source_end": 2051395,
+    "alias": "recoveredInline_208"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/for-sale-form.vue",
+    "namespace": "dU",
+    "map_source_offset": 1612192,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/for-sale-form.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2050328,
+    "definition_source_end": 2050432,
+    "alias": "recoveredInline_209"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/outsource-form.vue",
+    "namespace": "Fx",
+    "map_source_offset": 1612392,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/outsource-form.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2024836,
+    "definition_source_end": 2024940,
+    "alias": "recoveredInline_210"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/produce-form.vue",
+    "namespace": "eU",
+    "map_source_offset": 1612593,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/outbound-handling-form/components/produce-form.vue.js",
+    "definition_fragment": "src/shared/segments/045.fragment.js",
+    "definition_source_start": 2037412,
+    "definition_source_end": 2037516,
+    "alias": "recoveredInline_211"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/manuf-record/module/detail.vue",
+    "namespace": "pK",
+    "map_source_offset": 1618474,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/manuf-record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2150082,
+    "definition_source_end": 2150186,
+    "alias": "recoveredInline_212"
+  },
+  {
+    "component": "wms/material-purchase/warehouse-management/material-outbound/raw-material/review/module/detail.vue",
+    "namespace": "dK",
+    "map_source_offset": 1620524,
+    "adapter": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2144868,
+    "definition_source_end": 2144972,
+    "alias": "recoveredInline_213"
+  },
+  {
+    "component": "wms/material-reject/raw-material/components/reject-info-table.vue",
+    "namespace": "az",
+    "map_source_offset": 1623627,
+    "adapter": "src/views/wms/material-reject/raw-material/components/reject-info-table.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2264836,
+    "definition_source_end": 2264940,
+    "alias": "recoveredInline_214"
+  },
+  {
+    "component": "wms/material-reject/raw-material/components/title-after-info.vue",
+    "namespace": "eF",
+    "map_source_offset": 1624157,
+    "adapter": "src/views/wms/material-reject/raw-material/components/title-after-info.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2209026,
+    "definition_source_end": 2209130,
+    "alias": "recoveredInline_215"
+  },
+  {
+    "component": "wms/material-reject/raw-material/review/module/detail.vue",
+    "namespace": "oF",
+    "map_source_offset": 1625679,
+    "adapter": "src/views/wms/material-reject/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2214471,
+    "definition_source_end": 2214575,
+    "alias": "recoveredInline_216"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/auxiliary-material/index.vue",
+    "namespace": "qce",
+    "map_source_offset": 1626500,
+    "adapter": "src/views/wms/material-return/raw-material/application/auxiliary-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4061759,
+    "definition_source_end": 4061864,
+    "alias": "recoveredInline_217"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/common-header.vue",
+    "namespace": "hce",
+    "map_source_offset": 1627485,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/common-header.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4012689,
+    "definition_source_end": 4012794,
+    "alias": "recoveredInline_218"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/index.vue",
+    "namespace": "Hj",
+    "map_source_offset": 1627623,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/index.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2196759,
+    "definition_source_end": 2196863,
+    "alias": "recoveredInline_219"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/module/aux-mat.vue",
+    "namespace": "Rj",
+    "map_source_offset": 1627766,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/module/aux-mat.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2192923,
+    "definition_source_end": 2193027,
+    "alias": "recoveredInline_220"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/module/gas.vue",
+    "namespace": "zj",
+    "map_source_offset": 1627918,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/module/gas.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2196077,
+    "definition_source_end": 2196181,
+    "alias": "recoveredInline_221"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/module/section-steel.vue",
+    "namespace": "YW",
+    "map_source_offset": 1628066,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/module/section-steel.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2186650,
+    "definition_source_end": 2186754,
+    "alias": "recoveredInline_222"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/module/steel-coil.vue",
+    "namespace": "sj",
+    "map_source_offset": 1628224,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/module/steel-coil.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2189652,
+    "definition_source_end": 2189756,
+    "alias": "recoveredInline_223"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/material-info/module/steel-plate.vue",
+    "namespace": "fW",
+    "map_source_offset": 1628379,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/material-info/module/steel-plate.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2182528,
+    "definition_source_end": 2182632,
+    "alias": "recoveredInline_224"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/returnable-list-drawer/index.vue",
+    "namespace": "tce",
+    "map_source_offset": 1628535,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/returnable-list-drawer/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4006164,
+    "definition_source_end": 4006269,
+    "alias": "recoveredInline_225"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/components/warehouse-set-columns.vue",
+    "namespace": "Tue",
+    "map_source_offset": 1628688,
+    "adapter": "src/views/wms/material-return/raw-material/application/components/warehouse-set-columns.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 3965573,
+    "definition_source_end": 3965678,
+    "alias": "recoveredInline_226"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/gas/index.vue",
+    "namespace": "ede",
+    "map_source_offset": 1628834,
+    "adapter": "src/views/wms/material-return/raw-material/application/gas/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4067225,
+    "definition_source_end": 4067330,
+    "alias": "recoveredInline_227"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/other-steel-material/index.vue",
+    "namespace": "Kce",
+    "map_source_offset": 1628957,
+    "adapter": "src/views/wms/material-return/raw-material/application/other-steel-material/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4056265,
+    "definition_source_end": 4056370,
+    "alias": "recoveredInline_228"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/other/index.vue",
+    "namespace": "sde",
+    "map_source_offset": 1629097,
+    "adapter": "src/views/wms/material-return/raw-material/application/other/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4072718,
+    "definition_source_end": 4072823,
+    "alias": "recoveredInline_229"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/returnable-list/index.vue",
+    "namespace": "ece",
+    "map_source_offset": 1629222,
+    "adapter": "src/views/wms/material-return/raw-material/application/returnable-list/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4004798,
+    "definition_source_end": 4004903,
+    "alias": "recoveredInline_230"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/returnable-list/module/header.vue",
+    "namespace": "Wue",
+    "map_source_offset": 1629357,
+    "adapter": "src/views/wms/material-return/raw-material/application/returnable-list/module/header.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 3987969,
+    "definition_source_end": 3988074,
+    "alias": "recoveredInline_231"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/section-steel/index.vue",
+    "namespace": "Nce",
+    "map_source_offset": 1629500,
+    "adapter": "src/views/wms/material-return/raw-material/application/section-steel/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4046120,
+    "definition_source_end": 4046225,
+    "alias": "recoveredInline_232"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/steel-coil/index.vue",
+    "namespace": "Pce",
+    "map_source_offset": 1629633,
+    "adapter": "src/views/wms/material-return/raw-material/application/steel-coil/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4050989,
+    "definition_source_end": 4051094,
+    "alias": "recoveredInline_233"
+  },
+  {
+    "component": "wms/material-return/raw-material/application/steel-plate/index.vue",
+    "namespace": "Sce",
+    "map_source_offset": 1629763,
+    "adapter": "src/views/wms/material-return/raw-material/application/steel-plate/index.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4033635,
+    "definition_source_end": 4033740,
+    "alias": "recoveredInline_234"
+  },
+  {
+    "component": "wms/material-return/raw-material/components/title-after-info.vue",
+    "namespace": "qj",
+    "map_source_offset": 1629894,
+    "adapter": "src/views/wms/material-return/raw-material/components/title-after-info.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2197606,
+    "definition_source_end": 2197710,
+    "alias": "recoveredInline_235"
+  },
+  {
+    "component": "wms/material-return/raw-material/record/module/detail.vue",
+    "namespace": "Zj",
+    "map_source_offset": 1630305,
+    "adapter": "src/views/wms/material-return/raw-material/record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2203001,
+    "definition_source_end": 2203105,
+    "alias": "recoveredInline_236"
+  },
+  {
+    "component": "wms/material-return/raw-material/record/module/form.vue",
+    "namespace": "ude",
+    "map_source_offset": 1630426,
+    "adapter": "src/views/wms/material-return/raw-material/record/module/form.vue.js",
+    "definition_fragment": "src/shared/segments/056.fragment.js",
+    "definition_source_start": 4075612,
+    "definition_source_end": 4075717,
+    "alias": "recoveredInline_237"
+  },
+  {
+    "component": "wms/material-return/raw-material/record/module/manuf-detail.vue",
+    "namespace": "Xj",
+    "map_source_offset": 1630808,
+    "adapter": "src/views/wms/material-return/raw-material/record/module/manuf-detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2208253,
+    "definition_source_end": 2208357,
+    "alias": "recoveredInline_238"
+  },
+  {
+    "component": "wms/material-return/raw-material/review/module/detail.vue",
+    "namespace": "Eue",
+    "map_source_offset": 1631476,
+    "adapter": "src/views/wms/material-return/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/055.fragment.js",
+    "definition_source_start": 3962675,
+    "definition_source_end": 3962780,
+    "alias": "recoveredInline_239"
+  },
+  {
+    "component": "wms/material-return/raw-material/review/module/material-unit-quantity-columns/index.vue",
+    "namespace": "zK",
+    "map_source_offset": 1631860,
+    "adapter": "src/views/wms/material-return/raw-material/review/module/material-unit-quantity-columns/index.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2178708,
+    "definition_source_end": 2178812,
+    "alias": "recoveredInline_240"
+  },
+  {
+    "component": "wms/material-return/raw-material/review/module/material-unit-quantity-columns/module/raw-mat.vue",
+    "namespace": "FK",
+    "map_source_offset": 1632011,
+    "adapter": "src/views/wms/material-return/raw-material/review/module/material-unit-quantity-columns/module/raw-mat.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2177738,
+    "definition_source_end": 2177842,
+    "alias": "recoveredInline_241"
+  },
+  {
+    "component": "wms/material-transfer/raw-material/review/module/common-title-info.vue",
+    "namespace": "VK",
+    "map_source_offset": 1637419,
+    "adapter": "src/views/wms/material-transfer/raw-material/review/module/common-title-info.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2151650,
+    "definition_source_end": 2151754,
+    "alias": "recoveredInline_242"
+  },
+  {
+    "component": "wms/material-transfer/raw-material/review/module/detail.vue",
+    "namespace": "CK",
+    "map_source_offset": 1637553,
+    "adapter": "src/views/wms/material-transfer/raw-material/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2168150,
+    "definition_source_end": 2168254,
+    "alias": "recoveredInline_243"
+  },
+  {
+    "component": "wms/mes-receipt/audit-list/module/detail.vue",
+    "namespace": "ohe",
+    "map_source_offset": 1647534,
+    "adapter": "src/views/wms/mes-receipt/audit-list/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/059.fragment.js",
+    "definition_source_start": 4209345,
+    "definition_source_end": 4209450,
+    "alias": "recoveredInline_244"
+  },
+  {
+    "component": "wms/mes-receipt/audit-list/module/outbound-detail.vue",
+    "namespace": "jpe",
+    "map_source_offset": 1647841,
+    "adapter": "src/views/wms/mes-receipt/audit-list/module/outbound-detail.vue.js",
+    "definition_fragment": "src/shared/segments/059.fragment.js",
+    "definition_source_start": 4199849,
+    "definition_source_end": 4199954,
+    "alias": "recoveredInline_245"
+  },
+  {
+    "component": "wms/mes-ship-receipt/review/module/detail.vue",
+    "namespace": "dhe",
+    "map_source_offset": 1657331,
+    "adapter": "src/views/wms/mes-ship-receipt/review/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/059.fragment.js",
+    "definition_source_start": 4215357,
+    "definition_source_end": 4215462,
+    "alias": "recoveredInline_246"
+  },
+  {
+    "component": "wms/report/raw-material/form-conversion-form/module/detail.vue",
+    "namespace": "IF",
+    "map_source_offset": 1662268,
+    "adapter": "src/views/wms/report/raw-material/form-conversion-form/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2241073,
+    "definition_source_end": 2241177,
+    "alias": "recoveredInline_247"
+  },
+  {
+    "component": "wms/report/raw-material/supplement-record/module/detail.vue",
+    "namespace": "uF",
+    "map_source_offset": 1690427,
+    "adapter": "src/views/wms/report/raw-material/supplement-record/module/detail.vue.js",
+    "definition_fragment": "src/shared/segments/047.fragment.js",
+    "definition_source_start": 2217603,
+    "definition_source_end": 2217707,
+    "alias": "recoveredInline_248"
+  }
+]

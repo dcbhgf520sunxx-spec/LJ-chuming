@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.factory.MesBuildingTeamUserLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeamUserLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="bool_leader_enum" property="boolLeaderEnum" />
+        <result column="team_id" property="teamId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, user_id,user_name, bool_leader_enum, team_id
+    </sql>
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT
+            b.*
+        FROM
+            mes_building_team a
+                INNER JOIN mes_building_team_user_link b ON a.id = b.team_id  AND b.bool_delete_enum =0
+        WHERE
+          a.process_id = #{processId}
+          <if test="teamId!=null">
+              AND a.id=#{teamId}
+          </if>
+          AND a.bool_delete_enum =0
+    </select>
+    <select id="listProductionLineAndProcessUser"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingTeamByUserDTO">
+        SELECT
+            wp.id workshop_id,
+            wp.`name` workshop_name,
+            line.id productionLine_id,
+            line.`name` productionLine_name ,
+            gr.id groups_id,
+            gr.`name` groups_name,
+            process.id process_id,
+            process.`name` process_name,
+            process.product_type,
+            t.id team_id
+        FROM
+            mes_building_team_user_link tu
+                LEFT JOIN mes_building_team t ON t.id = tu.team_id
+                AND t.bool_delete_enum = 0
+                LEFT JOIN mes_building_process process ON process.id = t.process_id
+                AND process.bool_delete_enum = 0
+                LEFT JOIN mes_building_groups_team_link gt ON gt.team_id = t.id
+                AND gt.bool_delete_enum = 0
+                LEFT JOIN mes_building_groups gr ON gr.id = gt.groups_id
+                AND gr.bool_delete_enum = 0
+                LEFT JOIN mes_building_production_line line ON line.id = gr.production_line_id
+                AND line.bool_delete_enum = 0
+                LEFT JOIN mes_building_workshop wp ON wp.id = gr.workshop_id
+                AND wp.bool_delete_enum = 0
+        WHERE
+            tu.bool_delete_enum = 0
+          AND tu.user_id = #{currentUserId}
+    </select>
+    <select id="getTeamLeaderNameByGroupId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeamUserLink">
+        select tulink.*
+        from mes_building_team_user_link tulink
+                 left join mes_building_groups_team_link gtlink on tulink.team_id = gtlink.team_id
+                left join mes_building_team team on gtlink.team_id = team.id
+        where tulink.bool_delete_enum = 0
+          and gtlink.bool_delete_enum = 0
+          and tulink.bool_leader_enum = 1
+        and gtlink.groups_id = #{assistGroupId}
+        and team.process_id = #{processId}
+    </select>
+    <select id="getTeamLeaderNameByTeamId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingTeamUserLink">
+        select tulink.*
+        from mes_building_team_user_link tulink
+                 left join mes_building_team team on tulink.team_id = team.id
+        where tulink.bool_delete_enum = 0
+          and team.bool_delete_enum = 0
+        and tulink.bool_leader_enum = 1
+        and team.id = #{teamId}
+    </select>
+</mapper>

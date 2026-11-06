@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.attend.MesBuildingAttendanceOverConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.attend.MesBuildingAttendanceOverConfig">
+        <id column="id" property="id" />
+        <result column="attendance_date" property="attendanceDate" />
+        <result column="department_id" property="departmentId" />
+        <result column="overtime_working_time" property="overtimeWorkingTime" />
+        <result column="overtime_closing_time" property="overtimeClosingTime" />
+        <result column="is_can_delay" property="isCanDelay" />
+        <result column="is_can_early" property="isCanEarly" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, attendance_date, department_id, overtime_working_time, overtime_closing_time, is_can_delay, is_can_early
+    </sql>
+
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.factory.MesEnclosureInspectionTeamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureInspectionTeam">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="process_id" property="processId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, factory_id, workshop_id, production_line_id, process_id, user_id
+    </sql>
+    <select id="getInspectionTeamBygroupsIdAndProcessIdAndUserId"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureInspectionTeam">
+        SELECT
+            b.*
+        FROM
+            mes_enclosure_inspection_team_user_link a
+                INNER JOIN mes_enclosure_inspection_team b ON a.inspection_team_id = b.id
+                AND b.bool_delete_enum =
+                    FALSE LEFT JOIN mes_enclosure_groups_inspection_team_link c ON b.id = c.inspection_team_id
+                AND c.bool_delete_enum = FALSE
+        WHERE
+            a.user_id = #{userId}
+          AND c.groups_id = #{groupsId}
+          AND b.process_id = #{processId}
+          AND a.bool_delete_enum = FALSE;
+    </select>
+    <select id="listUserSummary"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.task.InspectionMeteDO">
+        select user_id,u.name userName, sum(inspection_quantity) inspectionQuantity
+        FROM mes_enclosure_produce_inspection_team_report r
+        inner join sys_user u on u.id = r.user_id
+        WHERE r.bool_delete_enum = 0
+        <if test="productType != null">
+            and r.product_type = #{productType}
+        </if>
+        <if test="startDate != null">
+            and date(r.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(r.create_time) &lt;= date(#{endDate})
+        </if>
+        group by user_id,u.name
+    </select>
+    <select id="listUserDetail"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.task.InspectionUserRecordDO">
+        select p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        pro.id 'process.id',
+        pro.name 'process.name',
+        a.serial_number,
+        r.inspection_quantity,
+        r.create_time inspectionTime
+        from mes_enclosure_produce_inspection_team_report r
+        inner join mes_enclosure_process pro on pro.id = r.process_id
+        <choose>
+            <when test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                inner join tech_artifact a on a.id = r.product_id and r.product_type = ${@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+            </when>
+            <otherwise>
+                inner join tech_enclosure a on a.id = r.product_id and r.product_type = ${@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+            </otherwise>
+        </choose>
+        inner join contract_project p on p.id = a.project_id
+        where r.bool_delete_enum = 0
+        <if test="startDate != null">
+            and date(r.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(r.create_time) &lt;= date(#{endDate})
+        </if>
+    </select>
+    <select id="inspectionTeamBy"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.factory.MesEnclosureInspectionTeam">
+
+        SELECT
+        team.*
+        FROM
+        mes_enclosure_inspection_team team
+        WHERE
+        team.bool_delete_enum = 0
+        AND team.id IN (
+        SELECT
+        link.inspection_team_id
+        FROM
+        mes_enclosure_production_line line
+        LEFT JOIN mes_enclosure_groups gro ON gro.production_line_id = line.id
+        AND gro.bool_delete_enum = 0
+        LEFT JOIN mes_enclosure_groups_inspection_team_link link ON link.groups_id = gro.id
+        AND link.bool_delete_enum = 0
+        WHERE
+        line.bool_delete_enum = 0
+        <if test="ids != null and ids.size()>0">
+            AND line.id IN
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        )
+    </select>
+
+</mapper>

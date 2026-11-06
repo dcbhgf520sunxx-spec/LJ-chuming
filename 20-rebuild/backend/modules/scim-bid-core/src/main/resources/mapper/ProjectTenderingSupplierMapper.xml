@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.bid.core.mapper.ProjectTenderingSupplierMapper">
+
+    <resultMap id="roundDetail" type="com.hzchum.scim.bid.core.api.pojo.vo.OfferRoundDetailVO">
+        <id column="id" property="projectSubjectId"/>
+        <result column="round" property="offerRound"/>
+        <result column="subject_names" property="subjectNames"/>
+        <result column="subjectName" property="subjectName"/>
+        <result column="specification" property="specification"/>
+        <result column="model_number" property="modelNumber"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="is_follow" property="isFollow"/>
+        <collection property="detailVOList" ofType="com.hzchum.scim.bid.core.api.pojo.vo.DetailVO">
+            <result column="id" property="projectSubjectId"/>
+            <result column="round" property="round"/>
+            <result column="bid_amount" property="bidAmount"/>
+            <result column="unit_price" property="unitPrice"/>
+            <result column="supplierId" property="supplierId"/>
+            <result column="supplierName" property="supplierName"/>
+            <result column="short_name" property="shortName"/>
+            <result column="offerDetailId" property="offerDetailId"/>
+            <result column="is_follow" property="isFollow"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="roundDetailExport" type="com.hzchum.scim.bid.core.api.pojo.vo.OfferRoundDetailVO">
+        <id column="id" property="projectSubjectId"/>
+        <id column="round" property="offerRound"/>
+        <result column="subject_names" property="subjectNames"/>
+        <result column="subjectName" property="subjectName"/>
+        <result column="specification" property="specification"/>
+        <result column="model_number" property="modelNumber"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_name" property="unitName"/>
+        <result column="round" property="offerRound"/>
+        <collection property="detailVOList" ofType="com.hzchum.scim.bid.core.api.pojo.vo.DetailVO">
+            <result column="id" property="projectSubjectId"/>
+            <result column="round" property="round"/>
+            <result column="bid_amount" property="bidAmount"/>
+            <result column="unit_price" property="unitPrice"/>
+            <result column="supplierId" property="supplierId"/>
+            <result column="supplierName" property="supplierName"/>
+            <result column="short_name" property="shortName"/>
+            <result column="is_follow" property="isFollow"/>
+        </collection>
+    </resultMap>
+
+    <select id="getNotOffer" resultType="com.hzchum.scim.bid.core.api.pojo._do.SupplierSubject">
+        SELECT
+        ss.id,
+        ss.supplier_id,
+        ss.project_id,
+        ss.project_subject_id,
+        ss.offer_detail_id,
+        ss.is_follow,
+        ss.winning_time
+        FROM project_tendering_supplier ptr
+        LEFT JOIN bidding_rounds br ON br.project_id = ptr.project_tendering_id  AND br.round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = ptr.project_tendering_id )
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = br.round and ors.project_tendering_id = ptr.project_tendering_id
+        RIGHT JOIN supplier_subject ss ON ss.`supplier_id` = ptr.id AND ss.`project_id` = ptr.project_tendering_id AND ss.`is_follow` IS NULL
+        WHERE  ptr.project_tendering_id = #{id} AND ptr.bid_status = 1
+        AND ors.`bid_gross_amount` IS NULL OR ors.is_hold = 1
+    </select>
+
+    <select id="getOfferRoundsBid" resultType="com.hzchum.scim.bid.core.api.pojo.vo.OfferRoundsVO">
+        SELECT
+        ptr.id,
+        bs.name AS supplierName, -- 供应商名称
+        ptr.project_tendering_id, -- 项目id
+        ptr.source, -- 供应商来源
+        br.round, -- 轮次
+        br.bid_deadline, -- 投标截止时间
+        br.bid_opening_time, -- 开标时间
+        ors.bid_gross_amount, -- 报价总金额
+        ors.offer_time , -- 报价时间
+        ors.remark, -- 报价说明
+        ors.is_hold AS isHold, -- 报价是否暂存
+        ors.ip_address, -- 用户报价时的ip地址
+        ors.deposit_url, -- 保证金回单附件url
+        ors.deposit_name -- 保证金回单附件名称
+        FROM project_tendering_supplier ptr
+        LEFT JOIN bidding_rounds br ON br.project_id = ptr.project_tendering_id AND br.round IN (SELECT DISTINCT ssr.`round` FROM supplier_subject_round ssr WHERE ssr.project_id = ptr.project_tendering_id AND ssr.supplier_id = ptr.id)
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = br.round AND ors.project_tendering_id = ptr.project_tendering_id
+        LEFT JOIN supplier bs ON bs.id = ptr.bid_supplier_id
+        WHERE ptr.project_tendering_id = #{id} AND ptr.id = #{supplierId}
+        ORDER BY br.round
+    </select>
+
+    <select id="getOfferRoundsBidDetail" resultType="com.hzchum.scim.bid.core.api.pojo.vo.SubjectProjectVO">
+        SELECT
+        ps.id,  -- 招标科目表id
+        ps.subject_names, -- 科目组合名称
+        ps.unit_name, -- 单位名称
+        ps.specification, -- 规格
+        ps.model_number, -- 型号
+        ps.mete, -- 采购量
+        ps.remark , -- 备注
+        ps.status, -- 科目状态
+        ord.is_follow, -- 供应商是否中标(当前轮次)
+        ord.bid_amount, -- 报价金额
+        ord.unit_price, -- 单价
+        ssr.round
+        FROM supplier_subject_round ssr
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ssr.supplier_id AND ors.offer_round = ssr.round AND ors.project_tendering_id = ssr.project_id
+        LEFT JOIN project_subject ps ON ps.id = ssr.project_subject_id
+        LEFT JOIN offer_round_detail ord ON ord.offer_id = ors.id AND ord.project_subject_id = ps.id
+        WHERE ssr.project_id = #{id} AND ssr.supplier_id = #{supplierId}
+    </select>
+
+
+    <select id="getOfferRounds" resultType="com.hzchum.scim.bid.core.api.pojo.vo.OfferRoundsVO">
+       SELECT
+        ptr.id,
+        ss.name AS supplierName, -- 供应商名称
+        sd.short_name, -- 供应商简称
+        sd.contact_phone AS phone, -- 供应商联系方式
+        ptr.project_tendering_id, -- 项目id
+        ptr.source, -- 供应商来源
+        br.round, -- 轮次
+        br.bid_deadline, -- 投标截止时间
+        br.bid_opening_time, -- 开标时间
+        ors.bid_gross_amount, -- 报价总金额
+        ors.offer_time , -- 报价时间
+        ors.remark, -- 报价说明
+        ors.is_hold, -- 报价是否暂存
+        ors.ip_address, -- 用户报价时的ip地址
+        ors.deposit_url, -- 保证金回单附件url
+        ors.deposit_name -- 保证金回单附件名称
+        FROM project_tendering_supplier ptr
+        LEFT JOIN bidding_rounds br ON br.project_id = ptr.project_tendering_id
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = br.round AND ors.project_tendering_id = ptr.project_tendering_id
+        AND ors.is_hold = 0
+        LEFT JOIN supplier_detail sd on sd.supplier_id = ptr.bid_supplier_id
+        LEFT JOIN supplier ss on ss.id = ptr.bid_supplier_id
+        WHERE ptr.project_tendering_id = #{id}
+        ORDER BY br.round DESC
+    </select>
+
+    <select id="getOfferRoundDetail" resultMap="roundDetail">
+        SELECT
+        ps.`id`, -- 招标科目表id
+        ps.subject_names, -- 品名
+        bs.name AS subjectName, -- 末级科目名称
+        ps.specification, -- 规格
+        ps.model_number, -- 型号
+        ps.mete, -- 采购量
+        ps.unit_name, -- 单位名称
+        s.name AS supplierName, -- 供应商名称
+        br.round, -- 招标轮次
+        ss.is_follow, -- 结果
+        ods.bid_amount, -- 总价
+        ods.unit_price, -- 单价
+        ods.is_follow -- 是否中标
+        FROM project_subject ps
+        LEFT JOIN project_tendering_supplier ptr ON ptr.`project_tendering_id` = ps.project_id
+        LEFT JOIN bidding_rounds br ON br.project_id = ps.project_id
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = br.round and ors.project_tendering_id = ps.project_id
+        <if test="isHold != null ">
+            AND ors.is_hold = #{isHold}
+        </if>
+        LEFT JOIN offer_round_detail ods ON ods.offer_id = ors.`id` AND ods.project_subject_id = ps.`id` and ods.project_id = ps.project_id
+        LEFT JOIN supplier_subject ss on ss.supplier_id = ptr.id AND ss.project_id = ps.`project_id` AND ss.project_subject_id = ps.id
+        LEFT JOIN subject bs on bs.id = ps.subject_id
+        LEFT JOIN supplier s on s.id = ptr.bid_supplier_id
+        WHERE ps.`project_id` = #{projectId} AND ptr.`id` = #{supplierId}
+    </select>
+
+
+    <select id="getWinBidding" resultType="com.hzchum.scim.bid.core.api.pojo.vo.SubjectProjectVO">
+    SELECT
+    ps.id, -- 主键id
+    ps.subject_id, -- 科目id
+    ps.subject_names AS subjectNames, -- 品名
+    bs.name AS subjectName, -- 末级科目名称
+    ps.specification , -- 规格
+    ps.model_number, -- 型号
+    ps.mete , -- 采购量
+    ps.unit_name AS unitName, -- 单位
+    ps.status, -- 状态
+    ifnull(COUNT(DISTINCT odsTwo.offer_id),0) tickSizeNum, -- 当前轮次报价单位数量
+    ifNULL(os.supplier_id,-1) AS supplierId , -- 拟中标单位id
+    ss.name AS supplierName, -- 拟中标单位名称
+    sd.contact_person, -- 联系人
+    sd.contact_phone, -- 联系人电话
+    ods.unit_price AS unitPrice, -- 单价
+    ods.bid_amount AS bidAmount -- 总价
+    FROM
+    project_subject ps
+    LEFT JOIN offer_round_detail ods ON ods.project_subject_id = ps.`id` AND ods.project_id = ps.`project_id` AND ods.is_follow = 1
+    LEFT JOIN offer_rounds os ON os.`id` = ods.offer_id and os.project_tendering_id = ps.`project_id`
+    LEFT JOIN project_tendering_supplier ptr ON ptr.`id` = os.`supplier_id` and ptr.project_tendering_id = ps.`project_id`
+    LEFT JOIN supplier ss ON  ss.id = ptr.bid_supplier_id
+    LEFT JOIN supplier_detail sd ON  sd.supplier_id = ptr.bid_supplier_id
+    -- 当前轮次报价单位量
+    LEFT JOIN offer_rounds osTwo ON osTwo.project_tendering_id = ps.project_id
+    AND osTwo.offer_round = (SELECT MAX(ROUND) FROM bidding_rounds WHERE project_id = ps.project_id)
+    AND osTwo.is_hold = 0
+    LEFT JOIN offer_round_detail odsTwo ON odsTwo.project_subject_id = ps.`id`
+    AND odsTwo.bid_amount IS NOT NULL
+    AND odsTwo.offer_id = osTwo.id
+    and odsTwo.project_id = ps.`project_id`
+    LEFT JOIN subject bs ON bs.id = ps.subject_id
+    WHERE ps.`project_id` = #{projectId}
+    GROUP BY ps.id,os.id,ods.id,bs.id,ss.id,sd.id
+    </select>
+
+    <select id="getEvaluationDetails" resultMap="roundDetail">
+    SELECT
+    ps.`id`,  -- 招标科目表id
+    ps.`subject_names`, -- 品名
+    bs.name AS subjectName, -- 末级科目名称
+    ps.mete, -- 采购量
+    ps.unit_name, -- 单位名称
+    ps.specification , -- 规格
+    ps.model_number, -- 型号
+    ors.offer_round AS round, -- 当前轮次
+    s.name AS supplierName, -- 供应商名称
+    sd.short_name, -- 供应商简称
+    ptr.id AS supplierId, -- 供应商关联表id
+    ods.`bid_amount`, -- 报价金额
+    ods.`unit_price`, -- 单价
+    ods.id AS offerDetailId, -- 报价详情表id
+    ss.is_follow -- 供应商--招标科目关联结果
+    FROM project_subject ps
+    LEFT JOIN project_tendering_supplier ptr ON ptr.`project_tendering_id` = ps.project_id AND ptr.`bid_status` = 1
+    LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = #{round}
+    AND ors.project_tendering_id = ps.project_id AND ors.is_hold = 0
+    LEFT JOIN offer_round_detail ods ON ods.`offer_id` = ors.`id` AND ods.`project_subject_id` = ps.`id` and ods.project_id = ps.project_id
+    LEFT JOIN supplier_subject ss on ss.supplier_id = ptr.id and ss.project_subject_id = ps.id and ss.project_id = ps.project_id
+    LEFT JOIN subject bs on bs.id = ps.subject_id
+    LEFT JOIN supplier_detail sd on sd.supplier_id = ptr.bid_supplier_id
+    LEFT JOIN supplier s on s.id = ptr.bid_supplier_id
+    WHERE ps.`project_id` = #{projectId} and ps.status = 0 and ptr.result = 0 AND ors.bid_gross_amount is not null
+    </select>
+
+
+
+    <select id="getEvaluationDetailsAndRound" resultMap="roundDetailExport">
+        SELECT
+        DISTINCT
+        ps.id, -- 招标科目表id
+        ps.`subject_names`, -- 品名
+        bs.name AS subjectName, -- 末级科目名称
+        ps.unit_name, -- 单位名称
+        ps.mete, -- 采购量
+        ps.specification , -- 规格
+        ps.model_number, -- 型号
+        psd.round, -- 当前轮次
+        -- 供应商报价信息
+        s.name AS supplierName, -- 供应商名称
+        sd.short_name, -- 供应商简称
+        ptr.id AS supplierId, -- 供应商关联表id
+        ods.bid_amount, -- 报价金额
+        ods.unit_price, -- 单价
+        ss.is_follow -- 供应商--招标科目关联结果
+        FROM  project_subject_round psd
+        LEFT JOIN project_subject ps ON ps.id = psd.project_subject_id AND ps.project_id = psd.project_id
+        LEFT JOIN subject bs ON bs.id = ps.subject_id
+        -- 供应商报价信息
+        LEFT JOIN supplier_subject_round ssr ON ssr.project_id = psd.project_id AND ssr.round = psd.round
+        LEFT JOIN project_tendering_supplier ptr ON ptr.project_tendering_id = psd.project_id AND ptr.id = ssr.supplier_id AND ptr.bid_status = 1
+        LEFT JOIN offer_rounds ors ON ors.supplier_id = ptr.id AND ors.offer_round = psd.round AND ors.project_tendering_id = psd.project_id AND ors.bid_gross_amount IS NOT NULL AND  ors.is_hold = 0
+        LEFT JOIN offer_round_detail ods ON ods.offer_id = ors.id AND ods.project_subject_id = ps.id and ods.project_id = psd.project_id
+        LEFT JOIN supplier s on s.id = ptr.bid_supplier_id
+        LEFT JOIN supplier_detail sd on sd.supplier_id = ptr.bid_supplier_id
+        LEFT JOIN supplier_subject ss ON ss.supplier_id = ptr.id AND ss.project_subject_id = ps.id and ss.project_id = psd.project_id
+        WHERE psd.project_id = #{projectId}
+        order by psd.round
+    </select>
+
+
+    <select id="getSupplierOfferDetails" resultType="com.hzchum.scim.bid.core.api.pojo.vo.SubjectProjectVO">
+        SELECT
+        ps.id,  -- 招标科目表id
+        ps.subject_names, -- 品名
+        ps.mete, -- 采购量
+        ps.unit_name, -- 单位名称
+        ps.specification , -- 规格
+        ps.model_number, -- 型号
+        ss.is_follow, -- 结果
+        ord.bid_amount, -- 报价金额
+        ord.unit_price -- 单价
+        FROM project_subject ps
+        LEFT JOIN supplier_subject ss on ss.project_subject_id = ps.id AND ss.supplier_id = #{supplierId} AND ss.is_follow is not null
+        AND ss.project_id = ps.`project_id`
+        LEFT JOIN offer_round_detail ord on ord.id = ss.offer_detail_id
+        WHERE ps.`project_id` = #{projectId}
+    </select>
+
+    <select id="getSupplierOfferRound" resultType="com.hzchum.scim.bid.core.api.pojo._do.SupplierSubject">
+    SELECT
+    ssr.`supplier_id`, -- 供应商-项目关联表id
+    ss.`is_follow`, -- 供应商投标结果
+    ssr.`project_subject_id`, -- 投标科目
+    ssr.`project_id` -- 项目id
+    FROM  project_tendering_supplier pts
+    LEFT JOIN supplier_subject_round ssr ON ssr.`supplier_id` = pts.`id` AND ssr.`project_id` = pts.`project_tendering_id`
+    LEFT JOIN supplier_subject ss ON ss.`project_id` = ssr.`project_id` AND ss.`supplier_id` = ssr.`supplier_id` AND ss.`project_subject_id` = ssr.`project_subject_id`
+    LEFT JOIN offer_rounds ors ON ors.supplier_id = pts.id AND ors.offer_round = ssr.round and ors.project_tendering_id = pts.project_tendering_id
+    WHERE pts.`project_tendering_id` = #{projectId} AND pts.`bid_status` = 1 AND ssr.`round` = #{round}  AND ors.is_hold = 0
+    </select>
+
+    <select id="getSupplierByProjectId" resultType="com.hzchum.scim.bid.core.api.pojo.vo.TenderingSupplierVO">
+        SELECT
+        pts.id,
+        pts.bid_supplier_id AS supplierId,
+        pts.bid_status,
+        pts.bidding_time,
+        ss.name AS supplierName, -- 供应商全称
+        sd.short_name, -- 供应商简称
+        sd.contact_phone AS phone
+        FROM  project_tendering_supplier pts
+        LEFT JOIN supplier ss on ss.id = pts.bid_supplier_id
+        LEFT JOIN supplier_detail sd on sd.supplier_id = pts.bid_supplier_id
+        WHERE pts.`project_tendering_id` = #{projectId}
+        <if test="supplierIds != null and supplierIds.size() > 0">
+            AND pts.bid_supplier_id in
+            <foreach collection="supplierIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by pts.bid_status DESC
+    </select>
+</mapper>

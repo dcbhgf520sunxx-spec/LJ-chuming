@@ -1,0 +1,1023 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.qhse.MesBuildingQhseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.qhse.MesBuildingQhse">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="problem_quantity" property="problemQuantity"/>
+        <result column="problem_drawing" property="problemDrawing"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="user_id" property="userId"/>
+        <result column="duty_id" property="dutyId"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="quality_type" property="qualityType"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, factory_id, workshop_id, production_line_id,product_id,product_type,problem_quantity,problem_drawing, user_id, duty_id, type, remark, quality_type, status
+    </sql>
+    <select id="selectListByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.qhse.MesBuildingQhseDO">
+         <if test="boolApp">
+            SELECT DISTINCT
+            a.power_type,
+            b.*,
+            d.`name` user_name,
+            e.`name` duty_name
+                ,
+                c.`name` project_name,
+                c.id 'project.id',
+                c.name 'project.name',
+                c.short_name 'project.short_name',
+                c.serial_number 'project.serial_number',
+                pl.`name` monomer_name,
+                area.`name` areaName,
+                mbf.`name` factory_name,
+                mbw.`name` workshop_name,
+                mbpl.`name` production_line_name,
+                mbp.`name` processName
+            FROM
+            mes_building_qhse_user_link a
+            INNER JOIN mes_building_qhse b ON a.qhse_id = b.id AND b.bool_delete_enum=FALSE
+            LEFT JOIN sys_user d ON b.user_id =d.id AND d.bool_delete_enum=FALSE
+            LEFT JOIN sys_user e ON b.duty_id =e.id AND e.bool_delete_enum=FALSE
+            LEFT JOIN mes_building_qhse_rectify rectify ON rectify.qhse_id=b.id and rectify.bool_delete_enum=FALSE
+            LEFT JOIN sys_user u ON u.id=rectify.user_id and u.bool_delete_enum=FALSE
+                LEFT JOIN contract_project c ON b.project_id = c.id AND c.bool_delete_enum=FALSE
+                LEFT JOIN plan_monomer pl ON b.monomer_id = pl.id AND pl.bool_delete_enum=FALSE
+                LEFT JOIN plan_area area ON b.area_id=area.id AND area.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_factory mbf ON b.factory_id=mbf.id AND mbf.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_workshop mbw ON b.workshop_id= mbw.id AND mbw.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_production_line mbpl ON b.production_line_id=mbpl.id AND
+                mbpl.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_process mbp ON b.process_id=mbp.id AND mbp.bool_delete_enum=FALSE
+            WHERE   a.bool_delete_enum=FALSE
+             <if test="qhseId != null">
+                 and b.id = #{qhseId}
+             </if>
+             <if test="qhseIds != null and qhseIds.size() > 0">
+                and b.id in
+                 <foreach collection="qhseIds" open="(" separator="," close=")" item="qhseId">
+                     #{qhseId}
+                 </foreach>
+             </if>
+             <if test="userId != null">
+                 and a.user_id=#{userId}
+             </if>
+            <if test="projectId != null  and projectId != ''">
+                AND b.project_id = #{projectId}
+            </if>
+            <if test="userName != null  and userName != ''">
+                AND d.name LIKE CONCAT('%', #{userName},'%')
+            </if>
+            <if test="dutyName != null  and dutyName != ''">
+                AND e.name LIKE CONCAT('%', #{dutyName},'%')
+            </if>
+            <if test="rectifyName != null  and rectifyName != ''">
+                AND u.name LIKE CONCAT('%', #{rectifyName},'%')
+            </if>
+            <if test="type != null ">
+                AND b.type &amp; #{type}
+            </if>
+            <if test="status != null">
+                AND b.status = #{status}
+            </if>
+            <if test="noStatus != null">
+                AND b.status != #{noStatus}
+            </if>
+            <if test="startDate != null">
+                AND date(b.create_time)>=date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(b.create_time) &lt;= date(#{endDate})
+            </if>
+             <if test="specifiedDate != null">
+                 AND date_format(b.create_time,'%Y%m%d') = date_format(#{specifiedDate},'%Y%m%d')
+             </if>
+             <if test="processId != null">
+                 and b.process_id = #{processId}
+             </if>
+             <if test="levelOneType != null">
+                 and b.level_one_type = #{levelOneType}
+             </if>
+             <if test="levelTwoType != null">
+                 and b.level_two_type = #{levelTwoType}
+             </if>
+            order by b.status , b.create_time desc
+        </if>
+
+
+        <if test="!boolApp">
+            SELECT DISTINCT
+            b.*,
+            d.`name` user_name,
+            e.`name` duty_name
+                ,
+                c.`name` project_name,
+                c.id 'project.id',
+                c.name 'project.name',
+                c.short_name 'project.short_name',
+                c.serial_number 'project.serial_number',
+                pl.`name` monomer_name,
+                area.`name` areaName,
+                mbf.`name` factory_name,
+                mbw.`name` workshop_name,
+                mbpl.`name` production_line_name,
+                mbp.`name` processName
+            FROM
+            mes_building_qhse b
+            LEFT JOIN sys_user d ON b.user_id =d.id AND d.bool_delete_enum=FALSE
+            LEFT JOIN sys_user e ON b.duty_id =e.id AND e.bool_delete_enum=FALSE
+            LEFT JOIN mes_building_qhse_rectify rectify ON rectify.qhse_id=b.id and rectify.bool_delete_enum=FALSE
+            LEFT JOIN sys_user u ON u.id=rectify.user_id and u.bool_delete_enum=FALSE
+                LEFT JOIN contract_project c ON b.project_id = c.id AND c.bool_delete_enum=FALSE
+                LEFT JOIN plan_monomer pl ON b.monomer_id = pl.id AND pl.bool_delete_enum=FALSE
+                LEFT JOIN plan_area area ON b.area_id=area.id AND area.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_factory mbf ON b.factory_id=mbf.id AND mbf.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_workshop mbw ON b.workshop_id= mbw.id AND mbw.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_production_line mbpl ON b.production_line_id=mbpl.id AND
+                mbpl.bool_delete_enum=FALSE
+                LEFT JOIN mes_building_process mbp ON b.process_id=mbp.id AND mbp.bool_delete_enum=FALSE
+            <if test="serialNumber != null  and serialNumber != '' and type &amp; 9">
+                LEFT JOIN tech_artifact ta ON b.product_id = ta.id and b.task_type_enum = 2
+            </if>
+            WHERE b.bool_delete_enum=FALSE
+            <!--<if test ="userId != null">
+                and b.user_id=#{userId}
+            </if>-->
+            <if test="qhseId != null">
+                and b.id = #{qhseId}
+            </if>
+            <if test="qhseIds != null and qhseIds.size() > 0">
+                and b.id in
+                <foreach collection="qhseIds" open="(" separator="," close=")" item="qhseId">
+                    #{qhseId}
+                </foreach>
+            </if>
+            <if test="projectId != null  and projectId != ''">
+                AND b.project_id = #{projectId}
+            </if>
+            <if test="userName != null  and userName != ''">
+                AND d.name LIKE CONCAT('%', #{userName},'%')
+            </if>
+            <if test="dutyName != null  and dutyName != ''">
+                AND e.name LIKE CONCAT('%', #{dutyName},'%')
+            </if>
+            <if test="rectifyName != null  and rectifyName != ''">
+                AND u.name LIKE CONCAT('%', #{rectifyName},'%')
+            </if>
+            <if test="serialNumber != null  and serialNumber != ''">
+                AND ta.serial_number LIKE CONCAT('%', #{serialNumber},'%')
+            </if>
+            <if test="type != null ">
+                AND b.type &amp;  #{type}
+            </if>
+            <if test="status != null">
+                AND b.status = #{status}
+            </if>
+            <if test="noStatus != null">
+                AND b.status != #{noStatus}
+            </if>
+            <if test="startDate != null">
+                AND date(b.create_time)>=date(#{startDate})
+            </if>
+            <if test="endDate != null">
+                AND date(b.create_time) &lt;= date(#{endDate})
+            </if>
+            <if test="specifiedDate != null">
+                AND date_format(b.create_time,'%Y-%m-%d') = date_format(#{specifiedDate},'%Y-%m-%d')
+            </if>
+            <if test="processId != null">
+                and b.process_id = #{processId}
+            </if>
+            <if test="levelOneType != null">
+                and b.level_one_type = #{levelOneType}
+            </if>
+            <if test="levelTwoType != null">
+                and b.level_two_type = #{levelTwoType}
+            </if>
+        </if>
+    </select>
+    <select id="selectQhseById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.qhse.MesBuildingQhseDO">
+            SELECT
+            b.*,
+            c.id 'project.id',
+            c.name 'project.name',
+            c.short_name 'project.short_name',
+            c.serial_number 'project.serial_number',
+            c.`name`    project_name,
+            d.`name`    user_name,
+            e.`name`    duty_name,
+            area.`name` areaName,
+            mbf.`name`  factory_name,
+            mbw.`name`  workshop_name,
+            mbpl.`name` production_line_name,
+            mbp.`name`  processName,
+            pl.`name` monomer_name,
+            qco.name levelOneName,
+            qcc.name levelTwoName,
+            qcc.penalty,
+            qcc.behavior_score
+            FROM  mes_building_qhse b
+            LEFT JOIN contract_project c ON b.project_id = c.id AND c.bool_delete_enum = FALSE
+            LEFT JOIN plan_monomer pl ON b.monomer_id = pl.id AND pl.bool_delete_enum=FALSE
+            LEFT JOIN plan_area area ON b.area_id=area.id AND area.bool_delete_enum=FALSE
+            LEFT JOIN sys_user d ON b.user_id = d.id AND d.bool_delete_enum = FALSE
+            LEFT JOIN sys_user e ON b.duty_id = e.id AND e.bool_delete_enum = FALSE
+            LEFT JOIN mes_building_factory mbf ON b.factory_id = mbf.id AND mbf.bool_delete_enum = FALSE
+            LEFT JOIN mes_building_workshop mbw ON b.workshop_id = mbw.id AND mbw.bool_delete_enum = FALSE
+            LEFT JOIN mes_building_production_line mbpl
+            ON b.production_line_id = mbpl.id AND mbpl.bool_delete_enum = FALSE
+            LEFT JOIN mes_building_process mbp ON b.process_id = mbp.id AND mbp.bool_delete_enum = FALSE
+            LEFT JOIN mes_quality_class_config qco on b.level_one_type = qco.id and qco.bool_delete_enum = 0
+            LEFT JOIN mes_quality_class_config qcc on b.level_two_type = qcc.id and qcc.bool_delete_enum = 0
+            WHERE  b.bool_delete_enum = FALSE
+            AND b.id = #{id};
+    </select>
+    <select id="listGroupByType" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.qhse.TypeQuantityDO">
+        select type, count(*) quantity
+        from mes_building_qhse
+        where date_format(create_time, '%Y') = #{year}
+          and bool_delete_enum = 0
+        group by type
+    </select>
+    <select id="listGroupByMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.qhse.MonthQuantityDO">
+        select DATE_FORMAT(create_time, '%c') month, count(*) quantity
+        from mes_building_qhse
+        where date_format(create_time, '%Y') = #{year}
+          and bool_delete_enum = 0
+          and type = #{type}
+        group by DATE_FORMAT(create_time, '%c')
+    </select>
+    <select id="qhseSummaryList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.QhseDetailsDTO">
+        SELECT DATE_FORMAT(create_time, '%Y-%m') month,
+               COUNT(*) quantity
+        FROM mes_building_qhse
+        WHERE type &amp; #{type}
+          AND bool_delete_enum = FALSE
+          AND DATE_FORMAT(create_time
+            , '%Y')= DATE_FORMAT(#{dateTime}
+            , '%Y')
+        <if test="workShopId != null ">
+            AND workshop_id =#{workShopId}
+        </if>
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m')
+    </select>
+    <select id="getQuantityType" resultType="java.lang.Integer">
+        SELECT COUNT(*) quantity
+        FROM mes_building_qhse
+        WHERE type &amp; #{type}
+          AND bool_delete_enum = FALSE
+          AND DATE_FORMAT(create_time
+            , '%Y')= DATE_FORMAT(#{dateTime}
+            , '%Y')
+    </select>
+    <select id="getListByTimeAndType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.qhse.MesBuildingQhse">
+        SELECT *
+        FROM mes_building_qhse
+        WHERE bool_delete_enum = 0
+          AND type &amp; #{type}
+          AND DATE_FORMAT( create_time
+            , '%Y' )= DATE_FORMAT( #{dateTime}
+            , '%Y' )
+    </select>
+
+    <select id="getListTo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dtoParam.qhse.QhseDTOParam">
+        SELECT id,qhse_report_id,inspection_report_id
+        FROM mes_building_qhse
+        WHERE bool_delete_enum = 0
+    </select>
+
+    <select id="getListByTimesAndType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.qhse.MesBuildingQhse">
+        SELECT *
+        FROM mes_building_qhse
+        WHERE bool_delete_enum = 0
+        <if test="type != null ">
+            AND type &amp; #{type}
+        </if>
+        <if test="time!=null">
+            AND date_format (create_time, '%Y')= date_format(#{time}, '%Y')
+        </if>
+        <if test="workShopId!=null">
+            AND workshop_id = #{workShopId}
+        </if>
+    </select>
+
+    <select id="productionQuality" resultType="java.lang.Integer">
+        select
+            ifnull(count(a.quality_type), 0)
+        from
+            mes_building_qhse a
+        where
+            a.bool_delete_enum = 0
+          and a.type = 1
+          and FIND_IN_SET( #{value}, a.quality_type )
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="type == 'month'">
+            and date_format(a.create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+        </if>
+        <if test="type == 'last_month'">
+            and date_format(a.create_time,'%Y-%m') = date_format(DATE_SUB(curdate(), INTERVAL 1 MONTH),'%Y-%m')
+        </if>
+        <if test="type == 'year'">
+            and date_format(a.create_time,'%Y') = date_format(now(),'%Y-%m')
+        </if>
+    </select>
+    <select id="getQhseCountByYear" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.app.DateAndCount">
+        select a.time as date,
+               sum(IFNULL(problem_quantity,0)) quantity
+        from (
+                select MAKEDATE(#{year}, 1) + interval months.seq MONTH as time
+                       from (select @seq := @seq + 1 as seq
+                             from information_schema.columns,(select @seq := -1) tmp
+                             limit 12) months) a
+            left join mes_building_qhse qhse on DATE_FORMAT(qhse.create_time,'%Y-%m')= DATE_FORMAT(a.time,'%Y-%m') and process_id = #{processId}
+            and qhse.bool_delete_enum = 0
+            left join mes_building_team_user_link link on qhse.team_id = link.team_id and link.user_id = #{userId} and link.bool_delete_enum = 0
+        where
+             (YEAR(qhse.create_time)= #{year} or qhse.create_time is null)
+        GROUP BY a.time
+    </select>
+    <select id="getQhseAnalyseByYear"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.qhse.MesBuildingQhse">
+        select * from
+        mes_building_qhse qhse
+            left join mes_building_team_user_link link on qhse.team_id = link.team_id
+        where link.user_id = #{userId}
+        and qhse.bool_delete_enum = 0
+        and type = 1
+        and process_id = #{processId}
+        and DATE_FORMAT(qhse.create_time,'%Y') = #{year}
+    </select>
+    <select id="listByData"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.qhse.MesBuildingQhse">
+
+        SELECT
+        *
+        FROM
+        mes_building_qhse
+        WHERE
+            <if test="numbers!=null and numbers.size() != 0">
+                <foreach collection="numbers" item="number" separator="or" open="(" close=")">
+                    ( product_id= #{number.productId}
+                    and number=#{number.number})
+                </foreach>
+            </if>
+        and  bool_delete_enum = 0
+    </select>
+    <select id="findInPackageNotRectifiedInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.ArtNotRectifiedInfo">
+        SELECT
+            art.serial_number,
+            qhse.number
+        FROM
+            mes_building_package_number_link link
+                INNER JOIN mes_building_qhse qhse ON link.product_id = qhse.product_id
+                AND link.number = qhse.number
+                AND qhse.`status` = 1
+                AND qhse.type = 8
+                AND qhse.bool_delete_enum = 0
+                INNER JOIN tech_artifact art ON qhse.product_id = art.id
+                AND art.bool_delete_enum = 0
+        WHERE
+            link.bool_delete_enum = 0
+          AND link.product_type = 2
+          AND link.package_id in
+        <foreach collection="packageIds" item="packageId" open="(" separator="," close=")">
+            #{packageId}
+        </foreach>
+    </select>
+    <select id="findProductNotRectifiedInfo" parameterType="java.util.Map"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.ArtNotRectifiedInfo" >
+        SELECT
+            art.serial_number,
+            qhse.number
+        FROM
+        mes_building_warehouse_summary sum
+         left join mes_building_warehouse_record rec on sum.product_id = rec.product_id and sum.product_type = rec.product_type
+                INNER JOIN mes_building_qhse qhse on rec.product_id = qhse.product_id and rec.number = qhse.number
+                and rec.product_type = 2
+                left join tech_artifact art on qhse.product_id = art.id and art.bool_delete_enum = 0
+        where rec.bool_delete_enum = 0 and qhse.bool_delete_enum = 0
+        AND rec.type = 1 AND rec.`status` = 1
+        and qhse.type = 8 and qhse.`status` = 1
+        and(
+            <foreach collection="productMap" index="key" item="numList" separator="or" >
+                    (
+                        sum.id = #{key} and qhse.number  in
+                        <foreach collection="numList" item="number" separator="," open="(" close=")">
+                            #{number}
+                        </foreach>
+                    )
+            </foreach>
+        )
+    </select>
+
+    <update id="updateSql">
+        ${sql}
+    </update>
+
+    <select id="selectQualityTypeQhseList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.QhseReportListDTO">
+        select
+            qhse.qhse_number,
+            cp.serial_number projectSerialNumber,
+            cp.short_name projectShortName,
+            case
+                when qhse.task_type_enum = 2 then ta.serial_number
+                when qhse.task_type_enum = 16 then ass.serial_number
+            end as serial_number,
+            su.`name` inspectionName,
+            qhse.create_time inspectionDate,
+            su2.`user_name` teamLeaderName,
+            pro.`name` processName,
+            mqone.NAME levelOneName,
+            mqtwo.NAME levelTwoName,
+            mqtwo.behavior_score behaviorScore,
+            mqtwo.penalty penalty,
+            qhse.status
+        from mes_building_qhse qhse left join contract_project cp on qhse.project_id = cp.id and cp.bool_delete_enum = 0
+                                    left join tech_artifact ta on qhse.product_id = ta.id and ta.bool_delete_enum = 0 and qhse.task_type_enum = 2
+                                    left join tech_assemble ass on qhse.product_id = ass.id and ass.bool_delete_enum = 0 and qhse.task_type_enum = 16
+                                    left join sys_user su on qhse.user_id = su.id and su.bool_delete_enum = 0
+                                    left join mes_building_team_user_link su2 on qhse.team_id = su2.team_id and su2.bool_delete_enum = 0 and su2.bool_leader_enum = 1
+                                    LEFT JOIN mes_quality_class_config mqone ON  mqone.id = qhse.level_one_type AND mqone.bool_delete_enum = 0
+                                    LEFT JOIN mes_quality_class_config mqtwo ON  mqtwo.id = qhse.level_two_type AND mqtwo.bool_delete_enum = 0
+                                    left join mes_building_process pro on qhse.process_id = pro.id and pro.bool_delete_enum = 0
+        where qhse.type IN (1, 8)
+        <if test="startDate != null">
+            AND date(qhse.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(qhse.create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="status !=null">
+            and qhse.status = #{status}
+        </if>
+        <if test="processId !=null">
+            and qhse.process_id = #{processId}
+        </if>
+        <if test="levelOneType != null">
+            and qhse.level_one_type = #{levelOneType}
+        </if>
+        <if test="projectName != null">
+                and cp.name like concat('%',#{projectName},'%')
+        </if>
+        <if test="serialNumber != null">
+            and (ta.serial_number like concat('%',#{serialNumber},'%') or ass.serial_number like concat('%',#{serialNumber},'%'))
+        </if>
+        <if test="inspectionUserName !=null">
+            and su.name = #{inspectionUserName}
+        </if>
+        <if test="teamLeaderName !=null">
+            and su.name = #{teamLeaderName}
+        </if>
+    </select>
+
+    <select id="selectQualityTypeQhseDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.QhseReportDetailDTO">
+        select
+            qhse.id,
+            qhse.qhse_number,
+            qhse.problem_drawing,
+            qhse.drawing_label,
+            cp.serial_number projectSerialNumber,
+            cp.short_name projectShortName,
+            case
+                when qhse.task_type_enum = 2 then ta.serial_number
+                when qhse.task_type_enum = 16 then ass.serial_number
+                end as serial_number,
+            su.`name` inspectionName,
+            qhse.create_time inspectionDate,
+            su2.`name` username,
+            pro.`name` processName,
+            ccone.NAME levelOneName,
+            cctwo.NAME levelTwoName,
+            cctwo.behavior_score behaviorScore,
+            cctwo.penalty penalty,
+            qhse.status
+        from mes_building_qhse qhse left join contract_project cp on qhse.project_id = cp.id and cp.bool_delete_enum = 0
+                                    left join tech_artifact ta on qhse.product_id = ta.id and ta.bool_delete_enum = 0 and qhse.task_type_enum = 2
+                                    left join tech_assemble ass on qhse.product_id = ass.id and ass.bool_delete_enum = 0 and qhse.task_type_enum = 16
+                                    left join sys_user su on qhse.user_id = su.id and su.bool_delete_enum = 0
+                                    left join sys_user su2 on qhse.duty_id = su2.id and su2.bool_delete_enum = 0
+                                    LEFT JOIN mes_safety_class_config ccone ON  ccone.id = qhse.level_one_type AND ccone.bool_delete_enum = 0
+                                    LEFT JOIN mes_safety_class_config cctwo ON  cctwo.id = qhse.level_two_type AND cctwo.bool_delete_enum = 0
+                                    left join mes_building_process pro on qhse.process_id = pro.id and pro.bool_delete_enum = 0
+        where qhse.type IN (2, 4)
+        and qhse.duty_id = #{userId}
+        <if test="date != null">
+            and DATE_FORMAT(qhse.create_time,'%Y-%m-%d')  = DATE_FORMAT(#{date},'%Y-%m-%d')
+        </if>
+    </select>
+
+    <select id="findQhseRealtimeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.InspectRealtimeInfoDTO">
+            SELECT
+                cp.`short_name` 'project.shortName',
+                cp.serial_number 'project.serialNumber',
+                shop.`name` 'workshop.name',
+                pss.`name` 'processName',
+                qhse.monomer_id,
+                qhse.product_id,
+                qhse.task_type_enum,
+                CASE qhse.task_type_enum
+                    WHEN 2 THEN
+                        art.serial_number
+                    WHEN 16 THEN
+                        ass.serial_number
+                    END serialNumber,
+                tulink.user_name 'team.name',
+                qhse.id,
+                qhse.`status`,
+                su.id 'inspectUserId',
+                su.name 'name',
+                qhse.create_time,
+                qhse.number
+            FROM
+                mes_building_qhse qhse left join contract_project cp on qhse.project_id = cp.id and cp.bool_delete_enum = 0
+                                       left join mes_building_workshop shop on qhse.workshop_id = shop.id and shop.bool_delete_enum = 0
+                                       left join mes_building_process pss on qhse.process_id = pss.id and pss.bool_delete_enum = 0
+                                       left join tech_artifact art on qhse.product_id = art.id and art.bool_delete_enum = 0
+                                       left join tech_assemble ass on qhse.product_id = ass.id and ass.bool_delete_enum = 0
+                                       left join mes_building_team_user_link tulink on qhse.team_id = tulink.team_id and tulink.bool_delete_enum = 0 and tulink.bool_leader_enum = 1
+        left join sys_user su on qhse.user_id = su.id and su.bool_delete_enum = 0
+            where qhse.bool_delete_enum = 0
+                and qhse.type in (1,8)
+                <if test="treeCondition != null and treeCondition.size() > 0">
+                    and
+                    <foreach collection="treeCondition" item="linesTree" separator="or" open="(" close=")">
+                        qhse.team_id in
+                        <foreach collection="linesTree.getTeamList()" item="team" separator="," open="(" close=")">
+                            #{team.id}
+                        </foreach>
+                        and (art.structure_class_id in
+                        <foreach collection="linesTree.getClassIds()" item="classId" separator="," open="(" close=")">
+                            #{classId}
+                        </foreach>
+                        or ass.assemble_config_id in
+                        <foreach collection="linesTree.getClassIds()" item="classId" separator="," open="(" close=")">
+                            #{classId}
+                        </foreach>
+                        )
+                </foreach>
+                </if>
+                <if test="startDate != null">
+                    and qhse.create_time &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and qhse.create_time &lt;= #{endDate}
+                </if>
+                <if test="projectId != null">
+                    and qhse.project_id = #{projectId}
+                </if>
+                <if test="workShopId != null">
+                    and shop.id = #{workShopId}
+                </if>
+                <if test="serialNumber != null">
+                    and art.serial_number like concat('%',#{serialNumber},'%') or ass.serial_number like concat('%',#{serialNumber},'%')
+                </if>
+    </select>
+
+    <select id="findQhseRealtimeListV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.InspectRealtimeInfoDTO">
+        SELECT
+        cp.`short_name` 'project.shortName',
+        cp.serial_number 'project.serialNumber',
+        shop.`name` 'workshop.name',
+        pss.`name` 'processName',
+        qhse.monomer_id,
+        qhse.product_id,
+        qhse.task_type_enum,
+        CASE qhse.task_type_enum
+        WHEN 2 THEN
+        art.serial_number
+        WHEN 16 THEN
+        ass.serial_number
+        END serialNumber,
+        tulink.user_name 'team.name',
+        qhse.id,
+        qhse.`status`,
+        su.id 'inspectUserId',
+        su.name 'name',
+        qhse.create_time,
+        qhse.number,
+        mqcc.name as level_two_type_name,
+        qhse.qhse_number
+        FROM
+        mes_building_qhse qhse left join contract_project cp on qhse.project_id = cp.id and cp.bool_delete_enum = 0
+        left join mes_building_workshop shop on qhse.workshop_id = shop.id and shop.bool_delete_enum = 0
+        left join mes_building_process pss on qhse.process_id = pss.id and pss.bool_delete_enum = 0
+        left join tech_artifact art on qhse.product_id = art.id and art.bool_delete_enum = 0
+        left join tech_assemble ass on qhse.product_id = ass.id and ass.bool_delete_enum = 0
+        left join mes_building_team_user_link tulink on qhse.team_id = tulink.team_id and tulink.bool_delete_enum = 0 and tulink.bool_leader_enum = 1
+        left join sys_user su on qhse.user_id = su.id and su.bool_delete_enum = 0
+        left join mes_quality_class_config mqcc ON mqcc.bool_delete_enum = 0 and mqcc.id = qhse.level_two_type
+        where qhse.bool_delete_enum = 0
+        and qhse.type in (1,8)
+        <if test="treeCondition != null and treeCondition.size() > 0">
+            and
+            <foreach collection="treeCondition" item="linesTree" separator="or" open="(" close=")">
+                qhse.team_id in
+                <foreach collection="linesTree.getTeamList()" item="team" separator="," open="(" close=")">
+                    #{team.id}
+                </foreach>
+                and (art.structure_class_id in
+                <foreach collection="linesTree.getClassIds()" item="classId" separator="," open="(" close=")">
+                    #{classId}
+                </foreach>
+                or ass.assemble_config_id in
+                <foreach collection="linesTree.getClassIds()" item="classId" separator="," open="(" close=")">
+                    #{classId}
+                </foreach>
+                )
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            and DATE_FORMAT(qhse.create_time, '%Y-%m-%d %H') &gt;= DATE_FORMAT(#{startDate}, '%Y-%m-%d %H')
+        </if>
+        <if test="endDate != null">
+            and DATE_FORMAT(qhse.create_time, '%Y-%m-%d %H') &lt;= DATE_FORMAT(#{endDate}, '%Y-%m-%d %H')
+        </if>
+        <if test="projectIdList != null and projectIdList.size() > 0">
+            and qhse.project_id in
+            <foreach collection="projectIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="workShopId != null">
+            and shop.id = #{workShopId}
+        </if>
+    </select>
+
+    <select id="findAllInspectCount"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingInspectCountDTO">
+            SELECT
+                cp.serial_number 'project.serialNumber',
+                cp.short_name 'project.shortName',
+                pm.`name` 'monomerName',
+                area.`name` 'areaName',
+                pro.task_type_enum,
+                CASE
+                    pro.task_type_enum
+                    WHEN 2 THEN
+                        art.serial_number
+                    WHEN 16 THEN
+                        ass.serial_number
+                    END serial_number,
+                CASE
+                pro.task_type_enum
+                WHEN 2 THEN
+                art.id
+                WHEN 16 THEN
+                ass.id
+                END productId,
+                pro.id 'taskProcessId',
+                rep.quantity inspectionQuantity,
+                tulink.user_name 'team.name',
+                shop.`name` 'workshopName',
+                pss.`name` 'processName',
+                rep.report_time 'reportDate',
+                rep.inspection_time 'passageTime',
+                rep.number 'number'
+            FROM
+                mes_building_produce_team_report rep
+                    inner JOIN mes_building_task_process pro ON rep.task_process_id = pro.id  and rep.product_id = pro.product_id and pro.bool_delete_enum = 0
+                    LEFT JOIN contract_project cp ON pro.project_id = cp.id AND cp.bool_delete_enum = 0
+                    LEFT JOIN plan_monomer pm ON pro.monomer_id = pm.id AND pm.bool_delete_enum = 0
+                    LEFT JOIN plan_area area ON pro.area_id = area.id AND area.bool_delete_enum = 0
+                    LEFT JOIN tech_artifact art ON pro.product_id = art.id AND art.bool_delete_enum = 0 AND pro.task_type_enum = 2
+                    LEFT JOIN tech_assemble ass ON pro.product_id = ass.id AND ass.bool_delete_enum = 0 AND pro.task_type_enum = 16
+                    LEFT JOIN mes_building_workshop shop ON pro.workshop_id = shop.id AND shop.bool_delete_enum = 0
+                    LEFT JOIN mes_building_process pss ON rep.process_id = pss.id AND pss.bool_delete_enum = 0
+                    LEFT JOIN mes_building_team_user_link tulink ON rep.team_id =tulink.team_id and tulink.bool_delete_enum = 0 and tulink.bool_leader_enum = 1
+            <if test = "status == 2">
+                left join mes_building_produce_inspection_team_report itr on rep.task_process_id = itr.task_process_id and rep.number = itr.number and itr.bool_delete_enum = 0
+            </if>
+            WHERE
+                rep.bool_delete_enum = 0
+                and rep.task_type_enum in (2, 16)
+            <if test="serialNumber != null">
+                and (art.serial_number like concat('%',#{serialNumber},'%') or ass.serial_number like concat('%',#{serialNumber},'%'))
+            </if>
+                <if test = " status == 2">
+                    and itr.task_process_id is null
+                </if>
+                <if test="projectId !=null">
+                    and pro.project_id = #{projectId}
+                </if>
+                <if test="startDate != null">
+                    AND rep.in_year_month_day_date >= date_format(#{startDate}, '%Y-%m-%d')
+                </if>
+                <if test="endDate != null">
+                    AND rep.in_year_month_day_date &lt;= date_format(#{endDate}, '%Y-%m-%d')
+                </if>
+                <if test="workShopId != null">
+                    and shop.id = #{workShopId}
+                </if>
+    </select>
+    <select id="findAllInspectQuantity"  resultType="java.lang.Integer">
+        SELECT
+        sum(rep.quantity) inspectionQuantity
+        FROM
+        mes_building_produce_team_report rep
+        left JOIN mes_building_task_process pro ON rep.task_process_id = pro.id and pro.bool_delete_enum = 0
+        left join mes_building_produce_inspection_team_report itr on rep.task_process_id = itr.task_process_id and rep.number = itr.number and itr.bool_delete_enum = 0
+        WHERE
+        rep.bool_delete_enum = 0
+        <if test = "status == 2">
+            and itr.task_process_id is null
+        </if>
+        <if test = " status == 1">
+            and itr.task_process_id is  not null
+        </if>
+        <if test="projectId !=null">
+            and pro.project_id = #{projectId}
+        </if>
+        <if test="startDate != null">
+            AND rep.in_year_month_day_date >= date_format(#{startDate}, '%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            AND rep.in_year_month_day_date &lt;= date_format(#{endDate}, '%Y-%m-%d')
+        </if>
+        <if test="workShopId != null">
+            and pro.workshop_id = #{workShopId}
+        </if>
+    </select>
+
+    <select id="findQhseDetailList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingQhseDetailDTO">
+        SELECT DISTINCT
+        b.*,
+        e.`name` inspectUserName,
+        c.`name` project_name,
+        c.id 'project.id',
+        c.name 'project.name',
+        c.short_name 'project.short_name',
+        c.serial_number 'project.serial_number',
+        mbp.`name` processName,
+        tul.user_name 'teamName'
+        FROM
+        mes_building_qhse b
+        LEFT JOIN sys_user e ON b.duty_id =e.id AND e.bool_delete_enum=FALSE
+        LEFT JOIN contract_project c ON b.project_id = c.id AND c.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_process mbp ON b.process_id=mbp.id AND mbp.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_team_user_link tul ON b.team_id=tul.team_id AND tul.bool_delete_enum=FALSE and tul.bool_leader_enum = 1
+        WHERE b.bool_delete_enum=FALSE
+        and b.id = #{qhseId}
+    </select>
+
+    <select id="findTeamQhseQuantity"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.TeamQhseQuantityDTO">
+        SELECT
+            tulink.user_name teamName,
+            count(qhse.id) qhseQuantity
+        FROM
+            mes_building_qhse qhse
+                inner join mes_building_team_user_link tulink on qhse.team_id = tulink.team_id and tulink.bool_delete_enum = 0 and tulink.bool_leader_enum = 1
+        WHERE
+            qhse.bool_delete_enum = 0
+          AND qhse.type &amp; 9
+        <if test="workShopId != null">
+            AND qhse.workshop_id = #{workShopId}
+        </if>
+          AND DATE_FORMAT( qhse.create_time, '%Y') = DATE_FORMAT(#{date},'%Y')
+        GROUP BY tulink.user_name order by qhseQuantity Desc
+    </select>
+
+    <select id="findQhseQuantityGroupQhseType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QhseQuantitySummaryDTO">
+        SELECT
+            cc.`name` levelOneTypeName,
+            count(qhse.id) qhseQuantity
+        FROM
+            mes_building_qhse qhse
+                left join mes_quality_class_config cc on qhse.level_one_type = cc.id and cc.bool_delete_enum = 0
+        WHERE
+            qhse.bool_delete_enum = 0
+          AND qhse.type &amp; 9
+        <if test="workShopId != null">
+            AND qhse.workshop_id = #{workShopId}
+        </if>
+        AND DATE_FORMAT( qhse.create_time, '%Y') = DATE_FORMAT(#{date},'%Y')
+        GROUP BY cc.`name` order by qhseQuantity Desc
+    </select>
+
+    <select id="findQhseWarnToDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QhseWarnToDayDTO">
+        SELECT
+            cp.serial_number serialNumber,
+            cp.short_name shortName,
+            qhse.qhse_number qhseNumber,
+            case qhse.task_type_enum
+                when 2 then
+                    ta.serial_number
+                when 16 then
+                    ass.serial_number
+                end productSerialNumber,
+            ccone.`name` levelOneTypeName,
+            cctwo.`name` levelTwoTypeName,
+            tulink.user_name teamLeaderName,
+            pro.`name` processName,
+            su.`name` inspectUserName
+        FROM
+            mes_building_qhse qhse
+                LEFT JOIN contract_project cp ON qhse.project_id = cp.id
+                AND cp.bool_delete_enum = 0
+                LEFT JOIN tech_artifact ta ON qhse.product_id = ta.id
+                AND ta.bool_delete_enum = 0
+                AND qhse.task_type_enum = 2
+                LEFT JOIN tech_assemble ass ON qhse.product_id = ass.id
+                AND ass.bool_delete_enum = 0
+                AND qhse.task_type_enum = 16
+                LEFT JOIN mes_building_process pro ON qhse.process_id = pro.id
+                AND pro.bool_delete_enum = 0
+                LEFT JOIN mes_building_team_user_link tulink ON qhse.team_id = tulink.team_id
+                AND tulink.bool_leader_enum = 1
+                LEFT JOIN mes_quality_class_config ccone on qhse.level_one_type = ccone.id and ccone.bool_delete_enum = 0
+                LEFT JOIN mes_quality_class_config cctwo on qhse.level_two_type = cctwo.id and cctwo.bool_delete_enum = 0
+                left join sys_user su on qhse.user_id = su.id and su.bool_delete_enum = 0
+        WHERE
+            qhse.bool_delete_enum = 0
+            AND qhse.type &amp;9
+            and qhse.status not in (4, 64)
+            <if test="workShopId != null">
+                AND qhse.workshop_id = #{workShopId}
+            </if>
+          and DATE(qhse.create_time) = CURDATE()
+    </select>
+
+    <select id="findQualityGroupSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QualityGroupSummaryDTO">
+        SELECT
+            cc.`name` levelOneName,
+            count(*) quantity
+        FROM
+            mes_building_qhse qh
+                LEFT JOIN mes_quality_class_config cc ON qh.level_one_type = cc.id and cc.bool_delete_enum = 0
+                where qh.bool_delete_enum = 0
+                and qh.type in (1,8)
+                <if test="year != null">
+                    and Year(qh.create_time) = #{year}
+                </if>
+        GROUP BY cc.`name`
+    </select>
+
+    <select id="findQualityGroupMonthByYear"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QhseGroupMonthByYearSummaryDTO">
+        SELECT
+            DATE_FORMAT(qh.create_time,'%Y-%m') date,
+            count(*) quantity
+        FROM
+            mes_building_qhse qh
+        where qh.bool_delete_enum = 0
+            <if test="year != null">
+                and Year(qh.create_time) = #{year}
+            </if>
+        GROUP BY
+            DATE_FORMAT(qh.create_time,'%Y-%m')
+    </select>
+
+    <select id="findQhseCountGroupMonth"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.MonthlyFirstPassRateDTO">
+            SELECT
+                DATE_FORMAT(qh.create_time,'%Y-%m') date,
+                count(*) qhseQuantity
+            FROM
+                mes_building_qhse qh
+            where qh.type &amp;9
+            <if test="year != null">
+                and Year(qh.create_time) = #{year}
+            </if>
+            GROUP BY
+                DATE_FORMAT(qh.create_time,'%Y-%m');
+    </select>
+
+    <select id="findQuailyQhseAlert"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QhseAlertDTO">
+        SELECT
+            qh.qhse_number qhseNumber,
+            cp.short_name projectName,
+            su.`name` inspectUser,
+            su1.`name` teamName,
+            pro.`name` processName,
+            ccone.`name` levelOneName,
+            cctwo.`name` levelTwoName,
+            case
+                when qh.task_type_enum = 2 THEN art.serial_number
+                when qh.task_type_enum = 16 THEN ass.serial_number
+            end serialNumber,
+            qh.`status` status
+        FROM
+            mes_building_qhse qh
+                left join contract_project cp on qh.project_id = cp.id and cp.bool_delete_enum = 0
+                left join sys_user su on qh.user_id = su.id and su.bool_delete_enum = 0
+                left join sys_user su1 on qh.duty_id = su1.id and su1.bool_delete_enum = 0
+                left join mes_building_process pro on qh.process_id = pro.id and pro.bool_delete_enum = 0
+                left join mes_quality_class_config ccone on qh.level_one_type = ccone.id and ccone.bool_delete_enum = 0
+                left join mes_quality_class_config cctwo on qh.level_two_type = cctwo.id and cctwo.bool_delete_enum = 0
+                left join tech_artifact art on qh.product_id = art.id and art.bool_delete_enum = 0 and qh.task_type_enum = 2
+                left join tech_assemble ass on qh.product_id = ass.id and ass.bool_delete_enum = 0 and qh.task_type_enum = 16
+        where qh.bool_delete_enum = 0 and qh.type &amp; 9
+            <if test="type == 1">
+                and qh.create_time &gt;= date_format(CURDATE(),'%Y-%m-%d 00:00:00')
+            </if>
+            and qh.`status` in
+            <foreach collection="statuses" open="(" separator="," close=")" item="status">
+                #{status}
+            </foreach>
+    </select>
+
+
+    <select id="findQualityStatistics"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QualityInspectionStatisticsDTO">
+        SELECT
+            su.`name` teamName,
+            count(*) qhseQuantity
+        FROM
+            mes_building_qhse qh
+                left join sys_user su on qh.duty_id = su.id and su.bool_delete_enum = 0
+        where qh.bool_delete_enum = 0 and qh.type &amp;9
+        <if test="year != null">
+            and Year(qh.create_time) = #{year}
+        </if>
+        GROUP BY
+            su.`name`;
+    </select>
+
+    <select id="findInspectionStatistics"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.QualityInspectionStatisticsDTO">
+        SELECT
+            su.`name` teamName,
+            count(*) inspectQuantity
+        FROM
+            mes_building_produce_inspection_team_report tr
+                left join sys_user su on tr.user_id = su.id and su.bool_delete_enum = 0
+            where tr.bool_delete_enum = 0
+        <if test="year != null">
+            and Year(tr.create_time) = #{year}
+        </if>
+        GROUP BY
+            su.`name`;
+    </select>
+
+    <select id="findTeamQhseRanking"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.LargeScreen.TeamQhseRankingDTO">
+        SELECT
+            su.`name` teamName,
+            count(*) quantity
+        FROM
+            mes_building_qhse qh
+                left join sys_user su on qh.duty_id = su.id and su.bool_delete_enum = 0
+        where qh.bool_delete_enum = 0 and qh.type &amp; 9
+        <if test="year != null">
+            and Year(qh.create_time) = #{year}
+        </if>
+        GROUP BY
+            su.`name`
+        ORDER BY count(*) DESC;
+    </select>
+    <select id="getProblemQuantity" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(sum(IFNULL(qh.problem_quantity,1)),0)
+        FROM
+            mes_building_qhse qh
+        WHERE
+            qh.bool_delete_enum = 0
+            and qh.type in (1,8)
+            and qh.task_type_enum = 2
+        <if test="workshopId != null">
+            and qh.workshop_id = #{workshopId}
+        </if>
+        <if test="teamId != null">
+            and qh.team_id = #{teamId}
+        </if>
+    </select>
+</mapper>

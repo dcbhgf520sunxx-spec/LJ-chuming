@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesBuildingNestingTeamMapper">
+
+    <resultMap type="com.hzchum.scim.system.core.api.pojo._do.MesBuildingNestingTeam" id="mesBuildingNestingTeamMap">
+        <result property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="boolDeleteEnum" column="bool_delete_enum"/>
+        <result property="version" column="version"/>
+        <result property="company" column="company"/>
+        <result property="workshopId" column="workshop_id"/>
+        <result property="nestingChargePerson" column="nesting_charge_person"/>
+        <result property="teamCode" column="team_code"/>
+        <result property="boolDrillHole" column="bool_drill_hole"/>
+    </resultMap>
+
+    <select id="selectListMesBuildingNestingTeam" resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesBuildingNestingTeamDTO">
+        SELECT
+        t.id,
+        t.company,
+        t.workshop_id,
+        t.nesting_charge_person,
+        t.team_code,
+        t.bool_drill_hole,
+        c.name companyName,
+        w.name workshopName,
+        u.name nestingChargePersonName
+        FROM mes_building_nesting_team t
+        LEFT JOIN sys_branch_company c ON t.company = c.id AND c.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop w ON t.workshop_id = w.id AND w.bool_delete_enum = 0
+        LEFT JOIN sys_user u ON t.nesting_charge_person = u.id AND u.bool_delete_enum = 0
+        WHERE t.bool_delete_enum = 0
+        <if test="workshopId != null">
+            AND t.workshop_id = #{workshopId}
+        </if>
+    </select>
+
+    <select id="selectListMesBuildingNestingTeamAll" resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesBuildingNestingTeamDTO">
+        SELECT
+        t.id,
+        t.company,
+        t.workshop_id,
+        t.nesting_charge_person,
+        t.team_code,
+        t.bool_drill_hole,
+        c.name companyName,
+        w.name workshopName,
+        u.name nestingChargePersonName
+        FROM mes_building_nesting_team t
+        LEFT JOIN sys_branch_company c ON t.company = c.id AND c.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop w ON t.workshop_id = w.id AND w.bool_delete_enum = 0
+        LEFT JOIN sys_user u ON t.nesting_charge_person = u.id AND u.bool_delete_enum = 0
+        WHERE t.bool_delete_enum = 0
+        AND t.bool_drill_hole = 1
+        <if test="workshopId != null">
+            AND t.workshop_id = #{workshopId}
+        </if>
+    </select>
+
+
+    <select id="getByIdMesBuildingNestingTeam" resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesBuildingNestingTeamDTO">
+        SELECT
+        t.id,
+        t.company,
+        t.workshop_id,
+        t.nesting_charge_person,
+        t.team_code,
+        t.bool_drill_hole,
+        c.name companyName,
+        w.name workshopName,
+        u.name nestingChargePersonName
+        FROM mes_building_nesting_team t
+        LEFT JOIN sys_branch_company c ON t.company = c.id AND c.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop w ON t.workshop_id = w.id AND w.bool_delete_enum = 0
+        LEFT JOIN sys_user u ON t.nesting_charge_person = u.id AND u.bool_delete_enum = 0
+        WHERE t.bool_delete_enum = 0
+        <if test="id != null">
+            AND t.id = #{id}
+        </if>
+    </select>
+</mapper>

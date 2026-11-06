@@ -1,0 +1,2910 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MoveOutboundDetailMapper">
+
+    <resultMap id="getList" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDetailDO">
+        <id column="id" property="id"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="outbound_relation_type" property="outboundRelationType"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="bool_basic_class_change" property="boolBasicClassChange"/>
+        <!--        <result column="tax_rate" property="taxRate" />-->
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="remark" property="remark"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVAT"/>
+        <result column="input_VAT" property="inputVAT"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="sname" property="recipientName"/>
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+        <result column="wap_id" property="wapId"/>
+        <result column="boolScheduling" property="boolScheduling"/>
+        <result column="spoNumber" property="orderSerialNumber"/>
+        <result column="uName" property="applicantName"/>
+        <result column="warStartTime" property="applicantTime"/>
+        <result column="woType" property="outboundTypeSelection"/>
+        <result column="areaBatchName" property="areaBatchName"/>
+        <result column="childOrderNumber" property="childOrderNumber"/>
+        <result column="outbound_id" property="outboundId"/>
+        <result column="actual_theory_weight" property="actualTheoryWeight"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wworkId"/>
+            <result property="name" column="wworkName"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+        <association property="outboundReceipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundListDTO">
+            <id property="id" column="woId"/>
+            <result property="serialNumber" column="sn"/>
+            <result property="outboundTime" column="outbound_time"/>
+            <result property="applicantName" column="founderName"/>
+            <result property="reviewerName" column="reviewerName"/>
+            <result property="reviewTime" column="reviewTime"/>
+            <result property="createTime" column="createTime"/>
+        </association>
+    </resultMap>
+    <select id="getList" resultMap="getList">
+        select
+        wod.*,
+        wo.id woId,
+        wo.serial_number sn,
+        wo.applicant_name founderName,
+        wo.reviewer_name reviewerName,
+        wo.create_time createTime,
+        wo.review_time reviewTime,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        pm.name          pmName,
+        pa.name          paName,
+        batch.name areaBatchName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        wwork.id wworkId,
+        wwork.name wworkName,
+        wm.measure_unit         wmu,
+        wm.measure_precision    wmp,
+        wm.accounting_unit      wau,
+        wm.accounting_precision wap,
+        ww.id wwId,
+        ww.name wwName,
+        su.name sname,
+        spo.serial_number spoNumber,
+        u.name uName,
+        war.start_time warStartTime,
+        wo.bool_scheduling boolScheduling,
+        wo.outbound_type_selection woType,
+        wo.child_order_number childOrderNumber
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join contract_project p on p.id = wod.project_id
+        left join mes_building_workshop mbf on wod.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join sys_user su on su.id = wod.recipient_id
+        left join plan_monomer pm on pm.id = wod.monomer_id
+        left join plan_area pa on pa.id = wod.area_id
+        left join wms_for_sale_detail wfsd on wfsd.outbound_detail_id = wod.id
+            and wfsd.bool_delete_enum = 0
+            and exists (select 1 from wms_for_sale sale_parent
+                        where sale_parent.serial_number = wfsd.for_sale_serial_number
+                          and sale_parent.outbound_id = wod.outbound_id
+                          and sale_parent.bool_delete_enum = 0)
+        left join scm_purchase_order spo on spo.id = wod.purchase_id
+        left join sys_user u on u.id = wo.applicant_id
+        left join wms_approve_record war on war.id = wo.approve_record_id
+        left join wms_workshop wwork on wod.source_workshop_id = wwork.id
+        left join plan_area_batch batch on batch.id  = wod.area_batch_id and batch.bool_delete_enum = 0
+        where
+        wod.bool_delete_enum = 0
+        AND wo.review_status = 2
+        <if test="detailIds != null and detailIds.size > 0 ">
+             and wod.id in
+            <foreach item="id" index="index" collection="detailIds" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outReviewStatus != null ">
+            AND wo.review_status = #{outReviewStatus}
+        </if>
+        <if test="recipientId != null ">
+            AND wod.recipient_id = #{recipientId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &gt;= date_format(#{reviewTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="reviewTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &lt;= date_format(#{reviewTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%')
+            or su.name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wod.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" workshopId != null">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test=" monomerId != null">
+            and wod.monomer_id = #{monomerId}
+        </if>
+        <if test=" areaId != null">
+            and wod.area_id = #{areaId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="boolScheduling != null">
+            and wod.bool_scheduling = #{boolScheduling}
+        </if>
+        <if test="materialOutboundTime != null and materialOutboundTime.size()>0">
+            <if test="materialOutboundTime[0] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &gt;= date_format(#{materialOutboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="materialOutboundTime[1] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &lt;= date_format(#{materialOutboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="branchCompanyId != null and branchCompanyId != ''">
+            AND wfsd.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="weightMeasurementMode != null and weightMeasurementMode != ''">
+            AND wfsd.weight_measurement_mode = #{weightMeasurementMode}
+        </if>
+        <if test="outboundTypeSelection != null and outboundTypeSelection != ''">
+            AND wo.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &gt;= date_format(#{reviewTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="reviewTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &lt;= date_format(#{reviewTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wod.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getDetailDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select ifnull(sum(ifnull(wod.mete, 0)), 0)                 mete,
+               ifnull(sum(ifnull(wod.quantity, 0)), 0)             quantity,
+               ifnull(sum(ifnull(wod.input_VAT, 0)), 0)            inputVAT,
+               ifnull(sum(ifnull(wod.amount, 0)), 0)               amount,
+               ifnull(sum(ifnull(wod.amount_excluding_VAT, 0)), 0) amountExcludingVAT,
+               (select unit_price_excluding_VAT
+                from wms_move_outbound_detail
+                order by create_time desc
+                                                                   LIMIT 1)                                           unitPriceExcludingVAT
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo
+        on wo.id = wod.outbound_id
+        where wod.weighted_average_price_id = #{wapId}
+        and wo.review_status = 2
+        and wod.bool_delete_enum = 0
+    </select>
+
+    <resultMap id="getDownLoadDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="specification" property="specification"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVat"/>
+        <result column="amount" property="amount"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="reviewTime" property="reviewTime"/>
+        <result column="woSN" property="serialNumber"/>
+        <result column="pn" property="projectName"/>
+        <result column="pmName" property="monomerName"/>
+        <result column="projectNumber" property="projectNumber"/>
+        <result column="paName" property="areaName"/>
+        <result column="directionProjectSerialNumber" property="directionProjectSerialNumber"/>
+        <result column="p2n" property="directionProjectName"/>
+        <result column="pm2Name" property="directionMonomerName"/>
+        <result column="pa2Name" property="directionAreaName"/>
+        <result column="recipientName" property="recipientName"/>
+        <result column="recipientId" property="recipientId"/>
+        <result column="workshopName" property="workshopName"/>
+        <result column="areaBatchName" property="areaBatchName"/>
+        <result column="warehouseName" property="warehouseName"/>
+        <!--        <result column="returnWarehouseName" property="returnWarehouseName"/>-->
+        <result column="returnTime" property="returnTime"/>
+        <result column="outboundTime" property="outboundTime"/>
+        <result column="remark" property="remark"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="wap_id" property="wapId"/>
+        <result column="wworkName" property="wmsWorkshopName"/>
+        <result column="branchCompanyName" property="branchCompanyName"/>
+        <result column="applicantName" property="applicantName"/>
+        <result column="applicantTime" property="applicantTime"/>
+        <result column="actual_theory_weight" property="actualTheoryWeight"/>
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="classification_id" property="classificationId"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+            <id column="rd_rate" property="rdRate"/>
+        </association>
+    </resultMap>
+    <select id="getDownLoadDetail" resultMap="getDownLoadDetail">
+        select
+        wod.*,
+        wod.outbound_time outboundTime,
+        wm.*,
+        wo.serial_number woSN,
+        p.serial_number projectNumber,
+        wo.review_time reviewTime,
+        p.name pn,
+        pm.name pmName,
+        pa.name paName,
+        pm2.name pm2Name,
+        pa2.name pa2Name,
+        p2.name p2n,
+        p2.serial_number directionProjectSerialNumber,
+        u.name recipientName,
+        u.id recipientId,
+        mbw.name workshopName,
+        batch.name areaBatchName,
+        wwork.name wworkName,
+        wc.name classifyName,
+        ww.name warehouseName,
+        sbc.name branchCompanyName,
+        wo.applicant_name applicantName
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join contract_project p on p.id = wod.project_id
+        left join contract_project p2 on p2.id = wod.source_project_id
+        left join wms_classification wc on wod.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join plan_monomer pm on pm.id = wod.monomer_id
+        left join plan_area pa on pa.id = wod.area_id
+        left join plan_monomer pm2 on pm2.id = wod.source_monomer_id
+        left join plan_area pa2 on pa2.id = wod.source_area_id
+        left join sys_user u on u.id = wod.recipient_id and u.bool_delete_enum = 0
+        left join mes_building_workshop mbw on mbw.id = wod.workshop_id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join wms_for_sale_detail wfsd on wfsd.outbound_detail_id = wod.id
+            and wfsd.bool_delete_enum = 0
+            and exists (select 1 from wms_for_sale sale_parent
+                        where sale_parent.serial_number = wfsd.for_sale_serial_number
+                          and sale_parent.outbound_id = wod.outbound_id
+                          and sale_parent.bool_delete_enum = 0)
+        left join wms_workshop wwork on wod.source_workshop_id = wwork.id
+        left join sys_branch_company sbc on sbc.id = wfsd.branch_company_id
+        left join plan_area_batch batch on batch.id  = wod.area_batch_id and batch.bool_delete_enum = 0
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="workshopId != null ">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime != null and outboundTime.size()>0">
+                <if test="timeType == 2">
+                    <if test="outboundTime[0] != null">
+                        AND date_format(wod.outbound_time, '%Y-%m-%d')  &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+                    </if>
+                    <if test="outboundTime[1] != null">
+                        AND date_format(wod.outbound_time, '%Y-%m-%d')  &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+                    </if>
+                </if>
+            </if>
+            <if test="timeType == 1 ">
+                <if test="outboundTime[0] != null">
+                    and DATE_FORMAT(#{outboundTime[0]}, '%Y%m') = DATE_FORMAT(wod.outbound_time, '%Y%m')
+                </if>
+            </if>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and wo.review_time &gt; #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wo.review_time &lt; #{reviewTime[1]}
+            </if>
+        </if>
+
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%')
+            or u.name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wod.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="workshopId != null ">
+            AND wod.workshop_id = #{workshopId}
+        </if>
+        <if test="outboundTypeSelection != null">
+            AND wo.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="materialOutboundTime != null and materialOutboundTime.size()>0">
+            <if test="materialOutboundTime[0] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &gt;= date_format(#{materialOutboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &lt;= date_format(#{materialOutboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="outReviewStatus != null ">
+            AND wo.review_status = #{outReviewStatus}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            AND wod.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by wod.id desc
+    </select>
+
+    <select id="getAmountByDate" resultType="decimal">
+        select
+        ifnull(sum(wod.amount),0)
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wod.classify_id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and DATE_FORMAT(#{localDate}, '%Y%m') = DATE_FORMAT(wod.outbound_time, '%Y%m')
+    </select>
+    <resultMap id="getRDFeeDetail" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.RDFeeDTO">
+        <id column="id" property="id"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVAT"/>
+        <result column="input_VAT" property="inputVAT"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="rdRate" property="rdRate"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+        <association property="outboundReceipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundListDTO">
+            <id property="id" column="woId"/>
+            <result property="serialNumber" column="sn"/>
+            <result column="outbound_time" property="outboundTime"/>
+            <result property="applicantName" column="founderName"/>
+            <result property="reviewerName" column="reviewerName"/>
+            <result property="reviewTime" column="reviewTime"/>
+            <result property="createTime" column="createTime"/>
+        </association>
+    </resultMap>
+    <select id="getRDFeeDetail" resultMap="getRDFeeDetail">
+        select
+        wod.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        wm.rd_rate rdRate,
+        ww.id wwId,
+        ww.name wwName
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join contract_project p on p.id = wod.project_id
+        left join mes_building_workshop mbf on wod.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and DATE_FORMAT(#{outboundTime[0]}, '%Y%m') = DATE_FORMAT(wod.outbound_time, '%Y%m')
+            </if>
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wod.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wod.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getSteelTotalAmount" resultType="decimal">
+        select CASE
+        WHEN #{amountType} = 1 THEN
+        ifnull(sum(amount), 0)
+        WHEN #{amountType} = 2 THEN
+        ifnull(sum(amount_excluding_vat), 0)
+        end
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        AND wod.project_id = #{projectId}
+        and wod.basic_class &amp; 7 &gt; 0
+    </select>
+
+    <select id="getTotalMete" resultType="decimal">
+        select ifnull(sum(wod.mete), 0)
+        from wms_move_outbound_detail wod
+                 left join wms_outbound wo on wo.id = wod.outbound_id
+        where wod.bool_delete_enum = 0
+          and wo.review_status = 2
+          and wod.project_id = #{projectId}
+          and DATE_FORMAT(wo.review_time, '%y') = #{year}
+          and wod.basic_class &amp; #{basicClass}
+         &gt; 0
+    </select>
+
+    <select id="getMeteByProjectId" resultType="com.hzchum.scim.wms.core.common.SimpleEntityParam">
+        select DATE_FORMAT(wod.create_time, '%c') v,
+        ifnull(sum(wod.mete), 0) v2
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wod.project_id = #{projectId}
+        and DATE_FORMAT(wod.create_time, '%y') = DATE_FORMAT(#{year}, '%y')
+        group by DATE_FORMAT(wod.create_time, '%c')
+    </select>
+    <select id="getPSIOutboundDetail" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        select
+        wod.*,
+        wo.review_time createTime
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.bool_delete_enum = 0
+        and wo.review_status = 2
+        and (wo.review_time &gt; #{times[0]} and wo.review_time &lt; #{times[1]} )
+        and wod.classify_id = #{classifyId}
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" spec != null and spec != ''">
+            and wod.specification = #{spec}
+        </if>
+    </select>
+
+    <select id="getPSIOutboundDetailByClassifyIdsAndTimes"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        select
+        wod.*,
+        wo.review_time createTime
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.bool_delete_enum = 0
+        and wo.review_status = 2
+        and (wo.review_time &gt; #{times[0]} and wo.review_time &lt; #{times[1]} )
+        and wod.classify_id in
+        <foreach collection="classifyIds" item="classifyId" open="(" separator="," close=")">
+             #{classifyId}
+        </foreach>
+    </select>
+
+    <select id="queryCurrentMonth"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        select
+        a.*
+        from
+        wms_move_outbound_detail a
+        left join wms_outbound b on a.outbound_id = b.id
+        where
+        a.bool_delete_enum = 0
+        and b.review_status = 2 and b.bool_delete_enum = 0
+        and  a.outbound_time &gt; #{times.startTime}
+        and  a.outbound_time &lt; #{times.endTime}
+        <if test="wapId != null ">
+            AND a.wap_id = #{wapId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and a.project_id is null
+            and a.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="outboundTypeSelection != null and outboundTypeSelection.size()>0">
+            and a.outbound_type_selection not in
+            <foreach collection="outboundTypeSelection" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="queryCurrentMonthZi"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        select
+        a.*
+        from
+        wms_move_outbound_detail a
+        left join wms_outbound b on a.outbound_id = b.id
+        where
+        a.bool_delete_enum = 0
+        and b.review_status = 2 and b.bool_delete_enum = 0
+        and b.review_time &gt; #{times.startTime}
+        and  b.review_time &lt; #{times.endTime}
+        <if test="wapId != null ">
+            AND a.wap_id = #{wapId}
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and a.project_id is null
+            and a.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="outboundTypeSelection != null and outboundTypeSelection.size()>0">
+            and a.outbound_type_selection not in
+            <foreach collection="outboundTypeSelection" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getUseDetail"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        select
+        a.*
+        from
+        wms_move_outbound_detail a
+        left join wms_outbound b on a.outbound_id = b.id
+        where
+        a.bool_delete_enum = 0
+        and b.review_status = 2
+        and b.bool_delete_enum = 0
+        <if test=" projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test=" thickness != null">
+            and a.thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and a.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test=" spec != null and spec != ''">
+            and a.specification = #{spec}
+        </if>
+        <!--
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and a.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        -->
+    </select>
+    <select id="getClassIds" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+        select wc.id,
+               wc.name
+        from wms_move_outbound_detail a
+                 left join wms_outbound b on a.outbound_id = b.id
+                 left join wms_classification wc on a.classify_id = wc.id
+        where a.bool_delete_enum = 0
+          and b.review_status = 2
+          and b.bool_delete_enum = 0
+          and a.basic_class = #{basicClass}
+          and DATE_FORMAT(a.create_time, '%Y') = #{year}
+          and DATE_FORMAT(a.create_time, '%Y%m') &lt; DATE_FORMAT(#{now}, '%Y%m')
+        group by wc.id, wc.name
+    </select>
+    <select id="getByWIdDetail" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.MaterialInventoryDTO">
+        select a.classify_id               classifyId,
+               sum(a.amount)               amount,
+               sum(a.amount_excluding_vat) amountExcludingVAT
+        from wms_move_outbound_detail a
+                 left join wms_outbound b on a.outbound_id = b.id
+                 left join wms_classification wc on a.classify_id = wc.id
+        where a.bool_delete_enum = 0
+          and b.review_status = 2
+          and b.bool_delete_enum = 0
+          and a.basic_class = #{basicClass}
+          and a.amount is not null
+          and DATE_FORMAT(a.create_time, '%Y%m') = #{date}
+        group by a.classify_id
+    </select>
+    <select id="selectProjectOutAmount"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectAmountInfo">
+        SELECT
+        temp1.project_id,
+        temp1.amount - IFNULL(temp2.amount, 0) amount
+        FROM
+        (
+        SELECT
+        wmod.project_id,
+        IFNULL( SUM( wmod.amount ), 0 ) amount
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        AND wmod.project_id in
+        <foreach collection="projectIds" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        <if test="basicClassEnum != null">
+            AND wmod.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        GROUP BY wmod.project_id
+        ) AS temp1
+        LEFT JOIN (
+        SELECT
+        wrd.project_id,
+        IFNULL( SUM( wrd.amount ), 0 ) amount
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        AND wrd.project_id IN
+        <foreach collection="projectIds" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        <if test="basicClassEnum != null">
+            AND wrd.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        GROUP BY
+        wrd.project_id
+        ) temp2 ON temp1.project_id = temp2.project_id
+    </select>
+
+    <select id="selectMonthOutAmount" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT DATE_FORMAT(wmod.outbound_time, '%Y%m') month,
+               IFNULL(SUM(wmod.amount), 0) amount
+        FROM wms_move_outbound_detail wmod
+                 INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+            AND wo.bool_delete_enum = 0
+            AND wo.review_status = 2
+        WHERE wmod.bool_delete_enum = 0
+          AND wmod.project_id IS NULL
+          AND wmod.basic_class &amp; #{basicClassEnum}
+            > 0
+          AND DATE_FORMAT( wmod.outbound_time
+            , '%Y%m' ) &lt;= #{endMonth}
+          AND DATE_FORMAT( wmod.outbound_time
+            , '%Y%m' )
+         &gt; #{startMonth}
+        GROUP BY month
+        ORDER BY month
+    </select>
+
+    <select id="getByYear" resultType="java.math.BigDecimal">
+        select ifnull(sum(a.mete), 0)
+        from wms_move_outbound_detail a
+                 left join wms_outbound b on a.outbound_id = b.id
+                 left join wms_classification wc on a.classify_id = wc.id
+        where a.bool_delete_enum = 0
+          and b.review_status = 2
+          and b.bool_delete_enum = 0
+          and a.basic_class &amp; #{basicClass}
+         &gt; 0
+          and DATE_FORMAT(a.create_time
+            , '%Y%m') = #{year}
+    </select>
+
+    <select id="getDeliveryVolume" resultType="java.math.BigDecimal">
+        SELECT
+        sum( wod.mete )
+        FROM
+        wms_outbound wo
+        LEFT JOIN wms_move_outbound_detail wod ON wo.id = wod.outbound_id
+        WHERE
+        wo.review_status = 2
+        AND wod.basic_class IN ( 1, 2, 4 )
+        AND wod.create_time &gt;= DATE_FORMAT( CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01' )
+        AND wod.create_time &lt; DATE_FORMAT( CURDATE(), '%Y-%m-01' );
+    </select>
+
+    <select id="getDetailByCondition" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundDetailDTO">
+        select
+        wod.*,
+        wm.measure_unit measureUnit,
+        wm.measure_precision measurePrecision,
+        wm.accounting_unit accountingUnit,
+        wm.accounting_precision accountingPrecision
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test="basicClass != null ">
+            and wod.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="projectId != null">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="startDate != null">
+            and wo.review_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and wo.review_time &lt;= #{endDate}
+        </if>
+    </select>
+
+    <select id="getMeteByProject" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundDetailBasicDTO">
+        select
+        wod.project_id,
+        sum(wod.mete) / 1000 As mete
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id and wo.bool_delete_enum =0
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test="basicClass != null ">
+            and wod.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="projectIds.size()>0">
+            AND wod.project_id in
+            <foreach collection="projectIds" item="productId" open="(" close=")" separator=",">
+                #{productId}
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            and wo.review_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and wo.review_time &lt;= #{endDate}
+        </if>
+        group by wod.project_id
+    </select>
+
+
+    <resultMap id="receiveOutboundDetailDTO"
+               type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ReceiveOutboundDetailDTO">
+        <id column="id" property="id"/>
+        <id column="project_id" property="projectId"/>
+        <id column="mete" property="mete"/>
+        <id column="recipientName" property="recipientName"/>
+        <id column="outbound_time" property="createTime"/>
+        <id column="applicant_name" property="applicantName"/>
+        <id column="workShop" property="workShop"/>
+        <id column="basic_class" property="basicClass"/>
+        <id column="classify_id" property="classifyId"/>
+        <id column="specification" property="specification"/>
+        <id column="quantity" property="quantity"/>
+    </resultMap>
+
+    <select id="getMoveOutboundDetails" resultMap="receiveOutboundDetailDTO">
+        SELECT
+        wod.id id,
+        wod.project_id,
+        wo.applicant_name,
+        su.name recipientName,
+        mete,
+        wod.outbound_time ,
+        wr.name workShop,
+        wod.basic_class basic_class,
+        wod.classify_id classify_id,
+        wod.specification specification,
+        wod.quantity quantity
+        FROM
+        wms_move_outbound_detail wod
+        LEFT JOIN wms_outbound wo ON wod.outbound_id = wo.id
+        LEFT JOIN mes_building_workshop wr ON wr.id=wod.workshop_id
+        LEFT JOIN sys_user su ON su.id =wod.recipient_id
+        where
+        wo.review_status=2
+        AND wod.bool_delete_enum=0
+        <if test="basicClass != null ">
+            and wod.basic_class=#{basicClass}
+        </if>
+        <if test="projectIds != null and projectIds.size>0">
+         and   wod.project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="id">
+              #{id}
+            </foreach>
+        </if>
+
+        <if test="workShopIds != null and workShopIds.size>0">
+            and wod.workshop_id in
+            <foreach collection="workShopIds" open="(" separator="," close=")" item="id">
+               #{id}
+            </foreach>
+        </if>
+        <if test="projectIds == null or projectIds.size==0">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="year != null">
+            AND DATE_FORMAT(wod.outbound_time, '%Y') = #{year}
+        </if>
+        <if test="times != null and times.size()>0">
+            <if test="times[0] != null">
+                and wod.outbound_time &gt; #{times[0]}
+            </if>
+            <if test="times[1] != null">
+                and wod.outbound_time &lt; #{times[1]}
+            </if>
+        </if>
+
+    </select>
+
+
+    <resultMap id="OutboundDetailDOCount" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDetailDO">
+        <result column="quantityCount" property="quantityCount"/>
+        <result column="meteCount" property="meteCount"/>
+        <result column="amountCount" property="amountCount"/>
+        <result column="amountExcludingVatCount" property="amountExcludingVatCount"/>
+    </resultMap>
+    <select id="getListCount" resultMap="OutboundDetailDOCount">
+        select
+        sum(wod.quantity) as quantityCount,
+        sum(wod.mete) as meteCount,
+        sum(wod.amount) as amountCount,
+        sum(wod.amount_excluding_VAT) as amountExcludingVatCount
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where
+        wod.bool_delete_enum = 0
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outReviewStatus != null ">
+            AND wo.review_status = #{outReviewStatus}
+        </if>
+        <if test="recipientId != null ">
+            AND wod.recipient_id = #{recipientId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and wod.classify_id = #{classifyId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" workshopId != null">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test=" monomerId != null">
+            and wod.monomer_id = #{monomerId}
+        </if>
+        <if test=" areaId != null">
+            and wod.area_id = #{areaId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="outboundTypeSelection !=null">
+            and wod.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wod.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <resultMap id="getListV2" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDetailDO">
+        <id column="id" property="id"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="outbound_relation_type" property="outboundRelationType"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="bool_basic_class_change" property="boolBasicClassChange"/>
+        <!--        <result column="tax_rate" property="taxRate" />-->
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="remark" property="remark"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVAT"/>
+        <result column="input_VAT" property="inputVAT"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="nationalStandard"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="sname" property="recipientName"/>
+        <result column="pmName" property="monomerName"/>
+        <result column="paName" property="areaName"/>
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+        <result column="wap_id" property="wapId"/>
+        <result column="spoNumber" property="orderSerialNumber"/>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+        <association property="outboundReceipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundListDTO">
+            <id property="id" column="woId"/>
+            <result property="serialNumber" column="sn"/>
+            <result property="outboundTime" column="outbound_time"/>
+            <result property="applicantName" column="founderName"/>
+            <result property="reviewerName" column="reviewerName"/>
+            <result property="reviewTime" column="reviewTime"/>
+            <result property="createTime" column="createTime"/>
+        </association>
+    </resultMap>
+    <select id="getListV2" resultMap="getListV2">
+        select
+        wod.*,
+        wo.id woId,
+        wo.serial_number sn,
+        wo.applicant_name founderName,
+        wo.reviewer_name reviewerName,
+        wo.create_time createTime,
+        wo.review_time reviewTime,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        pm.name pmName,
+        pa.name paName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        ww.id wwId,
+        ww.name wwName,
+        su.name sname,
+        spo.serial_number spoNumber
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join contract_project p on p.id = wod.project_id
+        left join mes_building_workshop mbf on wod.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join sys_user su on su.id = wod.recipient_id
+        left join plan_monomer pm on pm.id = wod.monomer_id
+        left join plan_area pa on pa.id = wod.area_id
+        left join scm_purchase_order spo on spo.id = wod.purchase_id
+        where
+        wod.bool_delete_enum = 0
+        and wod.outboundType = 8
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="workshopId != null ">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outReviewStatus != null ">
+            AND wo.review_status = #{outReviewStatus}
+        </if>
+        <if test="recipientId != null ">
+            AND wod.recipient_id = #{recipientId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and wod.classify_id = #{classifyId}
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" workshopId != null">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test=" monomerId != null">
+            and wod.monomer_id = #{monomerId}
+        </if>
+        <if test=" areaId != null">
+            and wod.area_id = #{areaId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="outboundTypeSelection !=null">
+            and wod.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+    </select>
+
+    <resultMap id="getDownLoadOutsourcingDetail" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.DownLoadDetailDO">
+        <id column="id" property="id"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="specification" property="specification"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="amount_excluding_VAT" property="amountExcludingVat"/>
+        <result column="amount" property="amount"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="unit_price_excluding_VAT" property="unitPriceExcludingVAT"/>
+        <result column="reviewTime" property="reviewTime"/>
+        <result column="woSN" property="serialNumber"/>
+        <result column="pn" property="projectName"/>
+        <result column="pmName" property="monomerName"/>
+        <result column="projectNumber" property="projectNumber"/>
+        <result column="paName" property="areaName"/>
+        <result column="directionProjectSerialNumber" property="directionProjectSerialNumber"/>
+        <result column="p2n" property="directionProjectName"/>
+        <result column="pm2Name" property="directionMonomerName"/>
+        <result column="pa2Name" property="directionAreaName"/>
+        <result column="recipientName" property="recipientName"/>
+        <result column="recipientId" property="recipientId"/>
+        <result column="workshopName" property="workshopName"/>
+        <result column="warehouseName" property="warehouseName"/>
+        <!--        <result column="returnWarehouseName" property="returnWarehouseName"/>-->
+        <result column="returnTime" property="returnTime"/>
+        <result column="remark" property="remark"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="wap_id" property="wapId"/>
+        <result column="spoNumber" property="orderSerialNumber"/>
+        <result column="inputVat" property="inputVat"/>
+        <result column="suName" property="applicantName"/>
+        <result column="warStartTime" property="applicantTime"/>
+        <result column="outbound_time" property="outboundTime"/>
+        <association property="measure" javaType="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Measure">
+            <id column="id" property="id"/>
+            <id column="classification_id" property="classificationId"/>
+            <id column="measure_unit" property="measureUnit"/>
+            <id column="measure_precision" property="measurePrecision"/>
+            <id column="accounting_unit" property="accountingUnit"/>
+            <id column="accounting_precision" property="accountingPrecision"/>
+            <id column="rd_rate" property="rdRate"/>
+        </association>
+    </resultMap>
+    <select id="getDownLoadOutsourcingOrScrapsDetail" resultMap="getDownLoadOutsourcingDetail">
+        select
+        wod.*,
+        wm.*,
+        wo.serial_number woSN,
+        wo.applicant_id wai,
+        p.serial_number projectNumber,
+        wo.review_time reviewTime,
+        p.name pn,
+        pm.name pmName,
+        pa.name paName,
+        pm2.name pm2Name,
+        pa2.name pa2Name,
+        p2.name p2n,
+        p2.serial_number directionProjectSerialNumber,
+        u.name recipientName,
+        u.id recipientId,
+        wwork.name workshopName,
+        wc.name classifyName,
+        ww.name warehouseName,
+        spo.serial_number spoNumber,
+        su.name suName,
+        war.start_time warStartTime
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join contract_project p on p.id = wod.project_id
+        left join contract_project p2 on p2.id = wod.source_project_id
+        left join wms_classification wc on wod.classify_id = wc.id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join plan_monomer pm on pm.id = wod.monomer_id
+        left join plan_area pa on pa.id = wod.area_id
+        left join plan_monomer pm2 on pm2.id = wod.source_monomer_id
+        left join plan_area pa2 on pa2.id = wod.source_area_id
+        left join sys_user u on u.id = wod.recipient_id and u.bool_delete_enum = 0
+        left join mes_building_workshop mbw on mbw.id = wod.workshop_id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join scm_purchase_order spo on spo.id = wod.purchase_id
+        left join sys_user su on su.id = wo.applicant_id
+        left join wms_approve_record war on war.id = wo.approve_record_id
+        left join wms_workshop wwork on wod.source_workshop_id = wwork.id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="workshopId != null ">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d') &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d') &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wod.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="workshopId != null ">
+            AND wod.workshop_id = #{workshopId}
+        </if>
+        <if test="outboundTypeSelection !=null">
+            and wod.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        order by wod.id desc
+    </select>
+
+    <select id="steelCountMete" resultType="java.math.BigDecimal">
+        select
+        SUM(IFNULL(wod.mete,0))
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join sys_user su on su.id = wod.recipient_id
+        where
+        wod.bool_delete_enum = 0
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wod.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wod.bool_party_a = 0
+        </if>
+        <if test="workshopId != null ">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test="materialIsWhole != null ">
+            and wod.material_is_whole = #{materialIsWhole}
+        </if>
+        <if test="warehouseId != null ">
+            AND wod.warehouse_id = #{warehouseId}
+        </if>
+        <if test="outReviewStatus != null ">
+            AND wo.review_status = #{outReviewStatus}
+        </if>
+        <if test="recipientId != null ">
+            AND wod.recipient_id = #{recipientId}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d')  &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="outboundSN != null and outboundSN != '' ">
+            and wo.serial_number like CONCAT('%', #{outboundSN},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%')
+            or su.name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and wod.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="projectWarehouseType == 1 ">
+            and wod.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wod.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null ">
+            AND wod.project_id = #{projectId}
+        </if>
+        <if test=" workshopId != null">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test=" monomerId != null">
+            and wod.monomer_id = #{monomerId}
+        </if>
+        <if test=" areaId != null">
+            and wod.area_id = #{areaId}
+        </if>
+        <if test=" width != null">
+            and wod.width = #{width}
+        </if>
+        <if test=" length != null">
+            and wod.length = #{length}
+        </if>
+        -- 长度范围只用于钢卷查询,钢卷quantity计量量记录长度
+        <if test=" minLength != null">
+            and wod.quantity &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and wod.quantity &lt;= #{maxLength}
+        </if>
+        <if test=" theoryThickness != null">
+            and wod.theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and wod.thickness = #{thickness}
+        </if>
+        <if test=" color != null">
+            and wod.color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and wod.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and wod.heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="brand != null and brand != ''">
+            AND wod.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="factoryId != null and factoryId != ''">
+            and wo.factory_id = #{factoryId}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and wod.source_workshop_id in
+            <foreach collection="sourceWorkshopIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectCountMeteAndAmount"
+            resultType="com.hzchum.scim.common.core.api.pojo.dto.BasicClassMeteAndAmountDTO">
+        select
+        wod.project_id projectId,
+        wod.basic_class basicClass,
+        SUM( wod.mete ) mete,
+        SUM( wod.amount ) amount,
+        SUM( wod.amount_excluding_vat ) amount_excluding_vat,
+        DATE_FORMAT(wo.review_time, '%Y-%m') time
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id and wo.bool_delete_enum = 0
+        where wod.bool_delete_enum = 0
+        <if test="reviewStatus != null and reviewStatus != ''">
+            and wo.review_status = #{reviewStatus}
+        </if>
+        <if test="basicClassList != null and basicClassList.size > 0">
+            and wod.basic_class in
+            <foreach collection="basicClassList" item="basicClass" open="(" separator="," close=")">
+                #{basicClass}
+            </foreach>
+        </if>
+        <if test="yearMonthListStr != null and yearMonthListStr.size > 0">
+            and
+            <foreach collection="yearMonthListStr" item="yearMonthStr" open="(" separator=" or " close=")">
+                DATE_FORMAT(wo.review_time, '%Y-%m') = #{yearMonthStr}
+            </foreach>
+        </if>
+        <if test="projectIds != null and projectIds.size > 0">
+            and wod.project_id in
+            <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="projectIds == null or projectIds.size == 0">
+            and wod.project_id is null
+        </if>
+        <if test="notClassifyIds != null and notClassifyIds.size > 0">
+            and wod.classify_id not in
+            <foreach collection="notClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        <if test="getClassifyIds != null and getClassifyIds.size > 0">
+            and wod.classify_id in
+            <foreach collection="getClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        group by wod.project_id,wod.basic_class,DATE_FORMAT(wo.review_time, '%Y-%m')
+    </select>
+
+    <resultMap id="OutboundDetailDOGroupCount" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.CommonDetailsDO">
+        <result column="yearMonth" property="yearMonth"/>
+        <result column="type" property="type"/>
+        <result column="basicClass" property="basicClass"/>
+        <result column="classifyId" property="classifyId"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="specification" property="specification"/>
+        <result column="brand" property="brand"/>
+        <result column="measureUnit" property="measureUnit"/>
+        <result column="quantityCount" property="quantityCount"/>
+        <result column="accountingUnit" property="accountingUnit"/>
+        <result column="meteCount" property="meteCount"/>
+        <result column="unitPrice" property="unitPrice"/>
+        <result column="unitPriceExcludingVAT" property="unitPriceExcludingVAT"/>
+        <result column="amountCount" property="amountCount"/>
+        <result column="amountExcludingVatCount" property="amountExcludingVatCount"/>
+        <result column="serialNumber" property="serialNumber"/>
+        <result column="workshopId" property="workshopId"/>
+        <result column="workshopName" property="workshopName"/>
+    </resultMap>
+
+    <select id="groupOutboundDetail"
+            resultMap="OutboundDetailDOGroupCount">
+        select
+            DATE_FORMAT(wo.review_time, '%Y-%m') as yearMonth,
+            '出库' as type,
+            wc.id as classifyId,
+            wc.basic_class as basicClass,
+            wc.name as classifyName,
+            wod.length as length,
+            wod.width as width,
+            wod.thickness as thickness,
+            wod.specification as specification,
+            wod.brand as brand,
+            wm.measure_unit as measureUnit,
+            SUM(wod.quantity) as quantityCount,
+            wm.accounting_unit as accountingUnit,
+            SUM(wod.mete) as meteCount,
+            SUM( wod.unit_price ) / count(1) AS unitPrice,
+            SUM( wod.unit_price_excluding_vat ) / count(1) AS unitPriceExcludingVAT,
+            SUM( wod.amount ) as amountCount,
+            SUM( wod.amount_excluding_VAT ) as amountExcludingVatCount,
+            wo.serial_number as serialNumber,
+            mbw.id as workshopId,
+            mbw.name workshopName
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id and wo.bool_delete_enum = 0
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join mes_building_workshop mbw on mbw.id = wod.workshop_id
+        left join wms_classification wc on wod.classify_id = wc.id
+        where wod.bool_delete_enum = 0
+        <if test="reviewStatus != null and reviewStatus != ''">
+            and wo.review_status = #{reviewStatus}
+        </if>
+        <if test="basicClassList != null and basicClassList.size > 0">
+            and wod.basic_class in
+            <foreach collection="basicClassList" item="basicClass" open="(" separator="," close=")">
+                #{basicClass}
+            </foreach>
+        </if>
+        <if test="projectId != null">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            and wod.project_id is null
+        </if>
+        <if test="yearMonthListStr != null and yearMonthListStr.size > 0">
+            and
+            <foreach collection="yearMonthListStr" item="yearMonthStr" open="(" separator="or" close=")">
+                DATE_FORMAT(wo.review_time, '%Y-%m') = #{yearMonthStr}
+            </foreach>
+        </if>
+        <if test="notClassifyIds != null and notClassifyIds.size > 0">
+            and wod.classify_id not in
+            <foreach collection="notClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        <if test="getClassifyIds != null and getClassifyIds.size > 0">
+            and wod.classify_id in
+            <foreach collection="getClassifyIds" item="classifyId" open="(" separator="," close=")">
+                #{classifyId}
+            </foreach>
+        </if>
+        group by
+            DATE_FORMAT(wo.review_time, '%Y-%m'),
+            wc.basic_class,
+            wc.id,
+            wod.specification,
+            wod.length,
+            wod.width,
+            wod.thickness,
+            wm.measure_unit,
+            wod.brand,
+            wm.accounting_unit,
+            wo.serial_number,
+            wm.measure_unit,
+            mbw.id
+    </select>
+    <select id="projectSteelPickingStatistics"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        select
+        wod.*
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wod.outbound_id = wo.id
+        where
+        wod.bool_delete_enum = 0
+        and wod.project_id is not null
+        and wo.outbound_type_selection in (1,128)
+        and wod.basic_class in (1,2,4,256)
+        and wo.review_status = 2
+        <if test="time !=null and time !=''">
+            and DATE_FORMAT(wo.review_time, '%Y') = #{time}
+        </if>
+        <if test="workshopId != null">
+            and wod.workshop_id = #{workshopId}
+        </if>
+        <if test="timeOne != null and timeOne !=''">
+            and DATE_FORMAT(wo.review_time, '%Y-%m') = #{timeOne}
+        </if>
+    </select>
+
+
+    <resultMap id="DeviceDetail" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DeviceDetailDTO">
+        <result column="receive_id" property="receiveId"/>
+        <result column="receive_detail_id" property="receiveDetailId"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVat"/>
+
+    </resultMap>
+
+    <select id="getDeviceDetail" resultMap="DeviceDetail">
+        select receive_id,receive_detail_id,amount,amount_excluding_vat from wms_move_outbound_detail where  bool_delete_enum=0
+        <if test="receiveId != null ">
+            and receive_id = #{receiveId}
+        </if>
+        <if test="receiveDetailId != null and receiveDetailId.size()>0">
+            and receive_detail_id in
+            <foreach collection="receiveDetailId" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <resultMap id="projectPicking" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ProjectPickingDTO">
+        <id column="id" property="id"/>
+        <result column="classifyName" property="classifyName"/>
+        <result column="thickness" property="thickness"/>
+        <result column="width" property="width"/>
+        <result column="length" property="length"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="actual_theory_weight" property="actualTheoryWeight"/>
+        <result column="outbound_time" property="time"/>
+        <result column="recipientName" property="recipientName"/>
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+    </resultMap>
+    <select id="getProjectPicking"
+            resultMap="projectPicking">
+        select
+        wod.*,
+        case
+        when wod.basic_class = 1 then wod.actual_theory_weight
+        else wod.mete
+        end as actual_theory_weight,
+        wc.id classifyId,
+        wc.name classifyName,
+        su.name recipientName
+        from
+        wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join wms_classification wc on wc.id = wod.classify_id
+        left join sys_user su on su.id = wod.recipient_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wo.outbound_type_selection in (1,128)
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="basicClass == 1">
+            <if test="thickness != null">
+                and wod.thickness = #{thickness}
+            </if>
+            <if test="material != null and material != ''">
+                and wod.specification = #{material}
+            </if>
+        </if>
+        <if test="basicClass == 2">
+            <if test="specification != null and specification != ''">
+                and (wod.specification = #{specification} or wod.specification = #{prefixSpecification})
+            </if>
+        </if>
+        <if test="basicClass == null">
+            and wod.basic_class in (1,2)
+        </if>
+        <if test="projectId != null">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="workShopId">
+            and wod.workshop_id = #{workShopId}
+        </if>
+    </select>
+
+    <resultMap id="projectPickingSteelMeteCount" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ProjectPickingDTO">
+        <result column="basicClass" property="basicClass"/>
+        <result column="thickness" property="thickness"/>
+        <result column="meteCount" property="meteCount"/>
+        <result column="actual_theory_weight" property="actualTheoryWeight"/>
+    </resultMap>
+    <select id="getProjectPickingSteelMete"
+            resultMap="projectPickingSteelMeteCount">
+        select
+        wod.basic_class basicClass,
+        wod.thickness  thickness,
+        wod.specification specification,
+        sum(wod.actual_theory_weight) as actual_theory_weight,
+        sum(wod.mete) meteCount
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wo.outbound_type_selection in (1,128)
+        and wod.basic_class = 1
+        <if test="projectId != null">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="workShopId">
+            and wod.workshop_id = #{workShopId}
+        </if>
+        group by wod.basic_class,wod.thickness,wod.specification
+    </select>
+
+    <resultMap id="projectPickingSectionSteelMeteCount" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.ProjectPickingDTO">
+        <result column="basicClass" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="meteCount" property="meteCount"/>
+    </resultMap>
+    <select id="getProjectPickingSectionSteelMete"
+            resultMap="projectPickingSectionSteelMeteCount">
+        select
+        wod.basic_class basicClass,
+        wod.specification  specification,
+        sum(wod.mete) meteCount
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        where
+        wod.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wo.outbound_type_selection in (1,128)
+        and wod.basic_class = 2
+        <if test="projectId != null">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="workShopId">
+            and wod.workshop_id = #{workShopId}
+        </if>
+        group by wod.basic_class,wod.specification
+    </select>
+    <select id="getGroupByProjectOutboundMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.IdAndMete">
+        SELECT
+            wmod.project_id id,
+            IFNULL(SUM( wmod.mete ), 0 ) / 1000000 AS mete
+        FROM wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE wmod.bool_delete_enum = 0
+          AND wo.review_status = 2
+          AND wo.outbound_type_selection = 1
+          AND wo.outbound_type_selection = 1
+          AND wmod.basic_class &amp; 263 > 0
+        GROUP BY wmod.project_id
+    </select>
+    <select id="getGroupByMesWorkshopOutboundMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.IdAndMete">
+        SELECT
+            wmod.workshop_id id,
+            IFNULL(SUM( wmod.mete ), 0 ) / 1000000 AS mete
+        FROM wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE wmod.bool_delete_enum = 0
+          AND wo.review_status = 2
+          AND wo.outbound_type_selection = 1
+          AND wmod.basic_class &amp; 263 > 0
+        GROUP BY wmod.workshop_id
+    </select>
+    <select id="getGroupByMonthOutboundSummary" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.lossWorkProgressStatistics.WastageCostSummaryValueDTO">
+        SELECT
+        1 AS lossWorkProgressStatisticsEnum,
+        ym_t.`year_month`,
+        IFNULL(ROUND(wmod_t.productMonthOutput,3),0) AS productMonthOutput
+        FROM (
+        <foreach collection="yearMonthDateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year_month`
+        </foreach>
+        ) ym_t
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT( wmod.create_time, '%Y-%m' ) AS `year_month`,
+        IFNULL(SUM( wmod.mete ), 0 ) / 1000000 AS productMonthOutput
+        FROM wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE
+          wmod.bool_delete_enum = 0
+        AND wo.review_status = 2
+        AND wo.outbound_type_selection = 1
+        AND wmod.basic_class &amp; 263 > 0
+        <if test="projectId != null">
+            and wmod.project_id = #{projectId}
+        </if>
+        <if test="workShopId != null">
+            and wmod.workshop_id = #{workShopId}
+        </if>
+        <if test="minYearMonth != null">
+            AND date_format(wmod.create_time, '%Y-%m') >= #{minYearMonth}
+        </if>
+        <if test="maxYearMonth != null">
+            AND date_format(wmod.create_time, '%Y-%m') &lt;= #{maxYearMonth}
+        </if>
+        GROUP BY
+        DATE_FORMAT( wmod.create_time, '%Y-%m' )
+        ) wmod_t ON ym_t.`year_month` = wmod_t.`year_month`
+    </select>
+    <select id="getOutboundDetailList" resultMap="getList">
+        SELECT
+            wod.*,
+            wo.id woId,
+            wo.serial_number sn,
+            wo.applicant_name founderName,
+            wo.reviewer_name reviewerName,
+            wo.create_time createTime,
+            wo.review_time reviewTime,
+            p.id pid,
+            p.short_name psName,
+            p.serial_number pSN,
+            p.name pn,
+            pm.name pmName,
+            pa.name paName,
+            mbf.id mbfId,
+            mbf.name mbfName,
+            wwork.id wworkId,
+            wwork.name wworkName,
+            wm.measure_unit         wmu,
+            wm.measure_precision    wmp,
+            wm.accounting_unit      wau,
+            wm.accounting_precision wap,
+            ww.id wwId,
+            ww.name wwName,
+            su.name sname,
+            spo.serial_number spoNumber,
+            u.name uName,
+            war.start_time warStartTime,
+            wo.bool_scheduling boolScheduling,
+            wo.outbound_type_selection woType
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id
+        left join wms_measure wm on wm.classification_id = wod.classify_id
+        left join contract_project p on p.id = wod.project_id
+        left join mes_building_workshop mbf on wod.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wod.warehouse_id
+        left join sys_user su on su.id = wod.recipient_id
+        left join plan_monomer pm on pm.id = wod.monomer_id
+        left join plan_area pa on pa.id = wod.area_id
+        left join wms_for_sale_detail wfsd on wfsd.outbound_detail_id = wod.id
+            and wfsd.bool_delete_enum = 0
+            and exists (select 1 from wms_for_sale sale_parent
+                        where sale_parent.serial_number = wfsd.for_sale_serial_number
+                          and sale_parent.outbound_id = wod.outbound_id
+                          and sale_parent.bool_delete_enum = 0)
+        left join scm_purchase_order spo on spo.id = wod.purchase_id
+        left join sys_user u on u.id = wo.applicant_id
+        left join wms_approve_record war on war.id = wo.approve_record_id
+        left join wms_workshop wwork on wod.source_workshop_id = wwork.id
+        LEFT JOIN wms_classification wcf ON wod.classify_id = wcf.id
+        WHERE
+            wod.bool_delete_enum = 0
+          AND wo.review_status = 2
+          AND wo.outbound_type_selection = 1
+          AND wod.basic_class &amp; 263 > 0
+        <if test="basicClass != null ">
+            and wod.basic_class = #{basicClass}
+        </if>
+        <if test="projectId != null ">
+            and wod.project_id = #{projectId}
+        </if>
+        <if test="workShopId != null ">
+            and wod.workshop_id = #{workShopId}
+        </if>
+        <if test="dateTimeList != null and dateTimeList.size()>0">
+            <if test="dateTimeList[0] != null">
+                AND date_format(wod.create_time, '%Y-%m-%d')  &gt;= date_format(#{dateTimeList[0]}, '%Y-%m-%d')
+            </if>
+            <if test="dateTimeList[1] != null">
+                AND date_format(wod.create_time, '%Y-%m-%d')  &lt;= date_format(#{dateTimeList[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="classifyName != null and classifyName!=''">
+            and wcf.name like CONCAT('%', #{classifyName},'%')
+        </if>
+    </select>
+    <select id="getMaterialLossMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsDateMeteDTO">
+        SELECT
+        temp1.dateTime as dateTime,
+        (temp1.mete - IFNULL(temp2.mete, 0)) / 1000 as mete
+        FROM
+        (
+        SELECT
+        DATE_FORMAT(wmod.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wmod.mete ), 0 ) mete
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        and wo.outbound_type_selection = 1
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND wmod.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="basicClassEnum != null">
+            AND wmod.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        <if test="startDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y-%m") >= DATE_FORMAT(#{startDate}, "%Y-%m")
+        </if>
+        <if test="endDate!=null">
+            AND DATE_FORMAT(#{endDate}, "%Y-%m") >= DATE_FORMAT(wmod.create_time, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by DATE_FORMAT(wmod.create_time, "%Y-%m")
+        ) AS temp1
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(wrd.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wrd.mete ), 0 ) mete
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        LEFT JOIN wms_material_returnable wmr ON wrd.material_returnable_id = wmr.id AND wmr.bool_delete_enum = 0
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND wrd.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="basicClassEnum != null">
+            AND wrd.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        <if test="startDate!=null">
+            AND DATE_FORMAT(wrd.create_time, "%Y-%m") >= DATE_FORMAT(#{startDate}, "%Y-%m")
+        </if>
+        <if test="endDate!=null">
+            AND DATE_FORMAT(#{endDate}, "%Y-%m") >= DATE_FORMAT(wrd.create_time, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmr.workshop_id = #{workshopId}
+        </if>
+        and wr.outbound_type_selection = 1
+        group by DATE_FORMAT(wrd.create_time, "%Y-%m" )
+        ) temp2 ON temp1.dateTime = temp2.dateTime
+    </select>
+    <select id="getMaterialLossDetails" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report.ProjectMeteDTO">
+        SELECT
+        cp.id AS 'projectInfo.id',
+        cp.`name` AS 'projectInfo.name',
+        cp.short_name AS 'projectInfo.short_name',
+        cp.serial_number AS 'projectInfo.serial_number',
+        (IFNULL(a.outMete,0) - IFNULL(c.returnMete,0)) / 1000 as loseMete,
+        IFNULL(b.mete,0) as mete,
+        CASE
+            WHEN IFNULL(a.outMete,0) - IFNULL(c.returnMete,0) = 0 THEN 0
+            WHEN b.mete IS NULL THEN 0
+            ELSE ROUND(((IFNULL(a.outMete,0) - IFNULL(c.returnMete,0)) / 1000 - IFNULL(b.mete,0)) * 100 / ((IFNULL(a.outMete,0) - IFNULL(c.returnMete,0)) / 1000), 2)
+        END AS ratio
+        FROM
+        contract_project as cp
+        LEFT join(
+        SELECT
+        wmod.project_id,
+        IFNULL( SUM( wmod.mete ), 0 )  as outMete
+        FROM
+        wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        and wo.outbound_type_selection = 1
+        and wmod.project_id is not null
+        <if test="basicClass != null">
+            AND wmod.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="mouthDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y-%m") = DATE_FORMAT(#{mouthDate}, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by wmod.project_id
+        )a on a.project_id = cp.id
+
+        LEFT JOIN (
+        SELECT
+        complete.project_id,
+        sum(complete.quantity * artifact.net_weight) as mete
+        FROM
+        mes_building_complete complete
+        LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id and artifact.bool_delete_enum = 0
+        LEFT JOIN contract_project as cp on cp.id = artifact.project_id and cp.bool_delete_enum = FALSE
+        WHERE
+        complete.task_type_enum = 2
+        and complete.bool_delete_enum = 0
+        <if test="mouthDate!=null">
+            AND DATE_FORMAT(complete.create_time, "%Y-%m" ) = DATE_FORMAT(#{mouthDate}, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = cp.id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND complete.workshop_id = #{workshopId}
+        </if>
+        group by complete.project_id
+        )b ON b.project_id = cp.id
+
+        LEFT JOIN (
+        SELECT
+        wrd.project_id,
+        IFNULL( SUM( wrd.mete ), 0 ) returnMete
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        LEFT JOIN wms_material_returnable wmr ON wrd.material_returnable_id = wmr.id AND wmr.bool_delete_enum = 0
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        and wr.outbound_type_selection = 1
+        AND wrd.project_id is not null
+        <if test="basicClass != null">
+            AND wrd.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="mouthDate!=null">
+            AND DATE_FORMAT(wrd.create_time, "%Y-%m") = DATE_FORMAT(#{mouthDate}, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmr.workshop_id = #{workshopId}
+        </if>
+        group by wrd.project_id
+        )c on c.project_id = cp.id
+        where b.mete is not null or (IFNULL(a.outMete,0) - IFNULL(c.returnMete,0)) != 0
+    </select>
+    <select id="getMaterialLossCost" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.DateCostDTO">
+        SELECT
+        temp1.dateTime as dateTime,
+        temp1.classify_id as classifyId,
+        wc.name as classifyName,
+        (temp1.amount - IFNULL(temp2.amount, 0))  as amount,
+        (temp1.amount_excluding_vat - IFNULL(temp2.amount_excluding_vat, 0))  as amount_excluding_vat
+        FROM
+        (
+        SELECT
+        DATE_FORMAT( wmod.create_time, "%Y-%m" ) AS dateTime,
+        wmod.classify_id,
+        IFNULL( SUM( wmod.amount), 0 ) amount,
+        IFNULL( SUM( wmod.amount_excluding_vat), 0 ) amount_excluding_vat
+        FROM
+        wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.review_status = 2
+        and wo.outbound_type_selection = 1
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND wmod.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="basicClassEnum != null">
+            AND wmod.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by
+        DATE_FORMAT(wmod.create_time, "%Y-%m"),
+        wmod.classify_id
+        ) AS temp1
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT( wrd.create_time, "%Y-%m" ) AS dateTime,
+        wrd.classify_id,
+        IFNULL( SUM( wrd.amount), 0 ) amount,
+        IFNULL( SUM( wrd.amount_excluding_vat), 0 ) amount_excluding_vat
+        FROM
+        wms_return_detail AS wrd
+        LEFT JOIN wms_return AS wr ON wrd.return_id = wr.id AND wr.bool_delete_enum = 0
+        LEFT JOIN wms_material_returnable wmr ON wrd.material_returnable_id = wmr.id AND wmr.bool_delete_enum = 0
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.review_status = 2
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND wrd.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="basicClassEnum != null">
+            AND wrd.basic_class &amp; #{basicClassEnum} > 0
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wrd.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmr.workshop_id = #{workshopId}
+        </if>
+        and wr.outbound_type_selection = 1
+        group by
+        DATE_FORMAT(wrd.create_time, "%Y-%m"),
+        wrd.classify_id
+        ) temp2 ON temp1.dateTime = temp2.dateTime and temp1.classify_id = temp2.classify_id
+        LEFT join wms_classification wc on temp1.classify_id = wc.id AND wc.bool_delete_enum = 0
+    </select>
+    <select id="getMaterialOutMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.CommonSummaryDTO">
+        SELECT
+        DATE_FORMAT(wmod.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wmod.mete ), 0 ) totalMete,
+        IFNULL( SUM( wmod.amount_excluding_vat ), 0 ) totalCost
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        <if test="basicClass != null">
+            AND wmod.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by DATE_FORMAT(wmod.create_time, "%Y-%m")
+    </select>
+    <select id="getOperationsAnalysisOutDetails" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        SELECT
+        wmod.*
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        <if test="basicClass != null">
+            AND wmod.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wmod.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="mouthDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y-%m") = DATE_FORMAT(#{mouthDate}, "%Y-%m")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        <if test="projectId!=null">
+            AND wmod.project_id = #{projectId}
+        </if>
+        order by wmod.create_time desc
+    </select>
+    <select id="getProjectOutSummaryList" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.ProjectOutSummaryDTO">
+        SELECT
+        p.id as 'project.id',
+        p.name as 'project.name',
+        p.short_name as 'project.shortName',
+        p.serial_number as 'project.serialNumber',
+        (IFNULL(temp1.total_mete,0) - IFNULL(temp2.total_mete,0))  / 1000 as outMete,
+        (IFNULL(temp1.current_month_mete,0) - IFNULL(temp2.current_month_mete,0)) / 1000 as currentOutMete,
+        (IFNULL(temp1.last_month_mete,0) - IFNULL(temp2.last_month_mete,0)) / 1000 as lastOutMete
+        FROM
+        contract_project p
+        LEFT JOIN
+        (
+        SELECT
+        wmod.project_id,
+        IFNULL(SUM(wmod.mete), 0) AS total_mete,
+        IFNULL(SUM(CASE WHEN DATE_FORMAT(wmod.create_time, "%Y-%m") = DATE_FORMAT(CURRENT_DATE(), "%Y-%m") THEN wmod.mete ELSE 0 END), 0) AS current_month_mete,
+        IFNULL(SUM(CASE WHEN DATE_FORMAT(wmod.create_time, "%Y-%m") = DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), "%Y-%m") THEN wmod.mete ELSE 0 END), 0) AS last_month_mete
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        AND wo.outbound_type_selection = 1
+        <if test="basicClass != null">
+            AND wmod.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by wmod.project_id
+        ) AS temp1 ON temp1.project_id  = p.id
+        LEFT JOIN (
+        SELECT
+        wrd.project_id,
+        IFNULL(SUM(wrd.mete), 0) AS total_mete,
+        IFNULL(SUM(CASE WHEN DATE_FORMAT(wrd.create_time, "%Y-%m") = DATE_FORMAT(CURRENT_DATE(), "%Y-%m") THEN wrd.mete ELSE 0 END), 0) AS current_month_mete,
+        IFNULL(SUM(CASE WHEN DATE_FORMAT(wrd.create_time, "%Y-%m") = DATE_FORMAT(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH), "%Y-%m") THEN wrd.mete ELSE 0 END), 0) AS last_month_mete
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        AND wr.outbound_type_selection = 1
+        <if test="basicClass != null">
+            AND wrd.basic_class &amp; #{basicClass} > 0
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wrd.create_time, "%Y") >= DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wrd.workshop_id = #{workshopId}
+        </if>
+        group by wrd.project_id
+        ) temp2 ON temp2.project_id = p.id
+        where p.bool_delete_enum = 0
+        <if test="status!=null">
+            AND p.status = #{status}
+        </if>
+    </select>
+    <select id="getGroupByMonthOutbound" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.lossWorkProgressStatistics.WastageCostSummaryValueDTO">
+        SELECT
+        DATE_FORMAT( wmod.create_time, '%Y-%m' ) AS `year_month`,
+        IFNULL(SUM( wmod.mete ), 0 ) / 1000 AS productMonthOutput
+        FROM wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE
+        wmod.bool_delete_enum = 0
+        AND wo.review_status = 2
+        AND wo.outbound_type_selection = 1
+        AND wmod.basic_class &amp; 263 > 0
+        <if test="projectId != null">
+            and wmod.project_id = #{projectId}
+        </if>
+        GROUP BY
+        DATE_FORMAT( wmod.create_time, '%Y-%m' )
+    </select>
+    <select id="getMainOutMeteV2" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsDateMeteDTO">
+        SELECT
+        y_t.`year` as `dateTime`,
+        (IFNULL(temp1.mete, 0) - IFNULL(temp2.mete, 0)) as mete
+        FROM (
+        <foreach collection="dateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y') as `year`
+        </foreach>
+        ) y_t
+        LEFT JOIN
+        (
+        SELECT
+        DATE_FORMAT(wmod.create_time, "%Y") as dateTime,
+        IFNULL( SUM( wmod.mete ), 0 ) mete
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        and wo.outbound_type_selection = 1
+        AND wmod.basic_class &amp; 263 > 0
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by DATE_FORMAT(wmod.create_time, "%Y")
+        ) AS temp1 ON temp1.dateTime = y_t.`year`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(wrd.create_time, "%Y") as dateTime,
+        IFNULL( SUM( wrd.mete ), 0 ) mete
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        LEFT JOIN wms_material_returnable wmr ON wrd.material_returnable_id = wmr.id AND wmr.bool_delete_enum = 0
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        AND wrd.basic_class &amp; 263 > 0
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmr.workshop_id = #{workshopId}
+        </if>
+        and wr.outbound_type_selection = 1
+        group by DATE_FORMAT(wrd.create_time, "%Y" )
+        ) temp2  ON temp2.dateTime = y_t.`year`
+    </select>
+    <select id="getMainOutMeteDetailV2" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsDateMeteDTO">
+        SELECT
+        y_t.`year` as `dateTime`,
+        (IFNULL(temp1.mete, 0) - IFNULL(temp2.mete, 0)) as mete
+        FROM (
+        <foreach collection="dateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year`
+        </foreach>
+        ) y_t
+        LEFT JOIN
+        (
+        SELECT
+        DATE_FORMAT(wmod.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wmod.mete ), 0 ) mete
+        FROM
+        wms_move_outbound_detail wmod
+        INNER JOIN wms_outbound wo ON wmod.outbound_id = wo.id
+        WHERE wmod.bool_delete_enum = 0
+        AND wo.bool_delete_enum = 0
+        AND wo.review_status = 2
+        and wo.outbound_type_selection = 1
+        AND wmod.basic_class &amp; 263 > 0
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wmod.project_id
+            )
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmod.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="workshopId!=null">
+            AND wmod.workshop_id = #{workshopId}
+        </if>
+        group by DATE_FORMAT(wmod.create_time, "%Y-%m")
+        ) AS temp1 ON temp1.dateTime = y_t.`year`
+        LEFT JOIN (
+        SELECT
+        DATE_FORMAT(wrd.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wrd.mete ), 0 ) mete
+        FROM
+        wms_return_detail AS wrd
+        INNER JOIN wms_return AS wr ON wrd.return_id = wr.id
+        LEFT JOIN wms_material_returnable wmr ON wrd.material_returnable_id = wmr.id AND wmr.bool_delete_enum = 0
+        WHERE wrd.bool_delete_enum = 0
+        AND wr.bool_delete_enum = 0
+        AND wr.review_status = 2
+        AND wrd.basic_class &amp; 263 > 0
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE AND pbcl.branch_company_level = 2
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = wrd.project_id
+            )
+        </if>
+        <if test="workshopId!=null">
+            AND wmr.workshop_id = #{workshopId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wmr.create_time, "%Y") >= DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        and wr.outbound_type_selection = 1
+        group by DATE_FORMAT(wrd.create_time, "%Y-%m" )
+        ) temp2  ON temp2.dateTime = y_t.`year`
+    </select>
+    <select id="getMaterialOutMeteV2" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.CommonSummaryDTO">
+        select
+        DATE_FORMAT(wid.create_time, "%Y-%m") as dateTime,
+        IFNULL( SUM( wid.mete ), 0 ) totalMete,
+        IFNULL( SUM( wid.amount_excluding_vat ), 0 ) totalCost
+        from wms_statistics_outbound wid
+        where
+        wid.bool_delete_enum = 0
+        <if test=" basicClass != null">
+            and wid.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and wid.classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(wid.create_time, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS (SELECT 1 FROM project_branch_company_link pbcl
+                WHERE pbcl.bool_delete_enum=0 AND pbcl.branch_company_level=2
+                AND pbcl.branch_company_id=#{branchCompanyId} AND pbcl.project_id=wid.project_id)
+        </if>
+        <if test="workshopId!=null">
+            AND wid.workshop_id=#{workshopId}
+        </if>
+        group by DATE_FORMAT(wid.create_time, "%Y-%m")
+    </select>
+    <select id="getListById" resultMap="getList">
+        select
+            wod.*,
+            wo.id woId,
+            wo.serial_number sn,
+            wo.applicant_name founderName,
+            wo.reviewer_name reviewerName,
+            wo.create_time createTime,
+            wo.review_time reviewTime,
+            p.id pid,
+            p.short_name psName,
+            p.serial_number pSN,
+            p.name pn,
+            pm.name pmName,
+            pa.name paName,
+            mbf.id mbfId,
+            mbf.name mbfName,
+            wwork.id wworkId,
+            wwork.name wworkName,
+            wm.measure_unit         wmu,
+            wm.measure_precision    wmp,
+            wm.accounting_unit      wau,
+            wm.accounting_precision wap,
+            ww.id wwId,
+            ww.name wwName,
+            su.name sname,
+            spo.serial_number spoNumber,
+            u.name uName,
+            war.start_time warStartTime,
+            wo.bool_scheduling boolScheduling,
+            wo.outbound_type_selection woType,
+            batch.name areaBatchName,
+            wo.child_order_number childOrderNumber
+        from wms_move_outbound_detail wod
+         left join wms_outbound wo on wo.id = wod.outbound_id
+         left join wms_measure wm on wm.classification_id = wod.classify_id
+         left join contract_project p on p.id = wod.project_id
+         left join mes_building_workshop mbf on wod.workshop_id = mbf.id
+         left join wms_warehouse ww on ww.id = wod.warehouse_id
+         left join sys_user su on su.id = wod.recipient_id
+         left join plan_monomer pm on pm.id = wod.monomer_id
+         left join plan_area pa on pa.id = wod.area_id
+         left join wms_for_sale_detail wfsd on wfsd.outbound_detail_id = wod.id
+             and wfsd.bool_delete_enum = 0
+             and exists (select 1 from wms_for_sale sale_parent
+                         where sale_parent.serial_number = wfsd.for_sale_serial_number
+                           and sale_parent.outbound_id = wod.outbound_id
+                           and sale_parent.bool_delete_enum = 0)
+         left join scm_purchase_order spo on spo.id = wod.purchase_id
+         left join sys_user u on u.id = wo.applicant_id
+         left join wms_approve_record war on war.id = wo.approve_record_id
+         left join wms_workshop wwork on wod.source_workshop_id = wwork.id
+         left join plan_area_batch batch on batch.id  = wod.area_batch_id and batch.bool_delete_enum = 0
+        where
+            wod.bool_delete_enum = 0
+          AND wo.review_status = 2
+          and wod.outbound_id  in
+        <foreach item="id" index="index" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getMaterialOutboundMete" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM( wmod.mete ), 0 )  AS mete
+        FROM wms_move_outbound_detail wmod
+        LEFT JOIN wms_outbound wo ON wmod.outbound_id = wo.id AND wo.bool_delete_enum = 0
+        WHERE wmod.bool_delete_enum = 0
+          AND wo.review_status = 2
+          AND wo.outbound_type_selection in (1,128)
+          AND wmod.project_id = #{projectId}
+          AND wmod.classify_id = #{classifyId}
+    </select>
+    <select id="getListNewOne" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDetailDO">
+        select
+        wod.*,
+        wo.id woId,
+        wo.serial_number sn,
+        wo.applicant_name founderName,
+        wo.reviewer_name reviewerName,
+        wo.create_time createTime,
+        wo.review_time reviewTime,
+        wo.bool_scheduling boolScheduling,
+        wo.outbound_type_selection woType,
+        wo.child_order_number childOrderNumber
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id and wo.bool_delete_enum = 0
+        where
+        wod.bool_delete_enum = 0
+        and wod.bool_party_a = 0
+        and wo.review_status = 2
+        <if test="sourceWorkshopId != null and sourceWorkshopId != ''">
+            and wod.source_workshop_id = #{sourceWorkshopId}
+        </if>
+        <if test="basicClass != null and basicClass != ''">
+            and wod.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &gt;= date_format(#{outboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="outboundTime[1] != null">
+                AND date_format(wo.review_time, '%Y-%m-%d') &lt;= date_format(#{outboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="factoryId != null">
+            and wod.permission_factory_id = #{factoryId}
+        </if>
+    </select>
+    <select id="selectPassDetail" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDetailDO">
+        select
+            wod.*,
+            wo.review_time reviewTime
+        from wms_move_outbound_detail wod
+        left join wms_outbound wo on wo.id = wod.outbound_id and wo.bool_delete_enum = 0  and wo.review_status = 2
+        where
+        wod.bool_delete_enum = 0
+        and wod.bool_party_a = 0
+        <if test="workshopId != null and workshopId != ''">
+            and wod.source_workshop_id = #{workshopId}
+        </if>
+        <if test="startDay != null">
+            and wo.review_time &gt;= #{startDay}
+        </if>
+        <if test="endDay != null">
+            and wo.review_time &lt;= #{endDay}
+        </if>
+        <if test="projectIds != null and projectIds.size > 0">
+            and wod.project_id in
+            <foreach collection="projectIds" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="basicClass != null and basicClass != ''">
+            and wod.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+    </select>
+</mapper>

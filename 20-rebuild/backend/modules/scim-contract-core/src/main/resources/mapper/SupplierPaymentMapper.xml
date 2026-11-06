@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.SupplierPaymentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.SupplierPayment">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="property_type" property="propertyType"/>
+        <result column="order_id" property="orderId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="apply_amount" property="applyAmount"/>
+        <result column="apply_user_id" property="applyUserId"/>
+        <result column="apply_user_name" property="applyUserName"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_user_name" property="auditUserName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="actually_payment_amount" property="actuallyPaymentAmount"/>
+        <result column="payment_date" property="paymentDate"/>
+        <result column="payment_unit_id" property="paymentUnitId"/>
+        <result column="payment_unit" property="paymentUnit"/>
+        <result column="payment_bank" property="paymentBank"/>
+        <result column="payment_bank_account" property="paymentBankAccount"/>
+        <result column="receiving_unit_id" property="receivingUnitId"/>
+        <result column="receiving_unit" property="receivingUnit"/>
+        <result column="receive_bank" property="receiveBank"/>
+        <result column="receive_bank_account" property="receiveBankAccount"/>
+        <result column="attachments" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo._do.SupplierPayment">
+        select *
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+        <if test="orderId != null">
+            and order_id = #{orderId}
+        </if>
+        <if test="propertyType != null">
+            and property_type &amp; #{propertyType} > 0
+        </if>
+        <if test="paymentUnitId != null">
+            and payment_unit_id =  #{paymentUnitId}
+        </if>
+        <if test="supplierId != null">
+            and receiving_unit_id = #{supplierId}
+        </if>
+        <if test="supplierId == null">
+            and receiving_unit_id = 0
+        </if>
+        <if test="auditStatus != null">
+            and audit_status = #{auditStatus}
+        </if>
+        <if test="startDate != null">
+            and date(create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(create_time) &lt;= date(#{endDate})
+        </if>
+        order by audit_status, id desc
+    </select>
+
+    <select id="selectPayAmountSum" resultType="java.math.BigDecimal">
+        select
+        IFNULL(sum(payment_amount),0)
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+
+        <if test="supplierId != null ">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test="orderId!=null">
+            and order_id = #{orderId}
+        </if>
+
+        <if test="propertyTypeList != null and propertyTypeList.size() > 0">
+            and property_type in
+            <foreach collection="propertyTypeList" open="(" separator="," close=")" item="propertyType">
+                #{propertyType}
+            </foreach>
+        </if>
+
+        <if test="auditStatus!= null">
+            and audit_status = #{auditStatus}
+        </if>
+    </select>
+
+    <select id="getPaidPaymentAmount" resultType="java.math.BigDecimal">
+        select ifnull(sum(actually_payment_amount), 0)
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+          and order_id = #{orderId}
+          and property_type = #{propertyType}
+          and audit_status = 2
+    </select>
+
+    <select id="getLastPayment" resultType="com.hzchum.scim.contract.core.api.pojo._do.SupplierPayment">
+        select *
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+        and property_type = #{propertyType}
+        <if test="orderId != null">
+            and order_id = #{orderId}
+        </if>
+        <if test="paymentUnitId != null">
+            and payment_unit_id = #{paymentUnitId}
+        </if>
+        <if test="receivingUnitId != null">
+            and receiving_unit_id = #{receivingUnitId}
+        </if>
+        and audit_status = 2
+        order by id desc limit 1
+    </select>
+
+    <select id="summary" resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsDTO">
+        <choose>
+
+            <when test="type == 2">
+                select
+                cp.id ,
+                cp.name as project_name ,
+                cp.short_name,
+                cp.serial_number,
+                sum(c.total_price) as freight,
+                count(c.id) as train_number
+                from mes_building_cargo_list AS c
+                INNER join contract_project as cp on cp.id = c.project_id AND cp.bool_delete_enum = 0
+                where c.bool_delete_enum = 0 AND c.`status` IN ( 4, 8 )
+                <if test="name != null and name != ''">
+                    and cp.name like CONCAT('%',#{name},'%')
+                </if>
+                <if test="startDate != null">
+                    and date(c.create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(c.create_time) &lt;= date(#{endDate})
+                </if>
+
+                <if test="projectIds != null and projectIds.size() != 0">
+                    AND c.project_id in
+                    <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                        #{projectId}
+                    </foreach>
+                </if>
+                GROUP BY c.project_id
+            </when>
+
+            <when test="type == 1">
+                select
+                purchase_id as id,
+                purchase_SN as serial_number,
+                IFNULL(sum(freight), 0) as freight,
+                count(*) as train_number
+                from scm_logistics_order
+                where bool_delete_enum = 0 and inbound_review_status = 2
+                <if test="name != null and name != ''">
+                    and purchase_SN like CONCAT('%',#{name},'%')
+                </if>
+                <if test="startDate != null">
+                    and date(create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(create_time) &lt;= date(#{endDate})
+                </if>
+                group by purchase_id , purchase_SN
+            </when>
+
+            <when test="type == 8">
+                (
+                select
+                lp.id,
+                lp.license_plate,
+                IFNULL( sum(c.total_price ), 0) AS freight,
+                count(lp.id) as train_number
+                from
+                mes_building_cargo_list AS c
+                INNER JOIN mes_building_supplier_price AS sp ON c.supplier_price_id = sp.id and sp.bool_personal_enum =
+                1
+                INNER JOIN mes_building_licence_plate as lp on lp.license_plate = sp.license_plate and
+                lp.bool_delete_enum = 0
+                <if test="name != null and name != ''">
+                    and lp.name like CONCAT('%',#{name},'%')
+                </if>
+                where c.bool_delete_enum = 0
+                AND c.`status` IN ( 4, 8 )
+
+                <if test="startDate != null">
+                    and date(c.create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(c.create_time) &lt;= date(#{endDate})
+                </if>
+                group by lp.id
+                )
+            </when>
+
+            <otherwise>
+                SELECT
+                temp.supplier_id AS id,
+                (CASE  temp.bool_personal_enum when 0 then ss.name else '个人' end) AS supplier_name,
+                IFNULL( sum( temp.freight ), 0 ) AS freight,
+                count(*) AS train_number
+                FROM
+                (
+                SELECT
+                sp.supplier_id,
+                sp.bool_personal_enum,
+                c.total_price AS freight
+                FROM
+                mes_building_cargo_list AS c
+                LEFT JOIN mes_building_supplier_price AS sp ON c.supplier_price_id = sp.id
+                WHERE c.bool_delete_enum = 0 AND c.status IN ( 4, 8 )
+                <if test="name != null and name != ''">
+                    AND (
+                    c.project_id IN
+                    (SELECT id from contract_project where bool_delete_enum = 0 AND name LIKE concat ('%',#{name},'%'))
+                    OR
+                    sp.supplier_id IN
+                    ( SELECT id FROM scm_supplier WHERE bool_delete_enum = 0 AND name LIKE concat ('%',#{name},'%'))
+                    )
+                </if>
+                <if test="startDate != null">
+                    and date(c.create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(c.create_time) &lt;= date(#{endDate})
+                </if>
+
+                UNION ALL
+
+                SELECT
+                supplier_id,
+                0 AS bool_personal_enum,
+                freight
+                FROM
+                scm_logistics_order
+                WHERE bool_delete_enum = 0 AND inbound_review_status = 2
+                <if test="name != null and name != ''">
+                    AND (
+                    purchase_SN like concat ('%',#{name},'%')
+                    OR
+                    supplier_id IN
+                    ( SELECT id FROM scm_supplier WHERE bool_delete_enum = 0 AND name like concat ('%',#{name},'%') )
+                    )
+                </if>
+                <if test="startDate != null">
+                    and DATE(create_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(create_time) &lt;= #{endDate}
+                </if>
+                ) AS temp
+                left join scm_supplier AS ss ON temp.supplier_id = ss.id
+                GROUP BY temp.supplier_id, temp.bool_personal_enum
+
+            </otherwise>
+
+        </choose>
+    </select>
+
+
+    <select id="summaryPaymentAndInvoice"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsDTO">
+        select s.name,
+               bc.name,
+               temp.freight
+        from ((select p.contract_sign_body_id                                                            as branch_company_id,
+                      s.id                                                                               as supplier_id,
+                      CASE sp.price_type WHEN 1 THEN c.actual_weight * sp.price / 1000 ELSE sp.price END as freight
+               from mes_building_cargo_list as c
+                        inner join mes_building_supplier_price as sp on sp.id = c.supplier_price_id
+                        inner join scm_supplier as s on s.id = sp.supplier_id
+                        inner join contract_project as p on p.id = c.project_id
+              )
+              union all
+              (select o.branch_company_id,
+                      o.supplier_id,
+                      lo.freight
+               from scm_logistics_order as lo
+                        inner join scm_purchase_order as o on o.id = lo.order_id and o.bool_delete_enum = 1
+               where lo.bool_delete_enum = 0
+                 and lo.inbound_review_status = 2
+              )) as temp
+                 inner join scm_supplier as s on s.id = temp.supplier_id
+                 inner join sys_branch_company as bc on bc.id = temp.branch_company_id
+    </select>
+
+    <select id="material" resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsDetailDTO">
+        select
+        slo.id,
+        slo.create_time as ship_date,
+        slo.license_plate,
+        slo.loading_weight,
+        1 type,
+        0 AS bool_personal_enum,
+        1 change_freight,
+        slo.freight,
+        slo.project_ids as projectIds
+        from scm_logistics_order as slo
+        left join scm_supplier as ss on slo.supplier_id = ss.id and ss.bool_delete_enum = 0
+        where slo.bool_delete_enum = 0
+        and slo.inbound_review_status = 2
+        <if test="supplierId != null">
+            and ss.id = #{supplierId}
+        </if>
+        <if test="startDate != null">
+            and date(slo.create_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(slo.create_time) &lt;= date(#{endDate})
+        </if>
+        order by slo.create_time desc
+    </select>
+
+
+    <select id="manufacturedGoods" resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsDetailDTO">
+        SELECT
+        temp.*
+        FROM
+        (
+        SELECT
+        c.id,
+        c.audit_time AS ship_date,
+        c.license_plate,
+        c.actual_weight AS loading_weight,
+        2 type,
+        c.car_model,
+        c.driver_name,
+        c.driver_phone,
+        sp.bool_personal_enum,
+        ifnull( c.change_freight, 1 ) change_freight,
+        c.total_price AS freight,
+        CONCAT( cp.serial_number, "+", cp.short_name ) AS projectName
+        FROM
+        mes_building_cargo_list c
+        LEFT JOIN mes_building_supplier_price AS sp ON sp.id = c.supplier_price_id
+        LEFT JOIN contract_project AS cp ON cp.id = c.project_id
+        AND sp.bool_delete_enum = 0
+        WHERE
+        c.bool_delete_enum = 0
+        AND c.`status` IN (4,8)
+        <if test="projectName != null and projectName != ''">
+            and cp.name like concat('%', #{projectName}, '%')
+        </if>
+        <if test="supplierId != null and supplierId != ''">
+            and sp.supplier_id = #{supplierId}
+        </if>
+        <if test="startDate != null">
+            and date(c.audit_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(c.audit_time) &lt;= date(#{endDate})
+        </if>
+
+<!--        union all-->
+
+<!--        select-->
+<!--        c.id,-->
+<!--        c.audit_time AS ship_date,-->
+<!--        c.license_plate,-->
+<!--        c.actual_weight as loading_weight,-->
+<!--        2 type,-->
+<!--        c.car_model,-->
+<!--        c.driver_name,-->
+<!--        c.driver_phone,-->
+<!--        sp.bool_personal_enum,-->
+<!--        ifnull(c.change_freight, 1) change_freight,-->
+<!--        c.total_price as freight,-->
+<!--        CONCAT( cp.serial_number, "+", cp.short_name ) AS projectName-->
+<!--        FROM mes_bridge_cargo_list c-->
+<!--        LEFT JOIN mes_bridge_supplier_price AS sp on sp.id = c.supplier_price_id and sp.bool_delete_enum = 0-->
+<!--        LEFT JOIN contract_project AS cp ON cp.id = c.project_id-->
+<!--        where c.bool_delete_enum = 0-->
+<!--        AND c.`status` IN ( 4, 8 )-->
+<!--        <if test="projectName != null and projectName != ''">-->
+<!--            and cp.name like concat('%', #{projectName}, '%')-->
+<!--        </if>-->
+<!--        <if test="supplierId != null and supplierId != ''">-->
+<!--            and sp.supplier_id = #{supplierId}-->
+<!--        </if>-->
+<!--        <if test="startDate != null">-->
+<!--            and date(c.audit_time) &gt;= date(#{startDate})-->
+<!--        </if>-->
+<!--        <if test="endDate != null">-->
+<!--            and date(c.audit_time) &lt;= date(#{endDate})-->
+<!--        </if>-->
+       ) temp
+        order by temp.ship_date desc
+    </select>
+
+    <select id="record" resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsRecordDTO">
+        <choose>
+            <when test="type == 1">
+                select
+                slo.id,
+                slo.supplier_id,
+                ss.name as supplier_name,
+                slo.create_time as ship_date,
+                slo.license_plate,
+                slo.loading_weight,
+                1 type,
+                0 AS bool_personal_enum,
+                slo.change_freight change_freight,
+                slo.freight
+                from scm_logistics_order as slo
+                left join scm_supplier as ss on slo.supplier_id = ss.id and ss.bool_delete_enum = 0
+                where slo.bool_delete_enum = 0
+                and slo.inbound_review_status = 2
+                and slo.purchase_id = #{id}
+                <if test="supplierId != null">
+                    and slo.supplier_id = #{supplierId}
+                </if>
+                <if test="startDate != null">
+                    and DATE(slo.create_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(slo.create_time) &lt;= #{endDate}
+                </if>
+                <if test="changeFreight != null and changeFreight != ''">
+                    and slo.change_freight = #{changeFreight}
+                </if>
+                order by slo.create_time desc
+            </when>
+
+            <when test="type == 2">
+                SELECT
+                temp.*
+                FROM
+                (select
+                c.id,
+                c.audit_time AS ship_date,
+                c.license_plate,
+                c.actual_weight as loading_weight,
+                2 type,
+                c.car_model,
+                c.driver_name,
+                c.driver_phone,
+                sp.bool_personal_enum,
+                ifnull(c.change_freight, 1) change_freight,
+                c.total_price as freight,
+                sp.supplier_id,
+                (select name from scm_supplier where bool_delete_enum = 0 and id = sp.supplier_id) as supplier_name
+                FROM mes_building_cargo_list c
+                LEFT JOIN mes_building_supplier_price AS sp on sp.id = c.supplier_price_id and sp.bool_delete_enum = 0
+                where c.bool_delete_enum = 0
+                AND c.`status` IN ( 4, 8 )
+                and c.project_id = #{id}
+                <if test="supplierId != null">
+                    and sp.supplier_id = #{supplierId}
+                </if>
+                <if test="changeFreight != null and changeFreight == 1">
+                    and (c.change_freight = 1 or c.change_freight is null)
+                </if>
+                <if test="changeFreight != null and changeFreight != 1">
+                    and c.change_freight = #{changeFreight}
+                </if>
+                <if test="startDate != null">
+                    and DATE(c.audit_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(c.audit_time) &lt;= #{endDate}
+                </if>
+                ) temp
+                order by temp.ship_date desc
+            </when>
+
+            <when test="type == 8">
+                select
+                p.name,
+                c.audit_time as ship_date,
+                c.license_plate,
+                c.actual_weight as loading_weight,
+                c.car_model,
+                c.driver_name,
+                c.driver_phone,
+                sp.bool_personal_enum,
+                IFNULL(c.change_freight,${@com.hzchum.scim.mes.building.core.api.enums.cargoList.ChangeFreightEnum@FREIGHT_RETAIN.getType()})
+                changeFreight,
+                c.total_price as freight,
+                2 type
+                from mes_building_cargo_list c
+                inner join mes_building_supplier_price sp on sp.id = c.supplier_price_id and sp.bool_delete_enum = 0 and
+                sp.bool_personal_enum = 1
+                Inner join mes_building_licence_plate as lp on lp.license_plate = sp.license_plate and
+                lp.bool_delete_enum = 0
+                left join contract_project p on p.id = c.project_id and p.bool_delete_enum = 0
+                where c.bool_delete_enum = 0 AND c.shipment_status IN ( 1, 4 ) AND c.`status` IN ( 4, 8 )
+                <if test="id != null">
+                    and lp.id = #{id}
+                </if>
+                <if test="branchCompanyId != null">
+                    and p.contract_sign_body_id = #{branchCompanyId}
+                </if>
+                <if test="startDate != null">
+                    and DATE(c.audit_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(c.audit_time) &lt;= #{endDate}
+                </if>
+            </when>
+
+            <when test="type == 4">
+                select temp.* from
+                (
+                select
+                c.project_id AS id,
+                cp.name,
+                c.audit_time as ship_date,
+                c.license_plate,
+                c.actual_weight as loading_weight,
+                c.car_model,
+                c.driver_name,
+                c.driver_phone,
+                sp.bool_personal_enum,
+                IFNULL(c.change_freight, 1) change_freight,
+                c.total_price as freight,
+                2 type
+                from mes_building_cargo_list c
+                inner join contract_project cp on cp.id = c.project_id and cp.bool_delete_enum = 0
+                left join mes_building_supplier_price sp on sp.id = c.supplier_price_id and sp.bool_delete_enum = 0
+                where c.bool_delete_enum = 0 AND c.`status` IN ( 4, 8 )
+                <if test="id != null and id != 0">
+                    and sp.supplier_id = #{id}
+                </if>
+                <if test="id == null or id == 0">
+                    and sp.bool_personal_enum = 1
+                </if>
+                <if test="branchCompanyId != null">
+                    and cp.contract_sign_body_id = #{branchCompanyId}
+                </if>
+                <if test="changeFreight != null and changeFreight == 1">
+                    and (c.change_freight = 1 or c.change_freight is null)
+                </if>
+                <if test="changeFreight != null and changeFreight != 1">
+                    and c.change_freight = #{changeFreight}
+                </if>
+                <if test="startDate != null">
+                    and DATE(c.audit_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(c.audit_time) &lt;= #{endDate}
+                </if>
+                <if test="changeFreight == null or changeFreight == 1">
+                    union all
+                    select
+                    slo.purchase_id AS id,
+                    slo.purchase_sn name,
+                    slo.create_time ship_date,
+                    slo.license_plate,
+                    slo.loading_weight,
+                    0 AS bool_personal_enum,
+                    null car_model,
+                    null driver_name,
+                    null driver_phone,
+                    1 change_freight,
+                    slo.freight,
+                    1 type
+                    from scm_logistics_order as slo
+                    inner join scm_purchase_order as spo on slo.purchase_id = spo.id and spo.bool_delete_enum = 0
+                    where slo.bool_delete_enum = 0 and slo.inbound_review_status = 2
+                    and slo.supplier_id = #{id}
+                    <if test="branchCompanyId != null">
+                        and spo.branch_company_id = #{branchCompanyId}
+                    </if>
+                    <if test="startDate != null">
+                        and DATE(slo.create_time) &gt;= #{startDate}
+                    </if>
+                    <if test="endDate != null">
+                        and DATE(slo.create_time) &lt;= #{endDate}
+                    </if>
+                </if>
+                ) as temp
+                order by temp.ship_date desc
+            </when>
+        </choose>
+    </select>
+
+    <select id="sumLedgerPayment" resultType="java.math.BigDecimal">
+        select ifnull(sum(actually_payment_amount), 0)
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+          and audit_status = 2
+        <if test="supplierId!= null">
+            and receiving_unit_id = #{supplierId}
+        </if>
+        <if test="propertyType != null">
+            and property_type &amp; #{propertyType} > 0
+        </if>
+        <if test="startDate != null">
+            and date(payment_date) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(payment_date) &lt;= date(#{endDate})
+        </if>
+    </select>
+
+    <select id="getSumPayment" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM(apply_amount),0)
+        FROM
+        contract_supplier_payment
+        WHERE bool_delete_enum = 0
+        AND audit_status = 2
+        and property_type = #{propertyType}
+        <if test="supplierId != null">
+            AND receiving_unit_id = #{supplierId}
+        </if>
+        <if test="paymentUnitId != null">
+            AND payment_unit_id = #{paymentUnitId}
+        </if>
+    </select>
+
+    <select id="selectSumPayment" resultType="java.math.BigDecimal">
+
+        <choose>
+            <when test="propertyType == 1">
+                SELECT
+                IFNULL(SUM(csp.actually_payment_amount),0)
+                FROM
+                contract_supplier_payment AS csp
+                INNER JOIN scm_purchase_order AS spo on csp.order_id = spo.id AND spo.bool_delete_enum = 0
+                WHERE csp.bool_delete_enum = 0
+                AND csp.audit_status = 2
+                and csp.property_type = #{propertyType}
+                <if test="supplierId != null">
+                    AND csp.receiving_unit_id = #{supplierId}
+                </if>
+                <if test="paymentUnitId != null">
+                    AND csp.payment_unit_id = #{paymentUnitId}
+                </if>
+            </when>
+
+            <when test="propertyType == 2">
+                SELECT
+                IFNULL(SUM(cspd.actually_payment_amount),0)
+                FROM
+                contract_supplier_payment_detail as cspd
+                WHERE cspd.bool_delete_enum = 0
+                AND cspd.audit_status = 2
+                <if test="supplierId != null">
+                    AND cspd.receiving_unit_id = #{supplierId}
+                </if>
+                <if test="supplierId == null">
+                    AND cspd.receiving_unit_id = 0
+                </if>
+                <if test="paymentUnitId != null">
+                    AND cspd.payment_unit_id = #{paymentUnitId}
+                </if>
+                <if test="type != null">
+                    AND cspd.type = #{type}
+                </if>
+                <if test="id != null">
+                    AND (cspd.purchase_id = #{id} or cspd.project_id = #{id})
+                </if>
+            </when>
+
+            <otherwise>
+                select 0.0
+            </otherwise>
+        </choose>
+
+
+    </select>
+
+    <select id="selectPurchasePaymentSum" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(SUM(csp.actually_payment_amount),0)
+        FROM contract_supplier_payment AS csp
+        INNER JOIN scm_purchase_order AS spo ON csp.property_type = 1 AND csp.order_id = spo.id AND spo.bool_delete_enum
+        = 0
+        WHERE csp.bool_delete_enum = 0
+        AND csp.audit_status = 2
+        <if test="supplierId != null">
+            AND csp.receiving_unit_id = #{supplierId}
+        </if>
+        <if test="orderId != null">
+            AND csp.order_id = #{orderId}
+        </if>
+        <if test="startDate != null">
+            AND spo.create_time &gt;= #{startDate}
+        </if>
+        <if test="startDate != null">
+            AND spo.create_time &lt;= #{endDate}
+        </if>
+    </select>
+
+    <select id="selectBreachAmountSum" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(breach_amount), 0)
+        FROM contract_supplier_payment
+        WHERE bool_delete_enum = 0
+        AND bool_deduct = 1
+        and audit_status = 2
+        <if test="orderId != null">
+            AND order_id = #{orderId}
+        </if>
+        <if test="propertyType != null">
+            AND property_type = #{propertyType}
+        </if>
+        <if test="supplierId != null">
+            AND receiving_unit_id = #{supplierId}
+        </if>
+
+    </select>
+
+    <select id="selectEchoList" resultType="com.hzchum.scim.contract.core.api.pojo._do.SupplierPayment">
+        select *
+        from contract_supplier_payment
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="projectManagerId != null">
+            and project_manager_id = #{projectManagerId}
+        </if>
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test="purchaseContractNumber != null">
+            and serial_number like concat('%', #{purchaseContractNumber}, '%')
+        </if>
+    </select>
+
+    <select id="getList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.supplier.SupplierListDto">
+        SELECT
+        a.payment_amount as invoiceAmount,
+        b.`name` as supplier,
+        c.name as projectManagerName,
+        d.`name` as 'project.name',
+        d.id as 'project.id',
+        d.short_name as 'project.shortName',
+        d.serial_number as 'project.serialNumber'
+        FROM contract_supplier_payment a
+        LEFT JOIN scm_supplier b on a.supplier_id = b.id
+        and b.bool_delete_enum = 0
+        LEFT JOIN sys_user c on a.project_manager_id = c.id
+        and c.bool_delete_enum = 0
+        left join contract_project d on a.project_id = d.id
+        and d.bool_delete_enum = 0
+        where a.bool_delete_enum = 0
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="supplierId != null">
+            and a.supplier_id = #{supplierId}
+        </if>
+    </select>
+
+    <select id="summaryV2" resultType="com.hzchum.scim.contract.core.api.pojo.dto.logistics.LogisticsV2DTO">
+        <choose>
+
+            <when test="type == 2">
+                select
+                cp.id ,
+                cp.name as project_name ,
+                cp.short_name,
+                cp.serial_number,
+                sum(c.total_price) as freight,
+                count(c.id) as train_number
+                from mes_building_cargo_list AS c
+                INNER join contract_project as cp on cp.id = c.project_id AND cp.bool_delete_enum = 0
+                where c.bool_delete_enum = 0 AND c.`status` IN ( 4, 8 )
+                <if test="name != null and name != ''">
+                    and cp.name like CONCAT('%',#{name},'%')
+                </if>
+                <if test="startDate != null">
+                    and date(c.create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(c.create_time) &lt;= date(#{endDate})
+                </if>
+
+                <if test="projectIds != null and projectIds.size() != 0">
+                    AND c.project_id in
+                    <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                        #{projectId}
+                    </foreach>
+                </if>
+                GROUP BY c.project_id
+            </when>
+
+            <when test="type == 1">
+                select
+                purchase_id as id,
+                purchase_SN as serial_number,
+                IFNULL(sum(freight), 0) as freight,
+                count(*) as train_number
+                from scm_logistics_order
+                where bool_delete_enum = 0 and inbound_review_status = 2
+                <if test="name != null and name != ''">
+                    and purchase_SN like CONCAT('%',#{name},'%')
+                </if>
+                <if test="startDate != null">
+                    and date(create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(create_time) &lt;= date(#{endDate})
+                </if>
+                group by purchase_id , purchase_SN
+            </when>
+            <otherwise>
+                SELECT
+                temp.supplier_id AS id,
+                (SELECT name FROM scm_supplier WHERE id = temp.supplier_id) supplier_name,
+                IFNULL( sum( temp.freight ), 0 ) AS freight,
+                count(*) AS train_number
+                FROM
+                (
+                SELECT
+                sp.supplier_id,
+                c.total_price AS freight
+                FROM
+                mes_building_cargo_list AS c
+                INNER JOIN mes_building_supplier_price AS sp ON c.supplier_price_id = sp.id
+                and sp.bool_personal_enum = 0
+                WHERE c.bool_delete_enum = 0 AND c.status IN ( 4, 8 )
+                <if test="name != null and name != ''">
+                    AND (
+                    c.project_id IN
+                    (SELECT id from contract_project where bool_delete_enum = 0 AND name LIKE concat ('%',#{name},'%'))
+                    OR
+                    sp.supplier_id IN
+                    ( SELECT id FROM scm_supplier WHERE bool_delete_enum = 0 AND name LIKE concat ('%',#{name},'%'))
+                    )
+                </if>
+                <if test="startDate != null">
+                    and date(c.create_time) &gt;= date(#{startDate})
+                </if>
+                <if test="endDate != null">
+                    and date(c.create_time) &lt;= date(#{endDate})
+                </if>
+
+                UNION ALL
+
+                SELECT
+                supplier_id,
+                freight
+                FROM
+                scm_logistics_order
+                WHERE bool_delete_enum = 0 AND inbound_review_status = 2
+                <if test="name != null and name != ''">
+                    AND (
+                    purchase_SN like concat ('%',#{name},'%')
+                    OR
+                    supplier_id IN
+                    ( SELECT id FROM scm_supplier WHERE bool_delete_enum = 0 AND name like concat ('%',#{name},'%') )
+                    )
+                </if>
+                <if test="startDate != null">
+                    and DATE(create_time) &gt;= #{startDate}
+                </if>
+                <if test="endDate != null">
+                    and DATE(create_time) &lt;= #{endDate}
+                </if>
+                ) AS temp
+                GROUP BY temp.supplier_id
+
+            </otherwise>
+
+        </choose>
+    </select>
+
+    <select id="update" resultType="java.lang.Boolean">
+        update contract_supplier_payment
+        set bool_delete_enum = 0
+        where id = #{id}
+    </select>
+    <select id="getVoucherNumber" resultType="java.lang.Integer">
+        SELECT
+            MAX( voucher_number )
+        FROM
+            (
+                SELECT
+                    SUBSTRING( approval_serial_number, 8 ) AS voucher_number
+                FROM
+                    contract_supplier_payment
+                WHERE
+                    approval_serial_number IS NOT NULL UNION ALL
+                SELECT
+                    SUBSTRING( voucher_number, 8 )
+                FROM
+                    contract_collection
+                WHERE
+                    voucher_number IS NOT NULL
+                  AND voucher_number != '' UNION ALL
+                SELECT
+                    SUBSTRING( voucher_number, 8 )
+                FROM
+                    security_deposit_and_management_cost
+                WHERE
+                    voucher_number IS NOT NULL
+                  AND voucher_number != '' UNION ALL
+                SELECT
+                    SUBSTRING( voucher_number, 8 )
+                FROM
+                    contract_invoice
+                WHERE
+                    voucher_number IS NOT NULL
+                  AND voucher_number != ''
+            ) AS a
+    </select>
+
+    <select id="getDataIdList" resultType="com.hzchum.scim.common.core.api.pojo.dtoParam.oa.OaSupplierPaymentDataIdDTO">
+        select id,
+        payment_amount,
+        serial_number,
+        actually_payment_amount
+        from contract_supplier_payment
+        where id in
+        <foreach item="id" collection="ids" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

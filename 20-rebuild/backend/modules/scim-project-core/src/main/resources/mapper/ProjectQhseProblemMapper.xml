@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectQhseProblemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectQhseProblem">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="number" property="number"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="subcontract_order_id" property="subcontractOrderId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="subcontract_class_id" property="subcontractClassId"/>
+        <result column="subcontract_class_name" property="subcontractClassName"/>
+        <result column="problem_date" property="problemDate"/>
+        <result column="promoter_id" property="promoterId"/>
+        <result column="promoter_name" property="promoterName"/>
+        <result column="problem_type_id" property="problemTypeId"/>
+        <result column="problem_type_name" property="problemTypeName"/>
+        <result column="before_change_imgs" property="beforeChangeImgs"/>
+        <result column="after_change_imgs" property="afterChangeImgs"/>
+        <result column="bool_change_status" property="boolChangeStatus"/>
+        <result column="penalty" property="penalty"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, number, project_id, monomer_id, subcontract_order_id, supplier_id, supplier_name, subcontract_class_id, subcontract_class_name, problem_date, promoter_id, promoter_name, problem_type_id, problem_type_name, before_change_imgs, after_change_imgs, bool_change_status, penalty, remark
+    </sql>
+
+    <select id="selectQhseProblemList" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectQhseProblemDO">
+        SELECT
+        problem.*,
+        cp.id as 'project.id',
+        cp.name as 'project.name',
+        cp.serial_number as 'project.serialNumber',
+        cp.short_name as 'project.shortName'
+        FROM
+        project_qhse_problem AS problem
+        INNER JOIN contract_project AS cp on problem.project_id = cp.id and cp.bool_delete_enum = 0
+        <if test="projectName != null and projectName != ''">
+            AND cp.name like concat('%',#{projectName},'%')
+        </if>
+        where problem.bool_delete_enum = 0
+        <if test="startDate != null">
+            AND problem.problem_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND problem.problem_date &lt;= #{endDate}
+        </if>
+        <if test="projectId != null">
+            AND problem.project_id = #{projectId}
+        </if>
+        <if test="problemTypeId != null">
+            AND problem.problem_type_id = #{problemTypeId}
+        </if>
+        <if test="boolChangeStatus != null">
+            AND problem.bool_change_status = #{boolChangeStatus}
+        </if>
+        <if test="supplierId != null">
+            AND problem.supplier_id = #{supplierId}
+        </if>
+        <if test="supplierName != null and supplierName != ''">
+            AND problem.supplier_name like concat('%',#{supplierName},'%')
+        </if>
+        <if test="promoterName != null and promoterName != ''">
+            AND problem.promoter_name like concat('%',#{promoterName},'%')
+        </if>
+        order by problem.bool_change_status asc, problem.create_time desc
+
+    </select>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.project.core.api.pojo._do.ProjectQhseProblem">
+        select pq.*
+        from project_qhse_problem as pq
+        where pq.bool_delete_enum = 0
+        <if test="supplierId != null">
+            AND pq.supplier_id = #{supplierId}
+        </if>
+        <if test="projectId != null">
+            AND pq.project_id = #{projectId}
+        </if>
+        <if test="problemTypeId != null">
+            AND pq.problem_type_id = #{problemTypeId}
+        </if>
+        <if test="boolChangeStatus != null">
+            AND pq.bool_change_status = #{boolChangeStatus}
+        </if>
+        order by bool_change_status asc
+
+    </select>
+    <select id="countNumber" resultType="java.lang.Integer">
+        select count(*) from project_qhse_problem  where bool_delete_enum = 0 and project_id = #{projectId}
+    </select>
+
+</mapper>

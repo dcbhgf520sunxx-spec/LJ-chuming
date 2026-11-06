@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.SupplementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Supplement">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="project_id" property="projectId"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="mete" property="mete"/>
+        <result column="amount" property="amount"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="source_SN" property="sourceSn"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, basic_class, classify_id, specification, length, width, thickness, project_id, accounting_unit, mete, amount, serial_number, source_id, source_SN
+    </sql>
+
+    <resultMap id="list" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.SupplementDTO">
+        <id column="id" property="id"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="color" property="color"/>
+        <result column="brand" property="brand"/>
+        <result column="mete" property="mete"/>
+        <result column="amount" property="amount"/>
+        <result column="amount_excluding_vat" property="amountExcludingVAT"/>
+        <result column="create_time" property="createTime"/>
+        <result column="serial_number" property="serialNumber"/>
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="receipt_id"/>
+            <result property="serialNumber" column="receipt_SN"/>
+            <result property="receiptType" column="receipt_type"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+<!--        <association property="factory" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">-->
+<!--            <id property="id" column="mbfId"/>-->
+<!--            <result property="name" column="mbfName"/>-->
+<!--        </association>-->
+    </resultMap>
+    <select id="list" resultMap="list">
+        select ws.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName
+        from wms_supplement ws
+                 left join contract_project p on p.id = ws.project_id
+                 left join mes_building_factory mbf on ws.workshop_id = mbf.id
+        where ws.bool_delete_enum = 0
+        <if test="returnTime != null and returnTime.size()>0">
+        <if test="returnTime[0] != null">
+            AND date_format(ws.create_time, '%Y-%m-%d')  &gt;= date_format(#{returnTime[0]}, '%Y-%m-%d')
+        </if>
+        <if test="returnTime[1] != null">
+            AND date_format(ws.create_time, '%Y-%m-%d')  &lt;= date_format(#{returnTime[1]}, '%Y-%m-%d')
+        </if>
+
+
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and ws.classify_id in
+            <foreach collection="classifyIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+<!--        <if test="classifyIds == null and  classifyId != null">-->
+<!--            and ws.classify_id = #{classifyId}-->
+<!--        </if>-->
+        <if test="brand != null and brand != ''">
+            AND ws.brand like CONCAT('%',#{brand},'%')
+        </if>
+        <if test="transferSN != null and transferSN != '' ">
+            and ws.serial_number like CONCAT('%', #{transferSN},'%')
+        </if>
+        <if test="basicClass != null ">
+            and ws.basic_class = #{basicClass}
+        </if>
+        <if test=" specification != null and specification != ''">
+            and ws.specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" serialNumber != null and serialNumber != ''">
+            and ws.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="workshopId != null ">
+            and ws.workshop_id = #{workshopId}
+        </if>
+        <if test="projectId != null ">
+            AND ws.project_id = #{projectId}
+        </if>
+        <if test="sourceWorkshopIds != null and sourceWorkshopIds.size() > 0">
+            and ws.workshop_id in
+            <foreach collection="sourceWorkshopIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getById" resultMap="list">
+        select ws.*,
+               p.id            pid,
+               p.short_name    psName,
+               p.serial_number pSN,
+               p.name          pn,
+               mbf.id          mbfId,
+               mbf.name        mbfName
+               from wms_supplement ws
+                 left join contract_project p on p.id = ws.project_id
+                 left join mes_building_factory mbf on ws.workshop_id = mbf.id
+        where ws.bool_delete_enum = 0 and ws.id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesInspectConfigTeamLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesInspectConfigTeamLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="inspect_config_id" property="inspectConfigId" />
+        <result column="team_id" property="teamId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, inspect_config_id, team_id
+    </sql>
+    <select id="findInspectInfoByInspectId"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesInspectConfigTeamLinkDTO">
+        select
+        tl.inspect_config_id inspectConfigId,
+        tl.team_id teamId,
+        ul.user_name teamLeaderName
+        from mes_inspect_config_team_link tl
+        Left join mes_building_team_user_link ul on tl.team_id = ul.team_id and ul.bool_leader_enum = 1 and
+        ul.bool_delete_enum = 0
+        <where>
+            tl.bool_delete_enum = 0
+            <if test="inspectId.size > 0 and inspectId != null">
+                and tl.inspect_config_id in
+                <foreach collection="inspectId" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.common.core.mapper.WmsApproveRecordMapper">
+
+    <resultMap type="com.hzchum.scim.common.core.api.pojo._do.WmsApproveRecord" id="WmsApproveRecordResult">
+        <result property="id"    column="id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="boolDeleteEnum"    column="bool_delete_enum"    />
+        <result property="version"    column="version"    />
+        <result property="moduleType"    column="module_type"    />
+        <result property="approveProcessType"    column="approve_process_type"    />
+        <result property="approveVersionsId"    column="approve_versions_id"    />
+        <result property="dataId"    column="data_id"    />
+        <result property="serialNumber"    column="serial_number"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="applicantId"    column="applicant_id"    />
+        <result property="departmentId"    column="department_id"    />
+        <result property="cause"    column="cause"    />
+        <result property="status"    column="status"    />
+        <result property="reviewStatus"    column="review_status"    />
+        <result property="remark"    column="remark"    />
+        <result property="jsonData"    column="json_data"    />
+    </resultMap>
+
+    <select id="getList" resultType="com.hzchum.scim.common.core.api.pojo.dto.WmsApproveRecordDTO">
+        select
+            war.*,
+            watv.name approveVersionsName
+        from wms_approve_record war
+        left join wms_approve_template_versions watv on war.approve_versions_id = watv.id
+        left join sys_user su on war.applicant_id = su.id and su.bool_delete_enum = 0
+        left join sys_user su1 on war.last_approver_id = su1.id and su1.bool_delete_enum = 0
+        left join wms_approve_record_detail ward on war.serial_number = ward.approve_record_serial_number
+        <where>
+            war.bool_delete_enum = 0
+        <if test="vo.reviewStatus != null and vo.reviewStatus != ''">
+            AND war.review_status = #{vo.reviewStatus}
+        </if>
+        <if test="vo.moduleType != null and vo.moduleType != ''">
+            AND war.module_type = #{vo.moduleType}
+        </if>
+        <if test="vo.versionsName != null and vo.versionsName != ''">
+            AND watv.name LIKE concat('%',#{vo.versionsName},'%')
+        </if>
+        <if test="vo.recordSerialNumber != null and vo.recordSerialNumber != ''">
+            AND (
+            war.serial_number LIKE concat('%',#{vo.recordSerialNumber},'%')
+            OR
+            war.source_serial_number LIKE concat('%',#{vo.recordSerialNumber},'%')
+            )
+        </if>
+        <if test="vo.times != null and vo.times.size > 0">
+            <if test="vo.typeTime == 1">
+                <if test="vo.times[0] != null">
+                    AND war.create_time &gt;= #{vo.times[0]}
+                </if>
+                <if test="vo.times[1] != null">
+                    AND war.create_time &lt;= #{vo.times[1]}
+                </if>
+            </if>
+            <if test="vo.typeTime == 2">
+                <if test="vo.times[0] != null">
+                    AND war.last_approval_time &gt;= #{vo.times[0]}
+                </if>
+                <if test="vo.times[1] != null">
+                    AND war.last_approval_time &lt;= #{vo.times[1]}
+                </if>
+            </if>
+        </if>
+        <if test="vo.dataSerialNumber != null and vo.dataSerialNumber != ''">
+            AND war.data_serial_number LIKE concat('%',#{vo.dataSerialNumber},'%')
+        </if>
+        <if test="vo.applicant != null and vo.applicant != ''">
+            AND su.name LIKE concat('%',#{vo.applicant},'%')
+        </if>
+        <if test="vo.lastApprover != null and vo.lastApprover != ''">
+            AND su1.name LIKE concat('%',#{vo.lastApprover},'%')
+        </if>
+        <if test="vo.waitMeCheck != null and vo.waitMeCheck == true">
+            AND ward.status = 1
+            AND ward.check_user_id = #{currentUserId}
+        </if>
+        <if test="vo.meLaunch != null and vo.meLaunch == true">
+            AND war.applicant_id = #{currentUserId}
+        </if>
+        <if test="vo.fulfill != null and vo.fulfill == true">
+            AND ward.flow_id IS NOT NULL
+            AND ward.approve_time IS NOT NULL
+            AND ward.check_user_id = #{currentUserId}
+        </if>
+        <if test="vo.componentNameList != null and vo.componentNameList.size > 0">
+            AND war.component_name IN
+            <foreach collection="vo.componentNameList" item="componentName" open="(" separator="," close=")">
+                #{componentName}
+            </foreach>
+        </if>
+        <if test="vo.subjoinMsg != null and vo.subjoinMsg != ''">
+            AND war.subjoin_msg LIKE concat('%',#{vo.subjoinMsg},'%')
+        </if>
+        <if test="vo.classifyOne != null and vo.classifyOne != ''">
+            AND war.classify_one = #{vo.classifyOne}
+        </if>
+        <if test="vo.approveSource != null and vo.approveSource != ''">
+            AND war.approve_source = #{vo.approveSource}
+        </if>
+            <if test="vo.approveProcessType != null ">
+                AND war.approve_process_type = #{vo.approveProcessType}
+            </if>
+        AND (war.applicant_id = #{currentUserId} or ward.check_user_id = #{currentUserId})
+        </where>
+        GROUP BY war.id
+    </select>
+
+    <select id="getOaList" resultType="com.hzchum.scim.common.core.api.pojo.dto.WmsApproveRecordDTO">
+        select
+        war.*,
+        watv.name approveVersionsName
+        from wms_approve_record war
+        left join wms_approve_template wat on war.approve_process_type = wat.approve_process_type
+        left join wms_approve_template_versions watv on war.approve_versions_id = watv.id
+        left join sys_user su on war.applicant_id = su.id
+        left join sys_user su1 on war.last_approver_id = su1.id
+        left join wms_approve_record_detail ward on war.serial_number = ward.approve_record_serial_number
+
+        <where>
+            war.approve_source = 2
+            <if test="vo.reviewStatus != null and vo.reviewStatus != ''">
+                AND  war.review_status = #{vo.reviewStatus}
+            </if>
+            <if test="vo.moduleType != null and vo.moduleType != ''">
+                AND war.module_type = #{vo.moduleType}
+            </if>
+            <if test="vo.templateName != null and vo.templateName != ''">
+                AND wat.name LIKE concat('%',#{vo.templateName},'%')
+            </if>
+            <if test="vo.versionsName != null and vo.versionsName != ''">
+                AND watv.name LIKE concat('%',#{vo.versionsName},'%')
+            </if>
+            <if test="vo.recordSerialNumber != null and vo.recordSerialNumber != ''">
+                AND war.serial_number LIKE concat('%',#{vo.recordSerialNumber},'%')
+            </if>
+            <if test="vo.times != null and vo.times.size > 0">
+                <if test="vo.typeTime == 1">
+                    <if test="vo.times[0] != null">
+                        AND war.create_time &gt;= #{vo.times[0]}
+                    </if>
+                    <if test="vo.times[1] != null">
+                        AND war.create_time &lt;= #{vo.times[1]}
+                    </if>
+                </if>
+                <if test="vo.typeTime == 2">
+                    <if test="vo.times[0] != null">
+                        AND war.last_approval_time &gt;= #{vo.times[0]}
+                    </if>
+                    <if test="vo.times[1] != null">
+                        AND war.last_approval_time &lt;= #{vo.times[1]}
+                    </if>
+                </if>
+            </if>
+            <if test="vo.dataSerialNumber != null and vo.dataSerialNumber != ''">
+                AND war.data_serial_number LIKE concat('%',#{vo.dataSerialNumber},'%')
+            </if>
+            <if test="vo.applicant != null and vo.applicant != ''">
+                AND su.name LIKE concat('%',#{vo.applicant},'%')
+            </if>
+            <if test="vo.componentNameList != null and vo.componentNameList.size > 0">
+                AND war.component_name IN
+                <foreach collection="vo.componentNameList" item="componentName" open="(" separator="," close=")">
+                    #{componentName}
+                </foreach>
+            </if>
+            AND (war.applicant_id = #{currentUserId} or ward.check_user_id = #{currentUserId})
+        </where>
+        GROUP BY war.id
+    </select>
+
+    <select id="selectSubmitAndReviewCount" resultType="java.lang.Integer">
+        select COUNT(*)
+        from wms_approve_record
+        where
+            bool_delete_enum = 0
+          and status = #{status}
+          and applicant_id = #{currentUserId}
+        <if test="componentNameList != null and componentNameList.size > 0">
+            and component_name in
+            <foreach collection="componentNameList" item="componentName" open="(" separator="," close=")">
+                #{componentName}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectRejectedCanCheckCount" resultType="java.lang.Integer">
+        select COUNT(*)
+        from wms_approve_record
+        where
+            bool_delete_enum = 0
+          and status = #{status}
+          and review_status = #{reviewStatus}
+          and applicant_id = #{currentUserId}
+          and last_approval_time &gt;= #{startTime}
+        <if test="componentNameList != null and componentNameList.size > 0">
+            and component_name in
+            <foreach collection="componentNameList" item="componentName" open="(" separator="," close=")">
+                #{componentName}
+            </foreach>
+        </if>
+    </select>
+
+
+</mapper>

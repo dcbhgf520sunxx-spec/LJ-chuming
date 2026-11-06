@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.factory.MesBuildingGroupsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingGroups">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="sort" property="sort" />
+        <result column="factory_id" property="factoryId" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="production_line_id" property="productionLineId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, sort, factory_id, workshop_id, production_line_id, user_id
+    </sql>
+
+    <resultMap id="MesBuildingFactoryDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingFactoryDO">
+        <id column="factory_id" property="id" />
+        <result column="factory_name" property="name" />
+        <result column="factory_sort" property="sort" />
+        <result column="factory_bool_enabled_enum" property="boolEnabledEnum" />
+        <collection property="workshopList" resultMap="MesBuildingWorkshopDO"/>
+    </resultMap>
+
+    <resultMap id="MesBuildingWorkshopDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingWorkshopDO">
+        <id column="workshop_id" property="id" />
+        <result column="workshop_name" property="name" />
+        <result column="workshop_sort" property="sort" />
+        <result column="workshop_bool_enabled_enum" property="boolEnabledEnum" />
+        <collection property="productionLineList" resultMap="MesBuildingProductionLineDO"/>
+    </resultMap>
+
+    <resultMap id="MesBuildingProductionLineDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingProductionLineDO">
+        <id column="production_line_id" property="id" />
+        <result column="production_line_name" property="name" />
+        <result column="production_line_sort" property="sort" />
+        <result column="production_line_bool_enabled_enum" property="boolEnabledEnum" />
+        <result column="production_line_product_type" property="productType" />
+        <collection property="groupsList" resultMap="MesBuildingGroupsDO"/>
+    </resultMap>
+
+    <resultMap id="MesBuildingGroupsDO" type="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingGroupsDO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="sort" property="sort" />
+    </resultMap>
+
+
+    <select id="getSchedulingGroupsTree" resultMap="MesBuildingFactoryDO">
+        SELECT
+            factory.id factory_id,
+            factory.`name` factory_name,
+            workshop.id workshop_id,
+            workshop.`name`  workshop_name,
+            production_line.id production_line_id,
+            production_line.`name` production_line_name,
+            gro.id,
+            gro.`name`
+        FROM
+        mes_building_groups gro
+        LEFT JOIN mes_building_factory factory ON gro.factory_id = factory.id
+        LEFT JOIN mes_building_workshop workshop ON gro.workshop_id = workshop.id and workshop.type=#{type}
+        LEFT JOIN mes_building_production_line production_line ON gro.production_line_id = production_line.id
+        <if test="doParam.structureClassId!=null">
+            LEFT JOIN mes_building_production_line_link production_line_link ON
+            production_line_link.production_line_id=production_line.id AND production_line_link.bool_delete_enum=0
+        </if>
+        WHERE gro.bool_delete_enum=0
+<!--        <if test="structureClassId!=null">-->
+<!--            AND production_line_link.link_id=#{structureClassId}-->
+<!--        </if>-->
+           <if test="doParam.productType!=null">
+                AND production_line.product_type &amp; #{doParam.productType}
+                <if test="doParam.productType ==2 and doParam.structureClassId!=null">
+                    AND production_line_link.link_id=#{doParam.structureClassId}
+                </if>
+          </if>
+          <if test="doParam.factoryId!=null">
+              AND factory.id = #{doParam.factoryId}
+          </if>
+          <if test="doParam.workshopId!=null">
+              AND workshop.id = #{doParam.workshopId}
+          </if>
+          <if test="doParam.productionLineId!=null">
+              AND production_line.id = #{doParam.productionLineId}
+          </if>
+            AND factory.bool_enabled_enum= 1
+            AND workshop.bool_enabled_enum = 1
+            AND production_line.bool_enabled_enum = 1
+        ORDER BY
+        factory.id,
+        workshop.id,
+        production_line.id,
+        gro.id
+
+    </select>
+
+    <select id="getSchedulingGroupsTreeNesting" resultMap="MesBuildingFactoryDO">
+        SELECT
+        factory.id factory_id,
+        factory.`name` factory_name,
+        workshop.id workshop_id,
+        workshop.`name`  workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        gro.id,
+        gro.`name`
+        FROM
+        mes_building_groups gro
+        LEFT JOIN mes_building_factory factory ON gro.factory_id = factory.id
+        LEFT JOIN mes_building_workshop workshop ON gro.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON gro.production_line_id = production_line.id
+        LEFT JOIN mes_building_groups_team_link groups_team_link ON  groups_team_link.groups_id = gro.id
+        LEFT JOIN mes_building_team team ON team.id = groups_team_link.team_id AND team.bool_delete_enum = 0
+        <if test="doParam.structureClassId!=null">
+            LEFT JOIN mes_building_production_line_link production_line_link ON
+            production_line_link.production_line_id=production_line.id AND production_line_link.bool_delete_enum=0
+        </if>
+        WHERE gro.bool_delete_enum=0
+        -- AND team.bool_nest_cut_enum = 0
+        <!--        <if test="structureClassId!=null">-->
+        <!--            AND production_line_link.link_id=#{structureClassId}-->
+        <!--        </if>-->
+        <if test="doParam.productType!=null">
+            AND production_line.product_type &amp; #{doParam.productType}
+            <if test="doParam.productType ==2 and doParam.structureClassId!=null">
+                AND production_line_link.link_id=#{doParam.structureClassId}
+            </if>
+        </if>
+        <if test="doParam.factoryId!=null">
+            AND factory.id = #{doParam.factoryId}
+        </if>
+        <if test="doParam.workshopId!=null">
+            AND workshop.id = #{doParam.workshopId}
+        </if>
+        <if test="doParam.productionLineId!=null">
+            AND production_line.id = #{doParam.productionLineId}
+        </if>
+        AND factory.bool_enabled_enum= 1
+        AND workshop.bool_enabled_enum = 1
+        AND production_line.bool_enabled_enum = 1
+        ORDER BY
+        factory.id,
+        workshop.id,
+        production_line.id,
+        gro.id
+
+    </select>
+
+    <select id="getDrillGroupsTree"
+            resultMap="MesBuildingFactoryDO">
+        SELECT
+        factory.id factory_id,
+        factory.`name` factory_name,
+        workshop.id workshop_id,
+        workshop.`name`  workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        gro.id,
+        gro.`name`
+        FROM
+        mes_building_groups gro
+        LEFT JOIN mes_building_factory factory ON gro.factory_id = factory.id
+        LEFT JOIN mes_building_workshop workshop ON gro.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON gro.production_line_id = production_line.id
+        <if test="structureClassId!=null">
+            LEFT JOIN mes_building_production_line_link production_line_link ON
+            production_line_link.production_line_id=production_line.id AND production_line_link.bool_delete_enum=0
+        </if>
+        WHERE
+        gro.id IN(SELECT groups_id FROM mes_building_groups_team_link WHERE team_id IN (SELECT id FROM mes_building_team WHERE process_id IN (SELECT id FROM mes_building_process WHERE type=8)) AND bool_delete_enum=0)
+        AND  gro.bool_delete_enum=0
+        <!--        <if test="structureClassId!=null">-->
+        <!--            AND production_line_link.link_id=#{structureClassId}-->
+        <!--        </if>-->
+        <if test="productType!=null">
+            AND production_line.product_type &amp; #{productType}
+            <if test="productType ==2 and structureClassId!=null">
+                AND production_line_link.link_id=#{structureClassId}
+            </if>
+        </if>
+        <if test="factoryId!=null">
+            AND factory.id = #{factoryId}
+        </if>
+        <if test="workshopId!=null">
+            AND workshop.id = #{workshopId}
+        </if>
+        <if test="productionLineId!=null">
+            AND production_line.id = #{productionLineId}
+        </if>
+        AND factory.bool_enabled_enum= 1
+        AND workshop.bool_enabled_enum = 1
+        AND production_line.bool_enabled_enum = 1
+        ORDER BY factory.sort,workshop.sort,production_line.sort,gro.sort
+    </select>
+    <select id="getTreeByGroupId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.GroupDetailDTO">
+        SELECT gro.id      'groupId',
+               gro.`name`  'groupName',
+               line.id     'productionLineId',
+               line.`name` 'productionLineName',
+               ws.id       'workshopId',
+               ws.`name`   'workshopName',
+               fac.id      'factoryId',
+               fac.`name`  'factoryName'
+        FROM mes_building_groups gro
+                 LEFT JOIN mes_building_production_line line ON gro.production_line_id = line.id
+                 LEFT JOIN mes_building_workshop ws ON gro.workshop_id = ws.id
+                 LEFT JOIN mes_building_factory fac ON fac.id = gro.factory_id
+        WHERE gro.id = #{groupsId}
+    </select>
+    <select id="processDriling"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.TaskProcessDullDTO">
+        SELECT DISTINCT
+            a.production_line_id 'productionLine.id',
+            pl.`name` 'productionLine.name',
+            b.id 'process.id',
+            b.`name` 'process.name',
+            b.type 'process.type'
+        FROM
+            mes_building_groups a
+                LEFT JOIN mes_building_groups_team_link tl ON tl.groups_id = a.id AND tl.bool_delete_enum=0
+                LEFT JOIN mes_building_team t ON t.id = tl.team_id AND t.bool_delete_enum=0
+                LEFT JOIN mes_building_process b ON b.id = t.process_id AND b.bool_delete_enum=0
+                LEFT JOIN mes_building_production_line pl ON pl.id=a.production_line_id AND pl.bool_delete_enum=0
+        WHERE
+            a.bool_delete_enum = 0
+          AND a.workshop_id = #{workShopId}
+          AND b.type =8
+    </select>
+    <select id="selectGroupsByids"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.factory.MesBuildingGroupSumDO">
+        SELECT
+            gro.id 'groupId',
+            gro.`name` 'groupName',
+            line.id 'lineId',
+            line.`name` 'lineName',
+            workshop.id 'workshopId',
+            workshop.`name` 'workshopName',
+            factory.id 'factoryId',
+            factory.`name` 'factoryName'
+        FROM
+        mes_building_groups gro
+        LEFT JOIN mes_building_production_line line ON gro.production_line_id = line.id
+        AND line.bool_delete_enum = 0
+        LEFT JOIN mes_building_factory factory ON gro.factory_id = factory.id
+        AND factory.bool_delete_enum = 0
+        AND factory.bool_enabled_enum = 1
+        LEFT JOIN mes_building_workshop workshop ON gro.workshop_id = workshop.id
+        AND workshop.bool_delete_enum = 0
+        AND workshop.bool_enabled_enum = 1
+        WHERE
+        gro.bool_delete_enum=0
+        AND line.bool_enabled_enum =1
+        <if test="groupIds!=null">
+            and gro.id in
+            <foreach collection="groupIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getProductionLineAndGroupsList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.GroupDetailDTO">
+        SELECT
+            production_line.id production_line_id,
+            production_line.`name` production_line_name,
+            gro.id group_id,
+            gro.`name` group_name
+        FROM
+            mes_building_groups gro
+                LEFT JOIN mes_building_production_line production_line ON gro.production_line_id = production_line.id
+                LEFT JOIN mes_building_production_line_link production_line_link ON production_line_link.production_line_id = production_line.id
+                AND production_line_link.bool_delete_enum = 0
+        WHERE
+            gro.bool_delete_enum = 0
+          AND production_line.product_type &amp; #{productType}
+	AND production_line_link.link_id = #{structureClassId}
+	AND production_line.bool_enabled_enum = 1
+        ORDER BY
+            production_line.sort,
+            gro.sort
+    </select>
+    <select id="selectgroupByproductionLine"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.factory.MesBuildingGroups">
+        SELECT
+        gro.*
+        FROM
+            mes_building_groups gro
+                LEFT JOIN mes_building_production_line line ON line.id = gro.production_line_id
+                AND line.bool_enabled_enum = 1
+        WHERE
+        gro.bool_delete_enum = 0
+        <if test="productionLineName!=null and productionLineName!=''">
+            AND line.name = #{productionLineName}
+        </if>
+        <if test="groupsName!=null and groupsName!=''">
+            AND gro.name = #{groupsName}
+        </if>
+        <if test="productType!=null">
+            AND line.product_type= #{productType}
+        </if>
+    </select>
+    <select id="getTreeByGroupIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.GroupDetailDTO">
+        SELECT gro.id      'groupId',
+                gro.`name`  'groupName',
+                line.id     'productionLineId',
+                line.`name` 'productionLineName',
+                ws.id       'workshopId',
+                ws.`name`   'workshopName',
+                fac.id      'factoryId',
+                fac.`name`  'factoryName'
+        FROM mes_building_groups gro
+                 LEFT JOIN mes_building_production_line line ON gro.production_line_id = line.id
+                 LEFT JOIN mes_building_workshop ws ON gro.workshop_id = ws.id
+                 LEFT JOIN mes_building_factory fac ON fac.id = gro.factory_id
+        WHERE
+        <if test="groupsIds != null and groupsIds.size() != 0">
+            gro.id in
+            <foreach collection="groupsIds" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+
+    </select>
+    <select id="findTeamByGroupsId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.factory.MesBuildingGroupsDTO">
+        select
+            grp.*,
+            team.id as teamId,
+            team.process_id,
+            tulink.user_name as teamName
+        from mes_building_groups grp
+        left join mes_building_groups_team_link gtlink on grp.id = gtlink.groups_id
+        left join mes_building_team_user_link tulink on gtlink.team_id = tulink.team_id
+        left join mes_building_team team on tulink.team_id = team.id
+        where grp.bool_delete_enum = 0
+        and gtlink.bool_delete_enum = 0
+        and tulink.bool_delete_enum = 0
+        and team.bool_delete_enum = 0
+        and tulink.bool_leader_enum = 1
+        <if test="groupsIds">
+            and grp.id in
+            <foreach collection="groupsIds" item="groupId" open="(" separator="," close=")">
+            #{groupId}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

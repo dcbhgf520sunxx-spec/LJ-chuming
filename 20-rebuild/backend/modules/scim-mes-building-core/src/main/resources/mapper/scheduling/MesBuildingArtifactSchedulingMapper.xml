@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingArtifactSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingArtifactScheduling">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="groups_id" property="groupsId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="task_quantity" property="taskQuantity"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="status" property="status"/>
+        <result column="issue_status" property="issueStatus"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, factory_id, workshop_id, production_line_id, groups_id, project_id, monomer_id, area_id, quantity, task_quantity, ask_complete_time, status, issue_status, user_id
+    </sql>
+
+    <select id="artifactByConditionList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingDO">
+        SELECT
+        artifact.id product_id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.area_id 'area.id',
+        artifact.area_batch_id 'areaBatch.id',
+        pa.name 'area.name',
+        areabatch.name 'areaBatch.name',
+        artifact.monomer_id 'monomer.id',
+        pm.name 'monomer.name',
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.quantity,
+        artifact.net_weight*artifact.quantity total_net_weight,
+        artifact.gross_weight*artifact.quantity total_gross_weight,
+        IFNULL(scheduling.scheduling_quantity,0) scheduling_quantity,
+        IFNULL(scheduling.scheduling_quantity*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL(scheduling.scheduling_quantity*artifact.gross_weight,0) scheduling_total_gross_weight,
+        artifact.quantity-artifact.subscription_quantity-IFNULL(scheduling.scheduling_quantity,0) un_scheduling_quantity,
+        (artifact.quantity-artifact.subscription_quantity-IFNULL(scheduling.scheduling_quantity,0))*artifact.net_weight un_scheduling_total_net_weight,
+        (artifact.quantity-artifact.subscription_quantity-IFNULL(scheduling.scheduling_quantity,0))*artifact.gross_weight
+        un_scheduling_total_gross_weight
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT product_id, sum(quantity) scheduling_quantity FROM mes_building_artifact_scheduling WHERE
+        bool_delete_enum = 0 AND area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        LEFT JOIN plan_area pa ON pa.id = artifact.area_id
+        LEFT JOIN plan_area_batch areabatch ON areabatch.id = artifact.area_batch_id
+        LEFT JOIN plan_monomer pm ON pm.id = artifact.monomer_id
+        WHERE
+        artifact.bool_delete_enum = 0
+        AND artifact.structure_class_id is not null and artifact.bool_scheduling_enum = 1
+        AND artifact.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="monomerId != null">
+            AND artifact.monomer_id = #{monomerId}
+        </if>
+        <if test="structureClassIds!=null and structureClassIds.size()!=0">
+            AND artifact.structure_class_id IN
+            <foreach collection="structureClassIds" separator="," item="classId" open="(" close=")">
+                #{classId}
+            </foreach>
+        </if>
+        <if test="structureClassId!=null ">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            AND artifact.serial_number LIKE concat('%',#{serialNumber},'%')
+        </if>
+        <if test="artNames!=null and artNames.size()!=0">
+            AND artifact.name IN
+            <foreach collection="artNames" separator="," item="name" open="(" close=")">
+                #{name}
+            </foreach>
+        </if>
+        <if test="name!=null and name!=''">
+            AND artifact.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="material!=null and material!='' ">
+            AND artifact.material LIKE concat('%', #{material},'%')
+        </if>
+        <if test="specification!=null and specification!=''">
+            AND artifact.specification LIKE concat('%', #{specification},'%')
+        </if>
+        AND artifact.quantity-artifact.subscription_quantity-IFNULL(scheduling.scheduling_quantity,0)>0
+        <if test="productionLineTypeEnum != null">
+            <choose>
+                <when test="productionLineTypeEnum == 1">
+                    AND artifact.smart_line_mark_word is NULL
+                </when>
+                <otherwise>
+                    AND artifact.smart_line_mark_word is NOT NULL
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY artifact.specification ASC
+    </select>
+
+    <select id="getProductionLineTypeList" resultType="java.lang.Integer">
+        SELECT DISTINCT
+        classification.production_line_type_enum
+        FROM
+        (
+        SELECT
+        artifact.structure_class_id
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT product_id, sum(quantity) scheduling_quantity FROM mes_building_artifact_scheduling WHERE
+        bool_delete_enum = 0
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+            AND area_id IN
+            <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        WHERE
+        artifact.bool_delete_enum = 0
+        AND
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+            artifact.area_id IN
+            <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        AND artifact.quantity-IFNULL(scheduling.scheduling_quantity,0)>0
+        ) artifact
+        LEFT JOIN sys_structure_classification classification ON artifact.structure_class_id = classification.id
+        WHERE classification.id is not null
+    </select>
+    <select id="getArtifactTypeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactTypeDO">
+        SELECT
+        classification.id structure_class_id,
+        classification.classification_name name,
+        classification.artifact_type,
+        classification.production_line_type_enum,
+        classification.mes_product_enum,
+        sum(artifact.un_scheduling_quantity) quantity
+        FROM
+        (
+        SELECT
+        artifact.structure_class_id,
+        artifact.id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.quantity,
+        artifact.net_weight*artifact.quantity total_net_weight,
+        artifact.gross_weight*artifact.quantity total_gross_weight,
+        IFNULL(scheduling.scheduling_quantity,0) scheduling_quantity,
+        IFNULL(scheduling.scheduling_quantity*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL(scheduling.scheduling_quantity*artifact.gross_weight,0) scheduling_total_gross_weight,
+        (artifact.quantity- artifact.subscription_quantity) - IFNULL(scheduling.scheduling_quantity,0) un_scheduling_quantity,
+        (artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0))*artifact.net_weight un_scheduling_total_net_weight,
+        (artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0))*artifact.gross_weight
+        un_scheduling_total_gross_weight
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT product_id, sum(quantity) scheduling_quantity FROM mes_building_artifact_scheduling WHERE
+        bool_delete_enum = 0
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+                  AND area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        </if>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        WHERE
+        artifact.bool_delete_enum = 0 and artifact.bool_scheduling_enum = 1
+
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+            AND artifact.area_batch_id IN
+                <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        </if>
+        <if test="structureClassId!=null and structureClassId.size()!=0">
+            AND artifact.structure_class_id IN
+            <foreach collection="structureClassId" separator="," item="classId" open="(" close=")">
+                #{classId}
+            </foreach>
+        </if>
+        <if test="structureClassId!=null ">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="artNames!=null and artNames.size()!=0">
+            AND artifact.name IN
+            <foreach collection="artNames" separator="," item="name" open="(" close=")">
+                #{name}
+            </foreach>
+        </if>
+
+        AND artifact.quantity - artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0)>0
+          <if test="productionLineTypeEnum != null">
+              <choose>
+                  <when test="productionLineTypeEnum == 1">
+                      AND artifact.smart_line_mark_word is NULL
+                  </when>
+                  <otherwise>
+                      AND artifact.smart_line_mark_word is NOT NULL
+                  </otherwise>
+              </choose>
+          </if>
+        ) artifact
+        LEFT JOIN sys_structure_classification classification ON artifact.structure_class_id = classification.id
+        WHERE classification.id is not null
+        GROUP BY
+        classification.id ,
+        classification.classification_name ,
+        classification.production_line_type_enum,
+        classification.artifact_type,
+        classification.mes_product_enum
+    </select>
+    <select id="getArtifactNameList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactTypeDO">
+        SELECT
+        artifact.name,
+        sum(artifact.un_scheduling_quantity) quantity
+        FROM
+        (
+        SELECT
+        artifact.`name`,
+        artifact.quantity-IFNULL(scheduling.scheduling_quantity,0) un_scheduling_quantity
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT product_id, sum(quantity) scheduling_quantity FROM mes_building_artifact_scheduling WHERE
+        bool_delete_enum = 0
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+            AND area_id IN
+            <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        WHERE
+        artifact.bool_delete_enum = 0
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+            AND artifact.area_id IN
+            <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="artName!=null">
+            AND artifact.name = #{artName}
+        </if>
+        AND artifact.quantity-IFNULL(scheduling.scheduling_quantity,0)>0
+        ) artifact
+        GROUP BY
+        artifact.name
+    </select>
+
+    <select id="getArtifactSchedulingRecordList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingDO">
+        SELECT
+        scheduling.id,
+        artifact.structure_class_id,
+        artifact.id product_id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.area_id 'area.id',
+        artifact.area_batch_id 'areaBatch.id',
+        area.name 'area.name',
+        areabatch.name 'areaBatch.name',
+        artifact.monomer_id 'monomer.id',
+        monomer.name 'monomer.name',
+        scheduling.project_id 'project.id',
+        project.name 'project.name',
+        scheduling.workshop_id 'workshop.id',
+        workshop.name 'workshop.name',
+        scheduling.production_line_id 'production_line.id',
+        production_line.name 'production_line.name',
+        production_line.production_line_type_enum 'production_line.production_line_type_enum',
+        scheduling.groups_id 'groups.id',
+        scheduling.ask_complete_time,
+        gro.name 'groups.name',
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.quantity,
+        structure_class.id 'structure_class.id',
+        structure_class.classification_name 'structure_class.name',
+        artifact.net_weight*artifact.quantity total_net_weight,
+        artifact.gross_weight*artifact.quantity total_gross_weight,
+        IFNULL(scheduling.quantity-scheduling.task_quantity,0) scheduling_quantity,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.gross_weight,0) scheduling_total_gross_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN contract_project project ON project .id =scheduling.project_id
+        LEFT JOIN plan_monomer monomer ON monomer.id = scheduling.monomer_id
+        LEFT JOIN plan_area area ON area.id = scheduling.area_id
+        LEFT JOIN plan_area_batch areabatch ON areabatch.id = scheduling.area_batch_id
+        LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        LEFT JOIN mes_building_groups gro ON scheduling.groups_id=gro.id
+        LEFT JOIN sys_structure_classification structure_class ON artifact.structure_class_id=structure_class.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="productionLineId != null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+        ORDER BY
+        scheduling.factory_id,
+        scheduling.workshop_id ,
+        scheduling.production_line_id ,
+        scheduling.groups_id ,
+        scheduling.project_id ,
+        artifact.monomer_id ,
+        artifact.area_id ,
+        artifact.area_batch_id ,
+        artifact.project_id,
+        artifact.specification,
+        artifact.length
+    </select>
+
+    <select id="getArtifactSchedulingRecordList2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingDO">
+        SELECT
+        scheduling.id,
+        artifact.structure_class_id,
+        artifact.id product_id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.area_id 'area.id',
+        artifact.area_batch_id 'areaBatch.id',
+        area.name 'area.name',
+        areabatch.name 'areaBatch.name',
+        artifact.monomer_id 'monomer.id',
+        monomer.name 'monomer.name',
+        scheduling.project_id 'project.id',
+        project.name 'project.name',
+        scheduling.workshop_id 'workshop.id',
+        workshop.name 'workshop.name',
+        scheduling.production_line_id 'production_line.id',
+        production_line.name 'production_line.name',
+        production_line.production_line_type_enum 'production_line.production_line_type_enum',
+        scheduling.ask_complete_time,
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.quantity,
+        structure_class.id 'structure_class.id',
+        structure_class.classification_name 'structure_class.name',
+        artifact.net_weight*artifact.quantity total_net_weight,
+        artifact.gross_weight*artifact.quantity total_gross_weight,
+        IFNULL(scheduling.quantity-scheduling.task_quantity,0) scheduling_quantity,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.gross_weight,0) scheduling_total_gross_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN contract_project project ON project .id =scheduling.project_id
+        LEFT JOIN plan_monomer monomer ON monomer.id = scheduling.monomer_id
+        LEFT JOIN plan_area area ON area.id = scheduling.area_id
+        LEFT JOIN plan_area_batch areabatch ON areabatch.id = scheduling.area_batch_id
+        LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        LEFT JOIN sys_structure_classification structure_class ON artifact.structure_class_id=structure_class.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="artName != null">
+           and artifact.name = #{artName}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="productionLineId != null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+        ORDER BY
+        scheduling.factory_id,
+        scheduling.workshop_id ,
+        scheduling.production_line_id,
+        scheduling.project_id ,
+        artifact.monomer_id ,
+        artifact.area_id ,
+        artifact.area_batch_id ,
+        artifact.project_id,
+        artifact.specification,
+        artifact.length
+    </select>
+    <select id="getArtifactSchedulingRecordListV8"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingDO">
+        SELECT
+        scheduling.id,
+        artifact.structure_class_id,
+        artifact.id product_id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.area_id 'area.id',
+        area.name 'area.name',
+        artifact.monomer_id 'monomer.id',
+        monomer.name 'monomer.name',
+        scheduling.project_id 'project.id',
+        project.name 'project.name',
+        scheduling.workshop_id 'workshop.id',
+        workshop.name 'workshop.name',
+        scheduling.production_line_id 'production_line.id',
+        production_line.name 'production_line.name',
+        production_line.production_line_type_enum 'production_line.production_line_type_enum',
+        scheduling.ask_complete_time,
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.quantity,
+        structure_class.id 'structure_class.id',
+        structure_class.classification_name 'structure_class.name',
+        artifact.net_weight*artifact.quantity total_net_weight,
+        artifact.gross_weight*artifact.quantity total_gross_weight,
+        IFNULL(scheduling.quantity-scheduling.task_quantity,0) scheduling_quantity,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL((scheduling.quantity-scheduling.task_quantity)*artifact.gross_weight,0) scheduling_total_gross_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN contract_project project ON project .id =scheduling.project_id
+        LEFT JOIN plan_monomer monomer ON monomer.id = scheduling.monomer_id
+        LEFT JOIN plan_area area ON area.id = scheduling.area_id
+        LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id = workshop.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        LEFT JOIN sys_structure_classification structure_class ON artifact.structure_class_id=structure_class.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="artName != null">
+            and artifact.name = #{artName}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="productionLineId != null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+        ORDER BY
+        scheduling.factory_id,
+        scheduling.workshop_id ,
+        scheduling.production_line_id,
+        scheduling.project_id ,
+        artifact.monomer_id ,
+        artifact.area_id ,
+        artifact.project_id,
+        artifact.specification,
+        artifact.length
+    </select>
+    <select id="getArtifactRecordTypeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactTypeDO">
+        SELECT
+        classification.id structure_class_id,
+        classification.classification_name name,
+        classification.artifact_type,
+        classification.production_line_type_enum,
+        sum(artifact.scheduling_quantity) quantity
+        FROM
+        (
+        SELECT
+        artifact.structure_class_id,
+        artifact.id product_id,
+        IFNULL(scheduling.quantity,0) scheduling_quantity,
+        IFNULL(scheduling.quantity*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL(scheduling.quantity*artifact.gross_weight,0) scheduling_total_gross_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = scheduling.production_line_id
+        WHERE
+        scheduling.bool_delete_enum = 0 AND scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="groupsId!=null">
+            AND scheduling.groups_id=#{groupsId}
+        </if>
+        <if test="productionLineTypeEnum != null">
+            <choose>
+                <when test="productionLineTypeEnum == 2">
+                    AND production_line.production_line_type_enum = 2
+                </when>
+                <otherwise>
+                    AND production_line.production_line_type_enum = 1
+                </otherwise>
+            </choose>
+        </if>
+        )artifact
+        LEFT JOIN sys_structure_classification classification ON artifact.structure_class_id = classification.id
+        GROUP BY
+        classification.id ,
+        classification.classification_name ,
+        classification.production_line_type_enum,
+        classification.artifact_type
+    </select>
+
+    <select id="getArtifactRecordTypeListV8"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactTypeDO">
+        SELECT
+        classification.id structure_class_id,
+        classification.classification_name name,
+        classification.artifact_type,
+        classification.production_line_type_enum,
+        sum(artifact.scheduling_quantity) quantity
+        FROM
+        (
+        SELECT
+        artifact.structure_class_id,
+        artifact.id product_id,
+        IFNULL(scheduling.quantity,0) scheduling_quantity,
+        IFNULL(scheduling.quantity*artifact.net_weight,0) scheduling_total_net_weight,
+        IFNULL(scheduling.quantity*artifact.gross_weight,0) scheduling_total_gross_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = scheduling.production_line_id
+        WHERE
+        scheduling.bool_delete_enum = 0 AND scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="groupsId!=null">
+            AND scheduling.groups_id=#{groupsId}
+        </if>
+        <if test="productionLineTypeEnum != null">
+            <choose>
+                <when test="productionLineTypeEnum == 2">
+                    AND production_line.production_line_type_enum = 2
+                </when>
+                <otherwise>
+                    AND production_line.production_line_type_enum = 1
+                </otherwise>
+            </choose>
+        </if>
+        )artifact
+        LEFT JOIN sys_structure_classification classification ON artifact.structure_class_id = classification.id
+        GROUP BY
+        classification.id ,
+        classification.classification_name ,
+        classification.production_line_type_enum,
+        classification.artifact_type
+    </select>
+    <select id="getArtifactRecordNameList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactTypeDO">
+        SELECT
+        artifact.name name,
+        sum(IFNULL( scheduling.quantity, 0 )) quantity
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = scheduling.production_line_id
+        WHERE
+        scheduling.bool_delete_enum = 0 AND scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="productionLineId!=null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+        GROUP BY
+        artifact.name
+    </select>
+    <select id="getArtifactRecordProductionTypeList" resultType="java.lang.Boolean">
+        SELECT
+        DISTINCT production_line.production_line_type_enum
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = scheduling.production_line_id
+        WHERE
+        scheduling.bool_delete_enum = 0
+        AND scheduling.quantity - scheduling.task_quantity > 0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+    </select>
+    <select id="artifactByConditionSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingSummaryDO">
+        SELECT
+        sum(artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0)) quantity,
+        sum((artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0))*artifact.net_weight) total_net_weight
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT product_id, sum(quantity) scheduling_quantity FROM mes_building_artifact_scheduling WHERE
+        bool_delete_enum = 0
+    <if test="areaIdList!=null and areaIdList.size()!=0">
+         AND area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+    </if>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        WHERE
+        artifact.bool_delete_enum = 0
+        <if test="areaIdList!=null and areaIdList.size()!=0">
+        AND artifact.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        </if>
+          <if test="monomerId != null">
+             and artifact.monomer_id = #{monomerId}
+          </if>
+        <if test="structureClassIds!=null and structureClassIds.size()!=0">
+            AND artifact.structure_class_id IN
+            <foreach collection="structureClassIds" separator="," item="classId" open="(" close=")">
+                #{classId}
+            </foreach>
+        </if>
+        <if test="structureClassId!=null ">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="artNames!=null and artNames.size()!=0">
+            AND artifact.name IN
+            <foreach collection="artNames" separator="," item="name" open="(" close=")">
+                #{name}
+            </foreach>
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            AND artifact.serial_number LIKE concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification!=null and specification!=''">
+            AND artifact.specification LIKE concat('%', #{specification},'%')
+        </if>
+        <if test="material!=null and material!=''">
+            AND artifact.material  LIKE concat('%', #{material},'%')
+        </if>
+        <if test="name!=null and name!=''">
+            AND artifact.name LIKE concat('%',#{name},'%')
+        </if>
+        AND artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0)>0
+    </select>
+    <select id="getArtifactSchedulingRecordSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingSummaryDO">
+        SELECT
+        IFNULL(sum(scheduling.quantity-scheduling.task_quantity),0) quantity,
+        IFNULL(sum((scheduling.quantity-scheduling.task_quantity)*artifact.net_weight),0)total_net_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="productionLineId != null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+    </select>
+    <select id="getArtifactSchedulingRecordSummary2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingSummaryDO">
+        SELECT
+        IFNULL(sum(scheduling.quantity-scheduling.task_quantity),0) quantity,
+        IFNULL(sum((scheduling.quantity-scheduling.task_quantity)*artifact.net_weight),0)total_net_weight,
+        max(scheduling.ask_complete_time) AS maxAskCompleteTime,
+        min(scheduling.ask_complete_time) AS minAskCompleteTime
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="artName!= null">
+            and artifact.name = #{artName}
+        </if>
+        <if test="productionLineId != null">
+            AND scheduling.production_line_id = #{productionLineId}
+        </if>
+    </select>
+    <select id="getRecordProductionLineTypeList" resultType="java.lang.Long">
+        SELECT DISTINCT
+        classification.production_line_type_enum
+        FROM
+        (
+        SELECT
+        artifact.structure_class_id
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON production_line.id = scheduling.production_line_id
+        WHERE
+        scheduling.bool_delete_enum = 0 AND scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        )artifact
+        LEFT JOIN sys_structure_classification classification ON artifact.structure_class_id = classification.id
+    </select>
+    <select id="getGroupsRecordSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactSchedulingGroupSummaryDO">
+        SELECT
+        workshop_id 'workshop.id',
+        workshop_name 'workshop.name',
+        production_line_id 'production_line.id',
+        production_line_name 'production_line.name',
+        groups_id 'groups.id',
+        groups_name 'groups.name',
+        IFNULL( sum( quantity ), 0 ) 'mete.quantity',
+        IFNULL( sum( total_net_weight ), 0 ) 'mete.net_weight'
+        FROM
+        (
+        SELECT
+        workshop.id workshop_id,
+        workshop.`name` workshop_name,
+        production_line.id production_line_id,
+        production_line.`name` production_line_name,
+        gro.id groups_id,
+        gro.`name` groups_name,
+        scheduling.quantity - scheduling.task_quantity quantity,
+        ( scheduling.quantity - scheduling.task_quantity )* artifact.net_weight total_net_weight
+        FROM
+        mes_building_artifact_scheduling scheduling
+        LEFT JOIN tech_artifact artifact ON scheduling.product_id = artifact.id
+        LEFT JOIN mes_building_production_line production_line ON scheduling.production_line_id=production_line.id
+        LEFT JOIN mes_building_workshop workshop ON scheduling.workshop_id=workshop.id
+        LEFT JOIN mes_building_groups gro ON scheduling.groups_id=gro.id
+        WHERE
+        scheduling.bool_delete_enum = 0 and scheduling.quantity-scheduling.task_quantity>0
+        AND scheduling.area_batch_id IN
+        <foreach collection="areaIdList" separator="," item="areaId" open="(" close=")">
+            #{areaId}
+        </foreach>
+        <if test="structureClassId!=null">
+            AND artifact.structure_class_id = #{structureClassId}
+        </if>
+        <if test="issueStatus!=null">
+            AND scheduling.issue_status=0
+        </if>
+        <if test="serialNumber!=null">
+            AND artifact.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="productionLineTypeEnum != null">
+            <choose>
+                <when test="productionLineTypeEnum == 2">
+                    AND production_line.production_line_type_enum = 2
+                </when>
+                <otherwise>
+                    AND production_line.production_line_type_enum = 1
+                </otherwise>
+            </choose>
+        </if>) AS a
+        GROUP BY
+        workshop_id,
+        workshop_name,
+        production_line_id,
+        production_line_name,
+        groups_id,
+        groups_name
+    </select>
+
+
+    <select id="getArtifactNoSchedulingByConditionList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingArtifactNoSchedulingDO">
+        SELECT
+        artifact.id product_id,
+        artifact.`name`,
+        artifact.serial_number,
+        artifact.material,
+        artifact.area_id 'area.id',
+        pa.name 'area.name',
+        artifact.monomer_id 'monomer.id',
+        pm.name 'monomer.name',
+        cp.id 'project.id',
+        cp.name 'project.name',
+        artifact.specification,
+        artifact.length,
+        artifact.net_weight,
+        artifact.gross_weight,
+        artifact.artifact_type,
+        artifact.structure_class_id,
+        artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0) quantity,
+        (artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0))*artifact.net_weight total_net_weight,
+        (artifact.quantity- artifact.subscription_quantity - IFNULL(scheduling.scheduling_quantity,0))*artifact.gross_weight total_gross_weight
+        FROM
+        tech_artifact artifact
+        LEFT JOIN (
+        SELECT product_id, sum(quantity) scheduling_quantity
+        FROM mes_building_artifact_scheduling
+        WHERE bool_delete_enum = 0 AND project_id = #{projectId}
+        <if test="monomerId != null">
+            AND monomer_id  = #{monomerId}
+        </if>
+        <if test="areaId  != null">
+            AND area_id  = #{areaId}
+        </if>
+        GROUP BY product_id ) scheduling ON scheduling.product_id = artifact.id
+        LEFT JOIN plan_area pa ON pa.id = artifact.area_id
+        LEFT JOIN plan_monomer pm ON pm.id = artifact.monomer_id
+        LEFT JOIN contract_project cp ON cp.id = artifact.project_id
+        WHERE
+        artifact.bool_delete_enum = 0 and artifact.project_id = #{projectId}
+        AND artifact.structure_class_id is not null
+        <if test="monomerId != null">
+            AND artifact.monomer_id  = #{monomerId}
+        </if>
+        <if test="areaId  != null">
+            AND artifact.area_id  = #{areaId}
+        </if>
+        <if test="structureClassId!=null">
+            AND structure_class_id = #{structureClassId}
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            AND artifact.serial_number LIKE concat('%',#{serialNumber},'%')
+        </if>
+        <if test="name!=null and name!=''">
+            AND artifact.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="material!=null and material!='' ">
+            AND artifact.material LIKE concat('%', #{material},'%')
+        </if>
+        <if test="specification!=null and specification!=''">
+            AND artifact.specification LIKE concat('%', #{specification},'%')
+        </if>
+        AND artifact.quantity-artifact.subscription_quantity -IFNULL(scheduling.scheduling_quantity,0) > 0
+        ORDER BY artifact.specification,artifact.id ASC
+    </select>
+
+    <select id="findTeamScheduledQuantity"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.scheduling.TeamScheduledInfoDTO">
+        SELECT
+        shop.`name` 'shopName',
+        shop.`name` 'shopName',
+        line.`name` 'lineName',
+        IFNULL( sum( sche.task_quantity ), 0 ) 'scheduledQuantity',
+        ROUND( IFNULL( sum( sche.task_quantity * art.net_weight ), 0 )/ 1000, 3 ) 'scheduledWeight',
+        sum(art.quantity - IFNULL( sche.task_quantity, 0 )) 'unScheduledQuantity',
+        ROUND( sum(( art.quantity - IFNULL( sche.task_quantity, 0 )) * art.net_weight )/ 1000, 3 ) 'unScheduledWeight',
+        sum( task.complete_quantity ) 'completeQuantity',
+        ROUND( sum( task.complete_quantity * art.net_weight )/ 1000, 3 ) 'completeWeight'
+        FROM
+        tech_artifact art
+        INNER JOIN mes_building_artifact_scheduling sche ON sche.product_id = art.id AND sche.bool_delete_enum = 0
+        LEFT JOIN mes_building_task task on sche.id = task.scheduling_id AND task.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop shop ON sche.workshop_id = shop.id AND shop.bool_delete_enum = 0
+        LEFT JOIN mes_building_production_line line ON sche.production_line_id = line.id AND line.bool_delete_enum = 0
+        WHERE
+        art.bool_delete_enum = 0
+        <if test="workshopId != null">
+            and shop.id = #{workshopId}
+        </if>
+        <if test="projectId != null">
+            and art.project_id = #{projectId}
+        </if>
+        GROUP BY
+        shop.`name`,
+        line.`name`
+    </select>
+</mapper>

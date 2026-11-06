@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysAssembleConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysAssembleConfig">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, sort
+    </sql>
+
+
+    <select id="selectAllPrefix" resultType="java.lang.String">
+        select spec_prefix
+        from sys_assemble_spec
+        where bool_delete_enum = 0
+    </select>
+
+    <resultMap id="assembleMap" type="com.hzchum.scim.system.core.api.pojo.dto.AssembleConfigDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="sort" column="sort"/>
+        <result property="boolSectionSteel" column="bool_section_steel"/>
+        <collection property="assembleSpecList" ofType="com.hzchum.scim.system.core.api.pojo.dto.AssembleSpecDTOParam">
+            <result property="specPrefix" column="spec_prefix"/>
+            <result property="specIndex" column="spec_index"/>
+        </collection>
+        <collection property="classifyLinks" ofType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassifyLinkDTO">
+            <result property="classifyId" column="classify_id"/>
+            <result property="classifyName" column="classify_name"/>
+            <result property="path" column="path"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectListByCondition" resultType="com.hzchum.scim.system.core.api.pojo.dto.AssembleConfigDTO">
+        SELECT
+        distinct
+        ac.id,
+        ac.name,
+        ac.sort,
+        ac.bool_section_steel,
+        ac.last_change_id
+        FROM sys_assemble_config AS ac
+        LEFT JOIN  sys_assemble_spec spec on spec.assemble_config_id = ac.id and spec.bool_delete_enum = 0
+        WHERE ac.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND ac.name like concat('%',#{name},'%')
+        </if>
+        <if test="boolSectionSteel != null">
+            AND ac.bool_section_steel = #{boolSectionSteel}
+        </if>
+        <if test="sectionAndNameAndType != null and sectionAndNameAndType != ''">
+            and (ac.name like concat('%',#{sectionAndNameAndType},'%')
+            or  spec.spec_prefix like concat('%',#{sectionAndNameAndType},'%'))
+        </if>
+        <if test="mesProductEnum != null">
+            AND ac.mes_product_enum = #{mesProductEnum}
+        </if>
+        ORDER BY ac.sort, ac.id
+    </select>
+
+    <select id="selectListByCondition2" resultType="com.hzchum.scim.system.core.api.pojo.dto.AssembleConfigDTO">
+        SELECT
+        ac.id,
+        ac.name,
+        ac.sort
+        FROM sys_assemble_config AS ac
+        WHERE ac.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND ac.name like concat('%',#{name},'%')
+        </if>
+        <if test="mesProductEnum != null">
+            AND ac.mes_product_enum = #{mesProductEnum}
+        </if>
+        ORDER BY ac.sort, ac.id
+    </select>
+
+    <select id="selectListByConditionConfig" resultMap="assembleMap">
+        SELECT ac.id,
+        ac.name,
+        ac.sort,
+        ac.bool_section_steel,
+        sas.spec_prefix,
+        sas.spec_index,
+        scl.classify_name,
+        scl.classify_id,
+        scl.path
+        FROM sys_assemble_config AS ac
+        LEFT JOIN sys_assemble_spec AS sas ON ac.id = sas.assemble_config_id
+        LEFT JOIN sys_assemble_classify_link scl on scl.assemble_config_id = ac.id
+        AND sas.bool_delete_enum = 0
+        WHERE ac.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND ac.name like concat('%',#{name},'%')
+        </if>
+        <if test="specPrefix != null and specPrefix != ''">
+            AND sas.spec_prefix like concat('%',#{specPrefix},'%')
+        </if>
+        <if test="mesProductEnum != null">
+            AND ac.mes_product_enum = #{mesProductEnum}
+        </if>
+        ORDER BY ac.sort,ac.id
+    </select>
+    <select id="listConfigIdAndClassify"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassLinkDTO">
+        SELECT
+            config.id 'steelId',
+            config.`name` 'steelName',
+            link.classify_id,
+            link.classify_name,
+            2 'basicClassId'
+        FROM
+            sys_assemble_config config
+                LEFT JOIN sys_assemble_classify_link link ON config.id = link.assemble_config_id
+                AND link.bool_delete_enum = 0
+        WHERE
+            config.bool_delete_enum =0
+--           AND 	config.bool_section_steel =1
+    </select>
+
+    <select id="listConfigIdAndClassifyV2"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassLinkDTO">
+        SELECT steel.id           steel_id,
+               steel.`name`       steel_name,
+               steel. basic_class AS basicClassId,
+               link.classify_id   classify_id,
+               link.classify_name classify_name
+        FROM sys_steel_classification steel
+                 LEFT JOIN sys_steel_classify_link link ON steel.id = link.steel_id
+            AND link.bool_delete_enum = 0
+        WHERE steel.bool_delete_enum = 0 and steel.basic_class = 2
+    </select>
+
+
+</mapper>

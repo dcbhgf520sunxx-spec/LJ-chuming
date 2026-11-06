@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.report_work.MesWageAdjustMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesWageAdjustDTO">
+        SELECT
+            mwa.*,
+            cp.id AS 'project.id',
+            cp.serial_number AS 'project.serial_number',
+            cp.short_name AS 'project.short_name',
+            pm.id AS 'monomer.id',
+            pm.name AS 'monomer.name',
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name',
+            cu.id AS 'createUser.id',
+            cu.name AS 'createUser.name',
+            au.id AS 'approveUser.id',
+            au.name AS 'approveUser.name',
+            pi.quantity AS total_quantity,
+            pi.weight AS total_weight
+        FROM mes_wage_adjust mwa
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = 0 AND cp.id = mwa.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = 0 AND pm.id = mwa.monomer_id
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mwa.process_id
+        LEFT JOIN sys_user cu ON cu.bool_delete_enum = 0 AND cu.id = mwa.create_user_id
+        LEFT JOIN sys_user au ON au.bool_delete_enum = 0 AND au.id = mwa.approve_user_id
+        LEFT JOIN (
+            SELECT
+                mwap.wage_adjust_id,
+                sum(
+                    CASE mwap.product_type_enum
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN artifact.quantity
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()} THEN assemble.quantity
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN tmp.quantity
+                    END
+                ) AS quantity,
+                sum(
+                    CASE mwap.product_type_enum
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN artifact.quantity * artifact.net_weight
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()} THEN assemble.quantity * assemble.net_weight
+                        WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN tmp.quantity * tmp.net_weight
+                    END
+                ) AS weight
+            FROM mes_wage_adjust_product mwap
+            LEFT JOIN tech_artifact artifact ON artifact.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                AND artifact.project_id = mwap.project_id AND artifact.monomer_id = mwap.monomer_id AND artifact.serial_number = mwap.product_serial_number
+            LEFT JOIN tech_assemble assemble ON assemble.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                AND assemble.project_id = mwap.project_id AND assemble.monomer_id = mwap.monomer_id AND assemble.serial_number = mwap.product_serial_number
+            LEFT JOIN tech_machine_part tmp ON tmp.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                AND tmp.project_id = mwap.project_id AND tmp.monomer_id = mwap.monomer_id AND tmp.serial_number = mwap.product_serial_number
+            WHERE mwap.bool_delete_enum = 0
+            GROUP BY mwap.wage_adjust_id
+        ) pi ON pi.wage_adjust_id = mwa.id
+        WHERE mwa.bool_delete_enum = 0
+        <if test="year != null">
+            AND YEAR(mwa.create_time) = #{year}
+        </if>
+        <if test="processId != null">
+            AND mwa.process_id = #{processId}
+        </if>
+        <if test="projectId != null">
+            AND mwa.project_id = #{projectId}
+        </if>
+        <if test="createUserId != null">
+            AND mwa.create_user_id = #{createUserId}
+        </if>
+        <if test="approveUserId != null">
+            AND mwa.approve_user_id = #{approveUserId}
+        </if>
+    </select>
+    <select id="detailById" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.report_work.MesWageAdjustDTO">
+        SELECT
+            mwa.*,
+            cp.id AS 'project.id',
+            cp.serial_number AS 'project.serial_number',
+            cp.short_name AS 'project.short_name',
+            pm.id AS 'monomer.id',
+            pm.name AS 'monomer.name',
+            mbw.id AS 'workshop.id',
+            mbw.name AS 'workshop.name',
+            mbp.id AS 'process.id',
+            mbp.name AS 'process.name',
+            cu.id AS 'createUser.id',
+            cu.name AS 'createUser.name',
+            au.id AS 'approveUser.id',
+            au.name AS 'approveUser.name',
+            pi.quantity AS total_quantity,
+            pi.weight AS total_weight
+        FROM mes_wage_adjust mwa
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = 0 AND cp.id = mwa.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = 0 AND pm.id = mwa.monomer_id
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = 0 AND mbw.id = mwa.workshop_id
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mwa.process_id
+        LEFT JOIN sys_user cu ON cu.bool_delete_enum = 0 AND cu.id = mwa.create_user_id
+        LEFT JOIN sys_user au ON au.bool_delete_enum = 0 AND au.id = mwa.approve_user_id
+        LEFT JOIN (
+            SELECT
+                mwap.wage_adjust_id,
+                sum(
+                        CASE mwap.product_type_enum
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN artifact.quantity
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()} THEN assemble.quantity
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN tmp.quantity
+                        END
+                ) AS quantity,
+                sum(
+                        CASE mwap.product_type_enum
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()} THEN artifact.quantity * artifact.net_weight
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()} THEN assemble.quantity * assemble.net_weight
+                            WHEN ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} THEN tmp.quantity * tmp.net_weight
+                        END
+                ) AS weight
+            FROM mes_wage_adjust_product mwap
+            LEFT JOIN tech_artifact artifact ON artifact.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+                AND artifact.project_id = mwap.project_id AND artifact.monomer_id = mwap.monomer_id AND artifact.serial_number = mwap.product_serial_number
+            LEFT JOIN tech_assemble assemble ON assemble.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+                AND assemble.project_id = mwap.project_id AND assemble.monomer_id = mwap.monomer_id AND assemble.serial_number = mwap.product_serial_number
+            LEFT JOIN tech_machine_part tmp ON tmp.bool_delete_enum = 0 AND mwap.product_type_enum = ${@com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+                AND tmp.project_id = mwap.project_id AND tmp.monomer_id = mwap.monomer_id AND tmp.serial_number = mwap.product_serial_number
+            WHERE mwap.bool_delete_enum = 0
+            GROUP BY mwap.wage_adjust_id
+        ) pi ON pi.wage_adjust_id = mwa.id
+        WHERE mwa.bool_delete_enum = 0 AND mwa.id = #{id}
+    </select>
+</mapper>

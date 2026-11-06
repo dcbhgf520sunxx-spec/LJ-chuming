@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "observedUTC": "2026-11-06T01:18:04.824297+00:00",
+  "status": "partial-preparation-awaiting-provider-inputs",
+  "scope": "17 existing third-party integrations; preparation followed by consolidated testing",
+  "sourceDiscoveryReviewed": 17,
+  "testMaterialsReviewed": 0,
+  "codeOrProtocolBlocked": 10,
+  "realTestReady": 0,
+  "codeOrProtocolBlockedIDs": [
+    "I01",
+    "I03",
+    "I04",
+    "I07",
+    "I08",
+    "I09",
+    "I12",
+    "I13",
+    "I15",
+    "I17"
+  ],
+  "productSourceFilesChanged": 11,
+  "productJavaSourcesCompiled": 10,
+  "javaProbesCompiledNotExecuted": 3,
+  "functionalTestsExecuted": 0,
+  "realThirdPartyTestsExecuted": 0,
+  "newSourceActivated": false,
+  "currentRuntime": "app90/web93 unchanged; HTTP health UP and frozen published inventory matched",
+  "databaseWritesByThisTask": 0,
+  "freshFullDatabasePreservationAuditPerformed": false,
+  "git": {
+    "repository": "https://github.com/dcbhgf520sunxx-spec/LJ-chuming.git",
+    "branch": "main",
+    "head": "0591fc68c6c716ac3b417acbc0b70f16ab631aba",
+    "upstream": "0591fc68c6c716ac3b417acbc0b70f16ab631aba",
+    "remoteMainRechecked": true,
+    "sourceCommitCreated": false,
+    "pushExecuted": false,
+    "stagedChanges": false,
+    "privatePathsIgnored": true
+  },
+  "localSyntaxChecks": {
+    "integrations/prepare.py": {
+      "sha256": "c0566347966eb5a8d49b6df45ee83d36db40bc3793d7a02e1a24bbf595712ab2",
+      "syntax": "passed",
+      "functionalTestsExecuted": false
+    },
+    "integrations/probes/test_prepare.py": {
+      "sha256": "07ef0983dd329fed298fbaa56782dbd70becee069f68fb5ef1de58c74e775a0a",
+      "syntax": "passed",
+      "functionalTestsExecuted": false
+    },
+    "integrations/probes/device-binding-regression.py": {
+      "sha256": "5172ab43037f1957c7f98914df300417044249e03e317866f084db38b2b641e3",
+      "syntax": "passed",
+      "functionalTestsExecuted": false
+    },
+    "frontend-recovered/vite.config.js": {
+      "sha256": "fd3a1f885ec470bc18a6360920ce876b705c71b264dc1e824cc06dccbcf56c49",
+      "syntax": "passed",
+      "functionalTestsExecuted": false
+    },
+    "integrations/probes/browser-policy.mjs": {
+      "sha256": "0f1f7afe4b9e77ab0f05435a1575253e69a98af75b850572f02b5efad33a99eb",
+      "syntax": "passed",
+      "functionalTestsExecuted": false
+    }
+  },
+  "evidence": {
+    "integrations/catalog.json": "c3e57cccb6e45ca6deaa40e6f18690f125126ddb0e17b268d872a209ace3a10a",
+    "integrations/source-preparation-manifest.json": "d5d50e50d471af6c2c03f8fb8ca06d279766804f551f7f98b5a232b1a2afc21c",
+    "integrations/preparation-status.json": "dba6d7d20b88edfd6a00f5d3d26211c5f49ba65c7ca1890fd6ccfaae33929a2d",
+    "integrations/runtime/compile-only/report.json": "be9f1e2d29f9d54718eea9c806fddb8e7b78c4d21b984c60affab6ef1bc79bee",
+    "integrations/runtime/current-runtime-readback.json": "1de841d94cc433f8afaac716f053b39d119f1b462886103387f7d8b4a3ab3123",
+    "integrations/运维资料清单.md": "4c0dd075430851ada69beec65441305611be19c88d8f430ff34d991c997211c6",
+    "integrations/统一测试清单.md": "7c5cfbd732d33ec08af4f6ee91d43a966213fc6a24a058bbdfe045c400269402",
+    "docs/superpowers/plans/2026-11-06-third-party-preparation.md": "07d4db19c8b00d235c33a9e9b090235d6ea2554e329f2b8ea6c849276161e833"
+  },
+  "nextRequiredInputs": "Reviewed test contracts, identities, endpoint/callback/network mappings and actual device/printing client material in integrations/private/; then finish exact auth and protocol adapters before consolidated tests.",
+  "publicationMetadataNote": "Only the Git handoff wording in the material checklist was refreshed for separately authorized publication; original preparation observations and unexecuted integration-test status remain unchanged."
+}

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectWasteProductMainMapper">
+
+    <resultMap type="com.hzchum.scim.project.core.api.pojo._do.ProjectWasteProductMain" id="projectWasteProductMainMap">
+        <result property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="boolDeleteEnum" column="bool_delete_enum"/>
+        <result property="version" column="version"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="projectId" column="project_id"/>
+        <result property="productType" column="product_type"/>
+        <result property="accountingUnit" column="accounting_unit"/>
+        <result property="quantity" column="quantity"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="auditUserId" column="audit_user_id"/>
+        <result property="auditStatus" column="audit_status"/>
+        <result property="handleMethod" column="handle_method"/>
+        <result property="storageLocation" column="storage_location"/>
+        <result property="freight" column="freight"/>
+        <result property="remark" column="remark"/>
+        <result property="auditRemark" column="audit_remark"/>
+        <result property="relationType" column="relation_type"/>
+    </resultMap>
+
+    <select id="selectWasteProductMainList"
+            resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectWasteProductMainDTO">
+        select
+        wm.*,
+        cp.name useProjectName,
+        su.name createUserName,
+        sua.name auditUserName,
+        bc.name AS branch_company_name,
+        cw.purchaser
+        FROM project_waste_product_main wm
+        LEFT JOIN contract_project cp ON wm.use_project_id = cp.id
+        LEFT JOIN sys_branch_company AS bc on wm.branch_company_id = bc.id
+        LEFT JOIN contract_waste AS cw on wm.contract_waste_id = cw.id
+        LEFT JOIN sys_user su ON wm.create_user_id = su.id
+        LEFT JOIN sys_user sua ON wm.audit_user_id = sua.id
+        WHERE wm.bool_delete_enum = 0
+        <if test="projectName != null and projectName != ''">
+            and (cp.name like concat('%', #{projectName},'%')
+            or cp.short_name like concat('%', #{projectName},'%')
+            or cp.serial_number like concat('%', #{projectName},'%')
+            )
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and su.name like concat('%',#{createUserName},'%')
+        </if>
+        <if test="auditUserName != null and auditUserName != ''">
+            and sua.name like concat('%',#{auditUserName},'%')
+        </if>
+        <if test="serialNumber != null">
+            and wm.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="auditStatus != null">
+            and wm.audit_status = #{auditStatus}
+        </if>
+        <if test="productType != null">
+            and wm.product_type = #{productType}
+        </if>
+        <if test="relationType != null">
+            and wm.relation_type = #{relationType}
+        </if>
+        <if test="createTimeStartDate != null">
+            and wm.create_time &gt;= #{createTimeStartDate}
+        </if>
+        <if test="createTimeEndDate != null">
+            and wm.create_time &lt;= #{createTimeEndDate}
+        </if>
+        ORDER BY wm.id DESC
+    </select>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.rest.core.mapper.WmsForSaleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsForSale">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="invoice_type" property="invoiceType" />
+        <result column="tax_rate" property="taxRate" />
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_VAT" property="amountExcludingVat" />
+        <result column="input_VAT" property="inputVat" />
+        <result column="outbound_id" property="outboundId" />
+        <result column="outbound_serial_number" property="outboundSerialNumber" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="reviewer_id" property="reviewerId" />
+        <result column="reviewer_name" property="reviewerName" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="branch_company_id" property="branchCompanyId" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        id, serial_number, invoice_type, tax_rate, amount, amount_excluding_VAT, input_VAT, outbound_id, outbound_serial_number, review_status, reviewer_id, reviewer_name, applicant_id, applicant_name, branch_company_id, remark
+    </sql>
+
+</mapper>

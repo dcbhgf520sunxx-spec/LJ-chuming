@@ -1,0 +1,979 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingOutputReportMapper">
+
+  <select id="beginPutPart" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT
+    ta.structure_type,
+    any_value ( tmp.gross_weight ) gross_weight,
+    ROUND(SUM(mbtnmps.need_quantity * tmp.gross_weight) / 1000, 3) beginPutPart
+    FROM
+    mes_building_task_need_machine_part_scheduling mbtnmps
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtnmps.product_id
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtnmps.task_id
+    LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id
+    WHERE
+    mbtnmps.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbt.ask_complete_time, '%Y%m' ) &gt;= #{yearMonth}
+    </if>
+    GROUP BY
+    ta.structure_type
+  </select>
+
+  <select id="beginFinishProduct" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT
+    ta.structure_type,
+    ROUND(sum( ta.gross_weight * mbc.quantity ) / 1000, 3) beginFinishProduct
+    FROM
+    mes_building_complete mbc
+    LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+    WHERE
+    mbc.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbc.create_time, '%Y%m' ) &gt;= #{yearMonth}
+    </if>
+    GROUP BY
+    ta.structure_type
+  </select>
+
+  <select id="beginPutPartThisMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT
+    ta.structure_type,
+    any_value ( tmp.gross_weight ) gross_weight,
+    sum( mbtnmps.need_quantity * tmp.gross_weight ) thisMonthPutPart,
+    sum( ta.gross_weight * ta.produced_quantity ) thisMonthPutPart
+    FROM
+    mes_building_task_need_machine_part_scheduling mbtnmps
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtnmps.product_id
+    AND tmp.bool_delete_enum = 0
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtnmps.task_id
+    AND mbt.bool_delete_enum = 0
+    LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id
+    AND ta.bool_delete_enum = 0
+    WHERE
+    mbtnmps.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbt.ask_complete_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    ta.structure_type
+  </select>
+
+  <select id="beginFinishProductThisMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT
+    ta.structure_type,
+    sum( ta.gross_weight * mbc.quantity ) thisMonthFinishProduct
+    FROM
+    mes_building_complete mbc
+    LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id AND ta.bool_delete_enum = 0
+    WHERE
+    mbc.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbc.create_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    ta.structure_type
+  </select>
+
+  <select id="beginPutPartThisMonthGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDetailDO">
+    SELECT
+    ta.structure_type,
+    cp.id AS project_id,
+    any_value ( tmp.gross_weight ) gross_weight,
+    sum( mbtnmps.need_quantity * tmp.gross_weight ) thisMonthPutPart,
+    sum( ta.gross_weight * ta.produced_quantity ) thisMonthPutPart
+    FROM
+    mes_building_task_need_machine_part_scheduling mbtnmps
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtnmps.product_id
+    AND tmp.bool_delete_enum = 0
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtnmps.task_id
+    AND mbt.bool_delete_enum = 0
+    LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id
+    AND ta.bool_delete_enum = 0
+    LEFT JOIN contract_project cp ON cp.id = mbtnmps.project_id
+    WHERE
+    mbtnmps.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbt.ask_complete_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    ta.structure_type,
+    cp.id
+  </select>
+
+  <select id="beginFinishProductThisMonthGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDetailDO">
+    SELECT
+    ta.structure_type,
+    cp.id AS project_id,
+    sum( ta.gross_weight * mbc.quantity ) thisMonthFinishProduct
+    FROM
+    mes_building_complete mbc
+    LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id AND ta.bool_delete_enum = 0
+    LEFT JOIN contract_project cp ON cp.id = mbc.project_id
+    WHERE
+    mbc.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbc.create_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    ta.structure_type,
+    cp.id
+  </select>
+
+  <select id="beginSemiFinishProduct" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT
+    ta.structure_type,
+    sum( ta.gross_weight * mbc.quantity ) beginFinishProduct
+    FROM
+    mes_building_complete mbc
+    LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+    WHERE
+    mbc.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    GROUP BY
+    ta.structure_type
+  </select>
+
+  <select id="beginConvertArtifact" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDO">
+    SELECT
+      mbtp.task_id AS taskId,
+      ta.structure_type AS structureType,
+      mbtp.product_id AS productId,
+      process.id AS processId,
+      process.NAME AS processTypeName,
+      task_quantity taskQuantity,
+      sum( report.quantity ) completeQuantity,
+      mbtp.sequence,
+      ta.gross_weight grossWeight
+    FROM
+      mes_building_task_process mbtp
+        LEFT JOIN mes_building_produce_team_report report ON report.task_process_id = mbtp.id
+        LEFT JOIN mes_building_process process ON process.id = mbtp.process_id
+        LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+        AND ta.bool_delete_enum = 0
+    WHERE
+      mbtp.bool_delete_enum = 0
+      AND mbtp.task_type_enum = 2
+      AND mbtp.complete_quantity > 0
+      AND ta.structure_type IS NOT NULL
+      AND mbtp.complete_time IS NULL
+      <if test="workshopId != null and workshopId !=''">
+        AND mbtp.workshop_id = #{workshopId}
+      </if>
+      <if test="yearMonth != null and yearMonth !=''">
+        AND DATE_FORMAT(report.create_time, '%Y%m' ) &gt;= DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+      </if>
+    GROUP BY
+      mbtp.id
+    ORDER BY
+      mbtp.task_id,
+      mbtp.sequence DESC
+  </select>
+
+  <select id="beginConvertArtifactThisMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDO">
+    SELECT
+    mbtp.task_id AS taskId,
+    ta.structure_type AS structureType,
+    mbtp.product_id AS productId,
+    process.id AS processId,
+    process.NAME AS processTypeName,
+    task_quantity taskQuantity,
+    sum( report.quantity ) completeQuantity,
+    mbtp.sequence,
+    ta.gross_weight grossWeight
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN mes_building_produce_team_report report ON report.task_process_id = mbtp.id
+    LEFT JOIN mes_building_process process ON process.id = mbtp.process_id
+    LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+    AND ta.bool_delete_enum = 0
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 2
+    AND mbtp.complete_quantity > 0
+    AND ta.structure_type IS NOT NULL
+    AND mbtp.complete_time IS NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbtp.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(report.create_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    mbtp.id
+    ORDER BY
+    mbtp.task_id,
+    mbtp.sequence DESC
+  </select>
+
+  <select id="beginConvertArtifactGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDetailDO">
+    SELECT
+    mbtp.task_id AS taskId,
+    cp.id AS project_id,
+    any_value(cp.short_name) project_name,
+    mbtp.product_id AS productId,
+    process.id AS processId,
+    process.NAME AS processTypeName,
+    task_quantity taskQuantity,
+    sum( report.quantity ) completeQuantity,
+    mbtp.sequence,
+    ta.gross_weight grossWeight,
+    ta.structure_type AS structureType
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN mes_building_produce_team_report report ON report.task_process_id = mbtp.id
+    LEFT JOIN contract_project cp ON cp.id = mbtp.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN mes_building_process process ON process.id = mbtp.process_id
+    LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+    AND ta.bool_delete_enum = 0
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 2
+    AND mbtp.complete_quantity > 0
+    AND ta.structure_type IS NOT NULL
+    AND mbtp.complete_time IS NULL
+    <if test="structureType != null and structureType !=''">
+      AND ta.structure_type = #{structureType}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbtp.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(report.create_time, '%Y%m' ) &gt;= DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    GROUP BY
+    mbtp.id, ta.structure_type
+    ORDER BY
+    mbtp.task_id,
+    mbtp.sequence DESC
+  </select>
+
+  <select id="beginConvertAssemble" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertAssembleDO">
+    SELECT link.id                       AS linkId,
+           task.id                       AS taskId,
+           link.assemble_task_process_id AS assembleTaskProcessId,
+           tar.structure_type            AS structureType,
+           process.NAME                  AS processTypeName,
+           process.id                    AS processId,
+           taskProcess.sequence,
+           tas.gross_weight              AS grossWeight,
+          link.assemble_number,
+          link.assemble_id
+    FROM mes_building_task_number_link link
+           LEFT JOIN mes_building_task task ON task.id = link.assemble_task_id
+           LEFT JOIN mes_building_task_process taskProcess ON taskProcess.id = link.assemble_task_process_id
+           LEFT JOIN mes_building_process process ON process.id = taskProcess.process_id
+           LEFT JOIN tech_artifact tar ON tar.id = link.artifact_id
+      AND tar.bool_delete_enum = 0
+           LEFT JOIN tech_assemble tas ON tas.id = link.assemble_id
+      AND tas.bool_delete_enum = 0
+    WHERE link.artifact_task_process_id IN (SELECT mbtp.id
+                                            FROM mes_building_task_process mbtp
+                                                   LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+                                              AND ta.bool_delete_enum = 0
+                                              AND ta.structure_type IS NOT NULL
+                                            WHERE mbtp.bool_delete_enum = 0
+                                              AND mbtp.sequence = 0
+                                              AND mbtp.task_type_enum = 2
+                                              AND mbtp.task_quantity - mbtp.complete_quantity > 0
+                                              AND ta.building_type = 1
+                                            <if test="workshopId != null and workshopId !=''">
+                                              AND mbtp.workshop_id = #{workshopId}
+                                            </if>
+                                            )
+      AND link.bool_artifact_report = FALSE
+      AND link.bool_delete_enum = 0
+      AND link.assemble_id IS NOT NULL
+      AND link.bool_assemble_report = 1
+      AND tar.structure_type IS NOT NULL
+      AND tar.building_type = 1
+      AND link.assemble_task_id IS NOT NULL
+      AND tas.bool_delete_enum = 0
+  </select>
+
+  <select id="beginConvertAssembleGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertAssembleDetailDO">
+    SELECT
+    tar.structure_type AS structureType,
+    cp.id AS project_id,
+    cp.short_name AS project_name,
+    link.id AS linkId,
+    task.id AS taskId,
+    link.assemble_task_process_id AS assembleTaskProcessId,
+    tar.structure_type AS structureType,
+    process.NAME AS processTypeName,
+    process.id AS processId,
+    taskProcess.sequence,
+    tas.gross_weight AS grossWeight
+    FROM
+    mes_building_task_number_link link
+    LEFT JOIN mes_building_task task ON task.id = link.assemble_task_id
+    LEFT JOIN contract_project cp ON cp.id = task.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN mes_building_task_process taskProcess ON taskProcess.id = link.assemble_task_process_id
+    LEFT JOIN mes_building_process process ON process.id = taskProcess.process_id
+    LEFT JOIN tech_artifact tar ON tar.id = link.artifact_id
+    AND tar.bool_delete_enum = 0
+    LEFT JOIN tech_assemble tas ON tas.id = link.assemble_id
+    AND tas.bool_delete_enum = 0
+    <if test="structureType != null and structureType !=''">
+      AND tar.structure_type = #{structureType}
+    </if>
+    WHERE
+    link.artifact_task_process_id IN (
+    SELECT
+    mbtp.id
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+    AND ta.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.sequence = 0
+    AND mbtp.task_type_enum = 2
+    AND mbtp.task_quantity - mbtp.complete_quantity > 0
+    AND ta.building_type = 1
+    <if test="structureType != null and structureType !=''">
+      AND tar.structure_type = #{structureType}
+    </if>
+    )
+    AND link.bool_artifact_report = FALSE
+    AND link.bool_delete_enum = 0
+    AND link.assemble_id IS NOT NULL
+    AND link.bool_assemble_report = 1
+    AND tar.structure_type IS NOT NULL
+    AND tar.building_type = 1
+    AND link.assemble_task_id IS NOT NULL
+    AND tas.bool_delete_enum = 0
+  </select>
+
+
+  <select id="beginConvertAssembleFinish" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertAssembleDO">
+    SELECT link.id                       AS linkId,
+           task.task_id                  AS taskId,
+           link.assemble_task_process_id AS assembleTaskProcessId,
+           tar.structure_type            AS structureType,
+           tas.gross_weight,
+           task.sequence,
+            link.assemble_number,
+            link.assemble_id
+    FROM mes_building_task_number_link link
+           LEFT JOIN mes_building_task_process task ON task.id = link.assemble_task_process_id
+           LEFT JOIN tech_artifact tar ON tar.id = link.artifact_id
+      AND tar.bool_delete_enum = 0
+           LEFT JOIN tech_assemble tas ON tas.id = link.assemble_id
+      AND tas.bool_delete_enum = 0
+    WHERE link.artifact_task_process_id IN (SELECT mbtp.id
+                                            FROM mes_building_task_process mbtp
+                                                   LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+                                              AND ta.bool_delete_enum = 0
+                                              AND ta.structure_type IS NOT NULL
+                                            WHERE mbtp.bool_delete_enum = 0
+                                              AND mbtp.sequence = 0
+                                              AND mbtp.task_type_enum = 2
+                                              AND mbtp.task_quantity - mbtp.complete_quantity > 0
+                                              AND ta.building_type = 1
+                                            <if test="workshopId != null and workshopId !=''">
+                                              AND mbtp.workshop_id = #{workshopId}
+                                            </if>
+                                            )
+      AND link.bool_artifact_report = FALSE
+      AND link.bool_delete_enum = 0
+      AND link.assemble_id IS NOT NULL
+      AND link.bool_assemble_report = 0
+      AND link.assemble_task_process_id != 0
+    AND tar.structure_type IS NOT NULL
+    AND tar.building_type = 1
+    AND task.sequence != 0
+    AND link.assemble_task_id IS NOT NULL
+    AND tas.bool_delete_enum = 0
+  </select>
+
+  <select id="beginConvertAssembleFinishGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertAssembleDetailDO">
+    SELECT
+    cp.id project_id,
+    cp.short_name project_name,
+    link.id AS linkId,
+    task.task_id AS taskId,
+    link.assemble_task_process_id AS assembleTaskProcessId,
+    tar.structure_type AS structureType,
+    tas.gross_weight,
+    task.sequence,
+    link.assemble_number,
+    link.assemble_id
+    FROM
+    mes_building_task_number_link link
+    LEFT JOIN mes_building_task_process task ON task.id = link.assemble_task_process_id
+    LEFT JOIN contract_project cp ON cp.id = task.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN tech_artifact tar ON tar.id = link.artifact_id
+    AND tar.bool_delete_enum = 0
+    LEFT JOIN tech_assemble tas ON tas.id = link.assemble_id
+    AND tas.bool_delete_enum = 0
+    <if test="structureType != null and structureType !=''">
+      AND tar.structure_type = #{structureType}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND task.workshop_id = #{workshopId}
+    </if>
+    WHERE
+    link.artifact_task_process_id IN (
+    SELECT
+    mbtp.id
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+    AND ta.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.sequence = 0
+    AND mbtp.task_type_enum = 2
+    AND mbtp.task_quantity - mbtp.complete_quantity > 0
+    AND ta.building_type = 1
+    <if test="structureType != null and structureType !=''">
+      AND ta.structure_type = #{structureType}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbtp.workshop_id = #{workshopId}
+    </if>
+    )
+    AND link.bool_artifact_report = FALSE
+    AND link.bool_delete_enum = 0
+    AND link.assemble_id IS NOT NULL
+    AND link.bool_assemble_report = 0
+    AND link.assemble_task_process_id != 0
+    AND tar.structure_type IS NOT NULL
+    AND tar.building_type = 1
+    AND task.sequence != 0
+    AND link.assemble_task_id IS NOT NULL
+    AND tas.bool_delete_enum = 0
+  </select>
+
+
+  <select id="beginConvertPart" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDO">
+    SELECT mbtp.id,
+           mbtp.task_id       AS taskId,
+           tmp.gross_weight,
+           mbtp.task_quantity AS taskQuantity,
+           mbtp.complete_quantity,
+           mbtp.process_id,
+           mbtp.sequence
+    FROM mes_building_task_process mbtp
+           LEFT JOIN contract_project cp ON cp.id = mbtp.project_id
+        AND cp.bool_delete_enum = 0
+           LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id
+        AND tmp.bool_delete_enum = 0
+           LEFT JOIN mes_building_task mbt ON mbt.id = mbtp.task_id
+        AND mbt.bool_delete_enum = 0
+           LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id
+        AND ta.bool_delete_enum = 0
+    WHERE mbtp.bool_delete_enum = 0
+      AND mbtp.task_type_enum = 1
+    <if test="workshopId != null and workshopId !=''">
+      AND mbtp.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbtp.ask_complete_time, '%Y%m' ) &gt;= DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+  </select>
+
+  <select id="beginConvertPartThisMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDO">
+    SELECT mbtp.id,
+    mbtp.task_id       AS taskId,
+    tmp.gross_weight,
+    mbtp.task_quantity AS taskQuantity,
+    mbtp.complete_quantity,
+    mbtp.process_id,
+    mbtp.sequence
+    FROM mes_building_task_process mbtp
+    LEFT JOIN contract_project cp ON cp.id = mbtp.project_id
+    AND cp.bool_delete_enum = 0
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id
+    AND tmp.bool_delete_enum = 0
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtp.task_id
+    AND mbt.bool_delete_enum = 0
+    LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id
+    AND ta.bool_delete_enum = 0
+    WHERE mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 1
+    <if test="workshopId != null and workshopId !=''">
+      AND mbtp.workshop_id = #{workshopId}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT(mbtp.ask_complete_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+  </select>
+
+  <select id="beginConvertPartGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDetailDO">
+    SELECT
+    cp.id AS  project_id,
+    cp.short_name AS project_name,
+    mbtp.id,
+    mbtp.task_id AS taskId,
+    tmp.gross_weight,
+    mbtp.task_quantity AS taskQuantity,
+    mbtp.complete_quantity,
+    mbtp.process_id,
+    mbtp.sequence
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN  contract_project cp ON cp.id = mbtp.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtp.task_id
+    LEFT JOIN tech_artifact tar ON tar.id = mbt.product_id
+    AND tar.bool_delete_enum = 0
+    <if test="structureType != null and structureType !=''">
+      AND tar.structure_type = #{structureType}
+    </if>
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 1
+  </select>
+
+  <select id="beginConvertPartGroupProjectThisMonth" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.report.MesBeginConvertDetailDO">
+    SELECT
+    cp.id AS  project_id,
+    cp.short_name AS project_name,
+    mbtp.id,
+    mbtp.task_id AS taskId,
+    tmp.gross_weight,
+    mbtp.task_quantity AS taskQuantity,
+    mbtp.complete_quantity,
+    mbtp.process_id,
+    mbtp.sequence
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN  contract_project cp ON cp.id = mbtp.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtp.task_id
+    LEFT JOIN tech_artifact tar ON tar.id = mbt.product_id
+    AND tar.bool_delete_enum = 0
+    <if test="structureType != null and structureType !=''">
+      AND tar.structure_type = #{structureType}
+    </if>
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 1
+  </select>
+
+  <select id="FinishedProductWarehousingSummaryDO" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDO">
+    SELECT ta.structure_type,
+           sum((mbtp.task_quantity - mbtp.complete_quantity) * ta.gross_weight
+             ) beginHalfProduct
+    FROM mes_building_task_process mbtp
+           LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id
+      AND ta.bool_delete_enum = 0
+      AND ta.structure_type IS NOT NULL
+    WHERE mbtp.bool_delete_enum = 0
+      AND mbtp.task_type_enum = 2
+      AND mbtp.complete_time IS NULL
+    GROUP BY ta.structure_type
+  </select>
+
+
+  <select id="yearlyOutputComparison" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.YearlyOutputComparisonDO">
+    SELECT
+    ta.structure_type,
+    ml.product_month,
+    COALESCE(ROUND(SUM(mbc.quantity * ta.net_weight) / 1000, 5), 0) AS total_net_weight
+    FROM
+    (
+    SELECT
+    '01' AS product_month UNION ALL
+    SELECT
+    '02' UNION ALL
+    SELECT
+    '03' UNION ALL
+    SELECT
+    '04' UNION ALL
+    SELECT
+    '05' UNION ALL
+    SELECT
+    '06' UNION ALL
+    SELECT
+    '07' UNION ALL
+    SELECT
+    '08' UNION ALL
+    SELECT
+    '09' UNION ALL
+    SELECT
+    '10' UNION ALL
+    SELECT
+    '11' UNION ALL
+    SELECT
+    '12'
+    ) AS ml
+    CROSS JOIN tech_artifact ta
+    LEFT JOIN mes_building_complete mbc ON ta.id = mbc.product_id
+    AND DATE_FORMAT( mbc.create_time, '%m' ) = ml.product_month
+    AND DATE_FORMAT( mbc.create_time, '%Y' ) = #{year}
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    WHERE
+    ta.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    AND ta.structure_type IN
+    <foreach collection="structureTypeList" item="structureType" open="(" separator="," close=")">
+      #{structureType}
+    </foreach>
+    GROUP BY
+    ta.structure_type,
+    ml.product_month
+    ORDER BY
+    ta.structure_type,
+    ml.product_month
+  </select>
+
+  <select id="teamOutputStatisticsReport" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TeamOutputStatisticsReportDO">
+    SELECT
+    ANY_VALUE( mbt.id ) AS team_id,
+    ANY_VALUE ( su.NAME ) team_name,
+    mbp.`name` AS process_name,
+    mbp.product_type,
+    CASE
+    WHEN mbp.product_type = 1 THEN '零件'
+    WHEN mbp.product_type = 2 THEN '构件'
+    WHEN mbp.product_type = 16 THEN '部件'
+    ELSE '其他'
+    END AS product_type_name,
+    mbw.`name` AS workshop_name,
+    mbpl.`name` AS line_name,
+    ROUND(
+    SUM(
+    CASE
+    WHEN mbtp.task_type_enum = 1 THEN tmp.net_weight * mbtp.task_quantity
+    WHEN mbtp.task_type_enum = 2 THEN ta.net_weight * mbtp.task_quantity
+    WHEN mbtp.task_type_enum = 16 THEN tas.net_weight * mbtp.task_quantity
+    ELSE 0
+    END
+    ) / 1000, 5
+    ) AS total_task_net_weight ,
+    ROUND(
+    SUM(
+    CASE
+    WHEN mbtp.task_type_enum = 1 THEN
+    tmp.net_weight * mbtp.complete_quantity
+    WHEN mbtp.task_type_enum = 2 THEN
+    ta.net_weight * mbtp.complete_quantity
+    WHEN mbtp.task_type_enum = 16 THEN
+    tas.net_weight * mbtp.complete_quantity ELSE 0
+    END
+    ) / 1000, 5
+    )AS total_complete_net_weight,
+    ROUND(
+      SUM(
+        CASE
+          WHEN mbtp.task_type_enum = 1 THEN tmp.net_weight * (mbtp.task_quantity - mbtp.complete_quantity )
+          WHEN mbtp.task_type_enum = 2 THEN ta.net_weight * (mbtp.task_quantity - mbtp.complete_quantity )
+          WHEN mbtp.task_type_enum = 16 THEN tas.net_weight * (mbtp.task_quantity - mbtp.complete_quantity )
+          ELSE 0
+        END
+      ) / 1000, 5
+    )AS total_uncomplete_net_weight
+    FROM mes_building_task_process mbtp
+    LEFT JOIN mes_building_team mbt ON mbtp.team_id = mbt.id
+    LEFT JOIN mes_building_team_user_link mbtul ON mbt.id = mbtul.team_id AND mbtul.bool_delete_enum = 0 AND mbtul.bool_leader_enum = 1
+    LEFT JOIN sys_user su ON su.id = mbtul.user_id
+    LEFT JOIN mes_building_process mbp ON mbp.id = mbt.process_id
+    LEFT JOIN mes_building_workshop mbw ON mbt.workshop_id = mbw.id
+    LEFT JOIN mes_building_production_line mbpl ON mbt.production_line_id = mbpl.id
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtp.product_id AND mbtp.task_type_enum = 1
+    LEFT JOIN tech_artifact ta ON ta.id = mbtp.product_id AND mbtp.task_type_enum = 2
+    LEFT JOIN tech_assemble tas ON tas.id = mbtp.product_id AND mbtp.task_type_enum = 16 AND mbp.bool_delete_enum = 0
+    WHERE mbt.bool_delete_enum = 0
+    AND mbtp.bool_delete_enum = 0
+    <if test="startDate != null and startDate !=''">
+      AND DATE(mbtp.create_time) >= #{startDate}
+    </if>
+    <if test="endDate !=null and endDate != ''">
+      AND DATE(mbtp.create_time) &lt;= #{endDate}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="productionLineId != null and productionLineId !=''">
+      AND mbtp.production_line_id = #{productionLineId}
+    </if>
+    <if test="teamName != null and teamName !=''">
+      AND su.name like concat('%',#{teamName},'%')
+    </if>
+    <if test="processType != null and processType !=''">
+      AND mbtp.task_type_enum = #{processType}
+    </if>
+    <if test="processName != null and processName !=''">
+      AND mbp.`name` like concat('%',#{processName},'%')
+    </if>
+    GROUP BY mbtp.team_id
+  </select>
+
+  <select id="teamOutputStatisticsDetailsReportArtifact" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TeamOutputStatisticsDetailsReportDO">
+    SELECT DISTINCT
+    any_value ( mbtp.id ) id,
+    any_value ( mbt.id ) AS team_id,
+    cp.NAME AS project_name,
+    ANY_VALUE ( pab.NAME ) AS batch_name,
+    any_value ( pab.id ) AS pab_id,
+    ANY_VALUE ( ta.structure_type ) AS structure_type,
+    ANY_VALUE ( ta.structure_class_id ) AS structure_class_id,
+    ANY_VALUE ( ta.NAME ) AS artifact_name,
+    ANY_VALUE ( ta.serial_number ) AS serial_number,
+    ANY_VALUE ( ta.specification ) AS specification,
+    ANY_VALUE ( ta.length ) AS length,
+    any_value ( ta.gross_weight ) AS gross_weight,
+    sum( mbtp.task_quantity ) AS task_quantity,
+    sum( ta.gross_weight * mbtp.task_quantity ) total_task_gross_weight,
+    IFNULL(SUM(mbptr.inspection_quantity), 0) AS complete_quantity,
+    IFNULL(SUM(ta.gross_weight * mbptr.inspection_quantity), 0) AS total_complete_gross_weight,
+    mbptr.user_id as report_user_id,
+    su.name AS report_user_name
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN tech_artifact ta ON mbtp.product_id = ta.id
+    LEFT JOIN contract_project cp ON cp.id = mbtp.project_id
+    LEFT JOIN mes_building_team mbt ON mbtp.team_id = mbt.id
+    LEFT JOIN plan_area_batch pab ON pab.id = ta.area_batch_id
+    LEFT JOIN (
+      SELECT task_process_id, user_id, SUM(inspection_quantity) AS inspection_quantity
+      FROM mes_building_produce_team_report
+      WHERE bool_delete_enum = 0
+      GROUP BY task_process_id, user_id
+    ) mbptr ON mbptr.task_process_id = mbtp.id
+    LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mbptr.user_id
+    WHERE
+    mbtp.bool_delete_enum = 0
+    AND mbtp.task_type_enum = 2
+    <if test="startDate != null and startDate !=''">
+      AND date(mbtp.create_time) >= #{startDate}
+    </if>
+    <if test="endDate !=null and endDate != ''">
+      AND date(mbtp.create_time) &lt;= #{endDate}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="processType != null and processType !=''">
+      AND mbtp.task_type_enum = #{processType}
+    </if>
+    <if test="teamId != null and teamId !=''">
+      AND mbtp.team_id = #{teamId}
+    </if>
+    GROUP BY
+    cp.id,
+    ta.id,
+    mbptr.user_id
+  </select>
+
+  <select id="teamOutputStatisticsDetailsReportAssemble" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TeamOutputStatisticsDetailsReportDO">
+    SELECT DISTINCT
+    any_value ( mbtp.id ) id,
+    any_value ( mbt.id ) AS team_id,
+    cp.NAME AS project_name,
+    ANY_VALUE ( ta.NAME ) AS artifact_name,
+    ANY_VALUE ( ta.serial_number ) AS serial_number,
+    ANY_VALUE ( ta.specification ) AS specification,
+    ANY_VALUE ( ta.length ) AS length,
+    any_value ( ta.gross_weight ) AS gross_weight,
+    sum( mbtp.task_quantity ) AS task_quantity,
+    sum( ta.gross_weight * mbtp.task_quantity ) total_task_gross_weight,
+    IFNULL(SUM(mbptr.inspection_quantity), 0) AS complete_quantity,
+    IFNULL(SUM(ta.gross_weight * mbptr.inspection_quantity), 0) AS total_complete_gross_weight,
+    mbptr.user_id as report_user_id,
+    su.name AS report_user_name
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN tech_assemble ta ON mbtp.product_id = ta.id
+    LEFT JOIN contract_project cp ON cp.id = mbtp.project_id
+    LEFT JOIN mes_building_team mbt ON mbtp.team_id = mbt.id
+    LEFT JOIN plan_area_batch pab ON pab.id = ta.area_batch_id
+    LEFT JOIN (
+      SELECT task_process_id, user_id, SUM(inspection_quantity) AS inspection_quantity
+      FROM mes_building_produce_team_report
+      WHERE bool_delete_enum = 0
+      GROUP BY task_process_id, user_id
+    ) mbptr ON mbptr.task_process_id = mbtp.id
+    LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mbptr.user_id
+    WHERE
+    mbtp.bool_delete_enum = 0
+    and mbtp.task_type_enum = 16
+    <if test="startDate != null and startDate !=''">
+      AND date(mbtp.create_time) >= #{startDate}
+    </if>
+    <if test="endDate !=null and endDate != ''">
+      AND date(mbtp.create_time) &lt;= #{endDate}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="teamId != null and teamId !=''">
+      AND mbtp.team_id = #{teamId}
+    </if>
+    GROUP BY
+    cp.id,
+    ta.id,
+    mbptr.user_id
+  </select>
+
+  <select id="teamOutputStatisticsDetailsReportPart" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TeamOutputStatisticsDetailsReportDO">
+    SELECT DISTINCT
+    any_value ( mbtp.id ) id,
+    any_value ( mbt.id ) AS team_id,
+    cp.NAME AS project_name,
+    ANY_VALUE ( part.NAME ) AS artifact_name,
+    ANY_VALUE ( part.serial_number ) AS serial_number,
+    ANY_VALUE ( part.specification ) AS specification,
+    ANY_VALUE ( part.length ) AS length,
+    any_value ( part.gross_weight ) AS gross_weight,
+    sum( mbtp.task_quantity ) AS task_quantity,
+    sum( part.gross_weight * mbtp.task_quantity ) total_task_gross_weight,
+    IFNULL(SUM(mbptr.inspection_quantity), 0) AS complete_quantity,
+    IFNULL(SUM(part.gross_weight * mbptr.inspection_quantity), 0) AS total_complete_gross_weight,
+    mbptr.user_id as report_user_id,
+    su.name AS report_user_name
+    FROM
+    mes_building_task_process mbtp
+    LEFT JOIN tech_machine_part part ON mbtp.product_id = part.id
+    LEFT JOIN contract_project cp ON cp.id = mbtp.project_id
+    LEFT JOIN mes_building_team mbt ON mbtp.team_id = mbt.id
+    LEFT JOIN (
+      SELECT task_process_id, user_id, SUM(inspection_quantity) AS inspection_quantity
+      FROM mes_building_produce_team_report
+      WHERE bool_delete_enum = 0
+      GROUP BY task_process_id, user_id
+    ) mbptr ON mbptr.task_process_id = mbtp.id
+    LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mbptr.user_id
+    WHERE
+    mbtp.bool_delete_enum = 0
+    and mbtp.task_type_enum = 1
+    <if test="startDate != null and startDate !=''">
+      AND date(mbtp.create_time) >= #{startDate}
+    </if>
+    <if test="endDate !=null and endDate != ''">
+      AND date(mbtp.create_time) &lt;= #{endDate}
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="teamId != null and teamId !=''">
+      AND mbtp.team_id = #{teamId}
+    </if>
+    GROUP BY
+    cp.id,
+    part.id,
+    mbptr.user_id
+  </select>
+
+  <select id="workshopProductionOutputStatisticsMonthlyReport" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MonthlyWorkshopOutPutDO">
+    SELECT
+    ta.structure_type,
+    ANY_VALUE ( cp.short_name ) project_name,
+    COALESCE(ROUND(SUM(mbc.quantity * ta.net_weight) / 1000, 5), 0) AS total_net_weight
+    FROM
+    tech_artifact ta
+    LEFT JOIN mes_building_complete mbc ON ta.id = mbc.product_id AND mbc.bool_delete_enum = 0
+    LEFT JOIN contract_project cp ON ta.project_id = cp.id AND cp.bool_delete_enum = 0
+    WHERE
+    ta.bool_delete_enum = 0
+    AND mbc.task_type_enum = 2
+    AND ta.structure_type IS NOT NULL
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT( mbc.create_time, '%Y%m' ) = DATE_FORMAT(FROM_UNIXTIME(#{yearMonth} / 1000), '%Y%m')
+    </if>
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    <if test="projectId != null and projectId !=''">
+      AND ta.project_id = #{projectId}
+    </if>
+    <if test="structureType != null and structureType !=''">
+      AND ta.structure_type = #{structureType}
+    </if>
+    GROUP BY
+    ta.structure_type, cp.id
+  </select>
+
+  <select id="beginPutPartGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDetailDO">
+    SELECT
+    cp.id AS project_id,
+    any_value(cp.short_name) project_name,
+    any_value(ta.structure_type) structure_type,
+    any_value ( tmp.gross_weight ) gross_weight,
+    sum( mbtnmps.need_quantity * tmp.gross_weight ) beginPutPart,
+    sum( ta.gross_weight * ta.produced_quantity ) beginFinishPart
+    FROM
+    mes_building_task_need_machine_part_scheduling mbtnmps
+    LEFT JOIN contract_project cp ON cp.id = mbtnmps.project_id AND cp.bool_delete_enum = 0
+    LEFT JOIN tech_machine_part tmp ON tmp.id = mbtnmps.product_id AND tmp.bool_delete_enum = 0
+    LEFT JOIN mes_building_task mbt ON mbt.id = mbtnmps.task_id AND mbt.bool_delete_enum = 0
+    LEFT JOIN tech_artifact ta ON ta.id = mbt.product_id AND ta.bool_delete_enum = 0
+    WHERE
+    mbtnmps.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbt.workshop_id = #{workshopId}
+    </if>
+    <if test="structureType != null and structureType !=''">
+      AND ta.structure_type = #{structureType}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT( mbtnmps.create_time, '%Y%m' ) &lt;= #{yearMonth}
+    </if>
+    GROUP BY
+    mbtnmps.project_id,
+    ta.structure_type
+  </select>
+
+  <select id="beginFinishProductGroupProject" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.FinishedProductWarehousingSummaryDetailDO">
+    SELECT
+    cp.id AS project_id,
+    any_value(cp.short_name) project_name,
+    ta.structure_type,
+    sum( ta.gross_weight * mbc.quantity ) beginFinishProduct
+    FROM
+    mes_building_complete mbc
+    LEFT JOIN contract_project cp ON cp.id = mbc.project_id
+    LEFT JOIN tech_artifact ta ON ta.id = mbc.product_id
+    WHERE
+    mbc.bool_delete_enum = 0
+    AND ta.structure_type IS NOT NULL
+    <if test="workshopId != null and workshopId !=''">
+      AND mbc.workshop_id = #{workshopId}
+    </if>
+    <if test="structureType != null and structureType !=''">
+      AND ta.structure_type = #{structureType}
+    </if>
+    <if test="yearMonth != null and yearMonth !=''">
+      AND DATE_FORMAT( mbc.create_time, '%Y%m' ) &lt;= #{yearMonth}
+    </if>
+    GROUP BY
+    mbc.project_id,
+    ta.structure_type
+  </select>
+</mapper>

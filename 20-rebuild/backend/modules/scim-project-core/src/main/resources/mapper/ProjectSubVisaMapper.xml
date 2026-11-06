@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectSubVisaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectSubVisa">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="number" property="number"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="visa_reason_id" property="visaReasonId"/>
+        <result column="visa_reason_name" property="visaReasonName"/>
+        <result column="visa_amount" property="visaAmount"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="subcontract_order_id" property="subcontractOrderId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="subcontractClassId" property="subcontractClassId"/>
+        <result column="subcontractClassName" property="subcontractClassName"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_user_name" property="auditUserName"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approver_name" property="approverName"/>
+        <result column="approve_time" property="approveTime"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, number, apply_date, visa_reason_id, visa_reason_name, visa_amount, project_id, supplier_id, monomer_id, subcontract_order_id, supplier_name, subcontractClassId, subcontractClassName, audit_user_id, audit_user_name, audit_status, audit_time, approver_id, approver_name, approve_time, attachment_ids, remark
+    </sql>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectSubVisaDTO">
+        select distinct
+        psv.id,
+        psv.number,
+        psv.create_time apply_date,
+        psv.visa_reason_id,
+        psv.visa_reason_name,
+        psv.visa_amount,
+        psv.supplier_id,
+        psv.monomer_id,
+        psv.subcontract_order_id,
+        psv.supplier_name,
+        psv.subcontract_class_id,
+        psv.subcontract_class_name,
+        psv.audit_user_id,
+        psv.audit_user_name,
+        psv.audit_status,
+        psv.audit_time,
+        psv.approver_id,
+        psv.approver_name,
+        psv.approve_time,
+        psv.attachment_ids,
+        psv.remark,
+        psv.project_id as 'project.id',
+        cp.name as 'project.name',
+        cp.short_name as 'project.shortName',
+        cp.serial_number as 'project.serialNumber',
+        psv.monomer_id 'monomer.id',
+        m.name 'monomer.name'
+        from project_sub_visa as psv
+        LEFT JOIN contract_project as cp on psv.project_id = cp.id and cp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer as m on psv.monomer_id = m.id and m.bool_delete_enum = 0
+        where psv.bool_delete_enum = 0
+        <if test="projectName != null and projectName != ''">
+            AND cp.name like concat('%',#{projectName},'%')
+        </if>
+        <if test="startDate != null">
+            AND psv.apply_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND psv.apply_date &lt;= #{endDate}
+        </if>
+        <if test="projectId != null">
+            AND psv.project_id = #{projectId}
+        </if>
+        <if test="supplierId != null">
+            AND psv.supplier_id = #{supplierId}
+        </if>
+        <if test="supplierName != null and supplierName != '' ">
+            AND psv.supplier_name like concat('%',#{supplierName},'%')
+        </if>
+        <if test="auditStatus != null">
+            AND psv.audit_status = #{auditStatus}
+        </if>
+        <if test="auditUserName != null and auditUserName != '' ">
+            AND psv.audit_user_name LIKE concat('%',#{auditUserName},'%')
+        </if>
+        <if test="approverName != null and approverName != '' ">
+            AND psv.approver_name LIKE concat('%', #{approverName},'%')
+        </if>
+        ORDER BY psv.audit_status ASC, psv.id DESC
+    </select>
+
+</mapper>

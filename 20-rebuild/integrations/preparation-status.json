@@ -1,0 +1,370 @@
+{
+  "schema": 1,
+  "generatedUTC": "2026-11-06T01:14:54.326635+00:00",
+  "scope": "静态准备状态，未访问第三方/数据库/硬件；资料存在及人工审核不代表真实接口验收",
+  "selected": [
+    "I01",
+    "I02",
+    "I03",
+    "I04",
+    "I05",
+    "I06",
+    "I07",
+    "I08",
+    "I09",
+    "I10",
+    "I11",
+    "I12",
+    "I13",
+    "I14",
+    "I15",
+    "I16",
+    "I17"
+  ],
+  "ready_for_real_test": false,
+  "ready_count": 0,
+  "integration_count": 17,
+  "network_requests": 0,
+  "database_writes": 0,
+  "services_started": 0,
+  "integrations": [
+    {
+      "id": "I01",
+      "name": "OA / 审批系统",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_OA_HOST",
+        "LJAPS_OA_APP_ID",
+        "LJAPS_OA_SECRET",
+        "LJAPS_OA_SPK",
+        "LJAPS_CALLBACK_BASE_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "现平台AuthFilter拦截OA自有oaToken回调；其令牌发放/刷新与回调认证完整协议需确认，不能直接放开/api/oa。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I02",
+      "name": "SHR / 人事组织主数据",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_SHR_HOST"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I03",
+      "name": "BIM / 模型转换引擎",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_BIM_ENABLED",
+        "LJAPS_BIM_APP_KEY",
+        "LJAPS_BIM_APP_SECRET",
+        "LJAPS_CALLBACK_BASE_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "BIM转换/集成回调也经过现平台token过滤器；需验证回调token与Redis状态后建立精确适配，不能匿名开放整段模型API。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I04",
+      "name": "柏楚 / 套料与切割服务",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_BOCHU_APP_ID",
+        "LJAPS_BOCHU_SECRET",
+        "LJAPS_BOCHU_BASE_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "部分legacy分支仍有原固定Orgcode；须从现场团队映射确认适用范围。",
+        "WS被动监听初始化未启用，须明确回调/WS部署方式及重连责任。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I05",
+      "name": "IoT / 设备与能耗看板",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_IOT_BASE_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I06",
+      "name": "地磅 / 自动称重",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I07",
+      "name": "企业微信 / 审批通知",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_QIWEI_CORP_ID",
+        "LJAPS_QIWEI_CORP_SECRET"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "专用企业微信工具当前仅发现私有方法，实际消息可能走I13；必须确认采用应用通知还是群机器人。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I08",
+      "name": "微信 / 登录绑定与消息",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_WECHAT_ENDPOINT",
+        "LJAPS_WECHAT_APP_ID",
+        "LJAPS_WECHAT_APP_SECRET"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "匿名登录/验证码入口受当前平台token过滤器限制。",
+        "历史generateTokenMap签发令牌与当前jti/uid/pwdv规则不兼容，需明确微信身份验证及绑定协议后接入。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I09",
+      "name": "钉钉 / 审批推送与回调",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_DD_APP_KEY",
+        "LJAPS_DD_APP_SECRET",
+        "LJAPS_DD_CORP_ID",
+        "LJAPS_DD_CALLBACK_TOKEN",
+        "LJAPS_DD_CALLBACK_AES_KEY",
+        "LJAPS_DD_CHAT_ID",
+        "LJAPS_DD_ENABLED"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "回调受当前平台token过滤器限制；须按真实签名/加密协议形成精确入口适配，不能开放整个/api/dd。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I10",
+      "name": "短信 / 阿里云等发送通道",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_SMS_ACCESS_KEY_ID",
+        "LJAPS_SMS_ACCESS_KEY_SECRET"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I11",
+      "name": "邮件 / SMTP",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_SMTP_HOST",
+        "LJAPS_SMTP_PORT",
+        "LJAPS_SMTP_USERNAME",
+        "LJAPS_SMTP_PASSWORD",
+        "LJAPS_SMTP_AUTH",
+        "LJAPS_SMTP_STARTTLS",
+        "LJAPS_SMTP_SSL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I12",
+      "name": "极光 / App推送",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_JIGUANG_APP_KEY",
+        "LJAPS_JIGUANG_MASTER_SECRET"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "APNS生产标志及厂商渠道参数仍需与测试App契约匹配，不能把旧常量用于新App。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I13",
+      "name": "Webhook / 自定义通知",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_WEBHOOK_ENABLED"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "原WMS推送体含@all与固定agentid，须确认机器人/应用协议及测试收件范围后才能开启。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I14",
+      "name": "OSS / 远端对象存储",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_STORAGE_LOCAL",
+        "LJAPS_OSS_ENDPOINT",
+        "LJAPS_OSS_ACCESS_KEY_ID",
+        "LJAPS_OSS_ACCESS_KEY_SECRET",
+        "LJAPS_OSS_BUCKET_NAME",
+        "LJAPS_OSS_PUBLIC_BASE_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I15",
+      "name": "独立招采系统 / bidding数据源",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_BIDDING_EXTERNAL_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "命名bidding数据源未配置且当前运行仅有master，独立外链与本地bidding模块需分开确认。"
+      ],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I16",
+      "name": "独立设备管理系统入口",
+      "ready_for_real_test": false,
+      "local_preparation": "source-and-configuration-prepared",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [
+        "LJAPS_DEVICE_EXTERNAL_URL"
+      ],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [],
+      "real_test_status": "not-started"
+    },
+    {
+      "id": "I17",
+      "name": "LODOP / C-Lodop与实体打印机",
+      "ready_for_real_test": false,
+      "local_preparation": "prepared-with-specific-code-blockers",
+      "source_review_complete": true,
+      "missing_or_invalid_environment_names": [],
+      "materials": {
+        "present": true,
+        "reviewed": false,
+        "requirementsConfirmed": 0
+      },
+      "code_blockers": [
+        "只预留LJAPS_PRINT_ADAPTER入口，现场客户端/适配器注入脚本及浏览器资源来源待提供。"
+      ],
+      "real_test_status": "not-started"
+    }
+  ]
+}

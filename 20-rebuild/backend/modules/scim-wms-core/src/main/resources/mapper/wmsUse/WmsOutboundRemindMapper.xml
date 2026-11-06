@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsOutboundRemindMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._doModel.wmsUse.WmsOutboundRemind">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="outbound_id" property="outboundId" />
+        <result column="outbound_sn" property="outboundSn" />
+        <result column="content" property="content" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="is_check" property="isCheck" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, outbound_id, outbound_sn, content, applicant_id, applicant_name, is_check
+    </sql>
+
+</mapper>

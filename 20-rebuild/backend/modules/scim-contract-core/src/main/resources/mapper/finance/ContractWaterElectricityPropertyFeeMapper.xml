@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractWaterElectricityPropertyFeeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractWaterElectricityPropertyFee">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="type" property="type" />
+        <result column="year" property="year" />
+        <result column="month" property="month" />
+        <result column="year_month_date" property="yearMonthDate" />
+        <result column="branch_company_id" property="branchCompanyId" />
+        <result column="user_id" property="userId" />
+        <result column="consumption" property="consumption" />
+        <result column="total_fee" property="totalFee" />
+        <result column="average_unit_price" property="averageUnitPrice" />
+        <result column="bool_status" property="boolStatus" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, year, month, year_month_date, branch_company_id, user_id, consumption, total_fee, average_unit_price, bool_status, remark
+    </sql>
+
+    <select id="listInfo" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractWaterElectricityPropertyFeeDTO">
+        SELECT
+            cwepf.*,
+            sbc.name AS branch_company_name,
+            su.name AS user_name
+        FROM contract_water_electricity_property_fee cwepf
+        LEFT JOIN sys_branch_company sbc ON sbc.bool_delete_enum = FALSE AND sbc.id = cwepf.branch_company_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = FALSE AND su.id = cwepf.user_id
+        WHERE cwepf.bool_delete_enum = FALSE
+        <if test="year != null">
+            AND cwepf.year = #{year}
+        </if>
+        <if test="type != null">
+            AND cwepf.type = #{type}
+        </if>
+        <if test="branchCompanyId != null">
+            AND cwepf.branch_company_id = #{branchCompanyId}
+        </if>
+    </select>
+
+</mapper>

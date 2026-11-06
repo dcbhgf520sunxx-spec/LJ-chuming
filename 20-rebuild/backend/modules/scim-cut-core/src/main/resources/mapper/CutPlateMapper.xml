@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.cut.core.mapper.CutPlateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.cut.core.api.pojo._do.CutPlate">
+        <id column="id" property="id" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_no" property="projectNo" />
+        <result column="project_name" property="projectName" />
+        <result column="upload_name" property="uploadName" />
+        <result column="nc_name" property="ncName" />
+        <result column="nc_url" property="ncUrl" />
+        <result column="figure_url" property="figureUrl" />
+        <result column="plate_no" property="plateNo" />
+        <result column="plate_state" property="plateState" />
+        <result column="surplus_name" property="surplusName" />
+        <result column="plate_type" property="plateType" />
+        <result column="material" property="material" />
+        <result column="thick" property="thick" />
+        <result column="wide" property="wide" />
+        <result column="length" property="length" />
+        <result column="mac" property="mac" />
+        <result column="import_time" property="importTime" />
+        <result column="task_id" property="taskId" />
+        <result column="allocate_time" property="allocateTime" />
+        <result column="send_time" property="sendTime" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="task_send_state" property="taskSendState" />
+        <result column="furnace_no" property="furnaceNo" />
+        <result column="region" property="region" />
+        <result column="monomer" property="monomer" />
+
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time,
+        create_time,
+        bool_delete_enum,
+        version,
+        id, project_no, project_name, upload_name, nc_name, nc_url, figure_url, plate_no, plate_state, surplus_name, plate_type, material, thick, wide, length, mac, import_time, task_id, allocate_time, send_time, start_time, end_time, task_send_state, furnace_no
+    </sql>
+
+</mapper>

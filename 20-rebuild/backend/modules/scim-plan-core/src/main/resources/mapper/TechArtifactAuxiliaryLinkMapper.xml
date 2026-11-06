@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactAuxiliaryLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactAuxiliaryLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="artifact_id" property="artifactId" />
+        <result column="auxiliary_part_id" property="auxiliaryPartId" />
+        <result column="quantity" property="quantity" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, artifact_id, auxiliary_part_id, quantity
+    </sql>
+
+    <select id="listByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactAuxiliaryLinkDTO">
+        SELECT
+        taal.*,
+        tsp.name AS auxiliary_part_name,
+        tsp.project_id
+        FROM tech_artifact_auxiliary_link taal
+        LEFT JOIN tech_standard_part tsp ON tsp.bool_delete_enum = FALSE AND tsp.id = taal.auxiliary_part_id
+        WHERE taal.bool_delete_enum = FALSE
+        <if test="artifactIdList != null and artifactIdList.size() > 0">
+            AND taal.artifact_id IN (
+            <foreach collection="artifactIdList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+        <if test="auxiliaryPartNameList != null and auxiliaryPartNameList.size() > 0">
+            AND tsp.name IN (
+            <foreach collection="auxiliaryPartNameList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+
+</mapper>

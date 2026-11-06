@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="document-id" content="lj-aps-business-summary">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="绿建智能生产业务结果：主流程、责任部门、单据数据、流转条件、AI切入点及核实状态。">
+  <title>绿建智能生产 · 业务梳理</title>
+  <style>
+    /* 沿用 project-template 的浅色设计令牌。 */
+    :root { color-scheme:light; --ink:#12213a; --muted:#64748b; --line:#dce8f7; --blue:#1f6fff; --paper:#fff; --bg:#f4f8fd; --amber:#d97706; --surface-subtle:#f6f9fd; --bg-strong:#edf4ff; --primary-hover:#2563eb; --success:#16a34a; --radius:6px; --shadow:0 8px 24px rgb(30 82 142 / 5%); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:16px; }
+    body { margin:0; background:linear-gradient(180deg, rgb(31 111 255 / 3.5%), transparent 420px),var(--bg); color:var(--ink); font:13px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+    a { color:var(--blue); text-underline-offset:4px; }
+    a:hover { text-decoration-thickness:2px; }
+    button { font:inherit; cursor:pointer; }
+    a:focus-visible, button:focus-visible, summary:focus-visible { outline:2px solid var(--blue); outline-offset:3px; }
+    .skip { position:absolute; left:16px; top:-80px; padding:8px 16px; background:white; z-index:10; }
+    .skip:focus { top:12px; }
+    .layout { display:grid; grid-template-columns:184px minmax(0,1fr); gap:16px; margin:auto; padding:16px; }
+    aside { align-self:start; position:sticky; top:16px; min-height:calc(100dvh - 32px); padding:0 0 12px; background:var(--paper); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); }
+    .brand { font-size:16px; font-weight:700; line-height:1.5; margin-bottom:8px; padding:16px; border-bottom:1px solid var(--line); }
+    .aside-note { color:var(--muted); font-size:13px; margin:0 0 24px; }
+    nav { display:grid; gap:4px; padding:0 8px; }
+    nav a { display:block; padding:8px 12px; color:var(--muted); border-radius:6px; text-decoration:none; font-size:13px; line-height:20px; }
+    nav a:hover, nav a:focus-visible { color:var(--blue); background:var(--surface-subtle); }
+    body:has(#overview:target) nav a[href="#overview"], body:has(#main-flow:target) nav a[href="#main-flow"], body:has(#departments:target) nav a[href="#departments"], body:has(#nodes:target) nav a[href="#nodes"], body:has(#preparation-flow:target) nav a[href="#preparation-flow"], body:has(#production-flow:target) nav a[href="#production-flow"], body:has(#ai-scenarios:target) nav a[href="#ai-scenarios"] { color:var(--blue); background:#eaf3ff; font-weight:600; }
+    main { min-width:0; }
+    header { padding:2px 2px 4px; }
+    .eyebrow { color:var(--blue); font-size:13px; letter-spacing:.08em; margin:0 0 10px; }
+    h1 { font-size:20px; line-height:28px; margin:0; font-weight:650; color:#0a1730; }
+    .lead { color:var(--muted); margin:0; max-width:50em; }
+    .metadata { display:flex; flex-wrap:wrap; gap:8px 24px; margin-top:20px; color:var(--muted); font-size:13px; }
+    .status { color:var(--amber); background:#fff6e6; border-radius:4px; padding:1px 8px; }
+    section { padding:16px; margin-top:12px; scroll-margin-top:16px; background:var(--paper); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); }
+    h2 { position:relative; padding-left:10px; font-size:15px; line-height:22px; margin:0 0 12px; font-weight:650; }
+    h2::before { content:""; position:absolute; left:0; top:4px; width:3px; height:14px; border-radius:3px; background:var(--blue); }
+    h3 { font-size:17px; line-height:1.6; margin:24px 0 8px; font-weight:600; }
+    p { margin:0 0 14px; }
+    ul,ol { margin:10px 0 18px; padding-left:24px; }
+    li { padding-left:3px; margin:5px 0; }
+    .note { padding:14px 18px; background:#f3f7fa; border-left:3px solid #7b9fb6; margin:18px 0; }
+    .note p:last-child { margin-bottom:0; }
+    .muted, .caption { color:var(--muted); }
+    .caption { font-size:12px; margin:10px 0 0; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .section-head h2 { margin-bottom:0; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; border:1px solid var(--line); color:var(--ink); background:var(--paper); border-radius:var(--radius); padding:5px 13px; font-size:13px; line-height:20px; transition:color .15s,background .15s,border-color .15s; }
+    .button:hover { color:var(--blue); border-color:var(--blue); background:var(--surface-subtle); }
+    #edit-nodes, #save-nodes, #edit-departments, #save-departments { color:white; border-color:transparent; background:var(--blue); box-shadow:0 8px 18px rgb(31 111 255 / 18%); }
+    #edit-nodes:hover, #save-nodes:hover, #edit-departments:hover, #save-departments:hover { background:var(--primary-hover); }
+    .button:disabled { color:#94a3b8 !important; background:var(--surface-subtle) !important; border-color:var(--line) !important; box-shadow:none !important; cursor:not-allowed; }
+    figure { margin:12px 0 0; }
+    #flow-chart, #swimlane-chart, #production-chart { background:white; }
+    #flow-chart svg, #swimlane-chart svg, #production-chart svg { display:block; width:100%; height:auto; }
+    .table-wrap { overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:var(--radius); scrollbar-color:#b9cce6 var(--surface-subtle); }
+    table { border-collapse:separate; border-spacing:0; width:100%; text-align:left; font-size:13px; line-height:1.65; }
+    th,td { border-bottom:1px solid var(--line); padding:8px 10px; vertical-align:top; overflow-wrap:anywhere; }
+    th { background:var(--surface-subtle); color:var(--ink); font-weight:650; }
+    tbody tr:last-child td { border-bottom:0; }
+    tbody tr:hover > td { background:var(--bg-strong); }
+    .results-table td { padding-block:12px; }
+    .cell-header { display:flex; align-items:flex-start; gap:8px; min-height:28px; }
+    .cell-header > [data-edit-text] { flex:1; min-width:0; }
+    .cell-status { display:flex; flex:none; flex-direction:column; align-items:flex-end; gap:6px; max-width:100%; margin-left:auto; }
+    .cell-confirmation { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:6px; }
+    .roles-table { min-width:620px; }
+    .department-table { min-width:760px; table-layout:fixed; }
+    .department-table th:first-child { width:23%; }
+    .department-table th:nth-child(2) { width:42%; }
+    .department-table th:nth-child(3) { width:35%; }
+    .department-table .cell-header > strong { flex:1; min-width:0; }
+    .department-table td { padding-block:12px; }
+    .department-table td > p { margin:0; }
+    .department-content { min-height:0; overflow:auto; margin-top:12px; }
+    .department-content > .table-wrap { min-width:760px; overflow:visible; }
+    .department-content > .table-wrap:first-child { margin-top:0; }
+    .department-table thead th { position:sticky; top:0; z-index:2; box-shadow:0 1px 0 var(--line); }
+    .ai-scenarios-table { min-width:860px; table-layout:fixed; }
+    .ai-scenarios-table td { padding-block:12px; }
+    .ai-scenarios-table td p:first-child { margin-top:0; }
+    .ai-scenarios-scroll { max-height:calc(100dvh - 170px); overflow:auto; }
+    .ai-scenarios-table thead th { position:sticky; top:0; z-index:2; box-shadow:0 1px 0 var(--line); }
+    @media print { .ai-scenarios-scroll { max-height:none; overflow:visible; } .ai-scenarios-table thead th { position:static; } }
+    .production-table { min-width:1000px; table-layout:fixed; }
+    .production-table td { padding-block:12px; }
+    .source-table { min-width:620px; }
+    .ref { font-size:12px; white-space:nowrap; text-decoration:none; }
+    .qid { color:var(--blue); font-size:12px; font-weight:600; }
+    .pending { color:var(--amber); font-size:12px; white-space:nowrap; }
+    .source-title { display:block; font-weight:600; margin-bottom:4px; }
+    .source-meta { display:block; color:var(--muted); font-size:12px; }
+    audio { display:block; width:min(100%,560px); margin:14px 0; }
+    details { border-top:1px solid var(--line); padding:14px 0; }
+    summary { cursor:pointer; font-weight:600; }
+    details p,details ul { margin-top:12px; }
+    footer { margin-top:34px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+    dialog { padding:16px; border:1px solid var(--line); border-radius:8px; width:calc(100% - 32px); max-width:1680px; max-height:calc(100% - 32px); color:var(--ink); box-shadow:0 16px 48px rgb(30 82 142 / 16%); }
+    dialog::backdrop { background:rgb(20 37 51 / 55%); }
+    .dialog-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .dialog-head h2 { margin:0; }
+    .dialog-figure { margin-top:18px; max-height:calc(100dvh - 190px); overflow:auto; background:white; }
+    .dialog-figure svg { width:1600px; height:auto; display:block; max-width:none; }
+    @media (min-width:1700px) { .dialog-figure svg { width:100%; } }
+    @media (max-width:980px) {
+      .layout { grid-template-columns:1fr; gap:12px; padding:12px; }
+      aside { position:static; min-height:0; padding-bottom:8px; }
+      .brand { font-size:15px; margin-bottom:6px; padding:10px 12px; }
+      .brand br { display:none; }
+      .aside-note { margin-bottom:10px; }
+      nav { display:flex; flex-wrap:wrap; gap:4px; }
+      nav a { padding:6px 10px; }
+    }
+    @media (max-width:540px) {
+      .layout { padding:10px; }
+      section { padding:12px; }
+      .metadata { gap:6px 16px; }
+      dialog { padding:16px; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .button { transition:none; } }
+    @media print {
+      @page { margin:16mm; }
+      body { background:white; font-size:11pt; }
+      .layout { display:block; padding:0; max-width:none; }
+      aside,.button,audio,dialog { display:none; }
+      main { padding:0; border:0; }
+      section { padding:16px 0 0; border:0; box-shadow:none; }
+      th { background:#f4f4f4 !important; }
+      tr { break-inside:avoid; }
+      #flow-chart, #swimlane-chart, #production-chart { break-inside:avoid; }
+      #flow-chart svg, #swimlane-chart svg, #production-chart svg { max-height:235mm; }
+      .table-wrap { overflow:visible; border:0; border-radius:0; }
+      table { min-width:0 !important; font-size:9pt; }
+    }
+  
+    .badge { display:inline-flex; align-items:center; min-height:24px; font-size:13px; line-height:22px; font-weight:400; padding:0 7px; border-radius:4px; white-space:nowrap; }
+    .badge.confirmed { color:var(--success); background:#ecf8f1; }
+    .badge.pending { color:var(--amber); background:#fff7e6; }
+    .badge.missing { color:var(--muted); background:#f3f4f6; }
+    .badge.paused { color:var(--muted); background:#f3f4f6; }
+    #nodes, #departments { display:flex; flex-direction:column; max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px); }
+    #nodes > .section-head, #nodes > .editor-message, #departments > .section-head, #departments > .editor-message, #departments > .caption { flex-shrink:0; }
+    .results-scroll { min-height:0; overflow:auto; }
+    .results-table { min-width:1060px; table-layout:fixed; border-collapse:separate; border-spacing:0; }
+    .results-table thead th { position:sticky; top:0; z-index:2; box-shadow:0 1px 0 var(--line); }
+    .results-table th:first-child { width:25%; }
+    .results-table th:nth-child(2) { width:17%; }
+    .results-table th:nth-child(3) { width:20%; }
+    .results-table th:nth-child(4) { width:20%; }
+    .results-table th:nth-child(5) { width:18%; }
+    td p { margin:6px 0 0; }
+    .legend { font-size:12px; line-height:2.3; color:var(--muted); margin:12px 0 0; }
+    .summary-table { min-width:610px; }
+    .summary-table td:first-child { width:22%; }
+    .summary-table td:nth-child(2) { width:13%; }
+    .paused-item { color:var(--muted); font-size:13px; margin:10px 0 0; }
+    @media print { #nodes, #departments { display:block; max-height:none; } .results-scroll, .department-content { overflow:visible; } .department-content > .table-wrap { min-width:0; } .results-table, .department-table { table-layout:auto; } .results-table thead th, .department-table thead th { position:static; box-shadow:none; } }
+
+    [hidden] { display:none !important; }
+    .editor-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .editor-message { font-size:12px; color:var(--muted); margin:8px 0 0; }
+    .editor-message:empty { display:none; }
+    .editor-message.error { color:#dc2626; }
+    [data-edit-text] { white-space:pre-wrap; }
+    .is-editing [data-edit-text] { display:block; padding:6px 8px; border:1px solid #b9cce6; border-radius:var(--radius); background:var(--paper); min-height:32px; }
+    .is-editing [data-edit-text]:focus { outline:0; border-color:var(--blue); box-shadow:0 0 0 2px rgb(31 111 255 / 12%); }
+    .status-editor { max-width:100%; min-height:28px; font:inherit; font-size:13px; color:var(--ink); background:var(--paper); border:1px solid #b9cce6; border-radius:var(--radius); padding:3px 7px; }
+    .status-editor:focus { outline:0; border-color:var(--blue); box-shadow:0 0 0 2px rgb(31 111 255 / 12%); }
+    @media print { .editor-actions,.editor-message,.status-editor { display:none !important; } .is-editing [data-edit-text] { padding:0; border:0; background:none; } .is-editing .badge[hidden] { display:inline-block !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#platform-architecture">跳到正文</a>
+<div class="layout">
+  <aside aria-label="文档目录">
+    <div class="brand">绿建智能生产<br>业务梳理</div>
+    <nav aria-label="章节导航">
+      <a href="#platform-architecture">平台总体架构</a>
+      <a href="#intelligent-capabilities">智能平台二级能力</a>
+      <a href="#overview">核实结果</a>
+      <a href="#main-flow">业务主流程</a>
+      <a href="#nodes">节点业务结果</a>
+      <a href="#departments">部门主要职责</a>
+      <a href="#preparation-flow">准备环节泳道图</a>
+      <a href="#production-flow">生产流程梳理</a>
+      <a href="#ai-scenarios">AI 场景与资料</a>
+    </nav>
+  </aside>
+  <main>
+    <header><h1>绿建智能生产业务梳理</h1></header>
+<section id="platform-architecture" aria-labelledby="architecture-title">
+<div id="lj-architecture">
+  <style>
+    body:has(#platform-architecture:target) nav a[href="#platform-architecture"] { color:var(--blue); background:#eaf3ff; font-weight:600; }
+    .dialog-figure svg.architecture-svg { width:100%; min-width:1000px; }
+    #platform-architecture { padding:26px 28px 22px; overflow:hidden; border:1px solid #d7e6fb; border-radius:15px; background:radial-gradient(ellipse at 100% 100%,#eaf5ff80,transparent 45%),linear-gradient(160deg,#fff 35%,#f8fbff); box-shadow:0 14px 42px rgb(29 83 147 / 7%); }
+    #platform-architecture .section-head { align-items:center; }
+    #platform-architecture h2 { padding-left:16px; font-size:25px; line-height:34px; font-weight:700; letter-spacing:.01em; color:#0b2349; }
+    #platform-architecture h2::before { top:5px; width:4px; height:24px; border-radius:3px; background:linear-gradient(#438eff,#1262ed); }
+    #platform-architecture > #lj-architecture > .caption { margin-top:9px; font-size:13px; color:#61789a; }
+    #platform-architecture .arch-expand { gap:9px; padding:8px 14px; border-color:#d3e3fa; border-radius:7px; background:linear-gradient(#fff,#f7fbff); box-shadow:0 3px 9px #1f6fff08; }
+    #platform-architecture .arch-expand svg { width:15px; height:15px; color:#155ec7; }
+    #lj-architecture .arch-canvas { width:100%; }
+    #lj-architecture .arch-canvas > svg { display:block; width:100%; height:auto; overflow:visible; }
+    .architecture-svg { font-family:Inter,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+    .architecture-svg .arch-label { fill:#102b50; font-weight:600; }
+    .architecture-svg .arch-caption { fill:#607999; font-weight:400; }
+    #lj-architecture .arch-button-wrap { display:flex; align-items:center; width:100%; height:100%; }
+    #lj-architecture .arch-node-button { display:flex; align-items:center; justify-content:center; width:100%; height:100%; min-height:0; margin:0; padding:0 6px; border:0; border-radius:7px; background:transparent; color:#102b50; font-size:var(--arch-font); line-height:1.4; text-align:center; box-shadow:none; white-space:normal; }
+    #lj-architecture .arch-node-button strong { display:block; font-weight:650; }
+    #lj-architecture .arch-node-button small { display:block; margin-top:5px; color:#607999; font-size:.79em; font-weight:400; }
+    #lj-architecture .arch-node-button[data-align="start"] { justify-content:flex-start; text-align:left; padding-left:0; }
+    #lj-architecture .arch-node-button:hover { background:#1977ff09; color:#0c5ed8; }
+    #lj-architecture .arch-node-button:focus-visible { outline:2px solid #2e85ff; outline-offset:-2px; }
+    #lj-architecture .arch-legend { display:flex; flex-wrap:wrap; align-items:center; gap:10px 25px; margin-top:3px; color:#4e6686; font-size:12px; }
+    #lj-architecture .arch-key { display:inline-flex; align-items:center; gap:8px; }
+    #lj-architecture .arch-key > span { width:27px; height:2px; background:#237bff; }
+    #lj-architecture .arch-key.result > span { background:#0fa78e; }
+    #lj-architecture .arch-key.write > span { background:#d58a27; }
+    #lj-architecture .arch-key.entry > span { height:0; background:transparent; border-top:1px dashed #7892b4; }
+    #lj-architecture .arch-detail { margin-top:14px; padding-top:12px; border-top:1px solid #e1ebf8; min-height:34px; color:#506887; font-size:12px; }
+    #lj-architecture foreignObject { overflow:visible; }
+    @media (max-width:1100px) { #lj-architecture .arch-canvas { overflow-x:auto; } #lj-architecture .arch-canvas > svg { min-width:1060px; } }
+    @media (max-width:640px) { #platform-architecture { padding:18px 14px; border-radius:11px; } #platform-architecture h2 { font-size:20px; line-height:28px; } #platform-architecture h2::before { height:20px; top:4px; } #platform-architecture .arch-expand { padding:5px 9px; } #lj-architecture .arch-legend { gap:8px 16px; } }
+    @media print { #platform-architecture { box-shadow:none; border:0; background:#fff; } #lj-architecture .arch-node-button { color:#102b50; } }
+  </style>
+  <div class="section-head">
+    <h2 id="architecture-title">平台总体架构</h2>
+    <button class="button arch-expand" id="expand-architecture" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7"/></svg>放大查看架构图</button>
+  </div>
+  <p class="caption">第1阶段 · 平台协作与智能能力　架构建议稿，生产侧场景持续补齐。</p>
+  <div class="arch-canvas"></div>
+  <div class="arch-legend" aria-label="连接关系图例">
+    <span class="arch-key"><span aria-hidden="true"></span>业务数据／数据服务／能力调用</span>
+    <span class="arch-key result"><span aria-hidden="true"></span>结果返回与归集</span>
+    <span class="arch-key write"><span aria-hidden="true"></span>业务接口回写</span>
+    <span class="arch-key entry"><span aria-hidden="true"></span>业务入口与上下文</span>
+  </div>
+  <div class="arch-detail" aria-live="polite"></div>
+  <script>
+    (() => {
+      const root=document.getElementById('lj-architecture');
+      const canvas=root.querySelector('.arch-canvas');
+      const detail=root.querySelector('.arch-detail');
+      const descriptions={
+        business:'初鸣平台：维护业务事实与实际执行状态。经确认的结果通过业务接口落地，执行回执与真实状态同步到数据平台。',
+        integration:'统一身份与业务上下文：从初鸣进入或触发智能能力时，传递用户身份、权限及项目／任务标识。登录与授权机制、对象映射及接口条件需在对接时确认。',
+        suggestion:'生成建议：绿建智能生产应用组织业务计算，并调用集团智能体平台，形成候选方案、计算依据和输入数据版本，归集至数据平台；建议与已执行结果分别记录。',
+        confirmation:'人工确认：排产或采购建议经适用的业务审核后形成可执行结果；具体审核节点、责任人和放行条件仍待确认。',
+        writeback:'接口回写：将经确认的结果关联到原业务对象，记录回执、失败重试和防重复提交；初鸣接口是否支持及异常处理边界需联调确认。',
+        feedback:'执行反馈：初鸣的真实执行状态同步数据平台，再通过统一数据服务供绿建智能生产应用进行后续测算与效果评估。',
+        data:'数据平台：负责汇集、清洗、质量校验、对象关联与口径统一，以统一对象编码、数据版本和更新时间提供数据服务，归集智能结果及依据。',
+        intelligent:'绿建智能生产应用：承接提料、采购、排产、核查和进度分析等业务场景，维护业务模型与规则参数，调用集团智能体平台形成业务方案；运行与治理管理业务权限、任务状态、模型和方案版本、审核追溯与效果反馈。',
+        apps:'业务应用：按材料与采购、排产与资源、进度与核查归纳现有七类场景，二级图展开具体能力；生产侧及其他相关场景继续补齐。',
+        group:'集团智能体平台：提供智能体与任务编排，以及知识、工具与大模型能力；运行与治理管理身份与调用权限、执行监控、调用日志、安全审计、配置版本和资源用量。',
+        agents:'智能体与任务编排：归属集团智能体平台，配置业务智能体、组织任务步骤并调用模型和工具。',
+        models:'业务模型：表达厂区、班组、材料、设备、工艺路线、标准工时、班次日历及约束；具体口径和参数随场景核实。',
+        algorithms:'规则与优化：按交期、齐套、资源与工序约束开展供需测算和排产求解，支持方案比较、冲突解释与不可排原因说明；优化目标取舍待确认。',
+        tools:'知识、工具与大模型：归属集团智能体平台，支撑资料理解、知识检索、工具管理与调用、结果解释；绿建业务知识及业务计算工具按场景提供。'
+      };
+      let selected='intelligent';
+      const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+      const text=(x,y,s,size=20,fill='#102b50',weight=500,anchor='start')=>`<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-weight="${weight}" text-anchor="${anchor}">${esc(s)}</text>`;
+      const rect=(x,y,w,h,fill,stroke='#dbe8f9',rx=12,extra='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" ${extra}/>`;
+      const button=(x,y,w,h,label,key,size=22,subtitle='',align='middle')=>`<foreignObject x="${x}" y="${y}" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" class="arch-button-wrap"><button type="button" class="button arch-node-button" data-focus="${key}" data-title="${esc(label)}" data-subtitle="${esc(subtitle)}" data-font="${size}" data-align="${align==='start'?'start':'center'}" aria-label="${esc(label)}" aria-pressed="${selected===key}" style="--arch-font:${size}px"><span><strong>${esc(label)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:''}</span></button></div></foreignObject>`;
+      const icon=(name,x,y,size=28,color='#1978ff')=>{
+        const paths={
+          file:'<path d="M6 2h9l5 5v15H4V2h2M14 2v6h6M8 12h8M8 16h8M8 20h5"/>',
+          cart:'<path d="M2 3h3l3 13h11l3-10H6M10 21h.1M19 21h.1"/><circle cx="10" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>',
+          gear:'<path d="M9 3l1-2h4l1 2 3 2 2 .2 2 3-1 2v4l1 2-2 3-2 .2-3 2-1 2h-4l-1-2-3-2-2-.2-2-3 1-2v-4l-1-2 2-3L6 5z"/><circle cx="12" cy="12" r="4"/>',
+          warehouse:'<path d="M2 10L12 3l10 7v12H2V10M8 22V12h8v10M8 16h8M8 19h8"/>',
+          network:'<circle cx="12" cy="4" r="3"/><circle cx="4" cy="19" r="3"/><circle cx="20" cy="19" r="3"/><path d="M11 7L6 16M13 7l5 9"/>',
+          database:'<ellipse cx="12" cy="4" rx="9" ry="3"/><path d="M3 4v15c0 4 18 4 18 0V4M3 9c0 4 18 4 18 0M3 14c0 4 18 4 18 0"/>',
+          link:'<path d="M9 15l6-6M8 10l-4 4a4 4 0 006 6l4-4M10 8l4-4a4 4 0 016 6l-4 4"/>',
+          chart:'<path d="M3 22V12h4v10M10 22V6h4v16M17 22V2h4v20M1 22h22"/>',
+          cube:'<path d="M12 2l10 6v10l-10 6L2 18V8l10-6M2 8l10 6 10-6M12 14v10"/>',
+          agent:'<rect x="3" y="6" width="18" height="15" rx="4"/><path d="M12 2v4M8 12h.1M16 12h.1M8 17h8M0 11v6M24 11v6"/><circle cx="12" cy="2" r="1"/>',
+          brain:'<path d="M12 4C9-1 3 3 5 7 0 8 0 14 4 15 1 20 8 25 12 20V4M12 4c3-5 9-1 7 3 5 1 5 7 1 8 3 5-4 10-8 5M5 7l3 2M4 15l4-1M19 7l-3 2M20 15l-4-1"/>',
+          shield:'<path d="M12 2L22 6v7c0 6-10 10-10 10S2 19 2 13V6l10-4M8 12l3 3 6-7"/>'
+        };
+        return `<g transform="translate(${x},${y}) scale(${size/24})" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${paths[name]||paths.cube}</g>`;
+      };
+      const stack=(x,y,size=72)=>`<g transform="translate(${x},${y}) scale(${size/80})" aria-hidden="true"><path d="M0 42L40 20l40 22-40 23z" fill="#d6e9ff"/><path d="M0 42v8l40 22V64z" fill="#9fc8ff"/><path d="M40 64l40-22v8L40 72z" fill="#c3e1ff"/><path d="M10 25L40 8l30 17-30 18z" fill="url(#arch-chip)"/><path d="M10 25v9l30 18v-9z" fill="#2e78f6"/><path d="M40 43l30-18v9L40 52z" fill="#7bb7ff"/><path d="M15 13L40 0l25 13-25 15z" fill="url(#arch-chip)"/></g>`;
+      const defs=`<defs><linearGradient id="arch-body" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#eff7ff"/></linearGradient><linearGradient id="arch-card" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#edf6ff"/></linearGradient><linearGradient id="arch-head" x1="0" y1="0" x2="1" y2=".8"><stop stop-color="#f8fcff"/><stop offset="1" stop-color="#e4f1ff"/></linearGradient><linearGradient id="arch-teal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#ecfbf8"/></linearGradient><linearGradient id="arch-chip" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#86baff"/><stop offset=".55" stop-color="#287dff"/><stop offset="1" stop-color="#0f62e9"/></linearGradient><filter id="arch-shadow" x="-20%" y="-20%" width="140%" height="145%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3285d1" flood-opacity=".12"/></filter><marker id="arch-arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#237bff"/></marker><marker id="arch-arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0fa78e"/></marker><marker id="arch-arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#d58a27"/></marker><marker id="arch-arrow-entry" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#7892b4"/></marker></defs>`;
+      const svgStart=(w,h)=>`<svg class="architecture-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-labelledby="executive-architecture-title executive-architecture-desc"><title id="executive-architecture-title">绿建智能生产平台总体架构</title><desc id="executive-architecture-desc">初鸣平台承接业务事实与实际执行，数据平台汇集、清洗校验并关联数据，向绿建智能生产应用提供统一数据服务。绿建侧包含业务应用、业务模型、规则与优化以及方案交接，底部运行与治理支撑业务权限、任务监控、版本和结果追溯；集团智能体平台独立提供智能体与任务编排、知识、工具及大模型能力，绿建应用通过接口调用并接收结果，集团平台的运行与治理管理调用权限、运行监控、日志审计和资源用量。方案及依据归集数据平台，按适用业务审核后回写初鸣，执行状态再经数据平台回流。</desc>${defs}`;
+      const path=(d,type='blue',width=3)=>`<path d="${d}" fill="none" stroke="${({blue:'#237bff',teal:'#0fa78e',amber:'#d58a27',entry:'#7892b4'})[type]}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round" ${type==='entry'?'stroke-dasharray="7 7"':''} marker-end="url(#arch-arrow-${type})"/>`;
+      const sourceLabels=['计划与技术清单','采购与库存','生产与报工','入库与发运'];
+      const dataLabels=['数据接入与汇集','清洗校验与口径统一','对象关联与数据服务','智能结果与依据归集'];
+      function desktop() {
+        let s=svgStart(1920,861);
+        s+=path('M140 82V28Q140 18 152 18H1056Q1068 18 1068 30V82','entry',1.8);
+        s+=rect(350,0,610,40,'#fff','none',0)+button(350,0,610,40,'统一身份 · 项目／任务上下文 · 入口触发','integration',20);
+        s+=path('M1068 522V591Q1068 610 1049 610H159Q140 610 140 590V522','amber',2.6);
+        s+=rect(575,592,300,34,'#fff','none',0)+icon('file',596,598,22,'#d58a27')+text(630,618,'经确认结果回写',22,'#b57a26',600);
+        s+=rect(8,82,264,440,'url(#arch-body)','#d2e4ff',18,'filter="url(#arch-shadow)"');
+        s+=rect(350,82,300,440,'url(#arch-body)','#d2e4ff',18,'filter="url(#arch-shadow)"');
+        s+=rect(738,82,660,440,'url(#arch-body)','#cce3fc',18,'filter="url(#arch-shadow)" stroke-width="1.5"');
+        s+=rect(1490,82,422,440,'url(#arch-teal)','#b1ded8',18,'filter="url(#arch-shadow)"');
+        s+=rect(28,104,68,66,'url(#arch-head)','none',15)+rect(370,104,68,66,'url(#arch-head)','none',15);
+        s+=rect(48,119,30,36,'url(#arch-chip)','none',3)+`<path d="M55 129h16M55 136h16M55 143h10" stroke="white" stroke-width="2.5"/>`;
+        s+=icon('database',388,119,34);
+        s+=button(111,111,146,37,'初鸣平台','business',27,'','start')+text(111,162,'业务执行',19,'#607999');
+        s+=button(454,111,180,37,'数据平台','data',27,'','start')+text(454,162,'数据治理与供给',19,'#607999');
+        const sourceIcons=['file','cart','gear','warehouse'],dataIcons=['network','database','link','chart'];
+        for(let i=0;i<4;i++){
+          const y=188+i*80;
+          s+=rect(25,y,230,66,'url(#arch-card)','#d4e5fc',10)+icon(sourceIcons[i],43,y+22,25)+text(82,y+41,sourceLabels[i],21,'#102b50',600);
+          s+=rect(367,y,266,66,'url(#arch-card)','#d4e5fc',10)+icon(dataIcons[i],385,y+22,25)+text(424,y+41,dataLabels[i],19.5,'#102b50',600);
+        }
+        s+=path('M272 277H350','blue',4)+text(311,224,'业务事实',17,'#126bf4',600,'middle')+text(311,249,'执行反馈',17,'#126bf4',600,'middle');
+        s+=path('M650 277H738','blue',4)+text(694,224,'标准化',21,'#126bf4',600,'middle')+text(694,249,'数据服务',21,'#126bf4',600,'middle');
+        s+=path('M738 438H650','teal',4)+text(694,385,'方案依据',17,'#05947e',600,'middle')+text(694,410,'归集',21,'#05947e',600,'middle');
+        s+=rect(744,88,648,80,'url(#arch-head)','none',14)+stack(763,101,56);
+        s+=button(840,103,534,42,'绿建智能生产应用','intelligent',28,'','start')+text(840,158,'业务应用与业务计算',19,'#607999');
+        s+=rect(754,185,628,118,'#ffffffd9','#dce8f8',11)+icon('cube',775,202,25)+text(813,222,'业务应用',22,'#102b50',600);
+        s+=button(768,229,600,62,'材料与采购 · 排产与资源 · 进度与核查','apps',21,'提料、排产、进度预测等场景持续扩展');
+        s+=icon('network',775,316,25)+text(813,337,'模型与计算',22,'#102b50',600);
+        s+=rect(754,354,306,92,'url(#arch-card)','#c9dffa',11)+stack(773,374,41)+button(818,364,232,72,'业务模型','models',22,'资源 · 工艺 · 约束');
+        s+=rect(1076,354,306,92,'url(#arch-card)','#c9dffa',11)+icon('gear',1094,376,30)+button(1132,364,240,72,'规则与优化','algorithms',22,'供需 · 排产 · 方案比较');
+        s+=rect(754,472,628,34,'#f0f5fc','#d3e0f1',8)+icon('shield',768,480,18,'#6982a4')+text(794,496,'运行与治理',17,'#355b86',600)+text(926,496,'权限 · 监控 · 版本 · 追溯 · 反馈',17,'#7087a1',500);
+        s+=path('M1398 277H1490','blue',2.4)+text(1444,224,'能力',19,'#126bf4',500,'middle')+text(1444,249,'调用',19,'#126bf4',500,'middle');
+        s+=path('M1490 420H1398','teal',2.4)+text(1444,367,'结果',19,'#05947e',500,'middle')+text(1444,392,'返回',19,'#05947e',500,'middle');
+        s+=rect(1496,88,410,80,'#f0faf8','none',14)+icon('agent',1515,110,31,'#0d9785')+button(1560,103,330,42,'集团智能体平台','group',27,'','start');
+        s+=text(1515,158,'智能体、知识、工具与大模型',18,'#5e8b83');
+        s+=rect(1508,185,386,118,'#fff','#cce8e1',11)+button(1520,203,362,82,'智能体与任务编排','agents',22,'智能体配置 · 任务与流程');
+        s+=rect(1508,328,386,118,'#fff','#cce8e1',11)+button(1520,346,362,82,'知识、工具与大模型','tools',22,'知识检索 · 工具调用 · 模型服务');
+        s+=rect(1508,472,386,34,'#f0f5fc','#d3e0f1',8)+icon('shield',1520,480,18,'#6982a4')+text(1546,496,'运行与治理',17,'#355b86',600)+text(1668,496,'权限 · 监控 · 日志 · 用量',16,'#7087a1',500);
+        s+=text(8,686,'业务结果闭环',20,'#34577c',650)+text(1900,647,'衔接建议 · 审核责任与接口条件待确认',15,'#8a9ab0',400,'end');
+        const steps=[['生成建议','方案、输入版本与依据归集','suggestion','#367cda'],['人工确认','按适用审核形成可执行结果','confirmation','#199b8a'],['接口回写','回执、失败重试与防重复提交','writeback','#c48b38'],['执行反馈','真实状态回流，支撑后续分析','feedback','#6484ad']];
+        steps.forEach(([title,sub,key,color],i)=>{
+          const x=186+i*434;
+          s+=rect(x,658,400,77,'#f8fbff','#dbe6f4',10)+`<circle cx="${x+24}" cy="685" r="12" fill="${color}" opacity=".13"/>`+text(x+24,690,String(i+1),13,color,650,'middle')+button(x+46,665,339,34,title,key,22,'','start')+text(x+15,718,sub,16,'#7087a1');
+          if(i<3)s+=path(`M${x+405} 697H${x+428}`,'blue',1.7);
+        });
+        s+=path('M1710 742V764H350V742','teal',1.6)+rect(680,748,690,30,'#fff','none',0)+text(1025,770,'执行状态经数据平台回流，支撑后续测算与效果评估',17,'#67948f',500,'middle');
+        s+=`<line x1="8" x2="1912" y1="792" y2="792" stroke="#e1eaf7"/>`;
+        [['初鸣平台','业务事实与实际执行状态'],['数据平台','统一数据、对象编码与版本'],['绿建智能生产应用','业务模型、规则与业务方案'],['集团智能体平台','编排、知识、工具与大模型']].forEach(([title,sub],i)=>{
+          const x=10+i*480;
+          s+=text(x,819,title,20,'#355b86',650)+text(x,845,sub,17,'#7b8fa9');
+        });
+        return s+'</svg>';
+      }
+      root.architectureSvg=desktop;
+      function render(){
+        const w=Math.round(canvas.getBoundingClientRect().width);
+        if(!w)return;
+        canvas.innerHTML=desktop();
+        detail.textContent=descriptions[selected];
+      }
+      root.addEventListener('click',event=>{
+        const target=event.target.closest('button[data-focus]');
+        if(!target)return;
+        selected=target.dataset.focus;
+        root.querySelectorAll('button[data-focus]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.focus===selected)));
+        detail.textContent=descriptions[selected];
+      });
+      new ResizeObserver(render).observe(canvas);
+      render();
+    })();
+  </script>
+</div>
+</section>
+
+<section id="intelligent-capabilities" aria-labelledby="capabilities-title">
+  <style>
+    body:has(#intelligent-capabilities:target) nav a[href="#intelligent-capabilities"] { color:var(--blue); background:#eaf3ff; font-weight:600; }
+    #intelligent-capabilities { padding:24px 28px; border:1px solid #d5e3f7; border-radius:16px; background:linear-gradient(135deg,#fff 55%,#f8fbff); box-shadow:0 14px 42px #173f7510; }
+    #intelligent-capabilities h2 { padding-left:16px; font-size:23px; line-height:32px; color:#0b2349; }
+    #intelligent-capabilities h2::before { top:5px; width:4px; height:22px; border-radius:3px; background:linear-gradient(#438eff,#1262ed); }
+    #intelligent-capabilities .caption { margin-top:9px; color:#61789a; }
+    #capability-map { margin-top:18px; overflow-x:auto; scrollbar-color:#bbcee7 #f5f8fd; border:1px solid #e2ebf8; border-radius:12px; background:#f9fbff; }
+    #capability-map svg.capability-svg { display:block; width:100%; min-width:1060px; height:auto; }
+    .capability-svg .cap-hit { cursor:pointer; outline:none; }
+    .capability-svg .cap-highlight { fill:#fff; opacity:0; stroke:var(--cap-accent,#2675e9); stroke-width:1.4; transition:opacity .15s; }
+    .capability-svg .cap-hit:hover .cap-highlight, .capability-svg .cap-hit:focus-visible .cap-highlight { opacity:.82; }
+    #intelligent-capabilities .cap-detail { display:flex; gap:12px; align-items:baseline; min-height:48px; margin-top:12px; padding:12px 16px; border-left:3px solid #2b7aef; background:#f3f7fe; border-radius:0 7px 7px 0; font-size:12px; color:#5a7495; }
+    #intelligent-capabilities .cap-detail strong { flex:none; color:#193f70; font-size:13px; }
+    #intelligent-capabilities .cap-detail p { margin:0; }
+    #intelligent-capabilities .cap-pending { margin:12px 0 0; color:#8c6c3d; font-size:12px; line-height:1.7; }
+    #intelligent-capabilities .cap-scroll-hint { display:none; margin:10px 0 0; color:#6d829e; font-size:12px; }
+    .dialog-figure svg.capability-svg { display:block; width:100%; min-width:1000px; height:auto; }
+    @media (max-width:1300px) { #intelligent-capabilities .cap-scroll-hint { display:block; } }
+    @media (max-width:640px) { #intelligent-capabilities { padding:18px 14px; border-radius:11px; } #intelligent-capabilities h2 { font-size:20px; line-height:28px; } #intelligent-capabilities h2::before { height:20px; top:4px; } #intelligent-capabilities .cap-detail { display:block; } #intelligent-capabilities .cap-detail p { margin-top:5px; } }
+    @media (prefers-reduced-motion:reduce) { .capability-svg .cap-highlight { transition:none; } }
+    @media print { #intelligent-capabilities { border:0; box-shadow:none; background:#fff; } #capability-map { overflow:visible; border:0; } #capability-map svg.capability-svg { min-width:0; } #intelligent-capabilities .cap-scroll-hint { display:none; } }
+  </style>
+  <div class="section-head">
+    <h2 id="capabilities-title">智能平台二级能力图</h2>
+    <button class="button" id="expand-capabilities" type="button" aria-haspopup="dialog">放大查看能力图</button>
+  </div>
+  <p class="caption">第1阶段 · 能力梳理初稿。绿建业务应用与计算、集团智能体平台分区展示；具体规则与接口条件待核实。</p>
+  <div id="capability-map" aria-label="绿建智能生产应用与集团智能体平台的能力归属"></div>
+  <p class="cap-scroll-hint">左右滑动查看完整架构，或点击「放大查看能力图」。</p>
+  <div class="cap-detail" aria-live="polite"><strong>能力协作与归属</strong><p>绿建业务应用结合业务模型与计算，调用右侧集团智能体平台的编排、知识、工具和大模型能力。点击能力可查看说明。</p></div>
+  <p class="cap-pending">待确认：套料／领料／下料时点、齐套与开工条件、能力测算口径、优化目标取舍、审核责任及接口条件。插单等动态重排继续暂缓，保留后续扩展位置。</p>
+  <script>
+    (() => {
+      const root=document.getElementById('intelligent-capabilities');
+      const groups=[
+        {key:'applications',title:'业务应用',origin:'场景依据当前资料，业务规则及审核责任待核实',color:'#2878ef',modules:[
+          ['预套料与提料','钢板、型材需求与提料单'],
+          ['采购计划测算','采购缺口、到货时间与滚动备料'],
+          ['厂区承接建议','东／西厂承接与外协条件判断'],
+          ['前后道联合排产','构件后道、部件前道与交付节奏'],
+          ['流转明细核查','材料与生产单据的遗漏、数量和时间差异'],
+          ['进度预测与卡点分析','加工、配套、待料及审核等待'],
+          ['能力评估与工期测算','班组／产线能力、历史工效与预计工期'],
+          ['方案管理、对比与解释','方案比较、冲突与不可排原因、调整影响、人工复核及版本归档'],
+          ['待排任务与场景配置','承接已有任务，组织项目批次、待排任务、计划周期、测算范围与输入数据版本']
+        ]},
+        {key:'agents',title:'智能体与任务编排',origin:'集团智能体平台能力，接口与授权条件待核实',color:'#13a58f',modules:[
+          ['智能体构建','职责、指令与任务输入输出配置'],
+          ['流程编排与协作','步骤、条件分支与多智能体协作'],
+          ['模型、知识与工具绑定','选择可用模型、知识和工具及调用范围'],
+          ['调试验证与发布','样例调试、验证、版本与发布'],
+          ['任务执行与人工介入','任务跟踪、业务复核与异常接续']
+        ]},
+        {key:'models',title:'业务模型与计算',origin:'绿建业务模型与计算，规则口径与参数待核实',color:'#347fff',modules:[
+          ['资源与工艺模型','产能、班组、材料、设备、工艺路线与标准工时'],
+          ['规则与约束配置','班次日历、齐套条件、交期及优化目标取舍'],
+          ['供需与齐套计算','库存、占用、在途与前道配套'],
+          ['排产与资源优化','交期、资源、工序节奏与成本'],
+          ['预测与能力评估','工期、进度、负荷与历史工效'],
+          ['模型搭建与管理','定义、参数、验证、版本、发布与调用']
+        ]},
+        {key:'knowledge',title:'知识、工具与大模型',origin:'集团智能体平台能力；绿建业务知识和业务计算工具按场景提供',color:'#6b83c9',modules:[
+          ['资料接入与识读','图纸、清单与文档解析'],
+          ['知识库与检索','工艺、规则与依据引用'],
+          ['业务数据服务接入','任务、资源、对象编码、数据版本与更新时间'],
+          ['工具与接口管理','计算调用、确认后回写、回执、重试与防重复'],
+          ['大模型接入与配置','模型选用、调用配置与可用性']
+        ]},
+        {key:'green-governance',title:'运行与治理',origin:'绿建业务运行与治理，具体规则和职责待核实',color:'#7891ad',modules:[
+          ['业务权限与审核','部门／项目／数据授权、方案确认与放行'],
+          ['业务任务运行监控','计算与排产任务状态、异常处理和执行回执'],
+          ['模型与规则版本','业务模型、规则参数及配置版本'],
+          ['方案与操作追溯','输入与方案版本、审核记录、操作审计及运行依据'],
+          ['验证与效果反馈','样例核验、人工反馈与执行实绩对照']
+        ]},
+        {key:'group-governance',title:'运行与治理',origin:'集团智能体平台运行与治理，具体接口和授权条件待核实',color:'#7891ad',modules:[
+          ['身份与调用权限','统一身份及智能体、流程、模型、工具调用授权'],
+          ['智能任务监控','智能体与流程状态、失败重试及异常处理'],
+          ['日志与安全审计','调用记录、入模校验、脱敏与访问审计'],
+          ['配置版本与发布','智能体、流程、模型与工具配置版本及发布'],
+          ['资源用量与保障','调用用量、运行资源、可用性与异常告警']
+        ]}
+      ];
+      const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+      const text=(x,y,s,size=20,color='#173b66',weight=500,anchor='start',extra='')=>`<text x="${x}" y="${y}" font-size="${size}" fill="${color}" font-weight="${weight}" text-anchor="${anchor}" ${extra}>${esc(s)}</text>`;
+      const wrap=(s,max)=>{
+        const result=[];let line='',weight=0;
+        for(const char of s){const n=/[\x00-\xff]/.test(char)?0.5:1;if(weight+n>max&&line){result.push(line);line='';weight=0;}line+=char;weight+=n;}
+        if(line)result.push(line);return result;
+      };
+      const lines=(x,y,s,max,size=16,color='#6a809c',step=23)=>wrap(s,max).map((line,n)=>text(x,y+n*step,line,size,color,400)).join('');
+      const icon=(name,x,y,color='#fff',scale=1)=>{
+        const paths={apps:'<rect x="1" y="1" width="9" height="9" rx="2"/><rect x="15" y="1" width="9" height="9" rx="2"/><rect x="1" y="15" width="9" height="9" rx="2"/><rect x="15" y="15" width="9" height="9" rx="2"/>',agents:'<rect x="4" y="6" width="18" height="15" rx="4"/><path d="M13 1v5M0 12h4m18 0h4M8 21v4m10-4v4"/><path d="M9 12h1m7 0h1M9 17h9"/>',models:'<path d="M1 22h24M4 18V9m8 9V3m8 15v-7"/><path d="m2 6 7-4 7 5 9-6"/>',knowledge:'<path d="M13 5C8 1 3 2 1 3v19c4-1 8-1 12 2 4-3 8-3 12-2V3c-3-1-8-2-12 2v19"/><path d="M5 8h4m-4 5h4m8-5h4m-4 5h4"/>',shield:'<path d="m13 1 11 4v8c0 6-7 10-11 12C9 23 2 19 2 13V5Z"/><path d="m7 12 4 4 8-8"/>'};
+        return `<g transform="translate(${x} ${y}) scale(${scale})" stroke="${color}" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</g>`;
+      };
+      const module=(g,i,x,y,w,h,body)=>`<g class="cap-hit" data-cap-group="${g.key}" data-cap-index="${i}" role="button" tabindex="0" aria-label="${esc(g.modules[i].join('：'))}" style="--cap-accent:${g.color}"><title>${esc(g.modules[i].join('：'))}</title><rect class="cap-highlight" x="${x}" y="${y}" width="${w}" height="${h}" rx="7"/>${body}</g>`;
+      const plate=(x,y,w,h,fill='url(#cap-surface)',edge='#d7e5f6')=>`<rect x="${x+6}" y="${y+10}" width="${w}" height="${h}" rx="15" fill="#dae6f6" opacity=".55"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="15" fill="${fill}" stroke="${edge}" filter="url(#cap-shadow)"/>`;
+      root.capabilitySvg=(interactive=false)=>{
+        const [apps,agents,models,knowledge,greenOps,groupOps]=groups;
+        let body='';
+        body+=`<rect width="1920" height="1296" fill="url(#cap-backdrop)"/><rect width="1920" height="1296" fill="url(#cap-grid)" opacity=".45"/>`;
+        body+=text(24,43,'智能生产二级能力架构',31,'#12345c',700)+text(425,42,'业务应用与计算 · 集团智能体能力协同',18,'#6d829e',400);
+        body+=`<rect x="1688" y="19" width="208" height="37" rx="19" fill="#eaf2fe" stroke="#cfdef4"/>`+text(1792,44,'第 1 阶段 · 能力架构',16,'#32629d',500,'middle');
+        body+='<g id="cap-green-scope" data-cap-owner="绿建智能生产应用" role="group" aria-label="绿建智能生产应用">';
+        body+=plate(24,100,1220,986,'url(#cap-app-surface)','#cbdff8');
+        body+=`<rect x="30" y="106" width="1208" height="88" rx="13" fill="#edf4ff"/>`;
+        body+=icon('apps',50,128,'#2878ef',1.25)+text(96,150,'绿建智能生产应用',30,'#173f70',650)+text(50,181,'业务场景 · 业务模型与计算 · 方案与执行衔接',16,'#7186a1',400);
+        body+=plate(48,210,1172,390,'#fff','#d9e6f7');
+        body+=`<path d="M63 210h1142a15 15 0 0 1 15 15v37H48v-37a15 15 0 0 1 15-15Z" fill="url(#cap-blue)"/>`;
+        body+=icon('apps',70,224)+text(110,246,apps.title,24,'#fff',650)+text(1196,245,'场景持续补充 · 业务结果按适用规则复核',15,'#d7e8ff',400,'end');
+        [['材料与采购',[0,1]],['排产与资源',[2,3,6]],['进度与核查',[4,5]]].forEach(([domain,items],column)=>{
+          const x=64+column*388;
+          body+=`<rect x="${x}" y="280" width="372" height="222" rx="10" fill="#f6f9fe" stroke="#e0e9f6"/><rect x="${x+18}" y="297" width="3" height="17" rx="1.5" fill="#4a8ce8"/>`;
+          body+=text(x+31,311,domain,17,'#4e709a',600);
+          items.forEach((i,row)=>{
+            const yy=324+row*58;
+            if(row)body+=`<line x1="${x+18}" x2="${x+354}" y1="${yy-4}" y2="${yy-4}" stroke="#e1eaf6"/>`;
+            body+=module(apps,i,x+11,yy,350,52,text(x+20,yy+20,apps.modules[i][0],19,'#173f70',600)+text(x+20,yy+43,apps.modules[i][1],14,'#7186a1',400));
+          });
+        });
+        body+=`<path d="M49 520h1170v65a15 15 0 0 1-15 15H64a15 15 0 0 1-15-15Z" fill="#edf3fc"/><line x1="677" x2="677" y1="535" y2="586" stroke="#d3e0f1"/>`;
+        body+=text(72,564,'共性支撑',16,'#6581a4',600);
+        [[8,181,'项目／批次 · 待排任务 · 周期与测算范围 · 数据版本'],[7,695,'方案对比 · 不可排原因 · 调整影响 · 复核与版本']].forEach(([i,x,sub])=>{
+          body+=module(apps,i,x,529,495,62,text(x+9,551,apps.modules[i][0],18.5,'#365e90',600)+lines(x+9,575,sub,34,13.5,'#718aa9',17));
+        });
+        body+=plate(48,634,1172,286,'url(#cap-model-surface)','#d3e2f7');
+        body+=`<rect x="48" y="634" width="1172" height="5" rx="2.5" fill="#337cd8"/>`+icon('models',72,653,'#337cd8')+text(112,678,models.title,24,'#24558d',650)+text(1196,676,'资源、工艺、供需与排产求解',16,'#728aa7',400,'end');
+        models.modules.forEach(([title,description],i)=>{
+          const x=64+(i%3)*388,yy=710+Math.floor(i/3)*96;
+          body+=`<rect x="${x}" y="${yy}" width="372" height="86" rx="9" fill="#f8fbff" stroke="#dbe7f6"/>`;
+          body+=module(models,i,x+2,yy+2,368,82,text(x+18,yy+27,title,20,'#2b537e',600)+lines(x+18,yy+53,description,24,14,'#7a8ba1',19));
+        });
+        body+=`<rect x="48" y="954" width="1172" height="104" rx="10" fill="#edf3fa"/>`;
+        body+=icon('shield',72,974,'#7891ad')+text(112,997,'运行与治理',23,'#365a85',600);
+        ['权限与审核','任务监控','模型与规则版本','方案追溯','效果反馈'].forEach((label,i)=>{
+          const x=72+i*226;
+          body+=module(greenOps,i,x-8,1011,210,35,text(x,1036,label,20,'#607a99',500));
+        });
+        body+='</g>';
+        body+='<g id="cap-group-scope" data-cap-owner="集团智能体平台" role="group" aria-label="集团智能体平台">';
+        body+=plate(1320,100,576,986,'url(#cap-agent-surface)','#bfe1da');
+        body+=`<rect x="1326" y="106" width="564" height="88" rx="13" fill="#eaf7f3"/>`;
+        body+=icon('agents',1344,128,'#149a88',1.25)+text(1390,150,'集团智能体平台',30,'#176e70',650)+text(1344,181,'智能体编排 · 知识、工具与大模型',16,'#6b9690',400);
+        [[agents,210,'#168d88','url(#cap-agent-surface)'],[knowledge,546,'#7265b3','url(#cap-knowledge-surface)']].forEach(([g,top,color,fill])=>{
+          body+=plate(1340,top,536,g===agents?312:384,fill,g===agents?'#c9e7e5':'#dddff3');
+          body+=icon(g===agents?'agents':'knowledge',1360,top+18,color)+text(1400,top+44,g.title,23,g===agents?'#176e70':'#51467c',650);
+          body+=`<line x1="1360" x2="1856" y1="${top+60}" y2="${top+60}" stroke="${g===agents?'#d3e9e6':'#e2e2f1'}"/>`;
+          g.modules.forEach(([title,description],i)=>{
+            const yy=top+69+i*(g===agents?47:61);
+            if(i)body+=`<line x1="1360" x2="1856" y1="${yy-2}" y2="${yy-2}" stroke="${g===agents?'#e0eeeb':'#e8e6f3'}"/>`;
+            body+=module(g,i,1352,yy,512,45,text(1364,yy+18,title,19,g===agents?'#225d65':'#524d79',600)+lines(1364,yy+39,description,34,13.5,g===agents?'#6a8a8c':'#7a8ba1',18));
+          });
+        });
+        body+=`<rect x="1340" y="954" width="536" height="104" rx="10" fill="#edf3fa"/>`;
+        body+=icon('shield',1360,974,'#7891ad')+text(1400,997,'运行与治理',23,'#365a85',600);
+        ['调用权限','运行监控','日志审计','配置发布','资源用量'].forEach((label,i)=>{
+          const x=1360+i*102;
+          body+=module(groupOps,i,x-6,1011,96,35,text(x,1036,label,18,'#607a99',500));
+        });
+        body+='</g>';
+        body+=`<path d="M1244 423H1320" fill="none" stroke="#2878ef" stroke-width="2.3"/><path d="m1312 418 8 5-8 5" fill="none" stroke="#2878ef" stroke-width="2.3"/>`;
+        body+=text(1282,374,'能力',17,'#2675d7',500,'middle')+text(1282,398,'调用',17,'#2675d7',500,'middle');
+        body+=`<path d="M1320 789H1244" fill="none" stroke="#13a58f" stroke-width="2.3"/><path d="m1252 784-8 5 8 5" fill="none" stroke="#13a58f" stroke-width="2.3"/>`;
+        body+=text(1282,740,'结果',17,'#168d88',500,'middle')+text(1282,764,'返回',17,'#168d88',500,'middle');
+        body+='<g transform="translate(0 -114)">';
+        body+=`<line x1="24" x2="1896" y1="1228" y2="1228" stroke="#d7e4f5"/><rect x="180" y="1244" width="800" height="78" rx="10" fill="#edf4fd" stroke="#d1e1f5"/><rect x="1000" y="1244" width="896" height="78" rx="10" fill="#faf5ec" stroke="#eaddc8"/>`;
+        body+=text(24,1275,'平台衔接',21,'#5b7290',600);
+        body+=text(204,1277,'数据平台',23,'#33649d',650)+text(331,1274,'清洗关联后供数 · 结果与依据归集',17,'#6c84a3',400)+text(331,1301,'统一对象编码、数据版本与更新时间',16,'#6c84a3',400);
+        body+=text(1024,1277,'初鸣平台',23,'#8c6c3f',650)+text(1151,1274,'统一身份与业务上下文 · 经确认结果回写',17,'#998363',400)+text(1151,1301,'实际执行遵循业务权限与审核要求',16,'#998363',400);
+        body+=text(24,1363,'后续场景（待核实）',17,'#9a7a4c',600)+text(270,1363,'关键设备调度 · 发货与库存联动 · 余料利用',17,'#9b8a71',400);
+        body+=text(1896,1394,'跨平台任务与调用编号关联日志、方案及执行结果 · 动态重排暂缓',14,'#90a0b4',400,'end');
+        body+='</g>';
+        const diagram=`<svg class="capability-svg" xmlns="http://www.w3.org/2000/svg" width="1920" height="1296" viewBox="0 0 1920 1296" role="group" aria-labelledby="cap-layered-title cap-layered-desc" font-family="Inter,system-ui,-apple-system,PingFang SC,Microsoft YaHei,sans-serif"><title id="cap-layered-title">智能平台二级能力架构</title><desc id="cap-layered-desc">左侧为绿建智能生产应用，包含七类业务场景、待排任务与方案管理、六项业务模型与计算，底部运行与治理覆盖业务权限、任务监控、模型与规则版本、方案操作追溯和效果反馈。右侧为集团智能体平台，包含智能体与任务编排、知识工具与大模型，底部运行与治理覆盖身份与调用权限、智能任务监控、日志安全、配置发布和资源用量。两侧通过能力调用和结果返回衔接，各自底部运行与治理通栏对齐；通过业务任务与调用编号关联日志、方案和执行结果。业务知识和业务计算工具由绿建按场景提供。数据平台统一供数并归集结果，初鸣承接业务入口及实际执行。具体规则和接口条件待核实，动态重排暂缓。</desc><defs>
+          <linearGradient id="cap-backdrop" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6f9ff"/><stop offset=".5" stop-color="#fbfdff"/><stop offset="1" stop-color="#f0f6fd"/></linearGradient>
+          <pattern id="cap-grid" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".65" fill="#c9d8eb"/></pattern>
+          <linearGradient id="cap-blue" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#164fbc"/><stop offset=".5" stop-color="#2878e7"/><stop offset="1" stop-color="#5999ef"/></linearGradient>
+          <linearGradient id="cap-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#f7fbff"/></linearGradient>
+          <linearGradient id="cap-app-surface" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#edf4ff"/></linearGradient>
+          <linearGradient id="cap-agent-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#eef9f7"/></linearGradient>
+          <linearGradient id="cap-model-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#f0f6ff"/></linearGradient>
+          <linearGradient id="cap-knowledge-surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#f2f1fb"/></linearGradient>
+          <linearGradient id="cap-governance" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f7faff"/><stop offset="1" stop-color="#eaf1fa"/></linearGradient>
+          <filter id="cap-shadow" x="-15%" y="-20%" width="135%" height="160%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#3768a3" flood-opacity=".10"/></filter>
+        </defs>${body}</svg>`;
+        return interactive?diagram:diagram.replaceAll('class="cap-hit"','').replace(/ data-cap-group="[^"]*" data-cap-index="[^"]*" role="button" tabindex="0"/g,'');
+      };
+      root.querySelector('#capability-map').innerHTML=root.capabilitySvg(true);
+      const explain=(target)=>{
+        const item=target.closest('[data-cap-group]');
+        if(!item)return;
+        const group=groups.find(g=>g.key===item.dataset.capGroup),[title,description]=group.modules[Number(item.dataset.capIndex)];
+        const owner=item.closest('[data-cap-owner]').dataset.capOwner;
+        const detail=root.querySelector('.cap-detail');
+        detail.querySelector('strong').textContent=title;
+        detail.querySelector('p').textContent=description+'。归属：'+owner+'。'+group.origin+'。';
+      };
+      root.querySelector('#capability-map').addEventListener('click',event=>explain(event.target));
+      root.querySelector('#capability-map').addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){const item=event.target.closest('[data-cap-group]');if(item){event.preventDefault();explain(item);}}
+      });
+    })();
+  </script>
+</section>
+
+    <section id="overview" aria-labelledby="overview-title">
+      <h2 id="overview-title">核实结果</h2>
+      <div class="table-wrap">
+        <table class="summary-table">
+          <thead><tr><th scope="col">业务内容</th><th scope="col">状态</th><th scope="col">当前结果与缺口</th></tr></thead>
+          <tbody>
+            <tr><td>适用范围</td><td><span class="badge confirmed">已确认</span></td><td>覆盖建钢与桥梁的需求、材料／技术准备、厂内排产和交付衔接；深化设计本身与现场安装不纳入排产能力。异常变更与动态重排暂缓。</td></tr>
+            <tr><td>工艺与系统覆盖</td><td><span class="badge pending">待核实</span></td><td>生产主线各节点已有初鸣单据；工序清单记载桥梁部件、零件及灵活工序未按同样方式纳入，需核对当前配置。建钢／桥梁差异、涂装适用条件及前后道配套已补入对应节点，不能用一条固定工艺覆盖全部对象。</td></tr>
+            <tr><td>主线流程</td><td><span class="badge pending">待核实</span></td><td>两张图的主线与主要分工已明确。待核实：提料／申购批次、生产套料／领料／下料时点、齐套与开工条件、工序协同和外购／外协回接、无涂装对象自动入库及工地交付完成条件。</td></tr>
+            <tr><td>节点责任部门</td><td><span class="badge pending">待核实</span></td><td>主要分工已明确：综计统筹、分厂及发运，深化所深化与钢板预套料，技术管理部型材预套料、库存比对及申购，采购部采购，制造部排产，班组加工报工，工段长及质检审核，质检贴码；仓库仅管原材料。审批及具体岗位待核实。</td></tr>
+            <tr><td>单据／数据</td><td><span class="badge pending">待核实</span></td><td>已识别需求计划、施工／深化图纸、初／终技术清单、型材／钢板提料单、申购、排产工单、报工及交付记录。准备环节仅技术清单（终）、材料申购单确认在初鸣，需求计划线下 Excel 流转；生产主线各节点全部在初鸣有单据落地。具体单据名称、字段、样例、对象关联、更新频率及当前明细覆盖仍待补齐；主线有单据不等于全部工序和历史数据均可直接使用。</td></tr>
+            <tr><td>流转条件与判断依据</td><td><span class="badge pending">待核实</span></td><td>已明确提料后比对库存再申购、先构件后道再部件前道排产、按排产自动下发工单、工序双审核后转序，以及完工自动入库、质检贴码后发运。齐套、开工、审核先后顺序及接口触发细节待核实。</td></tr>
+            <tr><td>AI 切入点</td><td><span class="badge confirmed">已确认</span></td><td>已确定七个场景，页末统一列出业务结果与所需资料；输入样例、数据口径、人工核准及验证结果尚需在实现时明确。</td></tr>
+</tbody>
+        </table>
+      </div>
+      <p class="legend"><span class="badge confirmed">已确认</span> 已获得明确确认　<span class="badge pending">待核实</span> 已有内容，尚未核实　<span class="badge missing">待补充</span> 尚无明确结果</p>
+      <p class="paused-item"><span class="badge paused">暂缓</span> 异常变更与动态调整。</p>
+    </section>
+    <section id="main-flow" aria-labelledby="flow-section-title">
+      <div class="section-head"><h2 id="flow-section-title">业务主流程</h2><button class="button" id="expand-flow" type="button" aria-haspopup="dialog">放大查看流程图</button></div>
+      <p class="caption">材料准备与技术准备并行；生产套料、领料、下料时点，外协回接及工地交付条件仍待确认。</p>
+      <figure><div id="flow-chart"><svg role="img" aria-labelledby="main-flow-svg-title main-flow-svg-desc" xmlns="http://www.w3.org/2000/svg" width="1600" height="1420" viewBox="0 0 1600 1420">
+<title id="main-flow-svg-title">绿建生产业务主流程</title>
+<desc id="main-flow-svg-desc">项目经理提供工地需求计划和施工图纸，经综计统筹、深化及清单处理后交基地。综合计划处负责东／西厂分配并录入初鸣，生产制造部先排构件后道再排部件前道，系统根据排产自动下发工单。班组组织逐工序加工报工，经工段长和质检部均审核通过后转序，全部适用工序完成并审核通过后系统自动入库，质检部进行成品贴码，综合计划处负责打包发运；仓库只负责原材料。材料提料、库存比对、申购和采购与技术准备穿插进行；生产套料、领料、下料时点、外协后续及工地交付确认仍待明确。</desc>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="PingFang SC,Microsoft YaHei,Heiti SC,sans-serif">
+<text x="70" y="43" fill="#12213a" font-size="32" text-anchor="start" dominant-baseline="central">绿建生产业务主流程</text>
+<text x="70" y="87" fill="#64748b" font-size="19" text-anchor="start" dominant-baseline="central">需求统筹 · 技术与材料准备 · 生产交付</text>
+<polyline points="320,235 365,235" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="365,235 353,230 353,240" fill="#1f6fff"/>
+<polyline points="615,235 660,235" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="660,235 648,230 648,240" fill="#1f6fff"/>
+<polyline points="910,235 955,235" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="955,235 943,230 943,240" fill="#1f6fff"/>
+<polyline points="1205,235 1250,235" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1250,235 1238,230 1238,240" fill="#1f6fff"/>
+<polyline points="1375,320 1375,500" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1375,500 1370,488 1380,488" fill="#1f6fff"/>
+<polyline points="1375,650 1375,750" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1375,750 1370,738 1380,738" fill="#1f6fff"/>
+<polyline points="1375,870 1375,885" fill="none" stroke="#1f6fff" stroke-width="3"/><polygon points="1375,885 1370,875 1380,875" fill="#1f6fff"/><polyline points="1375,955 1375,970" fill="none" stroke="#1f6fff" stroke-width="3"/>
+<polygon points="1375,970 1370,958 1380,958" fill="#1f6fff"/>
+<polyline points="1375,1090 1375,1170" fill="none" stroke="#d97706" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<polygon points="1375,1170 1370,1158 1380,1158" fill="#d97706"/>
+<polyline points="1080,320 1080,365" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1080,365 1075,353 1085,353" fill="#1f6fff"/>
+<polyline points="785,320 785,355 195,355 195,500" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="195,500 190,488 200,488" fill="#16a34a"/>
+<polyline points="320,568 350,568" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="350,568 338,563 338,573" fill="#16a34a"/>
+<polyline points="600,568 630,568" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="630,568 618,563 618,573" fill="#16a34a"/>
+<polyline points="880,568 910,568" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="910,568 898,563 898,573" fill="#16a34a"/>
+<polyline points="1160,568 1250,568" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1250,568 1238,563 1238,573" fill="#16a34a"/>
+<polyline points="1375,700 395,700 395,750" fill="none" stroke="#64748b" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<polygon points="395,750 390,738 400,738" fill="#64748b"/>
+<circle cx="1375" cy="700" r="4" fill="#64748b"/>
+<polyline points="70,815 30,815 30,120 490,120 490,150" fill="none" stroke="#64748b" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<polygon points="490,150 485,138 495,138" fill="#64748b"/>
+<polyline points="1250,1230 395,1230 395,1130" fill="none" stroke="#d97706" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<polygon points="395,1130 390,1142 400,1142" fill="#d97706"/>
+<rect x="70" y="150" width="250" height="170" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<rect x="365" y="150" width="250" height="170" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<rect x="660" y="150" width="250" height="170" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<rect x="955" y="150" width="250" height="170" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<rect x="1250" y="150" width="250" height="170" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<text x="195" y="188" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">① 工地需求计划</text>
+<text x="195" y="225" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">施工图纸</text>
+<text x="195" y="275" fill="#64748b" font-size="20" text-anchor="middle" dominant-baseline="central">项目经理／项目团队</text>
+<text x="490" y="188" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">② 需求计划统筹</text>
+<text x="490" y="225" fill="#64748b" font-size="21" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+<text x="490" y="263" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">分区／批次／供货顺序</text>
+<text x="490" y="296" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">出图／提料／需到货时间</text>
+<text x="785" y="183" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">③ 技术准备</text>
+<text x="785" y="222" fill="#64748b" font-size="21" text-anchor="middle" dominant-baseline="central">图纸／模型／清单</text>
+<text x="785" y="260" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">深化所 → 综计处处理</text>
+<text x="785" y="296" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">技术清单（终）交基地</text>
+<text x="1080" y="188" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">④ 加工任务分配</text>
+<text x="1080" y="222" fill="#64748b" font-size="21" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+<text x="1080" y="259" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">自制／外协</text>
+<text x="1080" y="296" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">东／西厂分配、初鸣录入</text>
+<text x="1375" y="183" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">⑤ 厂内生产安排</text>
+<text x="1375" y="222" fill="#64748b" font-size="21" text-anchor="middle" dominant-baseline="central">生产制造部</text>
+<text x="1375" y="259" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">构件后道 → 部件前道</text>
+<text x="1375" y="296" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">系统按排产自动下发工单</text>
+<text x="1227" y="207" fill="#1f6fff" font-size="18" text-anchor="middle" dominant-baseline="central">自制</text>
+<rect x="955" y="365" width="250" height="85" rx="15" fill="#fff7e6" stroke="#edcb99" stroke-width="2"/>
+<text x="1080" y="391" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">外协加工</text>
+<text x="1080" y="428" fill="#d97706" font-size="20" text-anchor="middle" dominant-baseline="central">后续衔接待确认</text>
+<text x="350" y="455" fill="#16a34a" font-size="21" text-anchor="start" dominant-baseline="central">材料保障（与技术准备穿插进行）</text>
+<rect x="70" y="500" width="250" height="135" rx="15" fill="#ecf8f1" stroke="#a9d8b9" stroke-width="2"/>
+<rect x="350" y="500" width="250" height="135" rx="15" fill="#ecf8f1" stroke="#a9d8b9" stroke-width="2"/>
+<rect x="630" y="500" width="250" height="135" rx="15" fill="#ecf8f1" stroke="#a9d8b9" stroke-width="2"/>
+<rect x="910" y="500" width="250" height="135" rx="15" fill="#ecf8f1" stroke="#a9d8b9" stroke-width="2"/>
+<text x="195" y="534" fill="#12213a" font-size="23" text-anchor="middle" dominant-baseline="central">预套料与提料</text>
+<text x="195" y="576" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">型材：技术管理部</text>
+<text x="195" y="611" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">钢板：深化所</text>
+<text x="475" y="534" fill="#12213a" font-size="23" text-anchor="middle" dominant-baseline="central">库存比对</text>
+<text x="475" y="576" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">技术管理部</text>
+<text x="475" y="611" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">确定申购量</text>
+<text x="755" y="534" fill="#12213a" font-size="23" text-anchor="middle" dominant-baseline="central">材料申购</text>
+<text x="755" y="576" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">技术管理部下申购单</text>
+<text x="755" y="611" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">交采购部</text>
+<text x="1035" y="534" fill="#12213a" font-size="23" text-anchor="middle" dominant-baseline="central">采购与到货</text>
+<text x="1035" y="576" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">采购部承接采购</text>
+<text x="1035" y="611" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">到货入库、材料可用</text>
+<text x="1205" y="535" fill="#16a34a" font-size="18" text-anchor="middle" dominant-baseline="central">材料保障</text>
+<rect x="1250" y="500" width="250" height="150" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<text x="1375" y="530" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">⑥ 生产与质检</text>
+<text x="1375" y="568" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">班组组织加工、报工</text>
+<text x="1375" y="602" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">工段长＋质检部审核</text>
+<text x="1375" y="632" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">通过后转序</text>
+<text x="70" y="673" fill="#d97706" font-size="20" text-anchor="start" dominant-baseline="central">待确认：生产套料、领料、下料与排产、工单下发及开工的衔接时点</text>
+<rect x="1250" y="750" width="250" height="120" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<text x="1375" y="780" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">⑦ 成品自动入库</text>
+<text x="1375" y="810" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">全部适用工序完成</text>
+<text x="1375" y="842" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">审核通过后系统自动入库</text>
+<text x="1335" y="728" fill="#64748b" font-size="16" text-anchor="end" dominant-baseline="central">全部工序审核通过</text>
+<rect x="1250" y="885" width="250" height="70" rx="12" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2"/>
+<text x="1375" y="908" fill="#12213a" font-size="22" text-anchor="middle" dominant-baseline="central">成品贴码</text>
+<text x="1375" y="937" fill="#64748b" font-size="18" text-anchor="middle" dominant-baseline="central">质检部 · 二维码贴标</text>
+<rect x="1250" y="970" width="250" height="120" rx="15" fill="#f6f9fd" stroke="#b9cce6" stroke-width="2"/>
+<text x="1375" y="1000" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">⑧ 打包发运</text>
+<text x="1375" y="1038" fill="#64748b" font-size="20" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+<text x="1375" y="1069" fill="#64748b" font-size="20" text-anchor="middle" dominant-baseline="central">发前核对／按车发货</text>
+<rect x="1250" y="1170" width="250" height="120" rx="15" fill="#fff7e6" stroke="#edcb99" stroke-width="2"/>
+<text x="1375" y="1200" fill="#12213a" font-size="24" text-anchor="middle" dominant-baseline="central">⑨ 工地交付确认</text>
+<text x="1375" y="1239" fill="#64748b" font-size="20" text-anchor="middle" dominant-baseline="central">到货／签收待核实</text>
+<text x="1375" y="1269" fill="#d97706" font-size="20" text-anchor="middle" dominant-baseline="central">完成条件待补充</text>
+<text x="1375" y="1130" fill="#d97706" font-size="19" text-anchor="middle" dominant-baseline="central">衔接待确认</text>
+<rect x="70" y="750" width="650" height="130" rx="15" fill="#f6f9fd" stroke="#dce8f7" stroke-width="2"/>
+<text x="105" y="789" fill="#12213a" font-size="26" text-anchor="start" dominant-baseline="central">生产进度反馈</text>
+<text x="105" y="836" fill="#64748b" font-size="21" text-anchor="start" dominant-baseline="central">工序完成、审核状态、预计完工时间</text>
+<text x="880" y="728" fill="#64748b" font-size="19" text-anchor="middle" dominant-baseline="central">执行反馈</text>
+<rect x="70" y="1020" width="650" height="110" rx="15" fill="#fff7e6" stroke="#edcb99" stroke-width="2"/>
+<text x="105" y="1056" fill="#12213a" font-size="24" text-anchor="start" dominant-baseline="central">交付结果反馈</text>
+<text x="105" y="1097" fill="#d97706" font-size="21" text-anchor="start" dominant-baseline="central">反馈内容、责任及回传方式待确认</text>
+<polyline points="70,1360 140,1360" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round"/>
+<text x="155" y="1360" fill="#12213a" font-size="19" text-anchor="start" dominant-baseline="central">业务主线</text>
+<polyline points="370,1360 440,1360" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round"/>
+<text x="455" y="1360" fill="#12213a" font-size="19" text-anchor="start" dominant-baseline="central">材料保障</text>
+<polyline points="670,1360 740,1360" fill="none" stroke="#64748b" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<text x="755" y="1360" fill="#12213a" font-size="19" text-anchor="start" dominant-baseline="central">生产进度反馈</text>
+<polyline points="1030,1360 1100,1360" fill="none" stroke="#d97706" stroke-width="3" stroke-linejoin="round" stroke-dasharray="8 7"/>
+<text x="1115" y="1360" fill="#12213a" font-size="19" text-anchor="start" dominant-baseline="central">待确认内容／衔接</text>
+</g>
+</svg></div></figure>
+    </section>
+    <section id="nodes" aria-labelledby="nodes-title">
+      <div class="section-head">
+        <h2 id="nodes-title">节点业务结果</h2>
+        <div class="editor-actions">
+          <button class="button" id="edit-nodes" type="button" disabled>编辑节点结果</button>
+          <button class="button" id="save-nodes" type="button" hidden>保存</button>
+          <button class="button" id="cancel-nodes" type="button" hidden>取消修改</button>
+        </div>
+      </div>
+      <p id="edit-message" class="editor-message" role="status" aria-live="polite"></p>
+      <div class="table-wrap results-scroll">
+        <table class="results-table">
+          <thead><tr><th scope="col">节点与流程结果</th><th scope="col">责任部门</th><th scope="col">单据／数据</th><th scope="col">流转条件与判断依据</th><th scope="col">AI 可能切入点</th></tr></thead>
+          <tbody><tr id="node-01"><td><div class="cell-header"><strong data-edit-text data-field="node-01.c0.text.0">① 工地需求计划</strong><div class="cell-status"><span class="badge confirmed" data-field="node-01.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-01.c0.text.1">项目经理／项目团队根据现场情况形成区域、工序的安装计划，连同施工图纸交综合计划处。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-01.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-01.c1.text.0">项目经理／项目团队。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-01.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-01.c2.text.0">工地需求计划（施工进度计划）、施工图纸；需求计划以线下 Excel 流转。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-01.c3.status.0">已确认</span></div></div><p data-edit-text data-field="node-01.c3.text.0">需结合现场安装／吊装顺序核对需货时间，避免提前报货导致成品积压</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge paused" data-field="node-01.c4.status.0">暂不纳入</span></div></div><p data-edit-text data-field="node-01.c4.text.0">
+</p></td></tr>
+<tr id="node-02"><td><div class="cell-header"><strong data-edit-text data-field="node-02.c0.text.0">② 需求计划统筹</strong><div class="cell-status"><span class="badge confirmed" data-field="node-02.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-02.c0.text.1">综合计划处汇总工地需求计划及施工图纸，统筹分区、批次、供货顺序和时间要求，向深化所传递提料与深化要求。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-02.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-02.c1.text.0">综合计划处。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-02.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-02.c2.text.0">工地需求计划、施工图纸；向深化所传递出图、提料及需到货时间要求。需求计划以线下 Excel 流转。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-02.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-02.c3.text.0">按分区、批次和供货顺序衔接材料准备与技术准备，并向项目经理反馈可供时间。待核实：需求计划中的安装／到场时间如何转换为出图、提料、材料到货、生产完成及发运时间；按批次提料还是总量提料后拆分，以及供货承诺和冲突取舍由谁确认。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-02.c4.status.0">待核实</span></div></div><p data-edit-text data-field="node-02.c4.text.0">结合厂区承接建议、前后道联合排产和工期测算，辅助判断供货可行性；人工确认与对外答复方式待核实。</p></td></tr>
+<tr id="node-03"><td><div class="cell-header"><strong data-edit-text data-field="node-03.c0.text.0">③ 技术深化</strong><div class="cell-status"><span class="badge confirmed" data-field="node-03.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-03.c0.text.1">深化所依据施工图纸及计划要求形成模型、深化图纸和技术清单（初）；综合计划处整理批次、转换格式，形成技术清单（终）交基地，并将模型和终清单上传初鸣。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-03.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-03.c1.text.0">深化所负责深化资料和技术清单（初）；综合计划处负责清单处理、上传及技术清单（终）的交接。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-03.c2.status.0">待核实</span></div></div><p data-edit-text data-field="node-03.c2.text.0">模型、深化图纸、技术清单（初／终）。技术清单（终）在初鸣，需按项目—区域／批次—清单—构件—部件／零件建立关联。工序清单中部分前缀重复，分类需结合建钢／桥梁、名称及主次构件身份；不能只用前缀匹配。初清单、图纸版本及实际关联字段待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-03.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-03.c3.text.0">模型初稿可判断约 70%—80% 的需求材料，定稿覆盖全部需求材料；普通原材料可备货或按需采购，特殊材料应尽早合理下单。图纸、模型及初／终清单的版本、交接和排产可用条件待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge paused" data-field="node-03.c4.status.0">暂不纳入</span></div></div><p data-edit-text data-field="node-03.c4.text.0">深化设计及深化所能力评价暂不纳入；本节点明确排产所需的图纸、模型、清单及交接条件。</p></td></tr>
+<tr id="node-04"><td><div class="cell-header"><strong data-edit-text data-field="node-04.c0.text.0">④ 加工任务分配</strong><div class="cell-status"><span class="badge confirmed" data-field="node-04.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-04.c0.text.1">综合计划处确定自制／外协；自制任务按清单分配东／西厂，并将分配结果录入初鸣。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-04.c1.status.0">待核实</span></div></div><p data-edit-text data-field="node-04.c1.text.0">综合计划处负责东／西厂分配及初鸣录入；自制／外协的审批与交接岗位待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-04.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-04.c2.text.0">东／西厂分配在初鸣有对应单据，关联任务清单、承接厂区和交付要求，供生产制造部承接排产。具体单据名称、字段、清单／批次／构件关联及拆分规则待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-04.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-04.c3.text.0">综合计划处确定东／西厂，生产制造部承接厂内排产。工序清单存在外协班组参与部分工序的情况，不能直接等同于整件外送外协；厂内外协班组、外协加工单位及外购件的清单标识、承接规则与交接责任待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-04.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-04.c4.text.0">东／西厂承接建议：比较加工范围、产能负荷及交期，给出厂区与预计完成时间建议。</p></td></tr>
+<tr id="node-05"><td><div class="cell-header"><strong data-edit-text data-field="node-05.c0.text.0">⑤ 厂内生产安排</strong><div class="cell-status"><span class="badge confirmed" data-field="node-05.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-05.c0.text.1">生产制造部先排构件后道生产线，再排所需部件前道生产线；系统根据排产结果自动下发生产工单。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-05.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-05.c1.text.0">生产制造部主要负责前后道排产；系统自动下发工单，生产班组承接执行。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-05.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-05.c2.text.0">构件后道排产、部件前道排产及生产工单均在初鸣有单据落地。输入包括有效清单、对象组成关系、交期、产线—工序—班组配置、在手负荷及可用时段。工序清单记载桥梁部件未设置工序、部件排产时剔除；建钢与桥梁的当前实际覆盖、单据字段及关联需用样例核对。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-05.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-05.c3.text.0">先后道、再前道是排产顺序，实际加工按工艺及配套关系执行。既有系统核对记录显示，工单按选定产线的工序／班组配置生成任务；不能预设派工时可任意替换班组。待核实：产线是物理资源还是班组组合，同线多班组能否并行、工序协同的边界，及齐套、排产生效、开工和生产套料／领料／下料时点。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-05.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-05.c4.text.0">前后道联合排产；班组／产线能力评估与工期测算。</p></td></tr>
+<tr id="node-06"><td><div class="cell-header"><strong data-edit-text data-field="node-06.c0.text.0">⑥ 生产与质检</strong><div class="cell-status"><span class="badge confirmed" data-field="node-06.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-06.c0.text.1">建钢与桥梁按各自适用工艺路线组织加工、报工；工段长和质检部均审核通过后转序，直至全部适用工序完成。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-06.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-06.c1.text.0">生产班组负责加工、报工；工段长和质检部负责审核。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-06.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-06.c2.text.0">生产主线各节点均有初鸣单据。工序清单列出的主构件常见路线为装配、焊接、清磨、涂装；建钢 H 型部件存在组立→门焊、组焊一体或组焊，箱型部件存在箱型组焊→盖面。桥梁部件未配工序、零件工序未纳入以及灵活工序的记录载体和当前覆盖需核实；具体单据、数量、时间、审核字段及历史样例待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-06.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-06.c3.text.0">每道适用工序经工段长、质检部双审核通过后转序，此业务规则已确认。工序清单记载有油漆面积才配置涂装，无面积时去掉该工序；电渣焊、端铣、抛丸等灵活作业按图纸／联系单判断，不能按系统未设工序就认定无需加工。具体路线、逐工序审核配置、前道已审核可用量、已占用／消耗量及后道配套条件待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-06.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-06.c4.text.0">生产进度预测与卡点分析；班组／产线能力评估与工期测算；材料及生产流转明细核查。</p></td></tr>
+<tr id="node-07"><td><div class="cell-header"><strong data-edit-text data-field="node-07.c0.text.0">⑦ 成品入库与贴码</strong><div class="cell-status"><span class="badge confirmed" data-field="node-07.c0.status.0">已确认</span><div class="cell-confirmation"><span class="badge confirmed" data-field="node-07.c0.status.1">已确认</span> <span data-edit-text data-field="node-07.c0.text.2">自动入库／质检贴码</span></div></div></div><p data-edit-text data-field="node-07.c0.text.1">全部适用工序完成并通过相应报工审核后，系统自动入库；质检部完成成品二维码贴标后，衔接打包发运。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-07.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-07.c1.text.0">系统自动入库；质检部负责成品二维码贴标。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-07.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-07.c2.text.0">完工自动入库、成品贴码均在初鸣有单据落地。具体单据名称、构件编号／成品二维码、审核结果、入库与贴码记录的字段，以及码与构件、清单和库存状态的关联待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-07.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-07.c3.text.0">已确认顺序：全部适用工序完成并审核通过 → 自动入库 → 质检部贴码 → 综合计划处打包发运。待核实：无涂装、外购或直发件的自动入库与贴码适用规则；待涂装在制品与成品的状态、堆放位置及占场口径。场地承载还受构件体积、可叠放性和发运节奏影响，不能只用吨数判断。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-07.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-07.c4.text.0">流转明细核查对比完工、入库、贴码及发运记录；进度预测结合需货时间和预计完工时间，辅助控制成品积压。</p></td></tr>
+<tr id="node-08"><td><div class="cell-header"><strong data-edit-text data-field="node-08.c0.text.0">⑧ 打包发运</strong><div class="cell-status"><span class="badge confirmed" data-field="node-08.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-08.c0.text.1">综合计划处承接已入库、贴码的成品，发前与工地核对清单，按需求计划组织打包、装车及发货。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-08.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-08.c1.text.0">综合计划处。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-08.c2.status.0">已确认</span></div></div><p data-edit-text data-field="node-08.c2.text.0">打包发运在初鸣有对应单据，衔接发运计划、构件／装车清单、车辆、成品码及出库信息。具体单据名称、样例、随车资料与逐车扫码记录的字段待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-08.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-08.c3.text.0">需与工地确认当批要货，核对构件可发状态及装运条件。吊装顺序、车辆与道路限制、随车资料等约束的实际适用范围待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-08.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-08.c4.text.0">材料及生产流转明细核查：核对构件、数量、批次及计划时间在交接中的遗漏与差异。</p></td></tr>
+<tr id="node-09"><td><div class="cell-header"><strong data-edit-text data-field="node-09.c0.text.0">⑨ 工地交付确认</strong><div class="cell-status"><span class="badge pending" data-field="node-09.c0.status.0">待核实</span></div></div><p data-edit-text data-field="node-09.c0.text.1">发前清单核对归入打包发运；工地到货后的核对、签收及交付完成方式待补充。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-09.c1.status.0">待补充</span></div></div><p data-edit-text data-field="node-09.c1.text.0">综合计划处与工地项目团队对接；到货确认、签收及结果反馈的责任待补充。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-09.c2.status.0">待补充</span></div></div><p data-edit-text data-field="node-09.c2.text.0">需区分发前清单核对、发运记录与到货／签收记录；后段单据、反馈记录及完成状态尚未明确。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-09.c3.status.0">待补充</span></div></div><p data-edit-text data-field="node-09.c3.text.0">待补充：现场需货时间对应出厂、到场还是安装；分批供货怎样关联区域、清单和构件；谁确认部分／全部交付完成，以及签收结果如何回传。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-09.c4.status.0">待补充</span></div></div><p data-edit-text data-field="node-09.c4.text.0">尚未明确独立 AI 点位；需先明确交付确认结果和回传关系。</p></td></tr>
+<tr id="node-10"><td><div class="cell-header"><strong data-edit-text data-field="node-10.c0.text.0">预套料、提料与库存比对</strong><div class="cell-status"><span class="badge confirmed" data-field="node-10.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-10.c0.text.1">采购用预套料与技术深化并行，不必等待技术清单（终）。型材由技术管理部预套料并形成型材提料单；钢板由深化所预套料并形成钢板提料单，交技术管理部比对库存、确定申购量。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-10.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-10.c1.text.0">技术管理部负责型材预套料、库存比对及申购量确定；深化所负责钢板预套料及提料。仓库提供原材料库存信息，具体交接方式待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-10.c2.status.0">待核实</span></div></div><p data-edit-text data-field="node-10.c2.text.0">施工图纸、计划要求、型材／钢板提料单、原材料库存及比对结果。采购交流提到原材料库存由初鸣 WMS 管理；实际可用、占用及在途字段仍需样例核实。提料至少对应材质、规格尺寸、数量和需用时间；图纸依据、材料牌号／厚度及实际关联口径待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-10.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-10.c3.text.0">先形成提料单，再比对库存、确定申购量后下申购；采购用预套料与生产套料分开。待核实：按批次预套料或总量提料后拆分的交接方式；库存可用、占用、在途抵扣、跨项目使用、余料可用及申购查重规则。当前材料主线为钢板与型材，辅材、五金及设备配件的需求与申购路径另有差异，适用边界待明确。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-10.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-10.c4.text.0">预套料出提料单；材料及生产流转明细核查。</p></td></tr>
+<tr id="node-11"><td><div class="cell-header"><strong data-edit-text data-field="node-11.c0.text.0">材料申购与采购</strong><div class="cell-status"><span class="badge confirmed" data-field="node-11.c0.status.0">已确认</span></div></div><p data-edit-text data-field="node-11.c0.text.1">技术管理部按库存比对后的申购量下材料申购单，采购部据此落实采购订单／合同及供应商到货安排。需求、申购、采购下单、承诺到货、实际入库分别记录并衔接。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-11.c1.status.0">已确认</span></div></div><p data-edit-text data-field="node-11.c1.text.0">技术管理部发起材料申购；采购部负责承接采购。具体审批岗位及到货承诺确认方式待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-11.c2.status.0">待核实</span></div></div><p data-edit-text data-field="node-11.c2.text.0">材料申购单已确认在初鸣；采购计划／订单、库存及占用、在途数量与预计到货时间、需到货时间和采购周期用于采购测算。具体字段、样例及接口待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-11.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-11.c3.text.0">申购须在库存比对后发起，采购测算不得再次扣除已抵扣库存。采购周期需结合材质、规格、订货量、现货／定轧、定尺、最低起订量及运输批量，不能统一套固定天数。需区分材料需到货、供应商承诺到货、预计到货与实际到货时间；审批、分批下单／到货及缺料协调规则待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-11.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-11.c4.text.0">根据申购与库存测算采购计划：计算采购材料、数量、下单及到货时间。</p></td></tr>
+<tr id="node-12"><td><div class="cell-header"><strong data-edit-text data-field="node-12.c0.text.0">原材料到货入库与领料</strong><div class="cell-status"><span class="badge pending" data-field="node-12.c0.status.0">待核实</span></div></div><p data-edit-text data-field="node-12.c0.text.1">采购到货后衔接原材料入库和领料，为生产提供材料；与排产、工单及开工的具体衔接时点待确认。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-12.c1.status.0">待核实</span></div></div><p data-edit-text data-field="node-12.c1.text.0">仓库负责原材料仓储；到货验收、领料发起与审批、实物领用及生产放行的具体分工待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-12.c2.status.0">待核实</span></div></div><p data-edit-text data-field="node-12.c2.text.0">到货／验收／入库／领料记录、对应材料与生产任务、前工序准备状态；实际单据和可用状态待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-12.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-12.c3.text.0">原材料到货、验收入库、可用及领用分别核对，避免把在途或未验收数量直接视为可开工材料。前后道配套需核对构件—部件—零件用量、前道已审核可用量及已占用／消耗量。按材料、构件或批次判断齐套的规则，以及套料、领料、下料和开工的衔接时点待确认。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-12.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-12.c4.text.0">为采购计划测算、前后道联合排产和流转明细核查提供到货、库存、占用及领料数据。</p></td></tr>
+<tr id="node-13"><td><div class="cell-header"><strong data-edit-text data-field="node-13.c0.text.0">外协加工</strong><div class="cell-status"><span class="badge pending" data-field="node-13.c0.status.0">待核实</span></div></div><p data-edit-text data-field="node-13.c0.text.1">整件外送外协、部分工序由外协班组加工及外购部件需分别识别。材料和工序清单已提到这些分支；具体任务承接、材料供应、进度、验收及回厂／直发衔接仍待补充。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-13.c1.status.0">待补充</span></div></div><p data-edit-text data-field="node-13.c1.text.0">综合计划处参与外协选择；任务下达、跟踪、质量验收、材料及交付交接责任待明确。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-13.c2.status.0">待补充</span></div></div><p data-edit-text data-field="node-13.c2.text.0">外协任务／清单、涉及工序及数量、材料提供方、交期、进度、质量验收和交付记录；外购件还需申购／采购与自制配套关系。单据样例、编码及主线关联待补齐。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-13.c3.status.0">待补充</span></div></div><p data-edit-text data-field="node-13.c3.text.0">外协承接能力与交期如何确认，验收后怎样接回后续入库或发运，待明确。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge missing" data-field="node-13.c4.status.0">待补充</span></div></div><p data-edit-text data-field="node-13.c4.text.0">外协选择与可供时间测算归入任务分配和统筹；外协执行中尚未明确独立 AI 点位。</p></td></tr><tr id="node-14"><td><div class="cell-header"><strong data-edit-text data-field="node-14.c0.text.0">进度与交付反馈</strong><div class="cell-status"><span class="badge pending" data-field="node-14.c0.status.0">待核实</span></div></div><p data-edit-text data-field="node-14.c0.text.1">通过工序报工、工段长与质检审核、自动入库、成品贴码及发运记录衔接生产交付进度；现场交付结果的回传机制待补充。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-14.c1.status.0">待核实</span></div></div><p data-edit-text data-field="node-14.c1.text.0">生产班组提供报工，工段长与质检部审核；系统记录自动入库，质检部负责贴码，综合计划处组织发运。进度汇总、现场交付反馈及通知的具体责任待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-14.c2.status.0">待核实</span></div></div><p data-edit-text data-field="node-14.c2.text.0">生产主线各节点均在初鸣有单据，可按项目、批次、清单、构件、部件及工单关联排产、报工审核、自动入库、贴码和发运。构件编号对应模型唯一构件，工序状态可在模型中显示。单据存在不代表历史数据已完整、实时或可直接建模；当前在制／未执行任务、数据更新时间、跨月在手量及单据版本仍需核实，扫码约半天时差为早期交流描述。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge pending" data-field="node-14.c3.status.0">待核实</span></div></div><p data-edit-text data-field="node-14.c3.text.0">核对生产、审核及交付记录的时间含义、更新频率与前后关联；区分加工、等待配套、待料、待审核和待涂装等状态。已完成、在制、待执行及已消耗数量的统计口径，以及现场签收反馈、通知对象和确认责任待核实。</p></td><td><div class="cell-header"><div class="cell-status"><span class="badge confirmed" data-field="node-14.c4.status.0">已确认</span></div></div><p data-edit-text data-field="node-14.c4.text.0">生产进度预测与卡点分析；材料及生产流转明细核查；以执行实绩校正班组／产线能力与工期测算。</p></td></tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="departments" aria-labelledby="departments-title">
+      <div class="section-head">
+        <h2 id="departments-title">部门主要职责</h2>
+        <div class="editor-actions">
+          <button class="button" id="edit-departments" type="button" disabled>编辑部门职责</button>
+          <button class="button" id="save-departments" type="button" hidden>保存</button>
+          <button class="button" id="cancel-departments" type="button" hidden>取消修改</button>
+        </div>
+      </div>
+      <p id="departments-message" class="editor-message" role="status" aria-live="polite"></p>
+      <div class="department-content" id="department-content">
+      <div class="table-wrap">
+        <table class="department-table">
+          <thead><tr><th scope="col">部门／组织</th><th scope="col">主要职责</th><th scope="col">交接与待核实分工</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-01.name">工地项目团队／项目经理</strong><div class="cell-status"><span class="badge confirmed" data-field="department-01.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-01.duties">提供工地需求计划及施工图纸，表达区域、安装工序和需货时间；与综合计划处核对分批供货及发运清单。</p></td>
+              <td><p data-edit-text data-field="department-01.boundary">需求计划以线下 Excel 流转；计划更新、交付要求的确认及到货后签收、反馈责任待核实。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-02.name">工程部</strong><div class="cell-status"><span class="badge pending" data-field="department-02.status.0">待核实</span></div></div></td>
+              <td><p data-edit-text data-field="department-02.duties">参与综合计划处与项目经理之间的交付协调，使生产供货安排与现场安装／吊装要求衔接。</p></td>
+              <td><p data-edit-text data-field="department-02.boundary">对应②需求计划统筹。与工地项目团队的组织关系、是否审核或汇总需求计划、交期冲突时的协调和确认权限待核实。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-03.name">综合计划处</strong><div class="cell-status"><span class="badge confirmed" data-field="department-03.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-03.duties">统筹分区、批次、供货顺序及出图、提料、需到货时间；处理初清单，形成技术清单（终）交基地，并上传模型和终清单；确定东／西厂并录入初鸣；负责成品打包发运。</p></td>
+              <td><p data-edit-text data-field="department-03.boundary">与深化所、技术管理部和采购部衔接准备工作；与生产制造部分开承担厂区分配和厂内排产；承接质检部贴码后的成品发运。自制／外协审批、供货承诺及现场交付反馈待核实。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-04.name">深化所</strong><div class="cell-status"><span class="badge confirmed" data-field="department-04.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-04.duties">依据施工图纸及计划要求提供模型、深化图纸和技术清单（初）；对钢板进行预套料，形成钢板提料单。</p></td>
+              <td><p data-edit-text data-field="department-04.boundary">技术清单（初）交综合计划处处理，钢板提料单交技术管理部比对库存并申购；不同资料的版本、上传及复核岗位待核实。</p></td>
+            </tr>
+<tr><td><div class="cell-header"><strong data-edit-text data-field="department-14.name">技术管理部</strong><div class="cell-status"><span class="badge confirmed" data-field="department-14.status.0">已确认</span></div></div></td><td><p data-edit-text data-field="department-14.duties">负责型材预套料并形成型材提料单；接收钢板提料单，进行库存比对、确定申购量，并在初鸣下材料申购单。</p></td><td><p data-edit-text data-field="department-14.boundary">型材预套料在本部门，钢板预套料在深化所；提料经库存比对后申购，交采购部承接。预套料服务采购，生产套料服务实际切割，两者成果、批次交接及后续套料／领料／下料责任和时点需继续核实。</p></td></tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-05.name">生产制造部</strong><div class="cell-status"><span class="badge confirmed" data-field="department-05.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-05.duties">主要负责构件后道、部件前道排产，先后道、再前道；排产结果驱动系统自动下发生产工单。</p></td>
+              <td><p data-edit-text data-field="department-05.boundary">综合计划处分配东／西厂，生产班组承接工单。既有系统按产线预配置工序与班组；建钢、桥梁的部件排产覆盖，同线并行、协同及临时调整规则待核实。齐套、开工及生产套料／领料／下料时点待确认。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-06.name">生产班组</strong><div class="cell-status"><span class="badge confirmed" data-field="department-06.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-06.duties">按工单组织逐工序加工、报工；工段长与质检部均审核通过后转序。</p></td>
+              <td><p data-edit-text data-field="department-06.boundary">各类构件及工序的班组分工、实物交接与领料时点待核实；审核先后顺序待确认。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-07.name">采购部／集中采购部</strong><div class="cell-status"><span class="badge confirmed" data-field="department-07.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-07.duties">接收技术管理部下达的材料申购单，落实采购订单／合同、供应商及分批到货安排，衔接仓库原材料入库信息。</p></td>
+              <td><p data-edit-text data-field="department-07.boundary">钢板、型材先由技术管理部核库存并申购；辅材、五金和设备配件另有需求汇总路径，责任与适用范围待核实。采购周期需结合规格、数量和市场供货条件；审批、库存抵扣、承诺到货及分批采购规则待明确。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-08.name">仓库</strong><div class="cell-status"><span class="badge confirmed" data-field="department-08.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-08.duties">负责原材料仓储管理，衔接原材料库存、可用及占用信息、到货入库和领料。具体岗位、单据与审核分工待核实。</p></td>
+              <td><p data-edit-text data-field="department-08.boundary">仓库职责限于原材料；成品完工入库由系统自动完成，成品贴码由质检部负责，打包发运由综合计划处负责。</p></td>
+            </tr>
+            <tr>
+              <td><div class="cell-header"><strong data-edit-text data-field="department-09.name">质检部</strong><div class="cell-status"><span class="badge confirmed" data-field="department-09.status.0">已确认</span></div></div></td>
+              <td><p data-edit-text data-field="department-09.duties">承担工序报工审核，与工段长均审核通过后放行转序；成品自动入库后负责二维码贴标。</p></td>
+              <td><p data-edit-text data-field="department-09.boundary">成品贴码后交综合计划处打包发运。每道适用工序双审核是已确认规则；逐工序审核配置、无涂装等特殊路线下的末道完成与自动入库衔接，以及检验项目、审核顺序和记录方式待核实。</p></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>资料提及、归属尚未明确的职能</h3>
+      <div class="table-wrap">
+        <table class="department-table">
+          <thead><tr><th scope="col">职能</th><th scope="col">资料提及的工作</th><th scope="col">待明确的职责边界</th></tr></thead>
+          <tbody>
+            <tr><td><div class="cell-header"><strong data-edit-text data-field="department-10.name">技术／工艺</strong><div class="cell-status"><span class="badge missing" data-field="department-10.status.0">待补充</span></div></div></td><td><p data-edit-text data-field="department-10.duties">流程材料提到图纸与料单评审、特殊工艺识别、工艺资料准备及参与排产评审。</p></td><td><p data-edit-text data-field="department-10.boundary">型材预套料、库存比对及申购已明确由技术管理部承担；本行所列图纸／料单评审、特殊工艺和工艺准备的具体归属仍待核实。</p></td></tr>
+            <tr><td><div class="cell-header"><strong data-edit-text data-field="department-11.name">商务／合同</strong><div class="cell-status"><span class="badge missing" data-field="department-11.status.0">待补充</span></div></div></td><td><p data-edit-text data-field="department-11.duties">流程材料提到商务参与排产评审；需求统筹还需使用合同交付节点及项目重要性、利润率等信息。</p></td><td><p data-edit-text data-field="department-11.boundary">合同及相关信息由哪个部门提供和确认，商务是否参与交期协调、排产评审及其决策权限待明确。</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>外部协作单位</h3>
+      <div class="table-wrap">
+        <table class="department-table">
+          <thead><tr><th scope="col">协作单位</th><th scope="col">承接的工作</th><th scope="col">与内部部门的交接</th></tr></thead>
+          <tbody>
+            <tr><td><div class="cell-header"><strong data-edit-text data-field="department-12.name">外协加工方</strong><div class="cell-status"><span class="badge missing" data-field="department-12.status.0">待补充</span></div></div></td><td><p data-edit-text data-field="department-12.duties">承接自有产能或交期无法满足时分配的加工任务，并衔接进度、质量和交付结果。</p></td><td><p data-edit-text data-field="department-12.boundary">内部谁下达、跟踪和验收，材料由谁提供，完工后回厂还是直发工地，以及各交接记录待明确。</p></td></tr>
+            <tr><td><div class="cell-header"><strong data-edit-text data-field="department-13.name">运输协作方</strong><div class="cell-status"><span class="badge missing" data-field="department-13.status.0">待补充</span></div></div></td><td><p data-edit-text data-field="department-13.duties">衔接发运安排、车辆与装运条件，将对应批次构件送达工地；具体运输组织方式尚未明确。</p></td><td><p data-edit-text data-field="department-13.boundary">综合计划处发货人员、运输和工地之间的车辆安排、装车核对、随车资料及到货交接分工待明确。</p></td></tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </section>
+
+    <section id="preparation-flow" aria-labelledby="preparation-flow-title">
+      <div class="section-head"><h2 id="preparation-flow-title">需求计划与技术、材料准备泳道图</h2><button class="button" id="expand-preparation-flow" type="button" aria-haspopup="dialog">放大查看泳道图</button></div>
+      <figure><div id="swimlane-chart"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="需求计划与技术、材料准备泳道图：项目经理一并提供工地需求计划和施工图纸；型材预套料形成型材提料单，钢板预套料形成钢板提料单，再比对库存、确定申购量，下材料申购单。" width="2400" height="1170" viewBox="0 110 2400 1170">
+  <title>需求计划与技术、材料准备泳道图</title>
+  <desc>项目经理一并提交工地需求计划和施工图纸。综合计划处统筹分区、批次、供货顺序及出图、提料、需到货时间，推动材料与技术准备。型材由基地技术管理部预套料，形成型材提料单；钢板由深化所预套料形成钢板提料单。技术管理部比对库存、确定申购量后下材料申购单，交采购部接收。深化所形成深化图纸和技术清单（初），经综计处清单处理、批次整理和格式转化，形成技术清单（终），交基地接收。</desc>
+  <defs>
+    <marker id="swim-blue-arrow" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#1f6fff" />
+    </marker>
+    <marker id="swim-green-arrow" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#16a34a" />
+    </marker>
+  </defs>
+  <rect width="2400" height="1280" fill="white" />
+  <g font-family="PingFang SC,Microsoft YaHei,Heiti SC,sans-serif">
+    <g transform="translate(0,-110)">
+      <rect x="30" y="250" width="2340" height="140" fill="#ffffff" stroke="#dce8f7" stroke-width="1.5" />
+      <rect x="30" y="250" width="180" height="140" fill="#edf4ff" stroke="#dce8f7" stroke-width="1.5" />
+      <text x="120" y="320.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">项目经理</text>
+      <rect x="30" y="390" width="2340" height="230" fill="#f6f9fd" stroke="#dce8f7" stroke-width="1.5" />
+      <rect x="30" y="390" width="180" height="230" fill="#edf4ff" stroke="#dce8f7" stroke-width="1.5" />
+      <text x="120" y="505.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+      <rect x="30" y="620" width="2340" height="330" fill="#ffffff" stroke="#dce8f7" stroke-width="1.5" />
+      <rect x="30" y="620" width="180" height="330" fill="#edf4ff" stroke="#dce8f7" stroke-width="1.5" />
+      <text x="120" y="785.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">深化所</text>
+      <rect x="30" y="950" width="2340" height="220" fill="#f6f9fd" stroke="#dce8f7" stroke-width="1.5" />
+      <rect x="30" y="950" width="180" height="220" fill="#edf4ff" stroke="#dce8f7" stroke-width="1.5" />
+      <text x="120" y="1060.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">技术管理部</text>
+      <rect x="30" y="1170" width="2340" height="150" fill="#ffffff" stroke="#dce8f7" stroke-width="1.5" />
+      <rect x="30" y="1170" width="180" height="150" fill="#edf4ff" stroke="#dce8f7" stroke-width="1.5" />
+      <text x="120" y="1245.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">采购部</text>
+      <polyline points="580,320 730,320 730,445" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="920,505 950,505 950,730 990,730" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="730,565 730,1060 820,1060" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1240,730 1420,730" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="1115,775 1115,850" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1240,890 1430,890" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1565,685 1565,565" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="1730,505 1840,505" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="2140,505 2210,505 2210,1015" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-blue-arrow)" />
+      <polyline points="1070,1060 1130,1060" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1580,930 1580,1005" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1720,1060 1800,1060" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <polyline points="1920,1105 1920,1200" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+      <rect x="860.0" y="592" width="180" height="36" rx="5" fill="white" />
+      <text x="950" y="610" font-size="21" font-weight="400" fill="#1f6fff" text-anchor="middle" dominant-baseline="central">提料与深化要求</text>
+      <rect x="695.0" y="817" width="70" height="36" rx="5" fill="white" />
+      <text x="730" y="835" font-size="21" font-weight="400" fill="#16a34a" text-anchor="middle" dominant-baseline="central">型材</text>
+      <rect x="1273.0" y="712" width="114" height="36" rx="5" fill="white" />
+      <text x="1330" y="730" font-size="21" font-weight="400" fill="#1f6fff" text-anchor="middle" dominant-baseline="central">深化设计</text>
+      <rect x="1080.0" y="794" width="70" height="36" rx="5" fill="white" />
+      <text x="1115" y="812" font-size="21" font-weight="400" fill="#16a34a" text-anchor="middle" dominant-baseline="central">钢板</text>
+      <rect x="540" y="445" width="380" height="120" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <text x="730.0" y="469.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">需求统筹与调度</text>
+      <text x="730.0" y="506.0" font-size="19" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="central">分区／批次／供货顺序</text>
+      <text x="730.0" y="536.0" font-size="19" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="central">出图、提料及需到货时间</text>
+      <rect x="990" y="685" width="250" height="90" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <text x="1115.0" y="712.0" font-size="22" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">接收提料与深化要求</text>
+      <text x="1115.0" y="746.0" font-size="19" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="central">施工图纸及计划要求</text>
+      <path d="M1427 685 H1686 L1710 709 V768 Q1710 775 1703 775 H1427 Q1420 775 1420 768 V692 Q1420 685 1427 685 Z" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <path d="M1686 685 V709 H1710" fill="none" stroke="#b9cce6" stroke-width="2" />
+      <text x="1565.0" y="713.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">深化图纸</text>
+      <text x="1565.0" y="747.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">技术清单（初）</text>
+      <rect x="990" y="850" width="250" height="80" rx="8" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1115.0" y="890.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">预套料（钢板）</text>
+      <path d="M1437 850 H1706 L1730 874 V923 Q1730 930 1723 930 H1437 Q1430 930 1430 923 V857 Q1430 850 1437 850 Z" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <path d="M1706 850 V874 H1730" fill="none" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1580.0" y="890.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">钢板提料单</text>
+      <rect x="1410" y="445" width="320" height="120" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <text x="1570.0" y="487.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">清单处理</text>
+      <text x="1570.0" y="521.0" font-size="19" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="central">批次整理／格式转化</text>
+      <path d="M1847 460 H2116 L2140 484 V543 Q2140 550 2133 550 H1847 Q1840 550 1840 543 V467 Q1840 460 1847 460 Z" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <path d="M2116 460 V484 H2140" fill="none" stroke="#b9cce6" stroke-width="2" />
+      <text x="1990.0" y="505.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">技术清单（终）</text>
+      <g aria-label="技术清单（终）：初鸣系统已有">
+        <title>初鸣系统已有</title>
+        <path d="M1847 460 H1924 V488 H1840 V467 Q1840 460 1847 460 Z" fill="#1f6fff" />
+        <text x="1882" y="474" font-size="18" font-weight="500" fill="white" text-anchor="middle" dominant-baseline="central">初鸣</text>
+      </g>
+      <rect x="2070" y="1015" width="280" height="90" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <text x="2210.0" y="1060.0" font-size="22" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">技术清单（终）交基地</text>
+      <rect x="820" y="1015" width="250" height="90" rx="8" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <text x="945.0" y="1060.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">预套料（型材）</text>
+      <rect x="1420" y="1005" width="300" height="110" rx="8" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1570.0" y="1043.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">库存比对</text>
+      <text x="1570.0" y="1077.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">确定申购量</text>
+      <path d="M1807 1015 H2016 L2040 1039 V1098 Q2040 1105 2033 1105 H1807 Q1800 1105 1800 1098 V1022 Q1800 1015 1807 1015 Z" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <path d="M2016 1015 V1039 H2040" fill="none" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1920.0" y="1058.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">材料申购单</text>
+      <g aria-label="材料申购单：初鸣系统已有">
+        <title>初鸣系统已有</title>
+        <path d="M1807 1015 H1884 V1043 H1800 V1022 Q1800 1015 1807 1015 Z" fill="#1f6fff" />
+        <text x="1842" y="1029" font-size="18" font-weight="500" fill="white" text-anchor="middle" dominant-baseline="central">初鸣</text>
+      </g>
+      <text x="1920.0" y="1087.0" font-size="19" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="central">技术管理部下申购</text>
+      <rect x="1800" y="1200" width="240" height="90" rx="8" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1920.0" y="1245.0" font-size="22" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">接收材料申购单</text>
+      <polyline points="30,1360 80,1360" fill="none" stroke="#1f6fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+      <text x="95" y="1360" font-size="20" font-weight="400" fill="#64748b" text-anchor="start" dominant-baseline="central">技术准备与交接</text>
+      <polyline points="320,1360 370,1360" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />
+      <text x="385" y="1360" font-size="20" font-weight="400" fill="#64748b" text-anchor="start" dominant-baseline="central">材料准备与申购</text>
+      <path d="M247 275 H556 L580 299 V358 Q580 365 573 365 H247 Q240 365 240 358 V282 Q240 275 247 275 Z" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2" />
+      <path d="M556 275 V299 H580" fill="none" stroke="#b9cce6" stroke-width="2" />
+      <text x="410.0" y="303.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">工地需求计划</text>
+      <text x="410.0" y="337.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">施工图纸</text>
+      <path d="M1137 1015 H1336 L1360 1039 V1098 Q1360 1105 1353 1105 H1137 Q1130 1105 1130 1098 V1022 Q1130 1015 1137 1015 Z" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2" />
+      <path d="M1336 1015 V1039 H1360" fill="none" stroke="#a6d8ba" stroke-width="2" />
+      <text x="1245.0" y="1060.0" font-size="24" font-weight="600" fill="#12213a" text-anchor="middle" dominant-baseline="central">型材提料单</text>
+      <polyline points="1360,1060 1420,1060" fill="none" stroke="#16a34a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#swim-green-arrow)" />
+    </g>
+  </g>
+</svg></div></figure>
+    </section>
+    <section id="production-flow" aria-labelledby="production-flow-title">
+
+      <div class="section-head"><h2 id="production-flow-title">生产流程梳理</h2><button class="button" id="expand-production-flow" type="button" aria-haspopup="dialog">放大查看生产流程</button></div>
+      <figure><div id="production-chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 575" width="1900" height="575" role="img" aria-labelledby="production-svg-title production-svg-desc">
+<title id="production-svg-title">生产流程：厂区分配、后道与前道排产、工序审核及入库发运</title>
+<desc id="production-svg-desc">已明确：综合计划处分配东／西厂并录入初鸣；生产制造部先排构件后道、再排部件前道，系统按排产自动下发工单。班组组织加工、报工，工段长和质检部均审核通过后转序；全部适用工序完成并审核通过后系统自动入库，质检部进行成品贴码，综合计划处负责打包发运；仓库只负责原材料。生产主线全部节点在初鸣有单据落地，具体单据名称和字段待补齐。套料、领料、下料时点待确认。</desc>
+<defs><marker id="prod-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10Z" fill="#1f6fff"/></marker></defs>
+<rect width="1900" height="575" fill="white"/><g font-family="PingFang SC,Microsoft YaHei,sans-serif">
+<text x="40" y="38" font-size="26" fill="#12213a" font-weight="600" text-anchor="start" dominant-baseline="central">生产主线</text>
+<text x="40" y="73" font-size="20" fill="#64748b" font-weight="400" text-anchor="start" dominant-baseline="central">输入：技术清单（终）及配套图纸；排产顺序先后道、再前道</text>
+<rect x="40" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M48 110 H100 V132 H40 V118 Q40 110 48 110Z" fill="#1f6fff"/><text x="70" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="145" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">① 东／西厂分配</text>
+<text x="145" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+<text x="145" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">初鸣录入分配结果</text>
+<text x="145" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">根据清单安排东／西厂</text>
+<path d="M250 185 H270" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="270" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M278 110 H330 V132 H270 V118 Q270 110 278 110Z" fill="#1f6fff"/><text x="300" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="375" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">② 构件后道排产</text>
+<text x="375" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">生产制造部（主要）</text>
+<text x="375" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">安排后道生产线</text>
+<text x="375" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">明确数量及完成日期</text>
+<path d="M480 185 H500" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="500" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M508 110 H560 V132 H500 V118 Q500 110 508 110Z" fill="#1f6fff"/><text x="530" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="605" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">③ 部件前道排产</text>
+<text x="605" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">生产制造部（主要）</text>
+<text x="605" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">安排所需部件前道生产线</text>
+<text x="605" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">明确数量及完成日期</text>
+<path d="M710 185 H730" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="730" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M738 110 H790 V132 H730 V118 Q730 110 738 110Z" fill="#1f6fff"/><text x="760" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="835" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">④ 自动下发工单</text>
+<text x="835" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">系统自动下发</text>
+<text x="835" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">依据前后道排产结果</text>
+<text x="835" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">生成工序及班组任务</text>
+<path d="M940 185 H960" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="960" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M968 110 H1020 V132 H960 V118 Q960 110 968 110Z" fill="#1f6fff"/><text x="990" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="1065" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">⑤ 逐工序加工</text>
+<text x="1065" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">生产班组</text>
+<text x="1065" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">班组组织加工并报工</text>
+<text x="1065" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">两方审核通过才可转序</text>
+<path d="M1170 185 H1190" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="1190" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M1198 110 H1250 V132 H1190 V118 Q1190 110 1198 110Z" fill="#1f6fff"/><text x="1220" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="1295" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">⑥ 完工入库</text>
+<text x="1295" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">系统自动入库</text>
+<text x="1295" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">全部适用工序完毕</text>
+<text x="1295" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">并完成相应报工审核</text>
+<path d="M1400 185 H1420" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="1420" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M1428 110 H1480 V132 H1420 V118 Q1420 110 1428 110Z" fill="#1f6fff"/><text x="1450" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="1525" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">⑦ 成品贴码</text>
+<text x="1525" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">质检部</text>
+<text x="1525" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">成品入库后</text>
+<text x="1525" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">进行二维码贴标</text>
+<path d="M1630 185 H1650" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<rect x="1650" y="110" width="210" height="150" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<g aria-label="初鸣系统有对应单据"><title>初鸣系统有对应单据</title><path d="M1658 110 H1710 V132 H1650 V118 Q1650 110 1658 110Z" fill="#1f6fff"/><text x="1680" y="121" font-size="14" fill="white" font-weight="500" text-anchor="middle" dominant-baseline="central">初鸣</text></g>
+<text x="1755" y="145" font-size="21" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">⑧ 打包发运</text>
+<text x="1755" y="173" font-size="16.5" fill="#1f6fff" font-weight="600" text-anchor="middle" dominant-baseline="central">综合计划处</text>
+<text x="1755" y="201" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">贴码后按发运安排</text>
+<text x="1755" y="233" font-size="16.5" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">组织打包、装车与出库</text>
+<rect x="40" y="285" width="1820" height="260" rx="12" fill="#fbfdfc" stroke="#d7eadf" stroke-width="2"/>
+<text x="70" y="321" font-size="25" fill="#12213a" font-weight="600" text-anchor="start" dominant-baseline="central">⑤ 每道工序的流转条件 · 已确认</text>
+<rect x="85" y="370" width="300" height="115" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<text x="235.0" y="399" font-size="23" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">完成本工序加工</text>
+<text x="235.0" y="433" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">班组按实际完成数量</text>
+<text x="235.0" y="460" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">进行报工</text>
+<rect x="470" y="370" width="230" height="115" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<text x="585.0" y="399" font-size="23" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">提交报工</text>
+<text x="585.0" y="433" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">班组记录对应工序</text>
+<text x="585.0" y="460" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">及本次完成数量</text>
+<rect x="785" y="370" width="580" height="115" rx="8" fill="#ecf8f1" stroke="#a6d8ba" stroke-width="2"/>
+<text x="1075.0" y="399" font-size="23" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">工段长审核 ＋ 质检部审核</text>
+<text x="1075.0" y="433" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">两方均审核通过</text>
+<text x="1075.0" y="460" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">未全部通过，不进入下一工序</text>
+<rect x="1450" y="370" width="330" height="115" rx="8" fill="#f3f7ff" stroke="#b9cce6" stroke-width="2"/>
+<text x="1615.0" y="399" font-size="23" fill="#12213a" font-weight="600" text-anchor="middle" dominant-baseline="central">进入下一工序</text>
+<text x="1615.0" y="433" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">继续加工、报工与审核</text>
+<text x="1615.0" y="460" font-size="18" fill="#64748b" font-weight="400" text-anchor="middle" dominant-baseline="central">直至全部适用工序完成</text>
+<path d="M385 428 H470" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<path d="M700 428 H785" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<path d="M1365 428 H1450" fill="none" stroke="#1f6fff" stroke-width="3" marker-end="url(#prod-arrow)"/>
+<text x="70" y="519" font-size="19" fill="#64748b" font-weight="400" text-anchor="start" dominant-baseline="central">工段长与质检部均审核通过后转序；审核先后顺序待确认。</text>
+</g></svg></div></figure>
+    </section>
+    <section id="ai-scenarios" aria-labelledby="ai-scenarios-title">
+      <h2 id="ai-scenarios-title">AI 场景与需准备的资料／数据</h2>
+      <p class="caption">材料与生产侧场景统一汇总；跨环节的明细核查合并列示。生产主线各节点均有初鸣单据，仍需提供字段、样例及关联规则。各场景需同一业务样例的输入资料和人工确认／实际执行结果，用于独立核对。</p>
+      <div class="table-wrap ai-scenarios-scroll"><table class="ai-scenarios-table" aria-labelledby="ai-scenarios-title">
+        <colgroup><col style="width:22%"><col style="width:23%"><col style="width:55%"></colgroup>
+        <thead><tr><th scope="col">场景</th><th scope="col">业务结果</th><th scope="col">需准备的资料／数据</th></tr></thead>
+        <tbody><tr><td><strong>1. 预套料出提料单</strong></td><td>根据技术资料测算型材、钢板的材料需求，形成可供人工核准的提料单。</td><td><p><strong>技术与需求资料：</strong>对应项目、区域／批次的需求计划、施工图纸、节点详图、设计说明及跨图索引；区分 CAD、原生 PDF 和扫描件，提供已有模型或构件／零件清单及版本。预套料可在深化完成前进行，需明确当时可用的材质、规格、尺寸和数量依据。</p><p><strong>用料依据：</strong>可采购的钢板、型材规格及定尺资料；拼接限制、加工余量、损耗等实际提料规则。</p><p><strong>核对样例：</strong>同一批资料对应的人工核准提料单、预套料结果及调整说明；保留原始可读取文件。</p></td></tr><tr><td><strong>2. 根据申购与库存测算采购计划</strong></td><td>测算还需采购哪些材料、多少数量、何时下单及到货。</td><td><p><strong>需求与供应数据：</strong>材料申购明细、需到货时间、库存及可用／占用明细、已有采购订单、在途数量和预计到货时间。</p><p><strong>计算口径：</strong>申购中已抵扣的库存，以及占用、跨项目使用、在途和余料能否抵扣的口径。按材质、规格、数量、现货／定轧、定尺和运输批量提供供货周期、起订及分批到货要求，避免重复抵扣或统一套用固定周期。</p><p><strong>核对样例：</strong>人工确认的采购计划及实际订单、到货记录；区分需到货时间、供应商承诺时间和预计到货时间。</p></td></tr><tr><td><strong>3. 东／西厂承接建议</strong></td><td>比较两厂承接条件，给出承接厂区、预计完成时间及依据。</td><td><p><strong>任务要求：</strong>项目需求计划、构件清单、类型、数量、规格／重量、特殊加工与质量要求，以及供货时间要求。</p><p><strong>两厂资源：</strong>东／西厂的可加工范围、车间／产线、设备和场地限制、班组能力／历史工效、班次及可用时段、在手任务和已占用负荷。</p><p><strong>核对样例：</strong>已确认的厂区分配记录、实际加工和交付记录，以及跨厂区配合的实际限制。</p></td></tr><tr><td><strong>4. 前后道联合排产</strong></td><td>先安排构件后道，再安排配套部件前道，形成产线、数量和时间建议，供生产制造部确认排产；系统根据排产自动下发生产工单。</td><td><p><strong>生产对象与关系：</strong>有效构件清单、构件—部件—零件组成关系及配套数量、可排数量、承接厂区、交期和已下发任务。</p><p><strong>排产约束：</strong>建钢／桥梁各类构件、部件适用的工序及涂装条件；产线—工序—班组配置、同线并行与工序协同限制、加工能力／工时、班次、资源负荷和部件完成时间要求。需补充桥梁部件、零件及灵活工序当前未覆盖的数据来源。</p><p><strong>准备与执行条件：</strong>材料可用和到货信息，构件—部件—零件配套数量、前道已审核可用及已占用／消耗数量，工段长及质检审核状态，设备／场地和工装使用限制。套料、领料、下料的衔接时点与开工条件仍需确认。</p><p><strong>核对样例：</strong>人工确认的构件后道、部件前道排产方案及对应工单、实际执行记录。</p></td></tr><tr><td><strong>5. 材料及生产流转明细核查</strong></td><td>贯穿材料与生产交接，定位材料／构件遗漏、数量差异及计划时间不一致等具体问题。</td><td><p><strong>成套单据：</strong>同一项目／区域／批次的需求计划、初／终技术清单、型材／钢板提料单、库存比对结果、材料申购单、采购计划，以及构件／部件排产、工单、报工审核、自动入库、成品贴码及发运记录。</p><p><strong>关联与比对依据：</strong>单据编号、建钢／桥梁类别、构件类型及主次身份、构件／部件／零件和材料唯一标识、组成关系、规格、数量、单位、各类日期含义及单据更新记录；同前缀对象不能仅按名称或前缀关联。提供库存抵扣、批次拆分／合并、单位换算及其他允许差异的说明。</p><p><strong>核对样例：</strong>业务确认的遗漏、数量或时间差异案例，以及合理差异样例；能追溯到原单据具体明细。</p></td></tr><tr><td><strong>6. 生产进度预测与卡点分析</strong></td><td>预测任务完成时间，识别可能延期的构件，以及配套、加工或审核等待等具体卡点。</td><td><p><strong>计划与当前状态：</strong>厂区及前后道排产、工单、要求完成时间、当前所在工序、计划／实际完成数量，以及零件／部件配套和材料状态。</p><p><strong>执行反馈：</strong>工序实际开工、报工、完成及双审核记录；待配套、待料、待检、待审核、待涂装和资源停用等状态及时间。区分待涂装在制品与已入库成品，并标注数据更新时间。</p><p><strong>预测与核对资料：</strong>同类任务的加工及等待时间、班组／产线能力和可用时段、在手任务，以及实际完工、自动入库、质检贴码和发运记录。</p></td></tr><tr><td><strong>7. 班组／产线能力评估与工期测算</strong></td><td>分析适合承接的构件／工序和预计加工时间，并用实际结果校正能力判断。</td><td><p><strong>对象与资源特征：</strong>按建钢／桥梁、构件／部件类型和工序整理历史规格、尺寸、重量、数量、复杂程度、批量及质量要求；对应班组擅长范围、熟练度、产线、人员、设备／场地、工装及班次。工效单位需与工序匹配，不能统一按吨／天比较。</p><p><strong>历史加工数据：</strong>实际开工、完成、工序报工和审核记录，实际投入工时／人数、加班及停工等待记录、质量和返工结果；尽量区分加工时间与等待时间。</p><p><strong>核对依据：</strong>已有工效／定额及适用条件、业务人员确认的能力范围、同类历史任务和后续实际执行样例；记录资源配置、质量达标与返工情况，区分加工时间和各类等待，避免混用不同条件的数据。</p></td></tr></tbody>
+      </table></div>
+      <p class="caption">资料保留可关联的项目、区域／批次、材料及产品编号，标明数量单位、日期含义和数据更新时间；同时明确资料来源、提供岗位及能否导出。套料、领料、下料的衔接时点仍标为待确认。</p>
+    </section>
+  </main>
+</div>
+<dialog id="flow-dialog" aria-labelledby="dialog-title">
+  <div class="dialog-head"><h2 id="dialog-title">业务主流程 · 放大查看</h2><button class="button" id="close-flow" type="button" autofocus>关闭</button></div>
+  <div class="dialog-figure" id="expanded-flow"></div>
+</dialog>
+<script>
+  const flowDialog = document.getElementById('flow-dialog');
+  const expandedFlow = document.getElementById('expanded-flow');
+  [
+    ['expand-flow', '#flow-chart svg', '业务主流程 · 放大查看'],
+    ['expand-preparation-flow', '#swimlane-chart svg', '准备环节泳道图 · 放大查看'],
+    ['expand-architecture', '#lj-architecture .arch-canvas > svg', '平台总体架构 · 放大查看'],
+    ['expand-capabilities', '#capability-map', '智能平台二级能力图 · 放大查看'],
+    ['expand-production-flow', '#production-chart svg', '生产流程 · 放大查看']
+  ].forEach(([buttonId, selector, title]) => {
+    document.getElementById(buttonId).addEventListener('click', () => {
+      document.getElementById('dialog-title').textContent = title;
+      let enlarged = document.querySelector(selector).cloneNode(true);
+      if (buttonId === 'expand-architecture') {
+        const holder = document.createElement('div');
+        holder.innerHTML = document.getElementById('lj-architecture').architectureSvg();
+        enlarged = holder.firstElementChild;
+        // 放大视图始终采用横向总图，保留清晰文字和模块说明。
+        enlarged.querySelectorAll('foreignObject').forEach(node => {
+          const button = node.querySelector('button');
+          const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          const anchor = button.dataset.align === 'start' ? 'start' : 'middle';
+          const x = Number(node.getAttribute('x')) + (anchor === 'middle' ? Number(node.getAttribute('width')) / 2 : 0);
+          const centerY = Number(node.getAttribute('y')) + Number(node.getAttribute('height')) / 2;
+          const appendLabel = (content, y, size, color, weight) => {
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            for (const [name, value] of Object.entries({x, y, 'text-anchor':anchor, 'dominant-baseline':'central', 'font-size':size, fill:color, 'font-weight':weight})) label.setAttribute(name, value);
+            label.textContent = content;
+            group.appendChild(label);
+          };
+          const size = Number(button.dataset.font);
+          appendLabel(button.dataset.title, centerY - (button.dataset.subtitle ? 12 : 0), size, '#102b50', 600);
+          if (button.dataset.subtitle) appendLabel(button.dataset.subtitle, centerY + 19, size * .79, '#607999', 400);
+          node.replaceWith(group);
+        });
+      }
+      if (buttonId === 'expand-capabilities') {
+        const holder = document.createElement('div');
+        holder.innerHTML = document.getElementById('intelligent-capabilities').capabilitySvg();
+        enlarged = holder.firstElementChild;
+      }
+      expandedFlow.replaceChildren(enlarged);
+      flowDialog.showModal();
+    });
+  });
+  document.getElementById('close-flow').addEventListener('click', () => flowDialog.close());
+  flowDialog.addEventListener('click', event => {
+    if (event.target === flowDialog) flowDialog.close();
+  });
+  flowDialog.addEventListener('close', () => expandedFlow.replaceChildren());
+
+  const statusClasses = { '已确认':'confirmed', '待核实':'pending', '待补充':'missing', '暂不纳入':'paused', '暂缓':'paused' };
+  const editors = [
+    {id:'nodes', content:'.results-table', label:'编辑节点结果', message:'edit-message'},
+    {id:'departments', content:'#department-content', label:'编辑部门职责', message:'departments-message'}
+  ].map(config => ({
+    ...config,
+    section:document.getElementById(config.id),
+    content:document.querySelector(config.content),
+    edit:document.getElementById('edit-' + config.id),
+    save:document.getElementById('save-' + config.id),
+    cancel:document.getElementById('cancel-' + config.id),
+    message:document.getElementById(config.message)
+  }));
+  let activeEditor = editors[0];
+  let editing = false;
+  let dirty = false;
+  let saving = false;
+  let contentBeforeEdit = '';
+  let snapshot = null;
+
+  function message(text, error = false, editor = activeEditor) {
+    editor.message.textContent = text;
+    editor.message.classList.toggle('error', error);
+  }
+  async function requestDocument(options = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch('/api/nodes', {cache:'no-store', ...options, signal:controller.signal});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || '服务暂时无法处理请求');
+      return result;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  function applySnapshot(result) {
+    const fields = [...document.querySelectorAll('[data-field]')];
+    if (!result || !Number.isInteger(result.revision) || typeof result.sourceHash !== 'string' ||
+        !result.fields || Object.keys(result.fields).length !== fields.length ||
+        fields.some(field => typeof result.fields[field.dataset.field] !== 'string' ||
+          (field.classList.contains('badge') && !statusClasses[result.fields[field.dataset.field]]))) {
+      throw new Error('数据与页面不一致，请刷新核对');
+    }
+    fields.forEach(field => {
+      field.textContent = result.fields[field.dataset.field];
+      if (field.classList.contains('badge')) field.className = 'badge ' + statusClasses[field.textContent];
+    });
+    snapshot = result;
+  }
+  async function loadDocument() {
+    editors.forEach(editor => {
+      editor.edit.disabled = true;
+      message('正在读取已保存的内容…', false, editor);
+    });
+    try {
+      applySnapshot(await requestDocument());
+      editors.forEach(editor => {
+        editor.edit.textContent = editor.label;
+        message('', false, editor);
+      });
+    } catch (error) {
+      editors.forEach(editor => {
+        editor.edit.textContent = '重新连接';
+        message('未读取到已保存的内容，当前显示文档初始内容。请重新连接。', true, editor);
+      });
+    } finally {
+      editors.forEach(editor => editor.edit.disabled = false);
+    }
+  }
+  function setEditing(active) {
+    editing = active;
+    const editor = activeEditor;
+    editor.section.classList.toggle('is-editing', active);
+    editor.edit.hidden = active;
+    editor.save.hidden = !active;
+    editor.cancel.hidden = !active;
+    editors.forEach(other => other.edit.disabled = active && other !== editor);
+    editor.content.querySelectorAll('[data-edit-text]').forEach(field => {
+      if (active) {
+        field.setAttribute('contenteditable','plaintext-only');
+        field.setAttribute('role','textbox');
+        field.setAttribute('aria-multiline','true');
+        const row = field.closest('tr');
+        const cell = field.closest('td');
+        const table = field.closest('table');
+        field.setAttribute('aria-label', row.querySelector('strong').textContent + ' · ' + table.tHead.rows[0].cells[cell.cellIndex].textContent);
+      } else {
+        ['contenteditable','role','aria-multiline','aria-label','spellcheck'].forEach(name => field.removeAttribute(name));
+      }
+    });
+    if (active) {
+      editor.content.querySelectorAll('.badge[data-field]').forEach(badge => {
+        const select = document.createElement('select');
+        select.className = 'status-editor';
+        select.setAttribute('aria-label', badge.closest('tr').querySelector('strong').textContent + ' · 核实状态');
+        Object.keys(statusClasses).forEach(status => select.add(new Option(status,status)));
+        select.value = badge.textContent.trim();
+        badge.hidden = true;
+        badge.after(select);
+      });
+    } else {
+      editor.content.querySelectorAll('.status-editor').forEach(select => select.remove());
+      editor.content.querySelectorAll('.badge[data-field]').forEach(badge => badge.hidden = false);
+    }
+  }
+  function markDirty() {
+    dirty = true;
+    message('有未保存的修改');
+  }
+  editors.forEach(editor => {
+    editor.edit.addEventListener('click', () => {
+      if (editing) return;
+      if (!snapshot) { loadDocument(); return; }
+      activeEditor = editor;
+      contentBeforeEdit = editor.content.innerHTML;
+      dirty = false;
+      setEditing(true);
+      message(editor.id === 'nodes' ? '直接修改文字或状态，点击保存。流程图需另行同步。' : '直接修改部门职责或状态，点击保存。');
+    });
+    editor.content.addEventListener('input', event => {
+      if (editing && !saving && activeEditor === editor && event.target.closest('[data-edit-text]')) markDirty();
+    });
+    editor.content.addEventListener('change', event => {
+      const select = event.target.closest('.status-editor');
+      if (!editing || saving || activeEditor !== editor || !select) return;
+      const badge = select.previousElementSibling;
+      badge.textContent = select.value;
+      badge.className = 'badge ' + statusClasses[select.value];
+      markDirty();
+    });
+    editor.content.addEventListener('paste', event => {
+      if (!editing || saving || activeEditor !== editor || !event.target.closest('[data-edit-text]')) return;
+      event.preventDefault();
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const text = document.createTextNode(event.clipboardData.getData('text/plain'));
+      range.insertNode(text);
+      range.setStartAfter(text);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      markDirty();
+    });
+    editor.cancel.addEventListener('click', () => {
+      if (saving || activeEditor !== editor) return;
+      editor.content.innerHTML = contentBeforeEdit;
+      setEditing(false);
+      dirty = false;
+      message('已取消本次修改');
+    });
+    editor.save.addEventListener('click', async () => {
+      if (saving || !editing || activeEditor !== editor) return;
+      if (!dirty) {
+        setEditing(false);
+        message('没有需要保存的修改');
+        return;
+      }
+      const fields = Object.fromEntries([...document.querySelectorAll('[data-field]')].map(field =>
+        [field.dataset.field, field.hasAttribute('data-edit-text') ? (field.innerText ?? field.textContent) : field.textContent]));
+      saving = true;
+      editor.save.disabled = true;
+      editor.cancel.disabled = true;
+      editor.content.querySelectorAll('[data-edit-text]').forEach(field => field.setAttribute('contenteditable','false'));
+      editor.content.querySelectorAll('select').forEach(select => select.disabled = true);
+      try {
+        message('正在保存…');
+        applySnapshot(await requestDocument({
+          method:'PUT',
+          headers:{'Content-Type':'application/json', 'X-LJ-APS-Editor':'1'},
+          body:JSON.stringify({revision:snapshot.revision, sourceHash:snapshot.sourceHash, fields})
+        }));
+        setEditing(false);
+        dirty = false;
+        message('已保存');
+      } catch (error) {
+        const reason = error.name === 'AbortError' ? '连接超时' : error.message;
+        message('未保存：' + reason + ' 当前修改仍保留。', true);
+      } finally {
+        saving = false;
+        editor.save.disabled = false;
+        editor.cancel.disabled = false;
+        if (editing) {
+          editor.content.querySelectorAll('[data-edit-text]').forEach(field => field.setAttribute('contenteditable','plaintext-only'));
+          editor.content.querySelectorAll('select').forEach(select => select.disabled = false);
+        }
+      }
+    });
+  });
+  window.addEventListener('beforeunload', event => {
+    if (dirty) { event.preventDefault(); event.returnValue = ''; }
+  });
+  if (location.protocol === 'file:') {
+    editors.forEach(editor => {
+      const link = document.createElement('a');
+      link.href = 'http://127.0.0.1:3121/#' + editor.id;
+      link.textContent = '打开可直接保存的业务梳理页面';
+      editor.message.replaceChildren(link);
+    });
+  } else {
+    loadDocument();
+  }
+</script>
+</body>
+</html>

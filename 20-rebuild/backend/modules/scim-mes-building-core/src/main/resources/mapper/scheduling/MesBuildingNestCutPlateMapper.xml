@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingNestCutPlateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingNestCutPlate">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="machine_part_scheduling_id" property="machinePartSchedulingId" />
+        <result column="nest_cut_plate_id" property="nestCutPlateId" />
+        <result column="length" property="length" />
+        <result column="mac" property="mac" />
+        <result column="material" property="material" />
+        <result column="nc_name" property="ncName" />
+        <result column="nc_code" property="ncCode" />
+        <result column="nc_url" property="ncUrl" />
+        <result column="oss_key" property="ossKey" />
+        <result column="plate_no" property="plateNo" />
+        <result column="allocate_time" property="allocateTime" />
+        <result column="send_time" property="sendTime" />
+        <result column="source" property="source" />
+        <result column="thick" property="thick" />
+        <result column="cut_instruction_id" property="cutInstructionId" />
+        <result column="num" property="num" />
+        <result column="width" property="width" />
+        <result column="weight" property="weight" />
+        <result column="bool_have_surplus" property="boolHaveSurplus" />
+        <result column="pdf_name" property="pdfName" />
+        <result column="pdf_url" property="pdfUrl" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, machine_part_scheduling_id, nest_cut_plate_id, length, mac, material, nc_name, nc_code, nc_url, oss_key, plate_no, allocate_time, send_time, source, thick, cut_instruction_id, num, width, weight, bool_have_surplus, pdf_name, pdf_url
+    </sql>
+
+    <select id="getAllnetCut"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskOrderDTO">
+        SELECT
+        cut.id 'id',
+        cut.task_order_id,
+        cut.cut_number 'cutNumber',
+        cut.scheduling_time 'scheduleTime',
+        cut.ask_complete_time 'completeTime',
+        cut.issue_user_id 'userId',
+        cut.bool_off_line 'offLineType',
+        us.`name`'userName',
+        cut.production_line_id 'productionLine.id' ,
+        line.`name` 'productionLine.name',
+        cut.workshop_id 'workshop.id',
+        ws.`name` 'workshop.name',
+        cut.groups_id 'group.id',
+        gro.`name` 'group.name',
+        SUM( process.task_quantity ) 'taskQuantity',
+        CASE
+        #{processType}
+        WHEN 4 THEN
+        cut.cut_print_quantity
+        ELSE
+        cut.hole_print_quantity
+        END 'printQuantity',
+        SUM( process.task_quantity * par.net_weight ) 'taskNetWeight',
+        SUM( process.task_quantity * par.gross_weight ) 'taskGrossWeight',
+        ord.cut_config_id 'config.id',
+        ord.order_number 'orderNumber',
+        config.`name` 'config.name',
+        cutTeamConfig.device_type 'cutType',
+        cut.bool_nest_cut_enum 'boolNestCut'
+        FROM
+        mes_building_nest_cut_plate cut
+        LEFT JOIN mes_building_task_process process ON cut.id = process.nest_cut_plate_id
+        AND process.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() != 0">
+            and process.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test=" monomerIds != null and monomerIds.size() > 0 ">
+            AND process.monomer_id in
+            <foreach collection="monomerIds" index="index" item="monomerId" open="(" separator="," close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        <if test=" areaIds != null and areaIds.size() > 0 ">
+            AND process.area_id in
+            <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        LEFT JOIN mes_building_task_order ord ON ord.id=cut.task_order_id AND ord.bool_delete_enum=0
+        LEFT JOIN mes_building_machine_part_team_detail cutTeamConfig ON cutTeamConfig.id =cut.cut_config_id AND cutTeamConfig.bool_delete_enum=0
+        LEFT JOIN mes_building_cut_config config ON cutTeamConfig.device_type = config.name AND config.bool_delete_enum=0
+        LEFT JOIN tech_machine_part par ON par.id = process.product_id
+        AND par.bool_delete_enum = 0
+        LEFT JOIN sys_user us ON cut.issue_user_id = us.id
+        LEFT JOIN mes_building_production_line line ON line.id = cut.production_line_id
+        AND line.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop ws ON ws.id = cut.workshop_id
+        AND ws.bool_delete_enum = 0
+        LEFT JOIN mes_building_groups gro ON cut.groups_id = gro.id
+        AND gro.bool_delete_enum = 0
+        <if test="processType != null and processType == 8  ">
+            LEFT JOIN mes_building_process pr ON pr.id = process.process_id
+        </if>
+        <where>
+            <if test="processIds != null and processIds.size() != 0">
+                CASE
+                WHEN cut.bool_off_line = 0 THEN
+                 process.process_id IN
+                <foreach collection="processIds" index="index" item="processId" open="(" separator="," close=")">
+                    #{processId}
+                </foreach>
+                WHEN cut.bool_off_line = 1 THEN
+                TRUE
+                END
+            </if>
+            AND  cut.bool_delete_enum=0
+            <if test="localDateTime != null">
+                AND DATE_FORMAT( cut.scheduling_time, '%Y' )=DATE_FORMAT( #{localDateTime}, '%Y' )
+            </if>
+            <if test="workshopId != null">
+                AND cut.workshop_id = #{workshopId}
+            </if>
+            <if test="cutNumber != null">
+                AND cut.cut_number LIKE CONCAT('%',#{cutNumber},'%')
+            </if>
+            <if test="printType!=null and printType">
+                and case
+                #{processType}
+                WHEN 4 THEN
+                cut.cut_print_quantity
+                ELSE
+                cut.hole_print_quantity
+                END >0
+            </if>
+            <if test=" printType!=null and !printType">
+                and case
+                #{processType}
+                WHEN 4 THEN
+                cut.cut_print_quantity
+                ELSE
+                cut.hole_print_quantity
+                END =0
+            </if>
+            <if test="boolNestCut !=null">
+                AND cut.bool_nest_cut_enum=#{boolNestCut}
+            </if>
+            <if test=" areaIds != null and areaIds.size() > 0 ">
+                AND cut.id IN (
+                SELECT
+                par.mes_building_nest_cut_plate_id
+                FROM
+                mes_building_nest_cut_plate_part par
+                LEFT JOIN tech_machine_part mach ON par.part_id = mach.id
+                AND mach.bool_delete_enum = 0
+                WHERE mach.bool_delete_enum=0
+                AND mach.area_id in
+                <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                    #{areaId}
+                </foreach>
+                )
+            </if>
+            <if test="serialNumber!=null">
+                AND cut.task_order_id IN (
+                SELECT
+                ta.task_order_id
+                FROM
+                mes_building_task ta
+                LEFT JOIN tech_machine_part mach ON ta.product_id = mach.id
+                AND mach.bool_delete_enum = 0
+                WHERE
+                mach.bool_delete_enum = 0
+                AND mach.area_id in
+                <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                    #{areaId}
+                </foreach>
+                AND mach.serial_number like CONCAT('%',#{serialNumber},'%')
+                )
+            </if>
+            <if test="processType != null and processType == 8  ">
+                AND pr.type = #{processType}
+                AND cut.bool_off_line=0
+            </if>
+            <if test="cutConfigId != null">
+                AND ord.cut_config_id =#{cutConfigId}
+            </if>
+        </where>
+        GROUP BY
+        cut.id
+        order by cut.scheduling_time desc
+    </select>
+    <select id="getMachinePartTaskIssuedDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingNestCutPlateDO">
+        SELECT
+            cut_plate.*,
+            gro.id 'groups.id',
+            gro.NAME 'groups.name',
+            workshop.id 'workshop.id',
+            workshop.NAME 'workshop.name',
+            production_line.id 'production_line.id',
+            production_line.NAME 'production_line.name',
+            cut_config.`name` cut_name
+        FROM
+            mes_building_nest_cut_plate cut_plate
+                LEFT JOIN mes_building_groups gro ON gro.id = cut_plate.groups_id
+                LEFT JOIN mes_building_workshop workshop ON workshop.id = gro.workshop_id
+                LEFT JOIN mes_building_production_line production_line ON production_line.id = gro.production_line_id
+                LEFT JOIN mes_building_machine_part_scheduling scheduling ON scheduling.id = cut_plate.machine_part_scheduling_id
+                LEFT JOIN mes_building_cut_config  cut_config ON cut_config.id = scheduling.cut_config_id
+        WHERE
+            cut_plate.machine_part_scheduling_id =#{id}
+    </select>
+
+</mapper>

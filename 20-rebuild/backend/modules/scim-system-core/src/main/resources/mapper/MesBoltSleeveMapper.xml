@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesBoltSleeveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesBoltSleeve">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="type" property="type" />
+        <result column="process_id" property="processId" />
+        <result column="unit" property="unit" />
+        <result column="price" property="price" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, process_id, unit, price
+    </sql>
+
+    <select id="isTypeExistence" resultType="java.lang.Boolean">
+        select count(0) > 0 from mes_bolt_sleeve
+        <where>
+            bool_delete_enum = false
+            <if test="id != null">
+                and id &lt;> #{id}
+            </if>
+            <if test="typeList != null and typeList.size() > 0">
+                and
+                 <foreach collection="typeList" item="i" open="(" separator="or" close=")">
+                     find_in_set(#{i}, type) > 0
+                 </foreach>
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="MesBoltSleeveDTOMap" type="com.hzchum.scim.system.core.api.pojo.dto.MesBoltSleeveDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="type" property="type"/>
+        <result column="process_id" property="processId"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="process_name" property="processName"/>
+    </resultMap>
+
+    <select id="detailById" resultMap="MesBoltSleeveDTOMap">
+        SELECT
+            mbs.id,
+            mbs.create_time,
+            mbs.update_time,
+            mbs.bool_delete_enum,
+            mbs.version,
+            mbs.type,
+            mbs.process_id,
+            mbs.unit,
+            mbs.price,
+            mbp.name AS process_name
+        FROM mes_bolt_sleeve mbs
+        LEFT JOIN mes_building_process mbp ON mbp.product_type = 2 AND mbp.id = mbs.process_id
+        WHERE mbs.bool_delete_enum = FALSE AND mbs.id = #{id}
+    </select>
+
+    <select id="selectListInfo" resultMap="MesBoltSleeveDTOMap">
+        SELECT
+            mbs.id,
+            mbs.create_time,
+            mbs.update_time,
+            mbs.bool_delete_enum,
+            mbs.version,
+            mbs.type,
+            mbs.process_id,
+            mbs.unit,
+            mbs.price,
+            mbp.name AS process_name
+        FROM mes_bolt_sleeve mbs
+        LEFT JOIN mes_building_process mbp ON mbp.product_type = 2 AND mbp.id = mbs.process_id
+        WHERE mbs.bool_delete_enum = FALSE
+    </select>
+
+</mapper>

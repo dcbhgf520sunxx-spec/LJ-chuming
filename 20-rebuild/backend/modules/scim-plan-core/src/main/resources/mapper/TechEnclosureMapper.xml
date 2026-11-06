@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechEnclosureMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechEnclosure">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="bool_status_enum" property="boolStatusEnum"/>
+        <result column="category" property="category"/>
+        <result column="name" property="name"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="brand" property="brand"/>
+        <result column="plate" property="plate"/>
+        <result column="color" property="color"/>
+        <result column="material" property="material"/>
+        <result column="coating" property="coating"/>
+        <result column="plating" property="plating"/>
+        <result column="weight" property="weight"/>
+        <result column="total_weight" property="totalWeight"/>
+        <result column="thickness" property="thickness"/>
+        <result column="width" property="width"/>
+        <result column="unfolded_width" property="unfoldedWidth"/>
+        <result column="length" property="length"/>
+        <result column="total_length" property="totalLength"/>
+        <result column="quantity" property="quantity"/>
+        <result column="total_length" property="totalLength"/>
+        <result column="surface_area" property="surfaceArea"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="remark" property="remark"/>
+        <result column="business_id" property="businessId"/>
+        <result column="attachment_id" property="attachmentId"/>
+        <result column="bend_times" property="bendTimes"/>
+        <result column="weight_meter" property="weightMeter"/>
+        <result column="user_id" property="userId"/>
+        <result column="bool_abnormal_enum" property="boolAbnormalEnum"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, bool_status_enum, category, name, serial_number,brand, plate, color,
+        material, coating, plating, weight, thickness, width,unfolded_width,length, quantity, total_length, total_area, drawing_number,remark,
+        business_id,attachment_id,bend_times,area_type,user_id
+    </sql>
+
+    <select id="selectListByConditions" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureResponseDTO">
+        select
+        e.id,
+        e.project_id,
+        p.short_name projectName,
+        e.enclosure_plan_id,
+        e.area_id,
+        e.dictionary_id,
+        d.label dictionaryName,
+        e.bool_status_enum,
+        e.category,
+        e.name,
+        e.serial_number,
+        e.brand,
+        e.plate,
+        e.color,
+        e.material,
+        e.coating,
+        e.plating,
+        e.weight,
+        e.total_weight,
+        e.thickness,
+        e.width,
+        e.unfolded_width,
+        e.length,
+        e.unit,
+        e.quantity,
+        e.accounting_volume,
+        e.total_length as total_length,
+        e.surface_area surface_area,
+        e.total_area as total_area,
+        e.remark,
+        e.business_id,
+        e.attachment_id,
+        e.bend_times,
+        e.weight_meter,
+        e.user_id,
+        u.name user_name,
+        e.scheduling_quantity,
+        e.produced_quantity,
+        e.category,
+        e.create_time
+        from tech_enclosure e
+        left join sys_user u on e.user_id = u.id and u.bool_delete_enum = 0
+        left join sys_dictionary d on e.dictionary_id = d.id and d.bool_delete_enum = 0
+        left join contract_project p on e.project_id = p.id and p.bool_delete_enum = 0
+        WHERE e.bool_delete_enum = 0
+        <if test="projectId != null">
+            and e.project_id = #{projectId}
+        </if>
+        <if test="dictionaryId != null">
+            and d.id = #{dictionaryId}
+        </if>
+        <if test="enclosurePlanId != null">
+            and e.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="areaId != null">
+            and e.area_id = #{areaId}
+        </if>
+        <if test="boolStatusEnum != null">
+            and e.bool_status_enum = #{boolStatusEnum}
+        </if>
+        <if test="name != null and name !=''">
+            and e.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            and e.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="plate != null and plate !='' ">
+            and e.plate like concat('%',#{plate},'%')
+        </if>
+        <if test="color != null and color !='' ">
+            and e.color like concat('%',#{color},'%')
+        </if>
+        <if test="thickness != null">
+            and e.thickness = #{thickness}
+        </if>
+        <if test="weight != null">
+            and e.weight = #{weight}
+        </if>
+        order by e.id asc;
+    </select>
+
+    <!-- 桁架楼承板清单合计-->
+    <select id="selectSumTrussFloorPlate" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSumDTO">
+        SELECT
+        plate,
+        color,
+        brand,
+        SUM(IFNULL(quantity,0)) quantity,
+        SUM(IFNULL(total_area,0))/1000000 total_area,
+        SUM(IFNULL(total_length,0))/1000 total_length,
+        SUM(IFNULL(weight, 0)) weight
+
+        FROM tech_enclosure
+        WHERE bool_delete_enum = 0
+        AND category = #{category}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+
+        GROUP BY plate , color, brand
+    </select>
+
+    <!-- 夹芯板清单合计-->
+    <select id="selectSumSandwich" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSumDTO">
+        SELECT
+        plate,
+        color,
+        thickness,
+        brand,
+        width,
+        SUM(IFNULL(quantity, 0)) quantity,
+        SUM(IFNULL(total_area, 0))/1000000 total_area,
+        SUM(IFNULL(total_length, 0))/1000 total_length,
+        SUM(IFNULL(weight, 0)) weight
+
+        FROM tech_enclosure
+        WHERE bool_delete_enum = 0
+        AND category = #{category}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        GROUP BY plate, color, thickness, brand, width
+    </select>
+
+    <!-- 折边件清单合计-->
+    <select id="selectSumFlangPiece" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSumDTO">
+        SELECT
+        color,
+        thickness,
+        brand,
+        unfolded_width,
+        SUM(IFNULL(quantity, 0)) quantity,
+        SUM(IFNULL(total_area, 0))/1000000 total_area,
+        SUM(IFNULL(total_length, 0))/1000 total_length,
+        SUM(IFNULL(weight, 0)) weight
+        FROM tech_enclosure
+        WHERE bool_delete_enum = 0
+        AND category = #{category}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        GROUP BY color, thickness, brand, unfolded_width
+    </select>
+
+    <!-- 压型板清单合计-->
+    <select id="selectSumPressurePlate" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSumDTO">
+        SELECT
+        plate,
+        thickness,
+        color,
+        brand,
+        SUM(IFNULL(quantity,0)) quantity,
+        SUM(IFNULL(total_area,0))/1000000 total_area,
+        SUM(IFNULL(total_length,0))/1000 total_length,
+        SUM(IFNULL(weight, 0)) weight
+        FROM tech_enclosure
+        WHERE bool_delete_enum = 0
+        AND category = #{category}
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        GROUP BY plate, thickness, color, brand
+    </select>
+
+
+    <select id="sumMete" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProductMeteDTO">
+        select ifnull(sum(quantity),0) quantity,
+        ifnull(sum(total_length),0)/1000 mete,
+        ifnull(sum(total_area),0)/1000000 mete_two
+        from tech_enclosure
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+    </select>
+
+
+    <select id="getTotalArea" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(total_area), 0)
+        from tech_enclosure
+        where area_id = #{areaId}
+          and category = #{productType}
+          and bool_status_enum = 0
+    </select>
+
+
+    <select id="sumCategoryMete"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.EnclosureCategoryMeteDTO">
+        select project_id,category,ifnull(sum(quantity),0) quantity, ifnull(sum(total_length),0)/1000 mete
+        from tech_enclosure
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        group by project_id,category
+    </select>
+    <select id="sumCategoryByAreaId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.EnclosureCategoryMeteDTO">
+        select area_id,category,ifnull(sum(quantity),0) quantity, ifnull(sum(total_length),0)/1000 mete
+        from tech_enclosure
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        group by area_id,category
+    </select>
+    <select id="sumMeteGroupByMonomerId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select m.`id` 'monomer.id', m.`name` 'monomer.name', ifnull(sum(a.quantity), 0) quantity,
+               ifnull(sum(a.total_length), 0) / 1000 total_length
+        from tech_enclosure a
+                 inner join plan_monomer m on m.id = a.monomer_id and m.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON m.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+          and a.category = #{category}
+        group by m.id, m.name
+    </select>
+
+    <select id="sumMeteGroupByAreaId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.product.ProductMeteGroupDTO">
+        select d.`id` 'area.id', d.`name` 'area.name', d.axis 'area.axis', ifnull(sum(a.quantity), 0) quantity,
+               ifnull(sum(a.total_length), 0) / 1000 total_length
+        from tech_enclosure a
+                 inner join plan_area d on d.id = a.area_id and d.bool_delete_enum = 0
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON d.monomer_id = link.monomer_id AND link.bool_delete_enum = 0 AND link.deepened_person_id = #{userId}
+        </if>
+        where a.bool_delete_enum = 0
+          and a.monomer_id = #{monomerId}
+          and a.category = #{category}
+        group by d.id, d.name
+    </select>
+
+
+    <select id="selectSumLengthQuantity" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSimpleSumDTO">
+        SELECT
+        IFNULL(SUM(e.total_length), 0)/1000 as total_length,
+        IFNULL(SUM(e.total_area), 0)/1000000 as total_area,
+        IFNULL(SUM(e.quantity), 0) as total_quantity
+        FROM tech_enclosure as e
+        WHERE e.bool_delete_enum = 0
+        <if test="projectId != null">
+            and e.project_id = #{projectId}
+        </if>
+        <if test="category != null">
+            and e.category = #{category}
+        </if>
+        <if test="enclosurePlanId != null">
+            and e.enclosure_plan_id = #{enclosurePlanId}
+        </if>
+        <if test="boolStatusEnum != null">
+            and e.bool_status_enum = #{boolStatusEnum}
+        </if>
+        <if test="name != null and name !=''">
+            and e.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            and e.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="plate != null and plate !='' ">
+            and e.plate like concat('%',#{plate},'%')
+        </if>
+        <if test="color != null and color !='' ">
+            and e.color like concat('%',#{color},'%')
+        </if>
+        <if test="thickness != null">
+            and e.thickness = #{thickness}
+        </if>
+        <if test="weight != null">
+            and  e.weight = #{weight}
+        </if>
+    </select>
+
+    <select id="selectSumLengthQuantity2" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureSimpleSumDTO">
+        SELECT
+        IFNULL(SUM(e.total_length), 0)/1000 as total_length,
+        IFNULL(SUM(e.total_area), 0)/1000000 as total_area,
+        IFNULL(SUM(e.quantity), 0) as total_quantity
+        FROM tech_enclosure as e
+        WHERE e.bool_delete_enum = 0
+        <if test="projectId != null">
+            and e.project_id = #{projectId}
+        </if>
+        <if test="dictionaryId != null">
+            and e.dictionary_id = #{dictionaryId}
+        </if>
+        <if test="areaId != null">
+            and e.area_id = #{areaId}
+        </if>
+        <if test="boolStatusEnum != null">
+            and e.bool_status_enum = #{boolStatusEnum}
+        </if>
+        <if test="name != null and name !=''">
+            and e.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            and e.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+    </select>
+
+    <select id="selectByIdIgnoreDelete" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechEnclosure">
+        select *
+        from tech_enclosure
+        where id = #{id}
+    </select>
+    <select id="listByType"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.enclosure.EnclosureProjectSchedulingStateDTO">
+        SELECT
+        pro.serial_number 'project.serialNumber' ,
+        pro.short_name 'project.shortName',
+        pro.`name` 'project.name',
+        pro.id 'project.id',
+        pro.end_date 'project.endDate',
+        enc.id 'productId',
+        enc.quantity 'quantity',
+        enc.subscribe_quantity,
+        enc.scheduling_quantity 'schedulingQuantity'
+        FROM
+        tech_enclosure enc
+        LEFT JOIN contract_project pro ON enc.project_id=pro.id
+        WHERE enc.bool_delete_enum=0
+          and enc.bool_status_enum=1
+        <if test="year != null">
+            AND DATE_FORMAT( pro.create_time, '%Y' ) = #{year}
+        </if>
+        <if test="name != null and name != ''">
+            and ( pro.name like concat('%',#{name},'%') or
+            pro.short_name like concat('%',#{name},'%') or
+            pro.serial_number like concat('%',#{name},'%')
+            )
+        </if>
+    </select>
+    <select id="getProjectOverview"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.enclosure.EnclosureProjectOverviewStateDTO">
+
+        SELECT
+        pro.id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'project.serialNumber',
+        SUM( enc.quantity ) 'totalQuantity',
+        SUM( enc.produced_quantity ) 'totalCompleteQuantity'
+        FROM
+        tech_enclosure enc
+        LEFT JOIN contract_project pro ON enc.project_id=pro.id
+        WHERE
+        enc.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size()>0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY
+        project_id
+
+
+    </select>
+    <select id="getproductDetaile"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.enclosure.EnclosureProductDetailDTO">
+        SELECT enc.*,
+               pro.id 'project.id',
+               pro.`name` 'project.name',
+               pro.short_name 'project.shortName',
+               pro.serial_number 'shortName.serialNumber',
+               plan.id 'plan.id',
+               plan.`name`'plan.name',
+               plan.quantity_work 'plan.quantityWork',
+               plan.date 'plan.date',
+               us.`name` 'userName'
+        FROM tech_enclosure enc
+                 LEFT JOIN contract_project pro ON enc.project_id = pro.id
+                 LEFT JOIN enclosure_plan plan ON enc.enclosure_plan_id = plan.id
+                 LEFT JOIN sys_user us ON enc.user_id = us.id
+        WHERE enc.bool_delete_enum = 0
+        <if test="category != null">
+            and enc.category &amp; #{category}>1
+        </if>
+        <if test="status != null and status==1 ">
+            and enc.produced_quantity =0
+        </if>
+          <if test="status != null and status==2 ">
+            and enc.produced_quantity >0
+            and enc.quantity>enc.produced_quantity
+        </if>
+        <if test="status != null and status==4 ">
+            and enc.quantity=enc.produced_quantity
+        </if>
+        <if test="planIds != null and planIds.size()>0">
+            AND enc.enclosure_plan_id IN
+            <foreach collection="planIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="getproductDetaileV2"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.enclosure.EnclosureProductDetailDTO">
+        SELECT enc.*,
+        pro.id 'project.id',
+        pro.`name` 'project.name',
+        pro.short_name 'project.shortName',
+        pro.serial_number 'shortName.serialNumber',
+        mon.id 'monomer.id',
+        mon.`name` 'monomer.name',
+        area.id 'area.id',
+        area.`name`'area.name',
+        us.`name` 'userName'
+        FROM tech_enclosure enc
+        LEFT JOIN contract_project pro ON enc.project_id = pro.id
+        LEFT join plan_monomer mon on enc.monomer_id = mon.id
+        left join plan_area area on enc.area_id = area.id
+        LEFT JOIN sys_user us ON enc.user_id = us.id
+        WHERE enc.bool_delete_enum = 0
+        <if test="dictionaryId != null">
+            and enc.dictionary_id = #{dictionaryId}
+        </if>
+        <if test="status != null and status==1 ">
+            and enc.produced_quantity =0
+        </if>
+        <if test="status != null and status==2 ">
+            and enc.produced_quantity >0
+            and enc.quantity > enc.produced_quantity
+        </if>
+        <if test="status != null and status==4 ">
+            and enc.quantity=enc.produced_quantity
+        </if>
+        <if test="areaIds != null and areaIds.size()>0">
+            AND enc.area_id IN
+            <foreach collection="areaIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+    <select id="findFreezeStatusByOrder"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosureFreezeOrNotDTO">
+        select
+            enclo.id,
+            task.id 'taskId',
+            orde.id 'taskOrderId',
+            enclo.bool_status_enum
+            from mes_enclosure_task_order orde left join
+        mes_enclosure_task task on task.task_order_id = orde.id
+        left join tech_enclosure enclo on task.product_id = enclo.id and task.dictionary_id = enclo.dictionary_id
+        <where>
+            task.bool_delete_enum = 0
+            and enclo.bool_delete_enum = 0
+            <if test="orderIds != null">
+                and orde.id in
+                <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+        </where>
+        order by enclo.id ASC
+    </select>
+
+    <resultMap id="ProjectSchedulingDetailDO"
+               type="com.hzchum.scim.plan.core.api.pojo._do.ProjectSchedulingTreeDO">
+        <id column="project_id" property="id"/>
+        <result column="project_short_name" property="shortName"/>
+        <result column="project_serial_number" property="serialNumber"/>
+        <collection property="monomerSchedulingTreeDO"
+                    ofType="com.hzchum.scim.plan.core.api.pojo._do.MonomerSchedulingTreeDO">
+            <result column="monomer_id" property="id"/>
+            <result column="monomer_name" property="name"/>
+            <collection property="areaSchedulingTreeDO"
+                        ofType="com.hzchum.scim.plan.core.api.pojo._do.AreaSchedulingTreeDO">
+                <result column="area_id" property="id"/>
+                <result column="area_name" property="name"/>
+                <result column="status" property="status"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getSchedulingTree" resultMap="ProjectSchedulingDetailDO">
+        SELECT
+            cp.id project_id,
+            cp.short_name project_short_name,
+            cp.serial_number project_serial_number,
+            pm.id monomer_id,
+            pm.`name` monomer_name,
+            pa.id area_id,
+            pa.`name` area_name,
+        case when en.scheduling_quantity = 0 then 1
+        when en.scheduling_quantity > 0 and en.scheduling_quantity &lt; en.quantity then 2
+        else 4
+        end status
+        FROM
+            tech_enclosure en
+                LEFT JOIN contract_project cp ON en.project_id = cp.id
+                AND en.bool_delete_enum = 0
+                LEFT JOIN plan_monomer pm ON en.monomer_id = pm.id
+                AND pm.bool_delete_enum = 0
+                LEFT JOIN plan_area pa ON en.area_id = pa.id
+                AND pa.bool_delete_enum = 0
+        WHERE
+            en.bool_delete_enum = 0
+            and pa.type = 0
+          AND en.bool_status_enum = 1
+          AND DATE_FORMAT( cp.create_time, '%Y') = #{year}
+            <if test="name != null">
+                and (cp.short_name like concat('%',#{name},'%') or cp.name like concat('%',#{name},'%'))
+            </if>
+          and en.scheduling_quantity + en.subscribe_quantity &lt; en.quantity
+    </select>
+
+    <select id="getEnclosure" resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        select
+        a.*
+        from
+        (
+        select
+        a.id,
+        a.`name`,
+        a.plate specification,
+        a.serial_number,
+        a.create_time,
+        c.id 'project.id',
+        c.name 'project.name',
+        c.serial_number 'project.serial_number',
+        c.short_name 'project.short_name',
+        d.id 'monomer.id',
+        d.name 'monomer.name',
+        e.id 'area.id',
+        e.name 'area.name'
+        from
+        tech_enclosure a
+        left join mes_enclosure_produce_team_report b on a.id = b.product_id
+        left join contract_project c on a.project_id = c.id
+        left join plan_monomer d on a.monomer_id = d.id
+        left join plan_area e on a.area_id = e.id
+        where
+        a.bool_delete_enum = 0
+        and b.bool_delete_enum = 0
+        and a.serial_number like concat( '%', #{serialNumber}, '%' )
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+        group by
+        a.id,
+        c.id,
+        d.id,
+        e.id,
+        a.serial_number,
+        a.plate
+        ) a
+        order by
+        a.create_time desc
+    </select>
+</mapper>

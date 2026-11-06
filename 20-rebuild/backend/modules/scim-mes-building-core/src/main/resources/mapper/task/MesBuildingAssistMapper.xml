@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingAssistMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssist">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="team_id" property="teamId" />
+        <result column="task_id" property="taskId" />
+        <result column="process_id" property="processId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, team_id, task_id, process_id, user_id
+    </sql>
+    <select id="listUserLinkAssIst"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssist">
+        SELECT
+        distinct assist.*
+        FROM
+        mes_building_assist assist
+        left join mes_building_task_process process on assist.task_process_id=process.id
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = process.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        WHERE
+        assist.bool_delete_enum = 0
+        <if test="links!=null and links.size() != 0">
+            and
+            <foreach collection="links" item="link" separator="or" open="(" close=")">
+                ( assist.groups_id= #{link.groupId}
+                and assist.process_id in
+                <foreach collection="link.processIds" item="processId" separator="," open="(" close=")">
+                    #{processId}
+                </foreach>
+                )
+            </foreach>
+        </if>
+        <if test="taskId!=null">
+            and process.task_id=#{taskId}
+        </if>
+    </select>
+    <select id="listAssistByTaskIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingTaskAssistDTO">
+        SELECT
+        process.task_id 'taskId',
+        assist.id 'assistId',
+        assist.task_process_id 'taskProcessId',
+        assist.groups_id 'groupsId',
+        assist.quantity 'quantity',
+        assist.produce_quantity 'produceQuantity'
+        FROM
+        mes_building_assist assist
+        LEFT JOIN mes_building_task_process process ON process.id = assist.task_process_id
+        AND process.bool_delete_enum = 0
+        WHERE
+        assist.bool_delete_enum = 0
+        <if test="taskIds.size()!=0">
+            AND process.task_id IN
+            <foreach collection="taskIds" item="id" separator="," close=")" open="(">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+    <select id="findProcessReportProjectList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.topTaskOrder.MesBuildingAssistProjectDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.serial_number 'project.serialNumber',
+        cp.NAME 'project.name',
+        cp.short_name 'project.short_name',
+        assist.process_id,
+        IFNULL(sum(assist.quantity),0) as 'quantity',
+        IFNULL(sum(assist.produce_quantity),0) produceQuantity
+        FROM
+        mes_building_assist assist
+        LEFT JOIN mes_building_task_process pro ON assist.task_process_id = pro.id
+#         LEFT JOIN(select task_process_id,sum(inspection_quantity) inspection_quantity
+#          from mes_building_produce_team_report where bool_delete_enum = 0 GROUP BY task_process_id ) report
+#             ON pro.id = report.task_process_id
+        LEFT JOIN mes_building_groups_team_link link ON assist.groups_id = link.groups_id
+        LEFT JOIN mes_building_team_user_link teamlink ON link.team_id = teamlink.team_id
+        LEFT JOIN mes_building_team team ON teamlink.team_id = team.id
+        AND team.process_id = pro.process_id
+        LEFT JOIN contract_project cp ON pro.project_id = cp.id
+        WHERE
+        pro.bool_delete_enum = 0
+        AND link.bool_delete_enum = 0
+        AND teamlink.bool_delete_enum = 0
+        AND team.bool_delete_enum = 0
+        and pro.process_id = #{processId}
+        and teamlink.user_id = #{userId}
+        and assist.quantity != assist.produce_quantity
+        <if test="projectName != null">
+            AND cp.short_name like concat('%',#{projectName},'%') or AND cp.name like concat('%',#{projectName},'%')
+        </if>
+        GROUP BY
+        cp.id,
+        cp.serial_number,
+        cp.NAME,
+        cp.short_name,
+        assist.process_id
+    </select>
+    <select id="findAssistCorrelationOrder"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.AppTaskOrderSummaryDTO">
+        select
+        orde.id as 'id',
+        orde.order_number,
+        pro.ask_complete_time,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        ass.groups_id 'assistGroupId',
+        IFNULL(sum(ass.quantity), 0) quantity,
+        IFNULL(sum(ass.produce_quantity), 0) completeQuantity
+        from mes_building_assist ass
+        left join mes_building_task_process pro on ass.task_process_id = pro.id
+        left join mes_building_task_order orde on pro.task_order_id = orde.id
+        left join contract_project cp on pro.project_id = cp.id
+        <where>
+            ass.quantity != ass.produce_quantity
+            <if test="processId != null">
+                and ass.process_id = #{processId}
+            </if>
+            <if test="groupsId != null and groupsId.size > 0">
+                and ass.groups_id in
+                <foreach collection="groupsId" item="groupId" separator="," open="(" close=")">
+                    #{groupId}
+                </foreach>
+            </if>
+        </where>
+        group by
+        orde.id,
+        orde.order_number,
+        pro.ask_complete_time,
+        cp.id ,
+        cp.`name`,
+        cp.short_name,
+        cp.serial_number,
+        ass.groups_id
+    </select>
+    <select id="findAssistByUserIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.topTaskOrder.MesBuildingAssistOrderDTO">
+        select
+            ass.id,
+        ass.task_process_id,
+        ass.groups_id,
+        ass.production_line_id,
+        sum(ass.quantity) quantity,
+        sum(ass.produce_quantity) produceQuantity,
+        ass.process_id,
+        pro.project_id
+        from  mes_building_assist ass
+        left join mes_building_task_process pro on ass.task_process_id = pro.id
+        left join mes_building_team team on ass.team_id = team.id and pro.process_id = team.process_id
+        left join mes_building_team_user_link tulink on team.id = tulink.team_id
+        where ass.bool_delete_enum = 0 and pro.bool_delete_enum = 0
+        and tulink.bool_delete_enum = 0
+        and tulink.user_id = #{userId}
+        and ass.quantity != ass.produce_quantity
+        <if test="processId != null">
+            and ass.process_id = #{processId}
+        </if>
+        GROUP BY
+        ass.id,
+        ass.task_process_id,
+        ass.groups_id,
+        ass.quantity,
+        ass.process_id,
+        pro.project_id
+    </select>
+    <select id="listUserLinkAssIst2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssist">
+        SELECT
+        distinct assist.*
+        FROM
+        mes_building_assist assist
+        left join mes_building_task_process process on assist.task_process_id=process.id
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = process.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        WHERE
+        assist.bool_delete_enum = 0
+        <if test="lineProcessLinks!=null and lineProcessLinks.size() != 0">
+            and
+            <foreach collection="lineProcessLinks" item="lineProcessLink" separator="or" open="(" close=")">
+                ( assist.production_line_id= #{lineProcessLink.lineId} and assist.team_id= #{lineProcessLink.teamId}
+                and assist.process_id in
+                <foreach collection="lineProcessLink.processIds" item="processId" separator="," open="(" close=")">
+                    #{processId}
+                </foreach>
+                )
+            </foreach>
+        </if>
+        <if test="taskId!=null">
+            and process.task_id=#{taskId}
+        </if>
+    </select>
+
+    <select id="findAssistCorrelationOrderV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.AppTaskOrderSummaryDTO">
+        select
+        orde.id as 'id',
+        orde.order_number,
+        pro.ask_complete_time,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        ass.production_line_id 'assistGroupId',
+        ass.production_line_id 'assistLineId',
+        COUNT(distinct detail.number) AS quantity,
+        IFNULL(sum(ass.produce_quantity), 0) completeQuantity
+        from mes_building_assist ass
+        left join mes_building_task_process pro on ass.task_process_id = pro.id
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = pro.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        left join mes_building_task_order orde on pro.task_order_id = orde.id
+        left join contract_project cp on pro.project_id = cp.id
+        <where>
+            ass.quantity != ass.produce_quantity
+            and pro.task_type_enum = #{taskTypeEnum}
+            <if test="processId != null">
+                and ass.process_id = #{processId}
+            </if>
+            <if test="producLineIds != null and producLineIds.size > 0">
+                and ass.production_line_id in
+                <foreach collection="producLineIds" item="producLineId" separator="," open="(" close=")">
+                    #{producLineId}
+                </foreach>
+            </if>
+            <if test="projectIds != null and projectIds.size > 0">
+                and cp.id in
+                <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+        </where>
+        group by
+        orde.id,
+        orde.order_number,
+        pro.ask_complete_time,
+        cp.id ,
+        cp.`name`,
+        cp.short_name,
+        cp.serial_number,
+        ass.production_line_id
+    </select>
+
+    <select id="findProcessReportProjectListAV2"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.topTaskOrder.MesBuildingAssistProjectDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.serial_number 'project.serialNumber',
+        cp.NAME 'project.name',
+        cp.short_name 'project.short_name',
+        assist.process_id,
+        COUNT(distinct detail.number) AS quantity,
+        IFNULL(sum(assist.produce_quantity),0) produceQuantity
+        FROM
+        mes_building_assist assist
+        LEFT JOIN mes_building_task_process pro ON assist.task_process_id = pro.id
+        LEFT JOIN mes_building_assist_number_detail detail on detail.task_process_id = pro.id and detail.bool_delete_enum =0 and detail.bool_finish_enum =0 and detail.assist_id = assist.id
+        <if test="taskTypeEnum != null and taskTypeEnum == 2">
+            INNER JOIN mes_building_task_number_link link ON link.artifact_task_process_id = detail.task_process_id and link.bool_artifact_report = false and link.bool_delete_enum = 0
+            and link.artifact_number = detail.number
+        </if>
+        <if test="taskTypeEnum != null and (taskTypeEnum == 16 or taskTypeEnum == 48)">
+            INNER JOIN mes_building_task_number_link link ON link.assemble_task_process_id = detail.task_process_id and link.bool_assemble_report = false and link.bool_delete_enum = 0
+            and link.assemble_number = detail.number
+        </if>
+        LEFT JOIN mes_building_team team ON assist.team_id = team.id
+        AND team.process_id = pro.process_id
+        LEFT JOIN mes_building_team_user_link teamlink ON team.id = teamlink.team_id
+        LEFT JOIN contract_project cp ON pro.project_id = cp.id
+        WHERE
+        pro.bool_delete_enum = 0 and assist.bool_delete_enum =0
+        AND team.bool_delete_enum = 0
+        and pro.process_id = #{processId}
+        and pro.task_type_enum  = #{taskTypeEnum}
+        and teamlink.user_id = #{userId}
+        and assist.quantity != assist.produce_quantity
+        <if test="projectName != null">
+            AND cp.short_name like concat('%',#{projectName},'%') or AND cp.name like concat('%',#{projectName},'%')
+        </if>
+        GROUP BY
+        cp.id,
+        cp.serial_number,
+        cp.NAME,
+        cp.short_name,
+        assist.process_id
+    </select>
+
+
+
+    <select id="findAssistProcessByProductPorcess" resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingAssist">
+        select distinct assist.*
+        from mes_building_assist assist
+        LEFT JOIN mes_building_task_process process on process.id = assist.task_process_id and process.bool_delete_enum =0
+        <if test="dtoParam.productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            left join tech_artifact ta on process.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        <if test="dtoParam.productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+            left join tech_assemble  ta on process.product_id = ta.id and ta.bool_delete_enum = 0
+        </if>
+        where assist.bool_delete_enum = 0
+        <if test="dtoParam.productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            and ta.structure_class_id = #{dtoParam.typeId}
+        </if>
+        <if test="dtoParam.productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+            and ta.assemble_config_id =#{dtoParam.typeId}
+        </if>
+        and process.task_type_enum = #{dtoParam.productType} and assist.bool_finish_enum = 0 and assist.bool_delete_enum =0
+        and assist.production_line_id = #{dtoParam.lineId}
+        and assist.process_id in
+        <foreach collection="processIds" item="processId" open="(" separator="," close=")">
+            #{processId}
+        </foreach>
+    </select>
+</mapper>

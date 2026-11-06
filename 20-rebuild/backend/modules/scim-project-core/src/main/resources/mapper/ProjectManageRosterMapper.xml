@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectManageRosterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectManageRoster">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="id_number" property="idNumber" />
+        <result column="avatar_attachment_id" property="avatarAttachmentId" />
+        <result column="sex" property="sex" />
+        <result column="age" property="age" />
+        <result column="birth_date" property="birthDate" />
+        <result column="nation" property="nation" />
+        <result column="home_address" property="homeAddress" />
+        <result column="employee_category" property="employeeCategory" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="entry_date" property="entryDate" />
+        <result column="work_type" property="workType" />
+        <result column="bool_cert" property="boolCert" />
+        <result column="cert_attachment_ids" property="certAttachmentIds" />
+        <result column="physical_examination_attachment_ids" property="physicalExaminationAttachmentIds" />
+        <result column="status" property="status" />
+        <result column="user_id" property="userId" />
+        <result column="behavior_total_score" property="behaviorTotalScore" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, id_number, avatar_attachment_id, sex, age, birth_date, nation, home_address, employee_category, supplier_id, entry_date, work_type, bool_cert, cert_attachment_ids, physical_examination_attachment_ids, status, user_id, behavior_total_score
+    </sql>
+
+    <select id="rosterList" resultType="com.hzchum.scim.project.core.api.pojo.dto.labor.ProjectManageRosterDTO">
+        SELECT
+        mr.*,
+        ss.name AS supplier_name,
+        su.phone,
+        IFNULL(t1.deducted_behavior_score, 0) AS deducted_behavior_score,
+        mr.behavior_total_score - IFNULL(t1.deducted_behavior_score, 0) AS remaining_behavior_score,
+        IFNULL(t1.penalty, 0) as cumulative_penalty,
+        su.username
+        FROM project_manage_roster mr
+        LEFT JOIN scm_supplier ss ON ss.bool_delete_enum = 0 AND ss.id = mr.supplier_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mr.user_id
+        LEFT JOIN (
+        SELECT
+        mbq.user_id,mbq.project_id,
+        SUM(
+        CASE
+        WHEN mbq.type = 1 THEN mqcc.behavior_score
+        WHEN mbq.type IN (2, 4) THEN mscc.behavior_score
+        ELSE 0
+        END
+        ) AS deducted_behavior_score,
+        SUM(
+        CASE
+        WHEN mbq.type = 1 THEN mqcc.penalty
+        WHEN mbq.type IN (2, 4) THEN mscc.penalty
+        ELSE 0
+        END
+        ) AS penalty
+        FROM project_qhse_problem mbq
+        LEFT JOIN mes_quality_class_config mqcc ON mqcc.bool_delete_enum = 0 AND mqcc.id = mbq.problem_id AND mbq.type = 1
+        LEFT JOIN mes_safety_class_config mscc ON mscc.bool_delete_enum = 0 AND mscc.id = mbq.problem_id AND mbq.type IN (2, 4)
+        WHERE mbq.bool_delete_enum = 0 AND YEAR(mbq.create_time) = YEAR(NOW())
+        and mbq.is_internal = 0
+        GROUP BY mbq.user_id,mbq.project_id
+        )as t1 on t1.user_id = mr.user_id and t1.project_id = mr.project_id
+        WHERE mr.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND mr.project_id = #{projectId}
+        </if>
+        <if test="id != null">
+            AND mr.id = #{id}
+        </if>
+        <if test="status != null">
+            AND mr.status = #{status}
+        </if>
+        <if test="nation != null">
+            AND mr.nation = #{nation}
+        </if>
+        <if test="sex != null">
+            AND mr.sex = #{sex}
+        </if>
+        <if test="name != null">
+            <bind name="nameLike" value="'%' + name + '%'"/>
+            AND mr.name LIKE #{nameLike}
+        </if>
+        <if test="idNumber != null and idNumber != ''">
+            <bind name="idNumberLike" value="'%' + idNumber + '%'"/>
+            AND mr.id_number LIKE #{idNumberLike}
+        </if>
+        <if test="phone != null and phone != ''">
+            <bind name="phoneLike" value="'%' + phone + '%'"/>
+            AND su.phone LIKE #{phoneLike}
+        </if>
+        <if test="supplierId != null">
+            AND mr.supplier_id = #{supplierId}
+        </if>
+        <if test="userId != null">
+            AND mr.user_id = #{userId}
+        </if>
+    </select>
+
+</mapper>

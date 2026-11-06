@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.SubBusinessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.SubBusiness">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="name" property="name"/>
+        <result column="material" property="material"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="total_weight" property="totalMete"/>
+        <result column="unit_price" property="unitPrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, name, material, total_quantity, total_weight, unit_price
+    </sql>
+    <select id="listByCondition" resultType="com.hzchum.scim.project.core.api.pojo.dao.SubBusinessDO">
+        select s.*,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.contract_no',
+        d.id 'area.id',
+        d.name 'area.name'
+        from project_sub_business s
+        inner join contract_project p on p.id = s.project_id
+        inner join plan_area d on d.id = s.area_id
+        <where>
+            <if test="projectId != null">
+                and s.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and s.monomer_id = #{monomerId}
+            </if>
+            <if test="supplierId != null">
+                and s.supplier_id = #{supplierId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

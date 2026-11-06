@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractProjectTempMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractProjectTemp">
+        <id column="id" property="id"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="change_id" property="changeId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="address" property="address"/>
+        <result column="project_manager_id" property="projectManagerId"/>
+        <result column="business_leader_id" property="businessLeaderId"/>
+        <result column="business_leader_two_id" property="businessLeaderTwoId"/>
+        <result column="attachments" property="attachments"/>
+        <result column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+        <result column="country_id" property="countryId"/>
+        <result column="country_name" property="countryName"/>
+        <result column="contract_amount" property="contractAmount"/>
+        <result column="prepayments" property="prepayments"/>
+        <result column="management_fee_rate" property="managementFeeRate"/>
+        <result column="margin_amount" property="marginAmount"/>
+        <result column="margin_type" property="marginType"/>
+        <result column="currency_type" property="currencyType"/>
+        <result column="settlement_status" property="settlementStatus"/>
+        <result column="settlement_amount" property="settlementAmount"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="province_name" property="provinceName"/>
+        <result column="region_id" property="regionId"/>
+        <result column="region_name" property="regionName"/>
+        <result column="contract_sign_body_id" property="contractSignBodyId"/>
+        <result column="business_type" property="businessType"/>
+        <result column="project_type" property="projectType"/>
+        <result column="project_content" property="projectContent"/>
+        <result column="transport_mode" property="transportMode"/>
+        <result column="structure_measure_mode" property="structureMeasureMode"/>
+        <result column="enclosure_measure_mode" property="enclosureMeasureMode"/>
+        <result column="signing_address" property="signingAddress"/>
+        <result column="signing_date" property="signingDate"/>
+        <result column="signer_id" property="signerId"/>
+        <result column="is_tax" property="isTax"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="pay_type" property="payType"/>
+        <result column="pay_type_desc" property="payTypeDesc"/>
+        <result column="customer_unit" property="customerUnit"/>
+        <result column="social_code" property="socialCode"/>
+        <result column="customer_unit_phone" property="customerUnitPhone"/>
+        <result column="customer_email" property="customerEmail"/>
+        <result column="user_id" property="userId"/>
+        <result column="customer_province_id" property="customerProvinceId"/>
+        <result column="customer_province_name" property="customerProvinceName"/>
+        <result column="customer_city_id" property="customerCityId"/>
+        <result column="customer_city_name" property="customerCityName"/>
+        <result column="customer_region_id" property="customerRegionId"/>
+        <result column="customer_region_name" property="customerRegionName"/>
+        <result column="customer_country_id" property="customerCountryId"/>
+        <result column="customer_country_name" property="customerCountryName"/>
+        <result column="customer_address" property="customerAddress"/>
+        <result column="customer_bank_user_name" property="customerBankUserName"/>
+        <result column="customer_bank_code" property="customerBankCode"/>
+        <result column="customer_bank_name" property="customerBankName"/>
+        <result column="customer_manager_one" property="customerManagerOne"/>
+        <result column="customer_manager_one_phone" property="customerManagerOnePhone"/>
+        <result column="customer_manager_two" property="customerManagerTwo"/>
+        <result column="customer_manager_two_phone" property="customerManagerTwoPhone"/>
+        <result column="relation_user_ids" property="relationUserIds"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time,
+        create_time,
+        bool_delete_enum,
+        version,
+        transport_mode,
+        structure_measure_mode,
+        enclosure_measure_mode,
+        id, project_id, serial_number, name, short_name, start_date, end_date, address, project_manager_id, business_leader_id, business_leader_two_id, attachments,
+        city_id, city_name, country_id, country_name, contract_amount, prepayments, management_fee_rate, margin_amount, margin_type, currency_type,
+        settlement_status, settlement_amount, province_id, province_name, region_id, region_name, contract_sign_body_id, business_type, project_type, project_content,
+        signing_address, signing_date, signer_id, is_tax, invoice_type, pay_type, pay_type_desc, customer_unit, social_code, customer_unit_phone, customer_email,
+        user_id, customer_province_id, customer_province_name, customer_city_id, customer_city_name, customer_region_id, customer_region_name, customer_country_id,
+        customer_country_name, customer_address, customer_bank_user_name, customer_bank_code, customer_bank_name, customer_manager_one, customer_manager_one_phone,
+        customer_manager_two, customer_manager_two_phone,relation_user_ids
+    </sql>
+
+</mapper>

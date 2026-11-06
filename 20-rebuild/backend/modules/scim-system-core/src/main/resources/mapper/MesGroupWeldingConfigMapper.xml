@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesGroupWeldingConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesGroupWeldingConfig">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="assemble_config_id" property="assembleConfigId"/>
+        <result column="process" property="process"/>
+        <result column="statistics_mode" property="statisticsMode"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, assemble_config_id, process, statistics_mode, measurement_manner
+    </sql>
+
+    <resultMap id="MesGroupWeldingConfigDTOMap" type="com.hzchum.scim.system.core.api.pojo.dto.MesGroupWeldingConfigDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="assemble_config_id" property="assembleConfigId"/>
+        <result column="process" property="process"/>
+        <result column="statistics_mode" property="statisticsMode"/>
+<!--        <result column="pricing_manner" property="pricingManner"/>-->
+        <result column="measurement_manner" property="measurementManner"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="assemble_config_name" property="assembleConfigName"/>
+        <collection property="processIdList" ofType="Long">
+            <constructor>
+                <arg column="process_id"/>
+            </constructor>
+        </collection>
+        <collection property="processNameList" ofType="String">
+            <constructor>
+                <arg column="process_name"/>
+            </constructor>
+        </collection>
+        <collection property="assembleSpecPrefixList" ofType="String">
+            <constructor>
+                <arg column="assemble_spec_prefix"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesGroupWeldingConfigDTOMap">
+        SELECT
+            mgwc.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_group_welding_config mgwc
+        LEFT JOIN sys_assemble_config sac ON sac.id = mgwc.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas
+        ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mgwc.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mgwc.process) > 0
+        WHERE mgwc.bool_delete_enum = FALSE
+    </select>
+
+    <select id="listInfo_COUNT" resultType="int">
+        SELECT
+            count(0)
+        FROM mes_group_welding_config
+        WHERE bool_delete_enum = FALSE
+    </select>
+
+    <select id="detailById" resultMap="MesGroupWeldingConfigDTOMap">
+        SELECT
+            mgwc.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_group_welding_config mgwc
+        LEFT JOIN sys_assemble_config sac ON sac.id = mgwc.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas
+        ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mgwc.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mgwc.process) > 0
+        WHERE mgwc.bool_delete_enum = FALSE AND mgwc.id = #{id}
+    </select>
+
+    <select id="listInfoByIds" resultMap="MesGroupWeldingConfigDTOMap">
+        SELECT
+            mgwc.*,
+            sac.name        AS assemble_config_name,
+            mbp.id          AS process_id,
+            mbp.name        AS process_name,
+            sas.spec_prefix AS assemble_spec_prefix
+        FROM mes_group_welding_config mgwc
+        LEFT JOIN sys_assemble_config sac ON sac.id = mgwc.assemble_config_id
+        LEFT JOIN sys_assemble_spec sas ON sas.bool_delete_enum = FALSE AND sas.assemble_config_id = mgwc.assemble_config_id
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mgwc.process) > 0
+        WHERE mgwc.bool_delete_enum = FALSE
+        <if test="idList != null and idList.size() > 0">
+            AND mgwc.id in (
+                <foreach collection="idList" item="i" separator=",">
+                    #{i}
+                </foreach>
+            )
+        </if>
+    </select>
+
+</mapper>

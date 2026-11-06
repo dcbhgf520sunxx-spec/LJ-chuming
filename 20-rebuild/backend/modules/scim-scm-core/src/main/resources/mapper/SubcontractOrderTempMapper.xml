@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.SubcontractOrderTempMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._do.SubcontractOrderTemp">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="change_type_enum" property="changeTypeEnum" />
+        <result column="order_id" property="orderId" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="project_id" property="projectId" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="subcontract_class_id" property="subcontractClassId" />
+        <result column="subcontract_class_name" property="subcontractClassName" />
+        <result column="amount" property="amount" />
+        <result column="sign_date" property="signDate" />
+        <result column="invoice_type" property="invoiceType" />
+        <result column="tax_rate" property="taxRate" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="remark" property="remark" />
+        <result column="audit_status_enum" property="auditStatusEnum" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, change_type_enum, order_id, serial_number, project_id, supplier_id, supplier_name, subcontract_class_id, subcontract_class_name, amount, sign_date, invoice_type, tax_rate, user_id, user_name, remark, audit_status_enum
+    </sql>
+
+</mapper>

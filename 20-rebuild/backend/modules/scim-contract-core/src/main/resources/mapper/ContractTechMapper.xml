@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractTechMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractTech">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="type" property="type" />
+        <result column="detail_json" property="detailJson" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, type, detail_json, user_id
+    </sql>
+
+
+    <select id="findByProjectId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosurePlanTechDto">
+        select
+            ct.id id,
+            cpc.no projectContentEnum,
+            cpc.name projectContent,
+            ct.type category,
+            case when ct.measure_mode = 1 then '米' else '平方米' end unit,
+            case when ct.measure_mode = 1 then Round(ct.quantity_work/1000,2) else Round(ct.quantity_work/1000/1000,2) end quantityWork
+        from contract_tech ct
+                 left join contract_project_content cpc on ct.type = cpc.no
+        where project_id = #{projectId} and ct.bool_delete_enum = 0 and type != 1
+    </select>
+</mapper>

@@ -1,0 +1,4010 @@
+{
+  "verified_at": "2026-10-15T11:39:16.468346+00:00",
+  "status": "final-runtime-source-reviewed-with-explicit-external-dependency-and-acceptance-boundaries",
+  "items": [
+    {
+      "id": 1,
+      "request": "GET /api/mes/building/task/process/nesting/task/list/page",
+      "records": [
+        {
+          "source": "src/modules/artifact-da890fbc.js",
+          "original_chunk": "artifact-da890fbc.js",
+          "line": 12,
+          "offset": 400,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/artifact-da890fbc.js",
+              "line": 12,
+              "offset": 400
+            }
+          ],
+          "module": "mes",
+          "method": "GET",
+          "url_expression": "\"task/process/nesting/task/list/page\"",
+          "path_pattern": "/api/mes/building/task/process/nesting/task/list/page",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1249,
+            "menu_title": "构件工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/artifact/index.vue",
+            "chain": [
+              "index-f7aa7617.js",
+              "artifact-da890fbc.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-mode-branch",
+      "trigger_analysis": "构件工单明细k初始TASK_LIST=1，打开时只重置为1，原界面无赋值2/切换入口；nesting请求仅在k!==TASK_LIST。",
+      "evidence_source": "src/views/mes/work-order-manage/artifact/module/detail.vue.js",
+      "action_and_boundary": "按当前真实可选模式关闭；不凭空新增套料Tab，不将套料协议改成普通工单。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "artifact-da890fbc.js",
+          "original_sha256": "9e8f84bb9e9e02ac57eb16d1585a277fea4cc88a52a36204c94d648bae49ba5b",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            341
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/task/process/nesting/task/list/page",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/mes/work-order-manage/artifact/module/detail.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/work-order-manage/artifact/module/detail.vue.js",
+          "sha256": "2b887a762d5487a854d62d07db8ce7fabdbb73dcbad2c4796d43af93ef279145"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 2,
+      "request": "PUT /api/plan/artifact/update",
+      "records": [
+        {
+          "source": "src/modules/artifact-tree-bcd3b733.js",
+          "original_chunk": "artifact-tree-bcd3b733.js",
+          "line": 6,
+          "offset": 192,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/artifact-tree-bcd3b733.js",
+              "line": 6,
+              "offset": 192
+            }
+          ],
+          "module": "plan",
+          "method": "PUT",
+          "url_expression": "\"artifact/update\"",
+          "path_pattern": "/api/plan/artifact/update",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1058,
+            "menu_title": "构零件清单导入",
+            "module": "计划管理",
+            "component": "plan/technical-manage/artifact-tree/index.vue",
+            "chain": [
+              "index-1815163b.js",
+              "artifact-tree-bcd3b733.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "当前构零件清单add/edit/del/download均false；实际行备注用updateRemark。",
+      "evidence_source": "src/views/plan/technical-manage/artifact-tree/index.vue.js",
+      "action_and_boundary": "保留原不可操作CRUD残留；不替换成不同业务的备注接口。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "artifact-tree-bcd3b733.js",
+          "original_sha256": "e7716022c1dd89976f51c2c256beb79d32daf62530bcbed119cf0d7b827e4045",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            165
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/plan/artifact/update",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/plan/technical-manage/artifact-tree/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/plan/technical-manage/artifact-tree/index.vue.js",
+          "sha256": "c208a06423b2dd640589a9a6721d323ee6abaf485c0cd6609d33deeb16954c3c"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 3,
+      "request": "POST /api/mes/building/tech/change/temporary",
+      "records": [
+        {
+          "source": "src/modules/artifact-tree-bcd3b733.js",
+          "original_chunk": "artifact-tree-bcd3b733.js",
+          "line": 24,
+          "offset": 1011,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/artifact-tree-bcd3b733.js",
+              "line": 24,
+              "offset": 1011
+            }
+          ],
+          "module": "mes",
+          "method": "POST",
+          "url_expression": "\"tech/change/temporary\"",
+          "path_pattern": "/api/mes/building/tech/change/temporary",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1058,
+            "menu_title": "构零件清单导入",
+            "module": "计划管理",
+            "component": "plan/technical-manage/artifact-tree/index.vue",
+            "chain": [
+              "index-1815163b.js",
+              "artifact-tree-bcd3b733.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "unselected-export",
+      "trigger_analysis": "当前菜单选定组件没有到临时变更函数d的绑定路径。",
+      "evidence_source": "src/modules/artifact-tree-bcd3b733.js",
+      "action_and_boundary": "见selected-export-route-reachability.json；不是当前菜单真实请求。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "artifact-tree-bcd3b733.js",
+          "original_sha256": "e7716022c1dd89976f51c2c256beb79d32daf62530bcbed119cf0d7b827e4045",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            872
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "POST /api/mes/building/tech/change/temporary",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/artifact-tree-bcd3b733.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/artifact-tree-bcd3b733.js",
+          "sha256": "229406dd8ce3df371808c0accb29609ae0beefac936ee6a3a5f6e6c2ef092658"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 4,
+      "request": "PUT /api/plan/assemble/updateAssemble",
+      "records": [
+        {
+          "source": "src/views/plan/technical-manage/assembly/module/header.vue.js",
+          "original_chunk": "header-8712cc58.js",
+          "line": 24,
+          "offset": 1007,
+          "editable_source_locations": [
+            {
+              "source": "src/views/plan/technical-manage/assembly/module/header.vue.js",
+              "line": 24,
+              "offset": 1007
+            }
+          ],
+          "module": "plan",
+          "method": "PUT",
+          "url_expression": "\"assemble/updateAssemble\"",
+          "path_pattern": "/api/plan/assemble/updateAssemble",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1061,
+            "menu_title": "部件清单",
+            "module": "计划管理",
+            "component": "plan/technical-manage/assembly/index.vue",
+            "chain": [
+              "index-0b3ef7a5.js",
+              "header-8712cc58.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "当前部件清单optShow.edit=false，无原edit表单入口。",
+      "evidence_source": "src/views/plan/technical-manage/assembly/index.vue.js",
+      "action_and_boundary": "不凭邻近enclosure/update制造部件编辑实现。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "header-8712cc58.js",
+          "original_sha256": "9e9ba44afa232b842aa717f8ec5e99703ad33ef722435ec36f10c24bf1d74032",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            393
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/plan/assemble/updateAssemble",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/plan/technical-manage/assembly/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/plan/technical-manage/assembly/index.vue.js",
+          "sha256": "f82bd5c63db77676765f0ab6eba77114084c5876624b082df341e2da5d94c05c"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 5,
+      "request": "PUT /api/config/classification/material/section-steel",
+      "records": [
+        {
+          "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+          "original_chunk": "header-bd6fd8d3.js",
+          "line": 45,
+          "offset": 2149,
+          "editable_source_locations": [
+            {
+              "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+              "line": 45,
+              "offset": 2149
+            }
+          ],
+          "module": "config",
+          "method": "PUT",
+          "url_expression": "\"classification/material/section-steel\"",
+          "path_pattern": "/api/config/classification/material/section-steel",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1169,
+            "menu_title": "型材库",
+            "module": "配置管理",
+            "component": "config-manage/classification-manage/section-steel-specification-config/index.vue",
+            "chain": [
+              "index-04359bc0.js",
+              "header-bd6fd8d3.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        },
+        {
+          "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+          "original_chunk": "header-bd6fd8d3.js",
+          "line": 48,
+          "offset": 2285,
+          "editable_source_locations": [
+            {
+              "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+              "line": 48,
+              "offset": 2285
+            }
+          ],
+          "module": "config",
+          "method": "PUT",
+          "url_expression": "\"classification/material/section-steel\"",
+          "path_pattern": "/api/config/classification/material/section-steel",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1169,
+            "menu_title": "型材库",
+            "module": "配置管理",
+            "component": "config-manage/classification-manage/section-steel-specification-config/index.vue",
+            "chain": [
+              "index-04359bc0.js",
+              "header-bd6fd8d3.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "型材规格当前crud只取header.get和实际specification新增；旧编辑被新规格接口替代。",
+      "evidence_source": "src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js",
+      "action_and_boundary": "保留不可触发旧classification/material/section-steel编辑。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "header-bd6fd8d3.js",
+          "original_sha256": "3e2b9d6edc4d879f07453a1e1967797f5da44c3c3c82ad5ce360d62528477968",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1188,
+            1306
+          ]
+        },
+        {
+          "original_chunk": "header-bd6fd8d3.js",
+          "original_sha256": "3e2b9d6edc4d879f07453a1e1967797f5da44c3c3c82ad5ce360d62528477968",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1188,
+            1306
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/config/classification/material/section-steel",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js",
+          "sha256": "84d62be22305fddf98e4dbcd76da672aadccfa36671ef261c6fe4b883874e62c"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 6,
+      "request": "DELETE /api/config/classification/material/section-steel",
+      "records": [
+        {
+          "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+          "original_chunk": "header-bd6fd8d3.js",
+          "line": 51,
+          "offset": 2407,
+          "editable_source_locations": [
+            {
+              "source": "src/views/config-manage/classification-manage/section-steel-specification-config/module/header.vue.js",
+              "line": 51,
+              "offset": 2407
+            }
+          ],
+          "module": "config",
+          "method": "DELETE",
+          "url_expression": "\"classification/material/section-steel\"",
+          "path_pattern": "/api/config/classification/material/section-steel",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1169,
+            "menu_title": "型材库",
+            "module": "配置管理",
+            "component": "config-manage/classification-manage/section-steel-specification-config/index.vue",
+            "chain": [
+              "index-04359bc0.js",
+              "header-bd6fd8d3.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "同一型材规格页旧crud.del无启用按钮；实际删除用独立specification接口。",
+      "evidence_source": "src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js",
+      "action_and_boundary": "不把不同实体删除混为一个接口。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "header-bd6fd8d3.js",
+          "original_sha256": "3e2b9d6edc4d879f07453a1e1967797f5da44c3c3c82ad5ce360d62528477968",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1412
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "DELETE /api/config/classification/material/section-steel",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/section-steel-specification-config/index.vue.js",
+          "sha256": "84d62be22305fddf98e4dbcd76da672aadccfa36671ef261c6fe4b883874e62c"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 7,
+      "request": "GET /api/mes/building/section_steel/nesting/<dynamic>/link",
+      "records": [
+        {
+          "source": "src/views/mes/production-manage/dashboard/artifact-dashboard/index.vue.js",
+          "original_chunk": "index-35f7613e.js",
+          "line": 46,
+          "offset": 2183,
+          "editable_source_locations": [
+            {
+              "source": "src/views/mes/production-manage/dashboard/artifact-dashboard/index.vue.js",
+              "line": 46,
+              "offset": 2183
+            }
+          ],
+          "module": "mes",
+          "method": "GET",
+          "url_expression": "`section_steel/nesting/${d}/link`",
+          "path_pattern": "/api/mes/building/section_steel/nesting/<dynamic>/link",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1262,
+            "menu_title": "结构看板",
+            "module": "MES",
+            "component": "mes/production-manage/dashboard/artifact-dashboard/index.vue",
+            "chain": [
+              "index-35f7613e.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-return-type-branch",
+      "trigger_analysis": "前端R仅productType=NESTING32调用旧link；当前看板ASSEMBLE入口由Service固定16查询，Mapper SELECT固定16 productType。",
+      "evidence_source": "src/views/mes/production-manage/dashboard/artifact-dashboard/index.vue.js",
+      "action_and_boundary": "完整Service→Mapper→前端链证明当前列表不返回32；不是因只查缺Controller推断。保留无入口旧分支。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-35f7613e.js",
+          "original_sha256": "e548916285093f9d2ec4c31dfcaf208b8c2f7bb0a72d1cbb6c274165e86bf8db",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1027
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/section_steel/nesting/<dynamic>/link",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskServiceImpl.java",
+        "20-rebuild/backend/modules/scim-mes-building-core/src/main/resources/mapper/task/MesBuildingTaskMapper.xml",
+        "20-rebuild/frontend-recovered/src/views/mes/production-manage/dashboard/artifact-dashboard/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/service/impl/task/MesBuildingTaskServiceImpl.java",
+          "sha256": "e29ac0438ceaa1bc8ac5cb27feca61f910e5bf35fb4dba9296c543ba1df482cb"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-mes-building-core/src/main/resources/mapper/task/MesBuildingTaskMapper.xml",
+          "sha256": "91c6e93265f21b45991901113102b300418e1d48d0f4fe8edefc9c9472adc794"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/production-manage/dashboard/artifact-dashboard/index.vue.js",
+          "sha256": "869432bf9a1b7c0635ec49d904888f19aac7f1b5ef4520904f35d64987574ffa"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 8,
+      "request": "POST /api/scm/LumpSumSystem-purchase-order/createPurchase",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 1812,
+          "offset": 144352,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/016.fragment.js",
+              "line": 48,
+              "offset": 1852
+            }
+          ],
+          "module": "scm",
+          "method": "POST",
+          "url_expression": "\"LumpSumSystem-purchase-order/createPurchase\"",
+          "path_pattern": "/api/scm/LumpSumSystem-purchase-order/createPurchase",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "v5",
+          "menu_witness": {
+            "menu_id": 20003,
+            "menu_title": "采购台账-内包(合营)",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-bg/index.vue",
+            "chain": [
+              "index-379f34bb.js",
+              "shared:_ot",
+              "shared:v5"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "overridden-legacy-crud",
+      "trigger_analysis": "当前BG采购crudApi {...Ke,add:Ge}明确覆盖旧_ot.add=v5；Ge=fw走原v2 innerSourcingSubmitReviewOrder。",
+      "evidence_source": "src/views/supply-chain/purchase-order-bg/index.vue.js",
+      "action_and_boundary": "旧LumpSum createPurchase不应重新启用。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            112561
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "POST /api/scm/LumpSumSystem-purchase-order/createPurchase",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/index.vue.js",
+          "sha256": "7aecdf335ffa385ae389b0740efcbd92cf81cc410c7be91c1a214ac276cbeaf8"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 9,
+      "request": "GET /api/scm/LumpSumSystem-purchase-order/LumpSumSystemPurchaseExcel/<dynamic>",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 1851,
+          "offset": 146193,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/016.fragment.js",
+              "line": 87,
+              "offset": 3693
+            }
+          ],
+          "module": "scm",
+          "method": "GET",
+          "url_expression": "`LumpSumSystem-purchase-order/LumpSumSystemPurchaseExcel/${e.id}`",
+          "path_pattern": "/api/scm/LumpSumSystem-purchase-order/LumpSumSystemPurchaseExcel/<dynamic>",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "I5",
+          "menu_witness": {
+            "menu_id": 20003,
+            "menu_title": "采购台账-内包(合营)",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-bg/index.vue",
+            "chain": [
+              "index-379f34bb.js",
+              "shared:PS",
+              "shared:nD",
+              "shared:I5"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "source-contract-repaired",
+      "trigger_analysis": "BG当前详情PS无条件渲染I5下载，原误用已退役LumpSum实体；现代同语义详情ks使用K5。",
+      "evidence_source": "src/shared/segments/044.fragment.js",
+      "action_and_boundary": "I5委托现K5→GET /api/v2/scm/purchase-order/PurchaseExcel/{id}。现Service按同一PurchaseOrder主键+全部PurchaseOrderDetail非分页导出、金额/单位转换/合计，绝不传现代ID给旧实体。原模板存在但旧表scm_lump_sum_system_purchase_order不在当前683表；真实工作簿QA由SCM执行。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            114177
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/v2/scm/purchase-order/PurchaseExcel/<dynamic>",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/v2/scm/purchase-order/PurchaseExcel/{id}"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.scm.PurchaseOrderControllerV2",
+          "java_method": "PurchaseExcel",
+          "pre_authorize": "@permission.check('scm_purchaseOrder_v2:download','scm_purchaseOrder_self_v2:download')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/acceptance/runtime/historical-source/recovered/com/hzchum/scim/scm/core/service/ScmLumpSumSystemPurchaseOrderServiceImpl.java",
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/scm/PurchaseOrderControllerV2.java",
+        "20-rebuild/backend/modules/scim-scm-core/src/main/java/com/hzchum/scim/scm/core/service/PurchaseOrderServiceImpl.java",
+        "20-rebuild/frontend-recovered/src/shared/segments/016.fragment.js",
+        "20-rebuild/frontend-recovered/src/shared/segments/017.fragment.js",
+        "20-rebuild/frontend-recovered/src/shared/segments/044.fragment.js",
+        "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/acceptance/runtime/historical-source/recovered/com/hzchum/scim/scm/core/service/ScmLumpSumSystemPurchaseOrderServiceImpl.java",
+          "sha256": "5d8171e9f8ab1a6aa34ffabbca8714147abdea08293dfe9fe4af58f9a399d383"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/scm/PurchaseOrderControllerV2.java",
+          "sha256": "fc082f32a875c39831bf02a1d1db8ec29d040cc81f9c0beb325290ae0ccb67e7"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-scm-core/src/main/java/com/hzchum/scim/scm/core/service/PurchaseOrderServiceImpl.java",
+          "sha256": "17f2c9a54ca95658f28c1523d8e73b0fc9576062507b43ff9b6c9210e5d80a1f"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/016.fragment.js",
+          "sha256": "7cd88f9a51bc02334d9bccfa7ea213f2650b277cf46a3cf6dbdeabda829f7120"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/017.fragment.js",
+          "sha256": "06e87e6ee566965b5ed62e53c62c0c51895a0db891fccb123e2f5f759ab3186c"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/044.fragment.js",
+          "sha256": "72f584c780603d751eafe19a3bb57dee9afc2782c0323cbe85c570bbec750b10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/index.vue.js",
+          "sha256": "7aecdf335ffa385ae389b0740efcbd92cf81cc410c7be91c1a214ac276cbeaf8"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 10,
+      "request": "PUT /api/config/classification",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 2177,
+          "offset": 157493,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/017.fragment.js",
+              "line": 266,
+              "offset": 8822
+            }
+          ],
+          "module": "config",
+          "method": "PUT",
+          "url_expression": "\"classification\"",
+          "path_pattern": "/api/config/classification",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "aL",
+          "menu_witness": {
+            "menu_id": 1166,
+            "menu_title": "科目配置",
+            "module": "配置管理",
+            "component": "config-manage/classification-manage/classification-config/index.vue",
+            "chain": [
+              "index-631cb391.js",
+              "shared:Cot",
+              "shared:aL"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "Cot.save=aL仅旧CRUD定义；分类页自定义编辑走Iot的classification/update。",
+      "evidence_source": "src/views/config-manage/classification-manage/classification-config/index.vue.js",
+      "action_and_boundary": "原get/batchAdd/del仍用有效路径，未接入失效save。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            123491
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/config/classification",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/classification-config/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/config-manage/classification-manage/classification-config/index.vue.js",
+          "sha256": "93e150dfdef4e96194f989ee6d8f40aa4380f83549f7e5458446ff05be54cea7"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 11,
+      "request": "GET /api/wms/requisitions/serial-number/<dynamic>",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 2388,
+          "offset": 165477,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/018.fragment.js",
+              "line": 116,
+              "offset": 4210
+            }
+          ],
+          "module": "wms",
+          "method": "GET",
+          "url_expression": "`requisitions/serial-number/${e}`",
+          "path_pattern": "/api/wms/requisitions/serial-number/<dynamic>",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "_w",
+          "menu_witness": {
+            "menu_id": 21007,
+            "menu_title": "入库申请",
+            "module": "WMS",
+            "component": "wms/material-purchase/material-inbound-purchase/raw-material/record/index.vue",
+            "chain": [
+              "index-6cd4b096.js",
+              "shared:r4",
+              "shared:Yle",
+              "shared:l4",
+              "shared:$ae",
+              "shared:Ar",
+              "shared:Aee",
+              "shared:x3",
+              "shared:k$",
+              "shared:_w"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-response-field-branch",
+      "trigger_analysis": "入库common-header.re仅o.requisitionsSN存在才na；实际Noe选择器→zS→config.fetchUnclosedPurchaseOrder→listBrief返回BriefPurchaseOrderDTO，仅applyPurchase，无requisitionsSN字段。",
+      "evidence_source": "src/views/wms/material-inbound/raw-material/application/components/common-header.vue.js",
+      "action_and_boundary": "完整当前数据链排除旧字段条件；当前申购关联使用applyPurchase和明细applyPurchaseId/编号，未调用已退役serial-number。不因只查URL缺失推断业务缺失。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            130288
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/wms/requisitions/serial-number/<dynamic>",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-scm-core-api/src/main/java/com/hzchum/scim/scm/core/api/pojo/dto/BriefPurchaseOrderDTO.java",
+        "20-rebuild/backend/modules/scim-scm-core/src/main/java/com/hzchum/scim/scm/core/service/PurchaseOrderServiceImpl.java",
+        "20-rebuild/frontend-recovered/src/shared/segments/023.fragment.js",
+        "20-rebuild/frontend-recovered/src/shared/segments/044.fragment.js",
+        "20-rebuild/frontend-recovered/src/shared/segments/054.fragment.js",
+        "20-rebuild/frontend-recovered/src/views/wms/material-inbound/raw-material/application/components/common-header.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-scm-core-api/src/main/java/com/hzchum/scim/scm/core/api/pojo/dto/BriefPurchaseOrderDTO.java",
+          "sha256": "75c85ffe30829ea0d041909ba2d2e9e2f90e984172eae2a9aa7c881f9b678863"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-scm-core/src/main/java/com/hzchum/scim/scm/core/service/PurchaseOrderServiceImpl.java",
+          "sha256": "17f2c9a54ca95658f28c1523d8e73b0fc9576062507b43ff9b6c9210e5d80a1f"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/023.fragment.js",
+          "sha256": "b82c11c901ce5c956f7f0e999b6944241d847701bff3594ba0d065e1b7885f6f"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/044.fragment.js",
+          "sha256": "72f584c780603d751eafe19a3bb57dee9afc2782c0323cbe85c570bbec750b10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/054.fragment.js",
+          "sha256": "1dcd5635255b4cdc48ccd21cee4cdc70b0f9c788ac94e3937f6f621cc31f9936"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-inbound/raw-material/application/components/common-header.vue.js",
+          "sha256": "d999725b23a4ba45f818cb3536e861ae0e33dddc88fdc92e5151a23067041961"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 12,
+      "request": "PUT /api/v2/wms/return/application/review/raw-materials/sourcingUpdateReturn",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 6360,
+          "offset": 2171113,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/041.fragment.js",
+              "line": 61,
+              "offset": 2675
+            }
+          ],
+          "module": null,
+          "method": "PUT",
+          "url_expression": "\"/api/v2/wms/return/application/review/raw-materials/sourcingUpdateReturn\"",
+          "path_pattern": "/api/v2/wms/return/application/review/raw-materials/sourcingUpdateReturn",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "eO",
+          "menu_witness": {
+            "menu_id": 1112,
+            "menu_title": "退库申请",
+            "module": "WMS",
+            "component": "wms/material-return/raw-material/record/index.vue",
+            "chain": [
+              "index-819e45f0.js",
+              "shared:c8",
+              "shared:rde",
+              "shared:r8",
+              "shared:$ce",
+              "shared:ls",
+              "shared:pce",
+              "shared:eO"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-type-branch",
+      "trigger_analysis": "共享退库表单只有edit且OUTSOURCE才eO；当前菜单记录页show-edit仅PRODUCE，条件相斥。",
+      "evidence_source": "src/views/wms/material-return/raw-material/record/index.vue.js",
+      "action_and_boundary": "正常生产退库编辑用Nn现有v2 record接口；不把编辑换成需审批记录的sourcingReturnApproval。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1840118
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/v2/wms/return/application/review/raw-materials/sourcingUpdateReturn",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-return/raw-material/record/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-return/raw-material/record/index.vue.js",
+          "sha256": "841cc90f5ee6731d4c7fa0a94c59832494327c92971755f620f01743c7f0e5b7"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 13,
+      "request": "PUT /api/wms/move_material/application/review/raw-materials/returned",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 8787,
+          "offset": 2453502,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/045.fragment.js",
+              "line": 703,
+              "offset": 68887
+            }
+          ],
+          "module": "wms",
+          "method": "PUT",
+          "url_expression": "\"move_material/application/review/raw-materials/returned\"",
+          "path_pattern": "/api/wms/move_material/application/review/raw-materials/returned",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "Zht",
+          "menu_witness": {
+            "menu_id": 1501,
+            "menu_title": "移库审核",
+            "module": "WMS",
+            "component": "wms/material-moving-inventory/raw-material/review/index.vue",
+            "chain": [
+              "index-19936c73.js",
+              "review-2504ec90.js",
+              "shared:Zht"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-legacy-dialog",
+      "trigger_analysis": "旧移库review.vue使用Fe；父index的k=false从未设true，真实操作走CRUD detail d8。",
+      "evidence_source": "src/views/wms/material-moving-inventory/raw-material/review/index.vue.js",
+      "action_and_boundary": "新fde.v沿用g.approveRecordId/decision/opinion→qU现有审核流，12项workflow分支测试含此证据。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2078518
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/wms/move_material/application/review/raw-materials/returned",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-moving-inventory/raw-material/review/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-moving-inventory/raw-material/review/index.vue.js",
+          "sha256": "bd4e70e545743acbe020eb7463aa49044471a018cbd1cbcd263bd55b49c23379"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 14,
+      "request": "PUT /api/wms/move_material/application/review/raw-materials/passed",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 8790,
+          "offset": 2453707,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/045.fragment.js",
+              "line": 706,
+              "offset": 69092
+            }
+          ],
+          "module": "wms",
+          "method": "PUT",
+          "url_expression": "\"move_material/application/review/raw-materials/passed\"",
+          "path_pattern": "/api/wms/move_material/application/review/raw-materials/passed",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "Jht",
+          "menu_witness": {
+            "menu_id": 1501,
+            "menu_title": "移库审核",
+            "module": "WMS",
+            "component": "wms/material-moving-inventory/raw-material/review/index.vue",
+            "chain": [
+              "index-19936c73.js",
+              "review-2504ec90.js",
+              "shared:Jht"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-legacy-dialog",
+      "trigger_analysis": "同上，旧passed对话框无打开赋值。",
+      "evidence_source": "src/views/wms/material-moving-inventory/raw-material/review/index.vue.js",
+      "action_and_boundary": "真实新审核组件在056.fde，不能新增旧passed绕审批。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2078702
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/wms/move_material/application/review/raw-materials/passed",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-moving-inventory/raw-material/review/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-moving-inventory/raw-material/review/index.vue.js",
+          "sha256": "bd4e70e545743acbe020eb7463aa49044471a018cbd1cbcd263bd55b49c23379"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 15,
+      "request": "PUT /api/wms/reject/application/review/raw-materials/returned",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 8813,
+          "offset": 2454580,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/046.fragment.js",
+              "line": 15,
+              "offset": 560
+            }
+          ],
+          "module": "wms",
+          "method": "PUT",
+          "url_expression": "\"reject/application/review/raw-materials/returned\"",
+          "path_pattern": "/api/wms/reject/application/review/raw-materials/returned",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "eft",
+          "menu_witness": {
+            "menu_id": 1123,
+            "menu_title": "退货审核",
+            "module": "WMS",
+            "component": "wms/material-reject/raw-material/review/index.vue",
+            "chain": [
+              "index-592be099.js",
+              "review-f0272cc1.js",
+              "shared:eft"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-legacy-dialog",
+      "trigger_analysis": "旧退货review.vue已挂但父v=false从未置true；实际CRUD detail为W_。",
+      "evidence_source": "src/views/wms/material-reject/raw-material/review/index.vue.js",
+      "action_and_boundary": "047.lF.N用g.approveRecordId/decision/opinion→JU现有v2审核，已执行拒绝意见/服务失败测试。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2079464
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/wms/reject/application/review/raw-materials/returned",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/review/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/review/index.vue.js",
+          "sha256": "8b2aa482eca49faac6144f22258723fe1a0f08d24d3f6d8215ac25452f1d3df4"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 16,
+      "request": "PUT /api/v2/wms/reject/application/review/raw-materials/passed",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 8816,
+          "offset": 2454778,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/046.fragment.js",
+              "line": 18,
+              "offset": 758
+            }
+          ],
+          "module": null,
+          "method": "PUT",
+          "url_expression": "\"/api/v2/wms/reject/application/review/raw-materials/passed\"",
+          "path_pattern": "/api/v2/wms/reject/application/review/raw-materials/passed",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "tft",
+          "menu_witness": {
+            "menu_id": 1123,
+            "menu_title": "退货审核",
+            "module": "WMS",
+            "component": "wms/material-reject/raw-material/review/index.vue",
+            "chain": [
+              "index-592be099.js",
+              "review-f0272cc1.js",
+              "shared:tft"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-legacy-dialog",
+      "trigger_analysis": "同上，旧passed方法只能从从未打开的旧对话框执行。",
+      "evidence_source": "src/views/wms/material-reject/raw-material/review/index.vue.js",
+      "action_and_boundary": "不新增旧端点。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2079641
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/v2/wms/reject/application/review/raw-materials/passed",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/review/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/review/index.vue.js",
+          "sha256": "8b2aa482eca49faac6144f22258723fe1a0f08d24d3f6d8215ac25452f1d3df4"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 17,
+      "request": "GET /api/wms/nesting-docking/countLength",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 32525,
+          "offset": 5031902,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/059.fragment.js",
+              "line": 2,
+              "offset": 27
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/wms/nesting-docking/countLength\"",
+          "path_pattern": "/api/wms/nesting-docking/countLength",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "Cyt",
+          "menu_witness": {
+            "menu_id": 1100017,
+            "menu_title": "型材排产",
+            "module": "MES",
+            "component": "mes/scheduling-manage/section-machine-part/index.vue",
+            "chain": [
+              "index-830cd4ca.js",
+              "stock-2f9128d5.js",
+              "shared:Cyt"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "backend-original-service-reconnected",
+      "trigger_analysis": "型材零件排产库存抽屉真实读取总长度；当前MaterialInventoryService.getCountLength及Impl原方法完整保留，全量sum(length*quantity)。",
+      "evidence_source": "src/views/mes/scheduling-manage/section-machine-part/module/stock.vue.js",
+      "action_and_boundary": "纠正先前仅搜countLength遗漏get前缀的结论；backend补原Controller连接既有服务，不用重量或当前分页代替全量长度。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            4192569
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/wms/nesting-docking/countLength",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/wms/nesting-docking/countLength"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.wms.wmsUse.NestingDockingController",
+          "java_method": "countLength",
+          "pre_authorize": "@permission.check('mes_scheduling_section_machine_part:noNestingSave')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/NestingDockingController.java",
+        "20-rebuild/backend/modules/scim-wms-core-api/src/main/java/com/hzchum/scim/wms/core/api/service/wmsUse/MaterialInventoryService.java",
+        "20-rebuild/backend/modules/scim-wms-core/src/main/java/com/hzchum/scim/wms/core/service/impl/wmsUse/MaterialInventoryServiceImpl.java",
+        "20-rebuild/frontend-recovered/src/views/mes/scheduling-manage/section-machine-part/module/stock.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/NestingDockingController.java",
+          "sha256": "6d0e3472324c6022a86f0b54e6d098d71737df50543d8d71a429f151f08257df"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-wms-core-api/src/main/java/com/hzchum/scim/wms/core/api/service/wmsUse/MaterialInventoryService.java",
+          "sha256": "120c1fc5da9ec69bf6cd449335c9ddd8f9fbcfa32591cbe297c50092c4c5c7ac"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-wms-core/src/main/java/com/hzchum/scim/wms/core/service/impl/wmsUse/MaterialInventoryServiceImpl.java",
+          "sha256": "a974961ff6fea018ecaad960cb0a6deda479d482cb0b587c8757f476562baa53"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/scheduling-manage/section-machine-part/module/stock.vue.js",
+          "sha256": "b9545b5c29e72ae88ffe2148e865f966c9ab360fa3643db4851f9b6ab5a5ca88"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 18,
+      "request": "GET /",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 34935,
+          "offset": 6276825,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/062.fragment.js",
+              "line": 71,
+              "offset": 2588
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"\"",
+          "path_pattern": "/",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "tTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:tTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        },
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35038,
+          "offset": 6281536,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 23,
+              "offset": 1419
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 26,
+              "offset": 1518
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 29,
+              "offset": 1617
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"\"",
+          "path_pattern": "/",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "kTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:kTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        },
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35041,
+          "offset": 6281635,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 23,
+              "offset": 1419
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 26,
+              "offset": 1518
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 29,
+              "offset": 1617
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"\"",
+          "path_pattern": "/",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "DTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:DTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        },
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35044,
+          "offset": 6281734,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 23,
+              "offset": 1419
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 26,
+              "offset": 1518
+            },
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 29,
+              "offset": 1617
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"\"",
+          "path_pattern": "/",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "xTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:xTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "unwired-unselected-print-catalog",
+      "trigger_analysis": "四空URL handler最终key为projectManagementFee/innerCostMaterials/innerCostOther/innerCostManage；AST全views/modules及shared inline api-key无该按钮绑定。",
+      "evidence_source": "src/shared/segments/062.fragment.js",
+      "action_and_boundary": "原未提供数据的catalog保留，未对当前363补造报表。若以后启用必须显式补数据源或明确不可用；当前不发GET根页面。完整别名/字面调用见print-route-bindings.json。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5388668,
+            5392810,
+            5392891,
+            5392972
+          ]
+        },
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5388668,
+            5392810,
+            5392891,
+            5392972
+          ]
+        },
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5388668,
+            5392810,
+            5392891,
+            5392972
+          ]
+        },
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5388668,
+            5392810,
+            5392891,
+            5392972
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/shared/segments/062.fragment.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/062.fragment.js",
+          "sha256": "c556cc29941454b1f607445b72dcf0e74d0f4b3a1398e30e79b9dd65d50ab280"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 19,
+      "request": "GET /api/contract/Injection/getInjectionDetailDownload/<dynamic>",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 34989,
+          "offset": 6278901,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/062.fragment.js",
+              "line": 125,
+              "offset": 4664
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "`/api/contract/Injection/getInjectionDetailDownload/${e.projectId}`",
+          "path_pattern": "/api/contract/Injection/getInjectionDetailDownload/<dynamic>",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "TTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:TTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "source-contract-repaired",
+      "trigger_analysis": "AssetInjectionController原GET /getInjectionDetailDownload/{projectId}/{supplierId}要求第二路径段；原前端误放query。",
+      "evidence_source": "src/shared/segments/062.fragment.js",
+      "action_and_boundary": "TTe已补supplierId路径段，实际函数参数捕获测试通过；未伪造报表内容。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5390485
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/contract/Injection/getInjectionDetailDownload/<dynamic>/<dynamic>",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/contract/Injection/getInjectionDetailDownload/{projectId}/{supplierId}"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.contract.finance.AssetInjectionController",
+          "java_method": "getInjectionDetailDownload",
+          "pre_authorize": null,
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/finance/AssetInjectionController.java",
+        "20-rebuild/frontend-recovered/src/shared/segments/062.fragment.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/finance/AssetInjectionController.java",
+          "sha256": "20134902174b0145d1d7de30e7ad6ea2150f4ea0eaada8a36bd6b284b4d46f62"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/shared/segments/062.fragment.js",
+          "sha256": "c556cc29941454b1f607445b72dcf0e74d0f4b3a1398e30e79b9dd65d50ab280"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 20,
+      "request": "GET /api/project/v2/<dynamic>/collectionAndInvoiceDetailDownload",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35032,
+          "offset": 6281330,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/063.fragment.js",
+              "line": 17,
+              "offset": 1213
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "`/api/project/v2/${e}/collectionAndInvoiceDetailDownload`",
+          "path_pattern": "/api/project/v2/<dynamic>/collectionAndInvoiceDetailDownload",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "PTe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:hRe",
+              "shared:yt",
+              "shared:PTe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-dynamic-component",
+      "trigger_analysis": "WNe.selfCollectionAndInvoiceInfo→PTe只在3个旧fund-account；当前闭包仅second-unit/self-healing，但父按钮全部g(record)，未选择fundAccount。",
+      "evidence_source": "src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js",
+      "action_and_boundary": "与#46同一未打开分支，不能把目录存在当当前能点击。全alias→组件绑定见print-route-bindings.json，不接不同财务下载。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5392628
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/project/v2/<dynamic>/collectionAndInvoiceDetailDownload",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js",
+          "sha256": "c1875cad7f840fb088a1f6a7d1907461509ab96ba1ff3c067160c56f19052e36"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 21,
+      "request": "GET /api/mes/building/wages/reckon/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35326,
+          "offset": 6297093,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/065.fragment.js",
+              "line": 11,
+              "offset": 409
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/wages/reckon/print\"",
+          "path_pattern": "/api/mes/building/wages/reckon/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "V2e",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:V2e"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "outside-current-menu-print",
+      "trigger_analysis": "WNe.mesStructureTeamWage/mesEnclosureTeamWage→V2e；真实动态key只由旧team-report/components/team-wage/header返回，chunk不在当前363菜单import闭包。",
+      "evidence_source": "src/views/mes/team-report/components/team-wage/header.vue.js",
+      "action_and_boundary": "当前新班组报表为group-team-report，不能将旧工资核算接口视为当前按钮缺口。别名AST及字面见print-route-bindings.json。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5406672
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/wages/reckon/print",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/mes/team-report/components/team-wage/header.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/team-report/components/team-wage/header.vue.js",
+          "sha256": "304b06a359b0bc2293fdeb7b6d5d69fe987d2c9e8340027364da8bcf83e6b6dd"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 22,
+      "request": "GET /api/mes/building/wages/reckon/details/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35329,
+          "offset": 6297200,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/065.fragment.js",
+              "line": 14,
+              "offset": 516
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/wages/reckon/details/print\"",
+          "path_pattern": "/api/mes/building/wages/reckon/details/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "w2e",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:w2e"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "outside-current-menu-print",
+      "trigger_analysis": "WNe.mesStructureTeamWageDetail/mesEnclosureTeamWageDetail→w2e只在旧team-wage/detail，原chunk不在当前菜单闭包。",
+      "evidence_source": "src/views/mes/team-report/components/team-wage/detail.vue.js",
+      "action_and_boundary": "保留旧页扩展边界，不把全局catalog引用当当前请求。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5406765
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/wages/reckon/details/print",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/mes/team-report/components/team-wage/detail.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/team-report/components/team-wage/detail.vue.js",
+          "sha256": "cb75203ac84c377fbc98af8960cd4ce0949a94233cc4c53883695f6d8823a611"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 23,
+      "request": "GET /api/mes/building/scheduling/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35350,
+          "offset": 6298108,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/065.fragment.js",
+              "line": 35,
+              "offset": 1424
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/scheduling/print\"",
+          "path_pattern": "/api/mes/building/scheduling/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "L2e",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:L2e"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "unselected-print-api-key",
+      "trigger_analysis": "L2e经mt.schedulingDetail→WNe.mesSchedulingDetail；全业务文件和inline api-key无此最终key，当前计划详情schedulingDetailPrint为另一有效API。",
+      "evidence_source": "src/views/plan/project-execution-dynamics/detail/scheduling-detail.vue.js",
+      "action_and_boundary": "未改当前有效计划打印；原catalog名相似不证明业务请求。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5407575
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/scheduling/print",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/plan/project-execution-dynamics/detail/scheduling-detail.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/plan/project-execution-dynamics/detail/scheduling-detail.vue.js",
+          "sha256": "53ecaab0e2e11a2259c1093f9a6edac85d36f4a476e798f649bcb386fffb5275"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 24,
+      "request": "GET /api/mes/building/task/process/nesting/task/list/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35362,
+          "offset": 6298591,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/065.fragment.js",
+              "line": 47,
+              "offset": 1907
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/task/process/nesting/task/list/print\"",
+          "path_pattern": "/api/mes/building/task/process/nesting/task/list/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "O2e",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:O2e"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "inactive-mode-print-branch",
+      "trigger_analysis": "O2e套料工单打印只由#1同一k!==TASK_LIST条件引用；当前k始终1，无切换入口。",
+      "evidence_source": "src/views/mes/work-order-manage/artifact/module/detail.vue.js",
+      "action_and_boundary": "原通用catalog不是当前实际操作；不将普通工单打印冒充套料。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5408002
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/task/process/nesting/task/list/print",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/mes/work-order-manage/artifact/module/detail.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/work-order-manage/artifact/module/detail.vue.js",
+          "sha256": "2b887a762d5487a854d62d07db8ce7fabdbb73dcbad2c4796d43af93ef279145"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 25,
+      "request": "GET /api/mes/building/task/process/project/progressing/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35546,
+          "offset": 6306083,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/066.fragment.js",
+              "line": 80,
+              "offset": 3167
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/task/process/project/progressing/print\"",
+          "path_pattern": "/api/mes/building/task/process/project/progressing/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "Wbe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:Wbe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "outside-current-menu-print",
+      "trigger_analysis": "WNe.mesWipStatisticsList→Wbe只由旧mes/task-tracking/wip-statistics/header绑定；该原chunk及父index都不在当前363菜单闭包。",
+      "evidence_source": "src/views/mes/task-tracking/wip-statistics/module/header.vue.js",
+      "action_and_boundary": "当前已配置semi-finished-statistics等是不同原页面/API，不新增旧progressing打印映射。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5414639
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/task/process/project/progressing/print",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/mes/task-tracking/wip-statistics/module/header.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/task-tracking/wip-statistics/module/header.vue.js",
+          "sha256": "1c3c92541c70e4044d23f140e8432a8473bad478f7eb9fbfbf391962ecfd1dea"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 26,
+      "request": "GET /api/mes/building/production-wage-manage/yield-confirm/audited-workshop-process-team-list/print",
+      "records": [
+        {
+          "source": "src/shared/runtime.js",
+          "original_chunk": "index-50216080.js",
+          "line": 35591,
+          "offset": 6308039,
+          "editable_source_locations": [
+            {
+              "source": "src/shared/segments/066.fragment.js",
+              "line": 125,
+              "offset": 5123
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/mes/building/production-wage-manage/yield-confirm/audited-workshop-process-team-list/print\"",
+          "path_pattern": "/api/mes/building/production-wage-manage/yield-confirm/audited-workshop-process-team-list/print",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": "iVe",
+          "menu_witness": {
+            "menu_id": 9347,
+            "menu_title": "钻孔工单",
+            "module": "MES",
+            "component": "mes/work-order-manage/drill/index.vue",
+            "chain": [
+              "index-491f4c81.js",
+              "detail-1c9063dc.js",
+              "shared:WNe",
+              "shared:o6e",
+              "shared:mt",
+              "shared:iVe"
+            ]
+          },
+          "menu_scope": "shared-symbol-reachable-conservative",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "conservative-shared-symbol-chain"
+        }
+      ],
+      "status": "controlled-extra-original-service",
+      "trigger_analysis": "WNe.wagesReport→iVe只由旧production-wage-manage/wages-report/header绑定；该页及header均不在当前363菜单闭包。",
+      "evidence_source": "src/views/mes/production-wage-manage/wages-report/module/header.vue.js",
+      "action_and_boundary": "原MesYieldConfirmBizImpl.auditedWorkshopProcessTeamListPrint完整，后端按原mes_yield_confirm_audited_list:print恢复为额外受控服务；明确非363菜单必要缺口，不能声称当前菜单已点验此功能。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-50216080.js",
+          "original_sha256": "102a8e6e49d9122da81841ec406a560e56b6bf7959992e7bf42c0ed3c27c40e7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            5416385
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/production-wage-manage/yield-confirm/audited-workshop-process-team-list/print",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/mes/building/production-wage-manage/yield-confirm/audited-workshop-process-team-list/print"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.mes.building.wage_manage.MesYieldConfirmController",
+          "java_method": "auditedWorkshopProcessTeamListPrint",
+          "pre_authorize": "@permission.check('mes_yield_confirm_audited_list:print')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/wage_manage/MesYieldConfirmController.java",
+        "20-rebuild/frontend-recovered/print-route-bindings.json",
+        "20-rebuild/frontend-recovered/src/views/mes/production-wage-manage/wages-report/module/header.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/mes/building/wage_manage/MesYieldConfirmController.java",
+          "sha256": "3751e222b1d3c6675f28646015194a6f55c7ddd1f3e805e9859540f813e086f0"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/print-route-bindings.json",
+          "sha256": "89662ce8db66607f2925e0844f1d78295fde684e60309e7434825eb5fbe8fd10"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/production-wage-manage/wages-report/module/header.vue.js",
+          "sha256": "0e7c294ceb2c2184418547bb9ce290e7201299376c4691baf6feaa081a7c7507"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 27,
+      "request": "DELETE /api/wms/reject/application/record/raw-materials",
+      "records": [
+        {
+          "source": "src/views/wms/material-reject/raw-material/record/index.vue.js",
+          "original_chunk": "index-5deab9b9.js",
+          "line": 25,
+          "offset": 1122,
+          "editable_source_locations": [
+            {
+              "source": "src/views/wms/material-reject/raw-material/record/index.vue.js",
+              "line": 25,
+              "offset": 1122
+            }
+          ],
+          "module": "wms",
+          "method": "DELETE",
+          "url_expression": "\"reject/application/record/raw-materials\"",
+          "path_pattern": "/api/wms/reject/application/record/raw-materials",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1115,
+            "menu_title": "退货申请",
+            "module": "WMS",
+            "component": "wms/material-reject/raw-material/record/index.vue",
+            "chain": [
+              "index-5deab9b9.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "退货记录index中del:false且操作不暴露删除；仅CRUD定义q遗留。",
+      "evidence_source": "src/views/wms/material-reject/raw-material/record/index.vue.js",
+      "action_and_boundary": "不把删除改为撤销，业务语义不同。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "index-5deab9b9.js",
+          "original_sha256": "d48643341f8a6ad308a85db8ed710ce4e69847c6315ea4b8692e69053d639894",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            508
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "DELETE /api/wms/reject/application/record/raw-materials",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/record/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-reject/raw-material/record/index.vue.js",
+          "sha256": "8a318f64acfb0d079d6197f09f237816ef991fe5eb0b4ebcd691a0261e1dbcf5"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 28,
+      "request": "GET /api/contract/supplier-settlement/v2/get-inner",
+      "records": [
+        {
+          "source": "src/modules/invoice-entry-97d1bf05.js",
+          "original_chunk": "invoice-entry-97d1bf05.js",
+          "line": 3,
+          "offset": 72,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/invoice-entry-97d1bf05.js",
+              "line": 3,
+              "offset": 72
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/contract/supplier-settlement/v2/get-inner\"",
+          "path_pattern": "/api/contract/supplier-settlement/v2/get-inner",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 20003,
+            "menu_title": "采购台账-内包(合营)",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-bg/index.vue",
+            "chain": [
+              "index-379f34bb.js",
+              "invoice-entry-97d1bf05.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        },
+        {
+          "source": "src/modules/payment-settlement-e8e799d8.js",
+          "original_chunk": "payment-settlement-e8e799d8.js",
+          "line": 18,
+          "offset": 758,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/payment-settlement-e8e799d8.js",
+              "line": 18,
+              "offset": 758
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/contract/supplier-settlement/v2/get-inner\"",
+          "path_pattern": "/api/contract/supplier-settlement/v2/get-inner",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 20004,
+            "menu_title": "采购台账-自营",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-V2/index.vue",
+            "chain": [
+              "index-efd24d83.js",
+              "index-b15f5c10.js",
+              "index-8cb652b0.js",
+              "payment-settlement-e8e799d8.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "backend-original-service-reconnected",
+      "trigger_analysis": "BG发票/付款结算真实选择合同回显get-inner；历史Controller与当前SupplierSettlementServiceImpl.getSupplierSettlementInner(737)协议一致。",
+      "evidence_source": "src/views/supply-chain/purchase-order-bg/module/invoice-entry/header.vue.js",
+      "action_and_boundary": "纠正只查Biz漏查完整Service的结论。backend恢复原GET映射及原pay_application或invoice_entry权限，保留原分页/筛选协议，不改为getSelfEmployed。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "invoice-entry-97d1bf05.js",
+          "original_sha256": "061c0e8d2898e55f1828b2c990f8a070ece6be7c08bfde22daea8a512b5d5ce8",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            61
+          ]
+        },
+        {
+          "original_chunk": "payment-settlement-e8e799d8.js",
+          "original_sha256": "8a1f9c31ff010a68950475a1c432d5934ed23ce4c1b9fb0ba74356e2cfea92e0",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            683
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/contract/supplier-settlement/v2/get-inner",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/contract/supplier-settlement/v2/get-inner"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.contract.SupplierSettlementControllerV2",
+          "java_method": "getInner",
+          "pre_authorize": "@permission.check('scm_purchaseOrder_v2:pay_application','scm_purchaseOrder_v2:invoice_entry')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-contract-core/src/main/java/com/hzchum/scim/contract/core/service/impl/SupplierSettlementServiceImpl.java",
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/SupplierSettlementControllerV2.java",
+        "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/invoice-entry/header.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-contract-core/src/main/java/com/hzchum/scim/contract/core/service/impl/SupplierSettlementServiceImpl.java",
+          "sha256": "292a2447b473d1a9a310873ab167bf9188550eedbb4b7b4951e72d9d3548ac40"
+        },
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/SupplierSettlementControllerV2.java",
+          "sha256": "008c80d83b02841c0c935a2a15c710133f23f8ca6f7acea18f28ccc95f28cbc8"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/invoice-entry/header.vue.js",
+          "sha256": "50a8a4780f1552add2fc15c11cddbc50f7cc149db7148bd6a325b0162e9528a3"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 29,
+      "request": "GET /api/wms/nesting-docking/getNestingFreezeDetail",
+      "records": [
+        {
+          "source": "src/modules/mes-receipt-review-377f871a.js",
+          "original_chunk": "mes-receipt-review-377f871a.js",
+          "line": 24,
+          "offset": 854,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/mes-receipt-review-377f871a.js",
+              "line": 24,
+              "offset": 854
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/wms/nesting-docking/getNestingFreezeDetail\"",
+          "path_pattern": "/api/wms/nesting-docking/getNestingFreezeDetail",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 68336,
+            "menu_title": "物料领用",
+            "module": "WMS",
+            "component": "wms/mes-receipt-review/index.vue",
+            "chain": [
+              "index-1d1cb848.js",
+              "mes-receipt-review-377f871a.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "backend-original-service-reconnected",
+      "trigger_analysis": "自动领料冻结明细按钮按taskOrderId请求，原MaterialFreezeService完整但Controller漏映射。",
+      "evidence_source": "src/views/wms/mes-receipt-review/module/auto-detail.vue.js",
+      "action_and_boundary": "backend agent已补精确wms_mes_receipt_review:detail映射；前端null→[]已测试。最终4810运行映射已确认；具体冻结明细动作验收以独立后端QA报告为准。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "mes-receipt-review-377f871a.js",
+          "original_sha256": "fd458498189e097460b37c8bc7c5001a45925e5410bb702ba800b9485b2bc323",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            737
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/wms/nesting-docking/getNestingFreezeDetail",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/wms/nesting-docking/getNestingFreezeDetail"
+          ],
+          "methods": [
+            "GET"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.wms.wmsUse.NestingDockingController",
+          "java_method": "getNestingFreezeDetail",
+          "pre_authorize": "@permission.check('wms_mes_receipt_review:detail')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/NestingDockingController.java",
+        "20-rebuild/frontend-recovered/src/views/wms/mes-receipt-review/module/auto-detail.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/NestingDockingController.java",
+          "sha256": "6d0e3472324c6022a86f0b54e6d098d71737df50543d8d71a429f151f08257df"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/mes-receipt-review/module/auto-detail.vue.js",
+          "sha256": "bcc652eb02b5074efa1df6be74392c0250c2491a2f1cdae8e99027fb3c0a6a1f"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 30,
+      "request": "GET /api/model/3DModel/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 24,
+          "offset": 996,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 24,
+              "offset": 996
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"api/model/3DModel/integrate\"",
+          "path_pattern": "/api/model/3DModel/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "当前BIM菜单model-show组件showMonomerModel默认为true；项目级集成分支要求false。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "原备份没有该项目集成GET路由；现有monomer/fileId分支不能冒充projectId集成。BIM转换引擎属于独立部署依赖。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            842
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 31,
+      "request": "GET /api/model/3DModel/artifact/integrate/status",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 33,
+          "offset": 1423,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 33,
+              "offset": 1423
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/artifact/integrate/status\"",
+          "path_pattern": "/api/model/3DModel/artifact/integrate/status",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "着色状态只有showMonomerModel=false才调用getIntegrationArtifactStatus。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "true分支getArtifactStatus现有路由；不替换对象ID。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1201
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/artifact/integrate/status",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 32,
+      "request": "GET /api/model/3DModel/integrate/monomer",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 36,
+          "offset": 1577,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 36,
+              "offset": 1577
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/integrate/monomer\"",
+          "path_pattern": "/api/model/3DModel/integrate/monomer",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "集成模型项目树getIntegrateMonomer只在集成分支。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "现有project/tree按fileId，不等价projectId模型集成。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1334
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/integrate/monomer",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 33,
+      "request": "GET /api/model/3DModel/artifact/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 45,
+          "offset": 2064,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 45,
+              "offset": 2064
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/artifact/integrate\"",
+          "path_pattern": "/api/model/3DModel/artifact/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "构件信息false分支getIntegrateArtifactInfo。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "原无项目集成API，单体fileId正常分支另有接口。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1746
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/artifact/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 34,
+      "request": "GET /api/model/3DModel/artifact/element/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 51,
+          "offset": 2433,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 51,
+              "offset": 2433
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/artifact/element/integrate\"",
+          "path_pattern": "/api/model/3DModel/artifact/element/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "编号搜索false分支getIntegrateArtifactSearch。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "原无项目集成搜索，保留外部BIM依赖边界。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2061
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/artifact/element/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 35,
+      "request": "GET /api/model/3DModel/artifact/production/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 57,
+          "offset": 2789,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 57,
+              "offset": 2789
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/artifact/production/integrate\"",
+          "path_pattern": "/api/model/3DModel/artifact/production/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "构件生产信息false分支getIntegrateArtifactProduction。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "不能把projectId传给fileId端点。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2365
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/artifact/production/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 36,
+      "request": "GET /api/model/3DModel/status/details/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 63,
+          "offset": 3171,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 63,
+              "offset": 3171
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/status/details/integrate\"",
+          "path_pattern": "/api/model/3DModel/status/details/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "状态明细false分支getIntegrateStatusDetail。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "原缺集成模式Controller；正常单体模式已有。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2689
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/status/details/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 37,
+      "request": "GET /api/model/3DModel/logistics/integrate",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 69,
+          "offset": 3485,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 69,
+              "offset": 3485
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/model/3DModel/logistics/integrate\"",
+          "path_pattern": "/api/model/3DModel/logistics/integrate",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-integration-mode",
+      "trigger_analysis": "物流false分支getIntegrateLogistics。",
+      "evidence_source": "src/modules/bim-model-view-dbf77a11.js",
+      "action_and_boundary": "原缺集成模式Controller；不联网外部补取。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            2955
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/model/3DModel/logistics/integrate",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/bim-model-view-dbf77a11.js",
+          "sha256": "c42e5596d5362b2e4bcde1282b2273e41b311bce3b16299ded77ebc20f699a3a"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 38,
+      "request": "GET /api/plan/drawing/product/bim",
+      "records": [
+        {
+          "source": "src/modules/model-0ac957f7.js",
+          "original_chunk": "model-0ac957f7.js",
+          "line": 72,
+          "offset": 3652,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/model-0ac957f7.js",
+              "line": 72,
+              "offset": 3652
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/plan/drawing/product/bim\"",
+          "path_pattern": "/api/plan/drawing/product/bim",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1009,
+            "menu_title": "模型展示",
+            "module": "BIM",
+            "component": "bim/model-show/index.vue",
+            "chain": [
+              "index-ad072af4.js",
+              "model-0ac957f7.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "conditional-original-bim-gap",
+      "trigger_analysis": "图纸预览只有boolBim真才调用Ne(productId,productType)获取转换状态/viewToken。",
+      "evidence_source": "src/modules/drawing-preview-fullscreen-dialog-60155503.js",
+      "action_and_boundary": "当前恢复的37模块无product/bim映射；普通下载附件不能生成BIM viewToken。外部转换引擎缺失必须明确。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "model-0ac957f7.js",
+          "original_sha256": "85c8b7ce7760250d9de1e639ae215b35256f5e6654088639b88ff1a5c54285e3",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            3098
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/plan/drawing/product/bim",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/drawing-preview-fullscreen-dialog-60155503.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/drawing-preview-fullscreen-dialog-60155503.js",
+          "sha256": "129df3899d6c6058217173eaae447062670439064c8b6829d6634a9d820a197c"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 39,
+      "request": "PUT /api/mes/building/spacer/parallel",
+      "records": [
+        {
+          "source": "src/modules/parallel-config-554d8028.js",
+          "original_chunk": "parallel-config-554d8028.js",
+          "line": 12,
+          "offset": 378,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/parallel-config-554d8028.js",
+              "line": 12,
+              "offset": 378
+            }
+          ],
+          "module": "mes",
+          "method": "PUT",
+          "url_expression": "\"spacer/parallel\"",
+          "path_pattern": "/api/mes/building/spacer/parallel",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1245,
+            "menu_title": "零件排产",
+            "module": "MES",
+            "component": "mes/scheduling-manage/machine-part/index.vue",
+            "chain": [
+              "index-2c018982.js",
+              "parallel-config-554d8028.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "unselected-export",
+      "trigger_analysis": "parallel配置模块l编辑函数不在选定菜单导出绑定闭包。",
+      "evidence_source": "src/modules/parallel-config-554d8028.js",
+      "action_and_boundary": "现有GET/POST/DELETE配置正常，不新增未暴露编辑。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "parallel-config-554d8028.js",
+          "original_sha256": "984a11d5e6a5a07eaabf17e53d254a5af4468ea06a49b1241a0e714ccb943650",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            319
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/mes/building/spacer/parallel",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/parallel-config-554d8028.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/parallel-config-554d8028.js",
+          "sha256": "67544e7655c5363de66e95d36734249e2f7d463db6942eccfcb4d178cbbc0678"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 40,
+      "request": "POST /api/contract/supplier-settlement/v2/save-inner",
+      "records": [
+        {
+          "source": "src/modules/payment-settlement-e8e799d8.js",
+          "original_chunk": "payment-settlement-e8e799d8.js",
+          "line": 21,
+          "offset": 873,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/payment-settlement-e8e799d8.js",
+              "line": 21,
+              "offset": 873
+            }
+          ],
+          "module": null,
+          "method": "POST",
+          "url_expression": "\"/api/contract/supplier-settlement/v2/save-inner\"",
+          "path_pattern": "/api/contract/supplier-settlement/v2/save-inner",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 20004,
+            "menu_title": "采购台账-自营",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-V2/index.vue",
+            "chain": [
+              "index-efd24d83.js",
+              "index-b15f5c10.js",
+              "index-8cb652b0.js",
+              "payment-settlement-e8e799d8.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "backend-original-service-reconnected",
+      "trigger_analysis": "当前行级及合并结算POST save-inner，原当前Service.addOaSupplierSettlement(SubOrderSettlementAddParam)240已保留。",
+      "evidence_source": "src/modules/payment-settlement-e8e799d8.js",
+      "action_and_boundary": "backend恢复历史原Controller映射/原pay_application权限。前端严格nested code+ledgerId后只打开原getFixedData(dataId,businessType=3)预览，草稿不等于OA提交；实际提交检查真实requestid及本地关联响应，草稿结果/OA提交及payload变更均有真实handler用例。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "payment-settlement-e8e799d8.js",
+          "original_sha256": "8a1f9c31ff010a68950475a1c432d5934ed23ce4c1b9fb0ba74356e2cfea92e0",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            784
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "POST /api/contract/supplier-settlement/v2/save-inner",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/contract/supplier-settlement/v2/save-inner"
+          ],
+          "methods": [
+            "POST"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.contract.SupplierSettlementControllerV2",
+          "java_method": "saveInner",
+          "pre_authorize": "@permission.check('scm_purchaseOrder_v2:pay_application')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/SupplierSettlementControllerV2.java",
+        "20-rebuild/frontend-recovered/src/modules/payment-settlement-e8e799d8.js",
+        "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/line/index.vue.js",
+        "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/payment-settlement/oa-approval/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/contract/SupplierSettlementControllerV2.java",
+          "sha256": "008c80d83b02841c0c935a2a15c710133f23f8ca6f7acea18f28ccc95f28cbc8"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/payment-settlement-e8e799d8.js",
+          "sha256": "5dd36fddca465c7ebdd25002b49af92025462b100016c7662905712fb94f8be8"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/line/index.vue.js",
+          "sha256": "3facf982839ac9859993b6c9f7e4cc3b8c574f6c9507551bad675d6b073f7b21"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/supply-chain/purchase-order-bg/module/payment-settlement/oa-approval/index.vue.js",
+          "sha256": "8ebb82cddebcbd0a9edac77253b13e82a0d8511c9ac97d2a4caad7c0b0f6e1d2"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 41,
+      "request": "GET /api/mes/building/productProcess/page",
+      "records": [
+        {
+          "source": "src/modules/product-process-55b57b27.js",
+          "original_chunk": "product-process-55b57b27.js",
+          "line": 3,
+          "offset": 72,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/product-process-55b57b27.js",
+              "line": 3,
+              "offset": 72
+            }
+          ],
+          "module": "mes",
+          "method": "GET",
+          "url_expression": "\"productProcess/page\"",
+          "path_pattern": "/api/mes/building/productProcess/page",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1186,
+            "menu_title": "工序创建",
+            "module": "配置管理",
+            "component": "mes/production-config/workshopLine-config/production-CreateProcess/index.vue",
+            "chain": [
+              "index-28c08418.js",
+              "product-process-55b57b27.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "overridden-legacy-crud",
+      "trigger_analysis": "production-CreateProcess beforeRefresh每次用type选择有效v2 get替代旧get。",
+      "evidence_source": "src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+      "action_and_boundary": "原productProcess/page不会作为当前刷新请求。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "product-process-55b57b27.js",
+          "original_sha256": "d78dbd09729a8cbedbc0d6e1886f0230f8f04b329a2479c8d2439fa2920d7a6a",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            61
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/building/productProcess/page",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+          "sha256": "d4da5e123df9f5e94e7553427565fe45e598d1f4841ae050c95945f99f8846c8"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 42,
+      "request": "POST /api/mes/building/productProcess",
+      "records": [
+        {
+          "source": "src/modules/product-process-55b57b27.js",
+          "original_chunk": "product-process-55b57b27.js",
+          "line": 15,
+          "offset": 509,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/product-process-55b57b27.js",
+              "line": 15,
+              "offset": 509
+            }
+          ],
+          "module": "mes",
+          "method": "POST",
+          "url_expression": "\"productProcess\"",
+          "path_pattern": "/api/mes/building/productProcess",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1186,
+            "menu_title": "工序创建",
+            "module": "配置管理",
+            "component": "mes/production-config/workshopLine-config/production-CreateProcess/index.vue",
+            "chain": [
+              "index-28c08418.js",
+              "product-process-55b57b27.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "同页optShow.add=false，实际创建/更新工序用独立已有API。",
+      "evidence_source": "src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+      "action_and_boundary": "保留旧CRUD定义，不当作真实新增缺口。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "product-process-55b57b27.js",
+          "original_sha256": "d78dbd09729a8cbedbc0d6e1886f0230f8f04b329a2479c8d2439fa2920d7a6a",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            434
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "POST /api/mes/building/productProcess",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+          "sha256": "d4da5e123df9f5e94e7553427565fe45e598d1f4841ae050c95945f99f8846c8"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 43,
+      "request": "DELETE /api/mes/building/productProcess",
+      "records": [
+        {
+          "source": "src/modules/product-process-55b57b27.js",
+          "original_chunk": "product-process-55b57b27.js",
+          "line": 21,
+          "offset": 710,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/product-process-55b57b27.js",
+              "line": 21,
+              "offset": 710
+            }
+          ],
+          "module": "mes",
+          "method": "DELETE",
+          "url_expression": "\"productProcess\"",
+          "path_pattern": "/api/mes/building/productProcess",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 1186,
+            "menu_title": "工序创建",
+            "module": "配置管理",
+            "component": "mes/production-config/workshopLine-config/production-CreateProcess/index.vue",
+            "chain": [
+              "index-28c08418.js",
+              "product-process-55b57b27.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-legacy-crud",
+      "trigger_analysis": "同页optShow.del=false；没有旧productProcess删除入口。",
+      "evidence_source": "src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+      "action_and_boundary": "不替换成不同partProcess/config/delete。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "product-process-55b57b27.js",
+          "original_sha256": "d78dbd09729a8cbedbc0d6e1886f0230f8f04b329a2479c8d2439fa2920d7a6a",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            603
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "DELETE /api/mes/building/productProcess",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/mes/production-config/workshopLine-config/production-CreateProcess/index.vue.js",
+          "sha256": "d4da5e123df9f5e94e7553427565fe45e598d1f4841ae050c95945f99f8846c8"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 44,
+      "request": "GET /api/kit/wms/common/config/delete/<dynamic>",
+      "records": [
+        {
+          "source": "src/modules/project-config-5f01cdbc.js",
+          "original_chunk": "project-config-5f01cdbc.js",
+          "line": 12,
+          "offset": 371,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/project-config-5f01cdbc.js",
+              "line": 12,
+              "offset": 371
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "`/api/kit/wms/common/config/delete/${t}`",
+          "path_pattern": "/api/kit/wms/common/config/delete/<dynamic>",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 6000520,
+            "menu_title": "配套件关联物料配置",
+            "module": "配置管理",
+            "component": "config-manage/mes/auxiliary-material-association-config/index.vue",
+            "chain": [
+              "index-7cbc0e12.js",
+              "project-config-5f01cdbc.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "source-contract-repaired",
+      "trigger_analysis": "SysKitWmsCommonConfigController原@DeleteMapping /delete/{id}，前端m误用GET。",
+      "evidence_source": "src/modules/project-config-5f01cdbc.js",
+      "action_and_boundary": "已改DELETE并捕获实际请求验证。当前页面通常本地删行再整体保存，旧独立del即使复用也能正确匹配。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "project-config-5f01cdbc.js",
+          "original_sha256": "24ef4fbbf41e33d034ea93c3e9b085ecad1df151ea4535bee119ca1adebf43a7",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            318
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "DELETE /api/kit/wms/common/config/delete/<dynamic>",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/kit/wms/common/config/delete/{id}"
+          ],
+          "methods": [
+            "DELETE"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.system.SysKitWmsCommonConfigController",
+          "java_method": "deleteInventoryConfiguration",
+          "pre_authorize": null,
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/SysKitWmsCommonConfigController.java",
+        "20-rebuild/frontend-recovered/src/modules/project-config-5f01cdbc.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/SysKitWmsCommonConfigController.java",
+          "sha256": "669cf513cf29eb8e912402737f9b8451c009a62a3415cad00881d3c9102538d8"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/project-config-5f01cdbc.js",
+          "sha256": "80fc32778ddea8c25cece76010700fa5e4db0b3a2841cb683dfb8e4699999a6b"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 45,
+      "request": "PUT /api/wms/outbound/application/review/raw-materials/<dynamic>/passed",
+      "records": [
+        {
+          "source": "src/modules/review-a53b87d8.js",
+          "original_chunk": "review-a53b87d8.js",
+          "line": 15,
+          "offset": 581,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/review-a53b87d8.js",
+              "line": 15,
+              "offset": 581
+            }
+          ],
+          "module": "wms",
+          "method": "PUT",
+          "url_expression": "`outbound/application/review/raw-materials/${e.id}/passed`",
+          "path_pattern": "/api/wms/outbound/application/review/raw-materials/<dynamic>/passed",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 21013,
+            "menu_title": "气体仓库",
+            "module": "WMS",
+            "component": "wms/material-purchase/warehouse-management/material-inventory/gas/index.vue",
+            "chain": [
+              "index-27c1737f.js",
+              "review-a53b87d8.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-menu-type-branch",
+      "trigger_analysis": "当前菜单是purchase/partyA新版出库确认；旧raw review页未配置。原current-user-list中只有制成品才选择旧manuf-list，当前制成品仓库为独立V2。",
+      "evidence_source": "src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/current-user-outbound-list/index.vue.js",
+      "action_and_boundary": "气体/钢材/辅材/办公用品走新版list已有审批提交。不能接回旧passed绕新审批流。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "review-a53b87d8.js",
+          "original_sha256": "0f6f758510034b2e898ed7b7d93ddcef8379e3f27f4ac4379bca9565a7dc362e",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            510
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/wms/outbound/application/review/raw-materials/<dynamic>/passed",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/current-user-outbound-list/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-purchase/warehouse-management/material-outbound/raw-material/components/current-user-outbound-list/index.vue.js",
+          "sha256": "19dc828ad3ccf10d80607f825d81bdfdce654bcf1cede1d773da3067e6d79213"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 46,
+      "request": "GET /api/project/v2/project/collectionAndInvoiceDetail",
+      "records": [
+        {
+          "source": "src/modules/self-healing-6f411a5c.js",
+          "original_chunk": "self-healing-6f411a5c.js",
+          "line": 21,
+          "offset": 851,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/self-healing-6f411a5c.js",
+              "line": 21,
+              "offset": 851
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "\"/api/project/v2/project/collectionAndInvoiceDetail\"",
+          "path_pattern": "/api/project/v2/project/collectionAndInvoiceDetail",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 20003,
+            "menu_title": "采购台账-内包(合营)",
+            "module": "供应链",
+            "component": "supply-chain/purchase-order-bg/index.vue",
+            "chain": [
+              "index-379f34bb.js",
+              "index-bbd283c1.js",
+              "settle-2bd68139.js",
+              "self-healing-6f411a5c.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "inactive-dynamic-component",
+      "trigger_analysis": "三处旧CollectionInvoicing父fundAccount未有真正打开调用；二级self父表组件查表虽列fundAccount，但所有g按钮字面值均record。",
+      "evidence_source": "src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js",
+      "action_and_boundary": "原collectionAndInvoiceDetail服务存在也不等于页面实际触发；已暂停增加财务接口。原basicinfoArray未定义位于同死分支，未编造配置。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "self-healing-6f411a5c.js",
+          "original_sha256": "9ab5204e76a79ec47996d050d7a77f0c399867ae91e5268df245167f6733dd18",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            737
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/project/v2/project/collectionAndInvoiceDetail",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/contract/standing-book/second-unit/self-healing/module/table.vue.js",
+          "sha256": "c1875cad7f840fb088a1f6a7d1907461509ab96ba1ff3c067160c56f19052e36"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 47,
+      "request": "GET /api/mes/ship/<dynamic>/export",
+      "records": [
+        {
+          "source": "src/modules/ship-list-822ce00f.js",
+          "original_chunk": "ship-list-822ce00f.js",
+          "line": 12,
+          "offset": 386,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/ship-list-822ce00f.js",
+              "line": 12,
+              "offset": 386
+            }
+          ],
+          "module": null,
+          "method": "GET",
+          "url_expression": "`api/mes/ship/${e}/export`",
+          "path_pattern": "/api/mes/ship/<dynamic>/export",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 9606,
+            "menu_title": "发运记录",
+            "module": "发运管理",
+            "component": "ship-manage/pack-and-ship/ship-list/index.vue",
+            "chain": [
+              "index-e0938d65.js",
+              "ship-list-822ce00f.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "unselected-export",
+      "trigger_analysis": "ship-list模块旧导出函数o不在当前菜单选定导出绑定闭包。",
+      "evidence_source": "src/modules/ship-list-822ce00f.js",
+      "action_and_boundary": "当前发运记录用新打印/下载接口；不恢复未开放旧导出。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "ship-list-822ce00f.js",
+          "original_sha256": "8a1ec746ba968d8f0376ef01957e666f21ca7fbf3536d0f75fb42475b4e503db",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            324
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "GET /api/mes/ship/<dynamic>/export",
+      "current_runtime_matches": [],
+      "source_evidence_paths": [
+        "20-rebuild/frontend-recovered/src/modules/ship-list-822ce00f.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/frontend-recovered/src/modules/ship-list-822ce00f.js",
+          "sha256": "f01e2516682f21a6700aa531cdc6b0a0be57afee56e5413d6c7b8e0563ad6e10"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    },
+    {
+      "id": 48,
+      "request": "PUT /api/wms/transfer/application/other-material/batch",
+      "records": [
+        {
+          "source": "src/modules/transfer-handling-96ed23ad.js",
+          "original_chunk": "transfer-handling-96ed23ad.js",
+          "line": 33,
+          "offset": 1247,
+          "editable_source_locations": [
+            {
+              "source": "src/modules/transfer-handling-96ed23ad.js",
+              "line": 33,
+              "offset": 1247
+            }
+          ],
+          "module": "wms",
+          "method": "PUT",
+          "url_expression": "\"transfer/application/other-material/batch\"",
+          "path_pattern": "/api/wms/transfer/application/other-material/batch",
+          "classification": "no-static-route-candidate",
+          "matches": [],
+          "runtime_classification": "no-registered-route-match",
+          "runtime_matches": [],
+          "shared_top_level_owner": null,
+          "menu_witness": {
+            "menu_id": 21029,
+            "menu_title": "气体仓库",
+            "module": "WMS",
+            "component": "wms/material-partyA/warehouse-management/material-inventory/gas/index.vue",
+            "chain": [
+              "index-43f3d98b.js",
+              "transfer-handling-96ed23ad.js"
+            ]
+          },
+          "menu_scope": "current-menu-import-closure",
+          "path_status": "needs-bytecode-or-proxy-verification",
+          "menu_witness_strength": "module-import-closure"
+        }
+      ],
+      "status": "backend-original-service-reconnected",
+      "trigger_analysis": "真实批量调拨表单basicClass OTHER分支be；原5类批量Controller遗漏办公用品，而原batchTransfer通用事务已支持。",
+      "evidence_source": "src/views/wms/material-transfer/raw-material/components/transfer-batch-handling-form/index.vue.js",
+      "action_and_boundary": "backend agent按原办公用品3权限+原BatchTransferDTOParam→batchTransfer(OTHER)补接，未前端循环单条。最终4810运行映射已确认；具体批量事务/权限动作验收以独立后端QA报告为准。",
+      "original_artifact_proofs": [
+        {
+          "original_chunk": "transfer-handling-96ed23ad.js",
+          "original_sha256": "2618f4cccbe2325d982e03a65a2954c4c16926cfe3639c6fa5f1608af67ece8a",
+          "original_expression_match": true,
+          "original_expression_offsets": [
+            1076
+          ]
+        }
+      ],
+      "browser_workflow_verified": false,
+      "records_scope": "Preserved initial 48-pattern review baseline; repaired/current registration is tracked separately.",
+      "current_request": "PUT /api/wms/transfer/application/other-material/batch",
+      "current_runtime_matches": [
+        {
+          "paths": [
+            "/api/wms/transfer/application/other-material/batch"
+          ],
+          "methods": [
+            "PUT"
+          ],
+          "controller": "com.hzchum.scim.rest.controller.wms.wmsUse.TransferController",
+          "java_method": "otherMaterialBatchTransfer",
+          "pre_authorize": "@permission.check('wms_matWarehouse_other:transfer','wms_matWarehouse_other_self:transfer','wms_matWarehouse_other_partyA:transfer')",
+          "params": "[]",
+          "headers": "[]",
+          "consumes": "[]",
+          "produces": "[]"
+        }
+      ],
+      "source_evidence_paths": [
+        "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/TransferController.java",
+        "20-rebuild/frontend-recovered/src/views/wms/material-transfer/raw-material/components/transfer-batch-handling-form/index.vue.js"
+      ],
+      "source_evidence_files": [
+        {
+          "path": "20-rebuild/backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/wms/wmsUse/TransferController.java",
+          "sha256": "225adb850a83e6f986875233cf16d73c8ef9153418bd13f77088e1bca3a058b7"
+        },
+        {
+          "path": "20-rebuild/frontend-recovered/src/views/wms/material-transfer/raw-material/components/transfer-batch-handling-form/index.vue.js",
+          "sha256": "2d3817bc854362989aec752b3d10b6274e7f76bc64eb8e256f4afa7c3e1661c3"
+        }
+      ],
+      "runtime_verification_source": "20-rebuild/local/runtime/verification/runtime-registration.json"
+    }
+  ],
+  "runtime_registration_sha256": "bd8b449770bb26e14e3a29a7f707a27d8ead5582183daccca8bf5238f79ee63b",
+  "runtime_registered_mappings": 4810,
+  "browser_acceptance_scope": "See docs/full-menu-browser-smoke.json. Page loading does not verify these conditional actions.",
+  "classification_counts": {
+    "backend-original-service-reconnected": 5,
+    "conditional-original-bim-gap": 1,
+    "controlled-extra-original-service": 1,
+    "inactive-dynamic-component": 2,
+    "inactive-legacy-crud": 8,
+    "inactive-legacy-dialog": 4,
+    "inactive-menu-integration-mode": 8,
+    "inactive-menu-type-branch": 1,
+    "inactive-mode-branch": 1,
+    "inactive-mode-print-branch": 1,
+    "inactive-response-field-branch": 1,
+    "inactive-return-type-branch": 1,
+    "inactive-type-branch": 1,
+    "outside-current-menu-print": 3,
+    "overridden-legacy-crud": 2,
+    "source-contract-repaired": 3,
+    "unselected-export": 3,
+    "unselected-print-api-key": 1,
+    "unwired-unselected-print-catalog": 1
+  },
+  "limitations": [
+    "Type branches and disabled dialogs were reviewed in source; no new browser session was launched.",
+    "No nearby URL was substituted solely by spelling similarity.",
+    "Source reviews distinguish active buttons, inactive type/mode branches, and external dependencies. Source presence is not browser or workbook acceptance."
+  ],
+  "backend_runtime": {
+    "app_sha256": "570265f8e06d39b8537accd6d11e955df0146f0ca664dcd668da28bdc6f1393a",
+    "registered_mappings": 4810,
+    "business_mappings": 4801,
+    "mapper_statements": 15765,
+    "spring_beans": 2904,
+    "started_epoch_millis": 1792064170775,
+    "initializers": 25,
+    "local_scheduled_jobs": 14,
+    "lifecycle_ready": true,
+    "verification_source": "20-rebuild/docs/backend-final-runtime-verification.json",
+    "verification_sha256": "293a126de09465534fe4b2b06713ff2d8dcf6beb814b5e5a89dae4f6a3f9f933",
+    "runtime_registration_source": "20-rebuild/local/runtime/verification/runtime-registration.json",
+    "runtime_registration_sha256": "bd8b449770bb26e14e3a29a7f707a27d8ead5582183daccca8bf5238f79ee63b"
+  }
+}

@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectReturnProductChildMapper">
+
+    <resultMap type="com.hzchum.scim.project.core.api.pojo._do.ProjectReturnProductChild" id="projectReturnProductChildMap">
+        <result property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="boolDeleteEnum" column="bool_delete_enum"/>
+        <result property="version" column="version"/>
+        <result property="projectId" column="project_id"/>
+        <result property="monomerId" column="monomer_id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="specification" column="specification"/>
+        <result property="material" column="material"/>
+        <result property="measureUnit" column="measure_unit"/>
+        <result property="accountingUnit" column="accounting_unit"/>
+        <result property="quantity" column="quantity"/>
+        <result property="mete" column="mete"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="length" column="length"/>
+        <result property="totalLength" column="total_length"/>
+        <result property="plate" column="plate"/>
+        <result property="totalArea" column="total_area"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="mainId" column="main_id"/>
+    </resultMap>
+
+    <sql id="selectProjectReturnProductChildVo">
+        select id,
+               create_time,
+               update_time,
+               bool_delete_enum,
+               version,
+               project_id,
+               monomer_id,
+               area_id,
+               serial_number,
+               specification,
+               material,
+               measure_unit,
+               accounting_unit,
+               quantity,
+               mete,
+               unit_price,
+               length,
+               total_length,
+              plate,
+               total_area,
+               total_amount,
+               weight,
+               total_weight,
+               main_id
+        from project_return_product_child
+    </sql>
+
+    <select id="projectReturnChildsByTypeArtifact" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReturnProductChildDO">
+        SELECT
+        mbwr.id AS 'id',
+        mbwr.product_type as 'productType',
+        mbwr.warehouse_record_id AS 'mesBuildingWarehouseRecordId',
+        ta.project_id AS 'projectId',
+        monomer.id AS 'monomerId',
+        monomer.NAME AS 'monomerName',
+        area.id AS 'areaId',
+        area.NAME AS 'areaName',
+        ta.id AS 'productId',
+        ta.name as 'productName',
+        ta.serial_number as 'serialNumber',
+        ta.specification as 'specification',
+        ROUND(ta.length / 1000, 3) as 'length',
+        ta.material as 'material',
+        mbwr.quantity as 'quantity',
+        mbwr.net_weight,
+        mbwr.gross_weight
+        FROM
+        mes_building_cargo_list cargo
+        LEFT JOIN mes_building_cargo_list_product_link mbwr ON mbwr.cargo_list_id = cargo.id
+        LEFT JOIN tech_artifact ta ON mbwr.product_id = ta.id
+        LEFT JOIN plan_monomer monomer ON ta.monomer_id = monomer.id
+        AND monomer.bool_delete_enum = 0
+        LEFT JOIN plan_area area ON ta.area_id = area.id
+        AND area.bool_delete_enum = 0
+        where mbwr.bool_delete_enum = 0
+        AND mbwr.product_type = 2
+        AND mbwr.warehouse_type in(0, 2)
+        AND cargo.bool_delete_enum = 0
+        AND cargo.status in(4, 8)
+        <if test="projectId != null">
+            and ta.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and ta.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and ta.name like concat('%', #{name}, '%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and ta.serial_number like concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and ta.specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material != ''">
+            and ta.material like concat('%', #{material}, '%')
+        </if>
+        ORDER BY mbwr.create_time DESC
+    </select>
+
+    <select id="projectReturnChildsByTypeEenclosure" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReturnProductChildDO">
+        SELECT
+            mbwr.id AS 'id',
+            mbwr.product_type as 'productType',
+            mbwr.warehouse_record_id AS 'mesBuildingWarehouseRecordId',
+            te.project_id AS 'projectId',
+            te.monomer_id,
+            pm.name AS monomer_name,
+            te.area_id,
+            pa.name area_name,
+            ep.id AS 'planId',
+            ep.NAME AS 'planName',
+            te.NAME AS 'productName',
+            te.serial_number AS 'serialNumber',
+            TRIM(
+                LEADING '/' FROM
+                TRIM(
+                BOTH '/' FROM
+                CONCAT_WS(
+                        '/',
+                        COALESCE(te.thickness, ''),
+                        COALESCE(te.color, ''),
+                        COALESCE(te.material, '')
+                    )
+                )
+            ) AS specification,
+            te.id AS 'productId',
+            mbwr.quantity AS 'quantity',
+            te.plate AS 'plate',
+            ROUND(mbwr.length / 1000, 6) as 'length',
+            (mbwr.length * mbwr.quantity) AS 'totalLength',
+            ROUND(mbwr.surface_area, 6) as 'surfaceArea',
+            (mbwr.surface_area*mbwr.quantity) AS 'totalArea'
+        FROM
+        mes_building_cargo_list cargo
+        INNER JOIN mes_building_cargo_list_product_link mbwr ON mbwr.cargo_list_id = cargo.id
+        LEFT JOIN tech_enclosure te ON mbwr.product_id = te.id AND te.bool_delete_enum = 0
+        LEFT JOIN plan_monomer pm on te.monomer_id = pm.id
+        LEFT JOIN plan_area pa on te.area_id = pa.id
+        LEFT JOIN enclosure_plan ep ON te.enclosure_plan_id = ep.id
+        WHERE mbwr.bool_delete_enum = 0
+        AND mbwr.product_type = 4
+        AND mbwr.warehouse_type in (0, 2)
+        AND cargo.bool_delete_enum = 0
+        AND cargo.status in(4, 8)
+    <if test="projectId != null">
+        and te.project_id = #{projectId}
+    </if>
+    <if test="planId != null">
+        and te.enclosure_plan_id = #{planId}
+    </if>
+    <if test="name != null and name != ''">
+        and te.name like concat('%', #{name}, '%')
+    </if>
+    <if test="serialNumber != null and serialNumber != ''">
+        and te.serial_number like concat('%', #{serialNumber}, '%')
+    </if>
+    <if test="material != null and material != ''">
+        and te.material like concat('%', #{material}, '%')
+    </if>
+    ORDER BY mbwr.id DESC
+</select>
+
+<select id="projectReturnChildsByTypeStandardPartArtifact" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReturnProductChildDO">
+    SELECT
+        mbwr.id,
+        mbwr.warehouse_record_id AS mes_building_warehouse_record_id,
+        mbwr.product_type,
+        tsp.project_id,
+        tsp.NAME AS product_name,
+        monomer.id AS monomer_id,
+        monomer.NAME AS monomer_name,
+        area.id AS area_id,
+        area.NAME AS area_name,
+        tsp.enclosure_plan_id AS plan_id,
+        ep.name AS plan_name,
+        tsp.id AS 'productId',
+        tsp.specification ,
+        mbwr.quantity ,
+        tsp.measure_unit,
+        CASE tsp.bool_weight_type_enum
+        WHEN 1
+        THEN mbwr.weight * mbwr.quantity
+        ELSE CONVERT(IFNULL(tsp.mete, 0) / tsp.quantity, DECIMAL(18,4)) * mbwr.quantity END 'mete',
+        CASE tsp.bool_weight_type_enum
+        WHEN 1
+        THEN mbwr.weight
+        ELSE CONVERT(IFNULL(tsp.mete, 0) / tsp.quantity, DECIMAL(18,4))  END 'singleMete',
+        tsp.accounting_unit AS 'accountingUnit'
+        FROM
+        mes_building_cargo_list cargo
+        INNER JOIN mes_building_cargo_list_product_link mbwr ON mbwr.cargo_list_id = cargo.id
+        LEFT JOIN tech_standard_part tsp ON mbwr.product_id = tsp.id
+        AND tsp.bool_delete_enum = 0
+        LEFT JOIN plan_monomer monomer ON tsp.monomer_id = monomer.id
+        LEFT JOIN plan_area area ON tsp.area_id = area.id
+        LEFT JOIN enclosure_plan ep ON tsp.enclosure_plan_id = ep.id
+        WHERE mbwr.bool_delete_enum = 0
+        AND tsp.relation_type = 2
+        AND mbwr.product_type = 8
+        AND mbwr.warehouse_type in(0,2)
+        AND cargo.bool_delete_enum = 0
+        AND cargo.status in(4,8)
+        <if test="projectId != null">
+            and tsp.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and tsp.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and tsp.area_id = #{areaId}
+        </if>
+        <if test="planId != null">
+            and tsp.enclosure_plan_id = #{planId}
+        </if>
+        <if test="name != null and name != ''">
+            and tsp.name like concat('%', #{name}, '%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and tsp.serial_number like concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and tsp.specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material != ''">
+            and tsp.material like concat('%', #{material}, '%')
+        </if>
+        ORDER BY mbwr.create_time DESC
+    </select>
+
+
+    <select id="projectReturnChildsByTypeStandardPartEenclosure" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReturnProductChildDO">
+        SELECT
+        mbwr.id AS 'id',
+        mbwr.product_type as 'productType',
+        mbwr.warehouse_record_id AS 'mesBuildingWarehouseRecordId',
+        tsp.project_id AS 'projectId',
+        tsp.NAME AS 'productName',
+        tsp.id AS 'productId',
+        ROUND(tsp.mete * mbwr.quantity / tsp.quantity, 2) AS mete,
+        ROUND(tsp.mete / tsp.quantity, 2) AS single_mete,
+        ep.id AS 'planId',
+        ep.NAME AS 'planName',
+        tsp.specification AS 'specification',
+        mbwr.quantity AS 'quantity',
+        tsp.measure_unit AS 'measureUnit',
+        tsp.accounting_unit AS 'accountingUnit'
+        FROM
+        mes_building_cargo_list cargo
+        INNER JOIN mes_building_cargo_list_product_link mbwr ON mbwr.cargo_list_id = cargo.id
+        INNER JOIN tech_standard_part tsp ON mbwr.product_id = tsp.id
+        AND tsp.bool_delete_enum = 0
+        LEFT JOIN enclosure_plan ep ON ep.id = tsp.enclosure_plan_id
+        AND ep.bool_delete_enum = 0
+        WHERE mbwr.bool_delete_enum = 0
+        AND tsp.relation_type = 4
+        AND mbwr.product_type = 8
+        AND mbwr.warehouse_type in (0, 2)
+        AND (cargo.status = 4 OR cargo.status = 8)
+        <if test="projectId != null">
+            and tsp.project_id = #{projectId}
+        </if>
+        <if test="planId != null">
+            and tsp.enclosure_plan_id = #{planId}
+        </if>
+        <if test="name != null and name != ''">
+            and tsp.name like concat('%', #{name}, '%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and tsp.serial_number like concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and tsp.specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material != ''">
+            and tsp.material like concat('%', #{material}, '%')
+        </if>
+        ORDER BY mbwr.id DESC
+    </select>
+
+    <select id="listProjectReturnChilds" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReturnProductChildDTO">
+        SELECT
+            prpc.id AS 'id',
+            prpc.factory_id AS 'factoryId',
+            prpc.project_id AS 'projectId',
+            prpc.product_type as 'productType',
+            prpc.monomer_id AS 'monomerId',
+            prpc.area_id AS 'areaId',
+            prpc.product_name AS 'productName',
+            prpc.measure_unit AS 'measureUnit',
+            prpc.unit_price AS 'unitPrice',
+            prpc.total_area AS 'totalArea',
+            prpc.main_id AS 'mainId',
+            prpc.plate AS 'plate',
+            monomer.name as monomerName,
+            area.name as areaName,
+            prpc.plan_name as planName,
+            prpc.number AS 'number',
+            prpc.product_id AS 'productId',
+            prpc.specification AS 'specification',
+            prpc.serial_number AS 'serialNumber',
+            prpc.quantity AS 'quantity',
+            prpc.total_length AS 'totalLength',
+            prpc.length AS 'length',
+            NULLIF(prpc.quantity * prpc.net_weight,0) AS 'totalNetWeight',
+            prpc.net_weight AS 'netWeight',
+            prpc.accounting_unit AS 'accountingUnit',
+            prpc.pricing_manner AS 'pricingManner',
+            prpc.mete AS 'mete',
+            prpc.surface_area AS 'surfaceArea',
+            prpc.material AS 'material',
+            prpc.total_amount AS 'totalAmount',
+            prpc.unit_price AS 'unitPrice',
+            prpc.plate AS 'plate',
+            prpc.measure_unit AS 'measureUnit'
+        FROM project_return_product_child prpc
+                 LEFT JOIN plan_monomer monomer ON prpc.monomer_id = monomer.id
+            AND monomer.bool_delete_enum = 0
+                 LEFT JOIN plan_area area ON prpc.area_id = area.id
+            AND area.bool_delete_enum = 0
+        WHERE prpc.main_id = #{id}
+    </select>
+
+    <select id="getReturnAndWaste" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReturnProductChildDO">
+        SELECT
+            prpc.id AS 'id',
+            prpc.factory_id AS 'factoryId',
+            prpc.id AS 'mesBuildingReturnWarehouseRecordId',
+            prpc.create_time AS 'createTime',
+            prpc.project_id AS 'projectId',
+            cp.name as projectName,
+            prpc.product_reason as 'productReason',
+            prpc.product_type as 'productType',
+            prpc.monomer_id AS 'monomerId',
+            prpc.area_id AS 'areaId',
+            prpc.product_name AS 'productName',
+            prpc.measure_unit AS 'measureUnit',
+            prpc.unit_price AS 'unitPrice',
+            prpc.total_area AS 'totalArea',
+            prpc.main_id AS 'mainId',
+            prpm.storage_location,
+            prpc.warehouse_id,
+            prpc.warehouse_id 'warehouse.id',
+            wr.name 'warehouse.name',
+            prpc.plate AS 'plate',
+            prpc.plan_name as 'planName',
+            prpc.number AS 'number',
+            prpc.product_id AS 'productId',
+            prpc.specification AS 'specification',
+            prpc.serial_number AS 'serialNumber',
+            prpc.quantity AS 'quantity',
+            prpc.total_length AS 'totalLength',
+            prpc.length AS 'length',
+            prpc.total_net_weight AS 'totalNetWeight',
+            prpc.net_weight AS 'netWeight',
+            prpc.accounting_unit AS 'accountingUnit',
+            prpc.pricing_manner AS 'pricingManner',
+            prpc.mete AS 'mete',
+            prpc.single_mete AS 'singleMete',
+            prpc.surface_area AS 'surfaceArea',
+            prpc.material AS 'material',
+            prpc.total_amount AS 'totalAmount',
+            prpc.unit_price AS 'unitPrice',
+            prpc.plate AS 'plate',
+            prpc.measure_unit AS 'measureUnit'
+        FROM project_return_product_child prpc
+        INNER JOIN project_return_product_main prpm ON prpc.main_id = prpm.id
+        LEFT JOIN contract_project cp ON prpc.project_id = cp.id AND cp.bool_delete_enum = 0
+        LEFT JOIN mes_building_warehouse wr ON prpc.warehouse_id = wr.id
+        <if test="type == 2">
+            LEFT JOIN tech_artifact a on  prpc.product_id = a.id
+        </if>
+        <if test="type == 4">
+            LEFT JOIN tech_enclosure a on  prpc.product_id = a.id
+        </if>
+        <if test="type == 8">
+            LEFT JOIN tech_standard_part a on  prpc.product_id = a.id
+        </if>
+        WHERE
+        prpc.bool_delete_enum = 0
+        AND prpm.bool_delete_enum = 0
+
+        <!--    AND (prpc.product_reason = '报废' OR prpc.product_reason = '回收')-->
+        AND prpc.handle_method IN (2, 3)
+        AND prpm.audit_status = 2
+
+        <if test="projectId != null">
+            AND  prpc.project_id = #{projectId}
+        </if>
+        <if test="type != null">
+            and prpm.product_type = #{type}
+        </if>
+        <if test="name != null and name !=''">
+            AND a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber !=''">
+            AND a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+
+        <if test="type == 2 or type == 4">
+            <if test="material != null and material !=''">
+                AND a.material like concat('%',#{material},'%')
+            </if>
+        </if>
+
+        <if test="type == 2 or type == 8">
+
+            <if test="specification != null and specification !=''">
+                AND a.specification like concat('%',#{specification},'%')
+            </if>
+        </if>
+
+        <if test="type == 4">
+            <if test="specification != null and specification !=''">
+                AND a.plate like concat('%',#{specification},'%')
+            </if>
+        </if>
+        <if test="type == 8 and relationType != null">
+            <if test="specification != null and specification !=''">
+                AND a.relation_type = #{relationType}
+            </if>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,7 @@
+{
+  "source": "backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java",
+  "backup": "integrations/private/source-before-preparation/backend/modules/scim-plan-core-api/src/main/java/com/hzchum/scim/plan/core/api/util/OssUtils.java",
+  "sha256Before": "8d31f169de8e6ec479694dfc880d4b43713e0e6ff3ef4b34b9e13c728d80af08",
+  "method": "shutil.copy2",
+  "scope": "single OssUtils source before approved I14 configuration preparation"
+}

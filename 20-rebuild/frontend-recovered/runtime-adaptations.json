@@ -1,0 +1,146 @@
+{
+  "adaptations": [
+    {
+      "symbol": "or",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "JV",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "bA",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "yn",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "XV",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "VA",
+      "file": "src/shared/segments/001.fragment.js",
+      "reason": "isolate local request origin and session-only token"
+    },
+    {
+      "symbol": "d",
+      "file": "src/shared/segments/014.fragment.js",
+      "reason": "preload recovered CSS only; never request original JS/vendor"
+    },
+    {
+      "symbol": "o9",
+      "file": "src/shared/segments/037.fragment.js",
+      "reason": "new backend public key loaded before module import"
+    },
+    {
+      "symbol": "n9",
+      "file": "src/shared/segments/037.fragment.js",
+      "reason": "remove original embedded private key"
+    },
+    {
+      "symbol": "grt",
+      "file": "src/shared/segments/037.fragment.js",
+      "reason": "disable original embedded-private-key password recovery"
+    },
+    {
+      "symbol": "oS.logout",
+      "file": "src/shared/segments/037.fragment.js",
+      "reason": "await backend token revocation before clearing local session; preserve session on ordinary request failure"
+    },
+    {
+      "symbol": "W.interceptors.response",
+      "file": "src/shared/segments/038.fragment.js",
+      "reason": "clear expired/revoked/disabled/password-reset sessions for new backend 40001-40005/40103"
+    },
+    {
+      "symbol": "password-strategy.I / Vrt",
+      "file": "src/views/user-manage/user/module/password-strategy.vue.js",
+      "reason": "protected editable GET returns rules and configured flag only; blank default password preserves existing; explicitly entered new password alone is encrypted and submitted"
+    },
+    {
+      "symbol": "rebuildEnsureSession / As.beforeEach",
+      "file": "src/shared/segments/061.fragment.js",
+      "reason": "Single-flight authenticated hydration, optional local configuration failures preserve session, one next call per guard path; install routes then re-enter current route."
+    },
+    {
+      "symbol": "early home guard removal",
+      "file": "src/shared/segments/060.fragment.js",
+      "reason": "Evaluate homePageShowConfig only after user hydration, preventing refresh redirect to login/iframe."
+    },
+    {
+      "symbol": "getCustomer",
+      "file": "src/modules/enterprise-information-1064963f.js",
+      "reason": "Read true local company name/logo, no central lookup; unverified customer code/version/license expiry remain null and are shown as unknown."
+    },
+    {
+      "symbol": "SN / SET_USER",
+      "file": "src/shared/segments/015.fragment.js",
+      "reason": "Safe local company presentation; preserve real companyLogo in user store; no manufactured central customer facts."
+    },
+    {
+      "symbol": "print initialization / dispatch",
+      "file": "src/shared/segments/070.fragment.js",
+      "reason": "No default Lodop probe or download; only explicit host adapter; normal/design/queue false rejects, preview cancel is false, outer wrapper awaits and propagates print failure."
+    },
+    {
+      "symbol": "unused external SVG font definitions",
+      "file": "src/shared/segments/061.fragment.js",
+      "reason": "Removed unused remote ali font definitions while preserving all path geometry; six matching public SVG files retain original paths."
+    },
+    {
+      "symbol": "Pye common-button",
+      "file": "src/shared/segments/061.fragment.js",
+      "reason": "Use currentTarget/closest button for focus cleanup; null/deep targets and blur/closest host errors cannot swallow the business click. Disabled/loading contracts and exactly-once emit retained."
+    },
+    {
+      "symbol": "normalizeAttachmentUrls",
+      "file": "src/runtime/attachments.js",
+      "reason": "Successful JSON data normalize only known historical deployment /files/ URLs to same-origin; preserve identities/cycles, no DB changes or external fetches. Missing original assets remain local 404 with clear image error slots."
+    },
+    {
+      "symbol": "f / StructureClassification listAll",
+      "file": "src/modules/process-611d795f.js",
+      "reason": "Original required mesProductEnum now supplied; default BUILDING=1 from original enum, explicit parameter override retained."
+    },
+    {
+      "symbol": "return-repair label project scope",
+      "file": "src/views/mes/label-print/return-repair/module/print-header.vue.js",
+      "reason": "Read project configuration only when actual selected record detailInfo.projectId exists, supplied by drawer injection; no hidden-drawer empty-project request."
+    },
+    {
+      "symbol": "auto-detail empty freeze record",
+      "file": "src/views/wms/mes-receipt-review/module/auto-detail.vue.js",
+      "reason": "Original service permits null when no freeze record; normalize that to empty rows before material helpers, with request failure unchanged."
+    },
+    {
+      "symbol": "kit config delete",
+      "file": "src/modules/project-config-5f01cdbc.js",
+      "reason": "Align original mistaken GET with existing original @DeleteMapping /delete/{id}; no delete semantics replaced."
+    },
+    {
+      "symbol": "TTe supplier path",
+      "file": "src/shared/segments/062.fragment.js",
+      "reason": "Align original injection detail download with existing @GetMapping /getInjectionDetailDownload/{projectId}/{supplierId}."
+    },
+    {
+      "symbol": "BG settlement draft and OA preview",
+      "file": "src/views/supply-chain/purchase-order-bg/module/line/index.vue.js",
+      "reason": "A valid nested ResultVO(code20000, positive ledger id) opens the existing OA preview via common.dataId and radioType1; cancellation preserves a resumable per-order draft. Boolean payment/invoice results are checked separately. OA submission requires explicit click, current permission, real requestid and successful local association; link retries reuse the actual OA id."
+    }
+  ],
+  "original_private_key_present_in_active_source": false,
+  "original_password_decryption_disabled": true,
+  "raw_jwt": true,
+  "default_password_revealed_to_browser": false,
+  "automatic_print_probe": false,
+  "external_customer_lookup": false,
+  "refresh_session_preserved": true
+}

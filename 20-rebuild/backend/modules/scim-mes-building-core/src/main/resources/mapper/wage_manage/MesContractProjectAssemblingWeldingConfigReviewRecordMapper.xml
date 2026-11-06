@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_manage.MesContractProjectAssemblingWeldingConfigReviewRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesContractProjectAssemblingWeldingConfigReviewRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_assembling_welding_config_review_id"
+                property="contractProjectAssemblingWeldingConfigReviewId"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="contract_project_serial_number" property="contractProjectSerialNumber"/>
+        <result column="contract_project_short_name" property="contractProjectShortName"/>
+        <result column="contract_project_assembling_welding_config_id"
+                property="contractProjectAssemblingWeldingConfigId"/>
+        <result column="contract_project_assembling_welding_config_detail_id"
+                property="contractProjectAssemblingWeldingConfigDetailId"/>
+        <result column="initiator_id" property="initiatorId"/>
+        <result column="initiator_name" property="initiatorName"/>
+        <result column="initiation_date" property="initiationDate"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="review_date" property="reviewDate"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="process" property="process"/>
+        <result column="artifact_classification_name" property="artifactClassificationName"/>
+        <result column="pricing_manner_name" property="pricingMannerName"/>
+        <result column="comparison_operator_one_symbol" property="comparisonOperatorOneSymbol"/>
+        <result column="number_one" property="numberOne"/>
+        <result column="comparison_operator_two_symbol" property="comparisonOperatorTwoSymbol"/>
+        <result column="number_two" property="numberTwo"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="old_organization_inside_price" property="oldOrganizationInsidePrice"/>
+        <result column="old_organization_outside_price" property="oldOrganizationOutsidePrice"/>
+        <result column="new_organization_inside_price" property="newOrganizationInsidePrice"/>
+        <result column="new_organization_outside_price" property="newOrganizationOutsidePrice"/>
+        <result column="remark" property="remark"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="review_status_name" property="reviewStatusName"/>
+        <result column="review_remark" property="reviewRemark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, contract_project_assembling_welding_config_review_id, contract_project_id, contract_project_serial_number, contract_project_short_name, contract_project_assembling_welding_config_id, contract_project_assembling_welding_config_detail_id, initiator_id, initiator_name, initiation_date, reviewer_id, review_date, reviewer_name, process, artifact_classification_name, pricing_manner_name, comparison_operator_one_symbol, number_one, comparison_operator_two_symbol, number_two, measure_unit, old_organization_inside_price, old_organization_outside_price, new_organization_inside_price, new_organization_outside_price, remark, review_status, review_status_name, review_remark
+    </sql>
+
+</mapper>

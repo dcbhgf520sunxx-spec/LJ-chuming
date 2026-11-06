@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsPickingDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsPickingDetail">
+        <id column="id" property="id" />
+        <result column="picking_id" property="pickingId" />
+        <result column="picking_type" property="pickingType" />
+        <result column="specification" property="specification" />
+        <result column="material" property="material" />
+        <result column="unit" property="unit" />
+        <result column="picking_amount" property="pickingAmount" />
+        <result column="volume" property="volume" />
+        <result column="task_order_id" property="taskOrderId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, picking_id, picking_type, specification, material, unit, picking_amount, volume, task_order_id
+    </sql>
+
+</mapper>

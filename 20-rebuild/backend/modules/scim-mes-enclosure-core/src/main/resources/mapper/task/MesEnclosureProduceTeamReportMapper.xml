@@ -1,0 +1,1923 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.task.MesEnclosureProduceTeamReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.MesEnclosureProduceTeamReport">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="task_id" property="taskId"/>
+        <result column="process_id" property="processId"/>
+        <result column="scheduling_id" property="schedulingId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="quantity" property="quantity"/>
+        <result column="team_id" property="teamId"/>
+        <result column="user_id" property="userId"/>
+        <result column="report_type" property="reportType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, process_id, scheduling_id, product_id, product_type, quantity,team_id, user_id,report_type
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.ProduceTeamReportDO">
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.id,
+        a.process_id 'process.id',
+        a.product_id,
+        a.task_type_enum,
+        a.quantity,
+        a.inspection_quantity,
+        a.report_type,
+        mba.serial_number serial_number,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        pd.id 'area.id',
+        pd.`name` 'area.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbpl.id 'production_line.id',
+        mbpl.`name` 'production_line.name',
+        mbp.NAME 'process.name',
+        su.id 'user.id',
+        su.name 'user.name',
+        gro.id 'groups.id',
+        gro.name 'groups.name'
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ,mba.name productName
+        </if>
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.plan_id
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id = task.factory_id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbw.id = task.workshop_id
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id = task.production_line_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id = a.process_id
+        LEFT JOIN mes_enclosure_groups gro ON gro.id = task.groups_id
+        LEFT JOIN sys_user su ON a.user_id =su.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="date !=null and date !=''">
+                AND DATE(a.create_time) = date(#{date})
+            </if>
+            <if test="serialNumber !=null and serialNumber !=''">
+                mba.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="productId !=null">
+                AND a.product_id = #{productId}
+            </if>
+            <if test="reportType !=null">
+                AND a.report_ype = #{reportType}
+            </if>
+            <if test="taskTypeEnum !=null">
+                AND a.task_type_enum &amp;#{taskTypeEnum}
+            </if>
+            <if test="teamId !=null">
+                AND a.team_id =#{teamId}
+            </if>
+            <if test="taskId !=null">
+                AND a.task_id = #{taskId}
+            </if>
+            <if test="projectId !=null">
+                AND cp.id = #{projectId}
+            </if>
+            <if test="monomerId !=null">
+                AND pm.id = #{monomerId}
+            </if>
+            <if test="planId !=null">
+                AND pd.id = #{planId}
+            </if>
+            <if test="workshopId !=null">
+                AND mbw.id = #{workshopId}
+            </if>
+            <if test="productLineId !=null">
+                AND mbpl.id = #{productLineId}
+            </if>
+            <if test="factoryId !=null">
+                AND mbf.id = #{factoryId}
+            </if>
+        </where>
+    </select>
+    <select id="reportList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.ProduceAbonrmalReportDO">
+        SELECT a.id,
+        a.task_id,
+        a.process_id,
+        a.quantity,
+        a.team_id,
+        a.report_type,
+        b.user_name,
+        c.`name` process_name,
+        d.serial_number,
+        task.ask_complete_time,
+        pl.`name` 'production_line.name',
+        fa.`name` 'factory.name',
+        w.`name` 'workshop.name'
+        FROM mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_team_user_link b ON a.team_id = b.team_id
+        AND b.bool_delete_enum = FALSE
+        AND b.bool_leader_enum =
+        TRUE
+        LEFT JOIN mes_enclosure_process c ON c.id = a.process_id
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_assemble d ON a.product_id =d.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact d ON a.product_id =d.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure d ON a.product_id =d.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble d ON a.product_id =d.id
+        </if>
+        LEFT JOIN mes_enclosure_team te ON te.id=a.team_id
+        LEFT JOIN mes_enclosure_task task ON task.id=a.task_id
+        LEFT JOIN mes_enclosure_factory fa ON te.factory_id=fa.id
+        LEFT JOIN mes_enclosure_production_line pl ON te.production_line_id=pl.id
+        LEFT JOIN mes_enclosure_workshop w ON te.workshop_id=w.id
+        WHERE a.bool_delete_enum = FALSE
+        AND a.product_id = #{productId}
+        AND a.product_type =#{productType}
+        AND a.task_id =#{taskId}
+        AND a.process_id in
+        <foreach collection="processIdList" item="processId" open="(" close=")" separator=",">
+            #{processId}
+        </foreach>
+        ORDER BY
+        process_id,
+        task_id,
+        team_id,
+        report_type
+    </select>
+    <select id="getComplete" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.DistributionDO">
+        SELECT
+        IFNULL(SUM( a.quantity ) ,0)quantity
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            ,IFNULL( SUM( ta.net_weight ), 0 ) completeNetWeight
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ,IFNULL( SUM( ta.length ), 0 ) completeLength
+        </if>
+        FROM
+        mes_enclosure_complete a
+        LEFT JOIN mes_enclosure_task mbt ON mbt.production_line_id
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ta.id= a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure ta ON ta.id= a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble ta ON ta.id= a.product_id
+        </if>
+        <where>
+            <if test="projectId">
+                and a.project_id=#{projectId}
+            </if>
+            <!--<if test="factoryId">
+                and a.factory_id=#{factoryId}
+            </if>-->
+            <if test="productionLineId">
+                and a.production_line_id=#{productionLineId}
+            </if>
+            <!--<if test="workshopId">
+                and workshop_id=#{workshopId}
+            </if>-->
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+    </select>
+    <select id="outStaffWageList" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.OutStaffDO">
+        SELECT
+        IFNULL(SUM( a.complete_quantity ),0) complete_quantity,
+        IFNULL( SUM( a.task_quantity ), 0 ) task_quantity,
+        a.wage_quota_type,
+        a.product_id,
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.plan_id 'areaDetail.id',
+        a.project_name 'project.name',
+        a.project_short_name 'project.short_name',
+        a.project_contract_no 'project.serial_number',
+        a.monomer_name 'monomer.name',
+        a.areaDetail_name 'areaDetail.name',
+        a.wage,
+        a.leader_name,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            a.`name`,
+        </if>
+        a.serial_number,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            a.specification,
+        </if>
+        a.team_id,
+        a.product_type,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            IFNULL(SUM( a.task_net_weight),0) task_net_weight,
+        </if>
+        IFNULL(SUM( a.task_length),0) task_length,
+        IFNULL(SUM( a.complete_length),0) complete_length,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            IFNULL(SUM( a.complete_net_weight),0) complete_net_weight,
+        </if>
+        IFNULL(SUM( a.mate),0) mate,
+        IFNULL(SUM( a.price),0) price
+        FROM
+        (
+        SELECT
+        IFNULL(SUM( a.inspection_quantity ),0) complete_quantity,
+        a.task_quantity,
+        a.wage_quota_type,
+        a.product_id,
+        a.project_id ,
+        a.monomer_id ,
+        a.plan_id ,
+        cp.`name` project_name,
+        cp.short_name project_short_name,
+        cp.serial_number project_contract_no,
+        pm.`name` monomer_name,
+        pd.`name` areaDetail_name,
+        a.wage,
+        a.leader_name,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            a.`name`,
+        </if>
+        a.serial_number,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            a.specification,
+        </if>
+        a.team_id,
+        a.product_type,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+        a.task_net_weight,
+        </if>
+        a.task_length task_length,
+        IFNULL(SUM( a.complete_length),0) complete_length,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            IFNULL(SUM( a.complete_net_weight),0) complete_net_weight,
+        </if>
+        IFNULL(SUM( a.mate),0) mate,
+        CASE
+        a.wage_quota_type
+        WHEN 1 THEN
+        IFNULL( SUM( a.mate*a.wage), 0 )
+        WHEN 2 THEN
+        IFNULL( SUM( a.mate*a.wage), 0 ) ELSE IFNULL( SUM( a.mate*a.wage), 0 )
+        END price
+        FROM
+        (
+        SELECT
+        a.inspection_quantity,
+        mbp.wage_quota_type,
+        mbt.task_quantity,
+        mbt.product_id,
+        mbt.project_id,
+        mbt.monomer_id,
+        IFNULL(mbes.wage,0)wage,
+        us.`name` leader_name,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ta.`name`,
+        </if>
+        ta.serial_number,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            ta.specification,
+        </if>
+        a.team_id,
+        mbt.plan_id,
+        mbt.product_type,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            mbt.task_quantity*ta.net_weight task_net_weight,
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            mbt.task_quantity*ta.weight task_net_weight,
+        </if>
+        mbt.task_quantity*ta.length task_length,
+        ta.length * a.inspection_quantity complete_length,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            ta.net_weight * a.inspection_quantity complete_net_weight,
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ta.weight * a.inspection_quantity complete_net_weight,
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            CASE mbp.wage_quota_type
+            WHEN 1 THEN
+            ta.net_weight * a.inspection_quantity/1000
+            WHEN 2 THEN
+            ta.length * a.inspection_quantity/1000
+            ELSE
+            ta.length * a.inspection_quantity/1000
+            END
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            CASE mbp.wage_quota_type
+            WHEN 1 THEN
+            ta.net_weight * a.inspection_quantity/1000
+            WHEN 2 THEN
+            ta.length * a.inspection_quantity/1000
+            ELSE
+            ta.surface_area*a.inspection_quantity/1000/1000
+            END
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            CASE mbp.wage_quota_type
+            WHEN 1 THEN
+            ta.weight * a.inspection_quantity/1000
+            WHEN 2 THEN
+            ta.length * a.inspection_quantity/1000
+            ELSE
+            ta.length*ta.width*a.inspection_quantity/1000/1000
+            END
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            ta.length * a.inspection_quantity/1000
+        </if>
+        mate
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_task mbt ON mbt.id = a.task_id
+        LEFT JOIN mes_enclosure_extra_salary mbes ON mbes.team_id = a.team_id AND mbes.product_id = a.product_id AND
+        mbes.product_type = a.product_type AND mbes.bool_used_enum =1
+        LEFT JOIN mes_enclosure_team team ON team.id = a.team_id
+        LEFT JOIN mes_enclosure_team_user_link tu ON tu.team_id = a.team_id AND tu.bool_leader_enum=TRUE AND
+        tu.bool_delete_enum=FALSE
+        LEFT JOIN sys_user us ON us.id=tu.user_id
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble ta ON ta.id = a.product_id
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part ta ON ta.id = a.product_id
+        </if>
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id=team.process_id
+        WHERE
+        team.organization_type = 0
+        AND mbt.project_id=#{projectId}
+        AND mbt.product_type=#{productType}
+        AND team.process_id=#{processId}
+        ) AS a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        AND cp.bool_delete_enum =
+        FALSE LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        AND pm.bool_delete_enum =
+        FALSE LEFT JOIN plan_area pd ON pd.id = a.plan_id
+        AND pd.bool_delete_enum =
+        FALSE
+        <where>
+            <if test="leaderName!=null and leaderName!=''">
+                AND us.leader_name like CONCAT('%', #{leaderName},'%')
+            </if>
+            <if test="monomerName!=null and monomerName!=''">
+                AND pa.`name` like CONCAT('%', #{monomerName},'%')
+            </if>
+            <if test="areaName!=null and areaName!=''">
+                AND pd.`name` like CONCAT('%', #{areaName},'%')
+            </if>
+            <if test="serialNumber!=null and serialNumber!=''">
+                AND a.serial_number like CONCAT('%', #{serialNumber},'%')
+            </if>
+        </where>
+        GROUP BY
+        a.wage_quota_type,
+        a.product_id,
+        a.project_id ,
+        a.monomer_id ,
+        a.plan_id ,
+        cp.`name`,
+        cp.short_name ,
+        cp.serial_number ,
+        pm.`name` ,
+        pd.`name`,
+        a.wage,
+        a.leader_name,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            a.`name`,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            a.specification,
+        </if>
+        a.serial_number,
+        a.team_id,
+        a.product_type,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+        a.task_net_weight,
+        </if>
+        a.task_length,
+        a.task_quantity)as a
+        GROUP BY
+        a.wage_quota_type,
+        a.product_id,
+        a.project_id ,
+        a.monomer_id ,
+        a.plan_id ,
+        a.project_name,
+        a.project_short_name,
+        a.project_contract_no,
+        a.monomer_name,
+        a.areaDetail_name,
+        a.wage,
+        a.leader_name,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            a.`name`,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            a.specification,
+        </if>
+        a.serial_number,
+        a.team_id,
+        a.product_type
+    </select>
+    <select id="getTeamMate" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.ReckonPriceTeamDO">
+        SELECT
+        SUM( a.inspection_quantity ) complete_quantity,
+        SUM( a.price ) price,
+        a.process_name,
+        a.team_id,
+        c.`name` leader_name,
+        a.factory_id 'factory.id',
+        a.production_line_id 'production_line.id',
+        a.workshop_id 'workshop.id',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        a.production_line_name 'production_line.name',
+        SUM(a.mate) mate
+        FROM
+        (
+        SELECT
+        a.inspection_quantity,
+        a.wage,
+        a.price,
+        a.product_id,
+        a.product_type,
+        a.create_time,
+        mbp.`name` process_name,
+        a.team_id,
+        a.process_id,
+        team.factory_id,
+        team.workshop_id,
+        mbpl.id production_line_id,
+        mbpl.NAME production_line_name,
+        mbt.project_id,
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            (SELECT net_weight FROM tech_machine_part WHERE id=a.product_id) *a.inspection_quantity/1000
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            (SELECT net_weight FROM tech_artifact WHERE id=a.product_id) *a.inspection_quantity/1000
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            (SELECT length FROM tech_enclosure WHERE id=a.product_id) *a.inspection_quantity/1000
+        </if>
+         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            ( SELECT length FROM tech_assemble WHERE id = a.product_id ) * a.inspection_quantity/1000
+        </if>mate
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_task mbt ON a.task_id = mbt.id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id = a.process_id
+        LEFT JOIN mes_enclosure_team team ON a.team_id = team.id
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id = team.production_line_id
+        <where>
+            a.product_type=#{productType} AND team.organization_type = 1
+            <if test="projectId!=null">
+                and mbt.project_id=#{projectId}
+            </if>
+            <if test="factoryId!=null">
+                and team.factory_id=#{factoryId}
+            </if>
+            <if test="productionLineId!=null">
+                and team.production_line_id=#{productionLineId}
+            </if>
+            <if test="workshopId!=null">
+                and team.workshop_id=#{workshopId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+        ) AS a
+        LEFT JOIN mes_enclosure_team_user_link b ON a.team_id = b.team_id
+        AND b.bool_delete_enum = FALSE
+        AND b.bool_leader_enum =
+        TRUE LEFT JOIN sys_user c ON b.user_id = c.id
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id = a.factory_id
+        AND mbf.bool_delete_enum =
+        FALSE LEFT JOIN mes_enclosure_workshop mbw ON mbw.id = a.workshop_id
+        AND mbw.bool_delete_enum =FALSE
+        GROUP BY
+        a.process_name,
+        a.team_id,
+        c.`name`,
+        a.factory_id ,
+        a.production_line_id ,
+        a.workshop_id ,
+        mbf.`name` ,
+        mbw.`name` ,
+        a.production_line_name
+    </select>
+    <select id="getProcessPrice"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.DistributionProcessDO">
+        SELECT
+        a.process_id,
+        mbp.`name` process_name,
+        SUM(a.price) price
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_team team ON a.team_id = team_id
+        LEFT JOIN mes_enclosure_task mbt ON mbt.id=a.task_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id=a.process_id
+        <where>
+            a.product_type=#{productType} and team.organization_type=1
+            <if test="factoryId!=null">
+                and team.factory_id=#{factoryId}
+            </if>
+            <if test="teamId!=null">
+                and a.team_id=#{teamId}
+            </if>
+            <if test="productionLineId!=null">
+                and team.production_line_id=#{productionLineId}
+            </if>
+            <if test="workshopId!=null">
+                and team.workshop_id=#{workshopId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+        GROUP BY process_id
+    </select>
+    <select id="getTeamMateDetails"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.wages.ReckonPriceDetailDO">
+        SELECT
+        a.*,
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.plan_id 'areaDetail.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'areaDetail.name'
+        FROM
+        (
+        SELECT
+        a.wage,
+        a.wage_quota_type,
+        a.user_id,
+        user_table.`name` user_name,
+        process.`name` process_name,
+        a.product_id,
+        product.project_id,
+        product.monomer_id,
+        product.plan_id,
+        DATE_FORMAT(a.create_time,'%Y/%m/%d') date,
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            product.`name`,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            product.plate,
+            product.color,
+            product.category,
+        </if>
+        product.serial_number,
+        product.material,
+        <if test="productType!=4">
+            product.specification,
+        </if>
+        a.quantity complete_quantity,
+        a.price price,
+        CASE a.wage_quota_type
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            WHEN 1 THEN
+            product.net_weight*a.quantity
+            WHEN 2 THEN product.length*a.quantity
+            ELSE a.quantity
+            END
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            WHEN 1 THEN
+            product.net_weight*a.quantity
+            WHEN 2 THEN
+            product.length*a.quantity
+            WHEN 4 THEN product.surface_area*a.quantity
+            ELSE a.quantity
+            END
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            WHEN 1 THEN
+            product.weight*a.quantity
+            WHEN 2 THEN
+            product.length*a.quantity
+            WHEN 4 THEN  product.length*product.width*a.quantity
+            ELSE a.quantity
+            END
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            WHEN 1 THEN
+            product.net_weight*a.quantity
+            WHEN 2 THEN product.length*a.quantity
+            ELSE a.quantity
+            END
+        </if> mate
+        FROM
+        mes_enclosure_produce_team_report_price a
+        LEFT JOIN mes_enclosure_produce_team_report team ON a.team_reoprt_id = team.id
+        LEFT JOIN sys_user user_table ON team.user_id = user_table.id
+        LEFT JOIN mes_enclosure_process process ON a.process_id = process.id
+        LEFT JOIN mes_enclosure_task task ON task.id=a.task_id
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part product ON product.id = a.product_id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON product.id = a.product_id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure product ON product.id = a.product_id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble product ON product.id = a.product_id
+        </if>
+        <where>
+            <if test="productType!=null">
+                a.product_type &amp; #{productType}
+            </if>
+            <if test="wageQuotaType!=null">
+                AND a.wage_quota_type=#{wageQuotaType}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="teamId!=null">
+                AND a.team_id=#{teamId}
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="factoryId!=null">
+                AND task.factory_id=#{factoryId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+        ) a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = a.plan_id
+        <!--        SELECT-->
+        <!--        a.*,-->
+        <!--        a.project_id 'project.id',-->
+        <!--        a.monomer_id 'monomer.id',-->
+        <!--        a.plan_id 'areaDetail.id',-->
+        <!--        cp.`name` 'project.name',-->
+        <!--        cp.short_name 'project.short_name',-->
+        <!--        cp.serial_number 'project.serial_number',-->
+        <!--        pm.`name` 'monomer.name',-->
+        <!--        pd.`name` 'areaDetail.name'-->
+        <!--        FROM-->
+        <!--        (-->
+        <!--        SELECT-->
+        <!--        a.wage,-->
+        <!--        a.wage_quota_type,-->
+        <!--        a.user_id,-->
+        <!--        USER.`name` user_name,-->
+        <!--        process.`name` process_name,-->
+        <!--        a.product_id,-->
+        <!--        product.project_id,-->
+        <!--        product.monomer_id,-->
+        <!--        product.plan_id,-->
+        <!--        DATE_FORMAT(a.create_time,'%Y/%m/%d') date,-->
+        <!--        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--        product.`name`,-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--            product.plate,-->
+        <!--            product.color,-->
+        <!--            product.category,-->
+        <!--        </if>-->
+        <!--        product.serial_number,-->
+        <!--        product.material,-->
+        <!--        <if test="productType!=4">-->
+        <!--        product.specification,-->
+        <!--        </if>-->
+        <!--        sum( a.price) price,-->
+        <!--        CASE a.wage_quota_type-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">-->
+        <!--            WHEN 1 THEN-->
+        <!--            product.net_weight*a.quantity-->
+        <!--             WHEN 2 THEN product.length*a.quantity-->
+        <!--             ELSE a.quantity-->
+        <!--            END-->
+        <!--        </if>-->
+        <!--        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">-->
+        <!--            WHEN 1 THEN-->
+        <!--            product.net_weight*a.quantity-->
+        <!--            WHEN 2 THEN-->
+        <!--            product.length*a.quantity-->
+        <!--            WHEN 4 THEN product.surface_area*a.quantity-->
+        <!--            ELSE a.quantity-->
+        <!--            END-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--            WHEN 1 THEN-->
+        <!--            product.weight*a.quantity-->
+        <!--            WHEN 2 THEN-->
+        <!--            product.length*a.quantity-->
+        <!--            WHEN 4 THEN  product.length*product.width*a.quantity-->
+        <!--            ELSE a.quantity-->
+        <!--            END-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">-->
+        <!--            WHEN 1 THEN-->
+        <!--            product.net_weight*a.quantity-->
+        <!--             WHEN 2 THEN product.length*a.quantity-->
+        <!--             ELSE a.quantity-->
+        <!--            END-->
+        <!--        </if> mate-->
+        <!--        FROM-->
+        <!--        mes_enclosure_produce_team_report_price a-->
+        <!--        LEFT JOIN sys_user USER ON a.user_id = USER.id-->
+        <!--        LEFT JOIN mes_enclosure_process process ON process.id = a.process_id-->
+        <!--        LEFT JOIN mes_enclosure_task task ON task.id = a.task_id-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">-->
+        <!--            LEFT JOIN tech_machine_part product ON product.id = a.product_id-->
+        <!--        </if>-->
+        <!--        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">-->
+        <!--            LEFT JOIN tech_artifact product ON product.id = a.product_id-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--            LEFT JOIN tech_enclosure product ON product.id = a.product_id-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">-->
+        <!--            LEFT JOIN tech_assemble product ON product.id = a.product_id-->
+        <!--        </if>-->
+        <!--        <where>-->
+        <!--            <if test="productType!=null">-->
+        <!--                a.product_type=#{productType}-->
+        <!--            </if>-->
+        <!--            <if test="wageQuotaType!=null">-->
+        <!--                AND a.wage_quota_type=#{wageQuotaType}-->
+        <!--            </if>-->
+        <!--            <if test="teamId!=null">-->
+        <!--                AND a.team_id=#{teamId}-->
+        <!--            </if>-->
+        <!--            <if test="projectIds != null and projectIds.size() != 0">-->
+        <!--                AND product.project_id in-->
+        <!--                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">-->
+        <!--                    #{projectId}-->
+        <!--                </foreach>-->
+        <!--            </if>-->
+        <!--            <if test="projectId!=null">-->
+        <!--                AND product.project_id=#{projectId}-->
+        <!--            </if>-->
+        <!--            <if test="factoryId!=null">-->
+        <!--                AND task.factory_id=#{factoryId}-->
+        <!--            </if>-->
+        <!--            <if test="startDate!=null">-->
+        <!--                AND DATE(a.create_time)>=DATE(#{startDate})-->
+        <!--            </if>-->
+        <!--            <if test="endDate!=null">-->
+        <!--                AND DATE(a.create_time)&lt;=DATE(#{endDate})-->
+        <!--            </if>-->
+        <!--        </where>-->
+        <!--        GROUP BY-->
+        <!--        a.wage,-->
+        <!--        a.wage_quota_type,-->
+        <!--        a.user_id,-->
+        <!--        USER.`name` ,-->
+        <!--        process.`name`,-->
+        <!--        a.product_id,-->
+        <!--        product.project_id,-->
+        <!--        product.monomer_id,-->
+        <!--        product.plan_id,-->
+        <!--        date,-->
+        <!--        <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--            product.`name`,-->
+        <!--        </if>-->
+        <!--         <if test="productType==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">-->
+        <!--            product.plate,-->
+        <!--            product.color,-->
+        <!--            product.category,-->
+        <!--        </if>-->
+        <!--        product.serial_number,-->
+        <!--        product.material,-->
+        <!--        <if test="productType!=4">-->
+        <!--            product.specification,-->
+        <!--        </if>-->
+        <!--        a.quantity-->
+        <!--        ) a-->
+        <!--        LEFT JOIN contract_project cp ON cp.id = a.project_id-->
+        <!--        LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id-->
+        <!--        LEFT JOIN plan_area pd ON pd.id = a.plan_id-->
+    </select>
+    <select id="getProcessPriceSummary" resultType="java.math.BigDecimal">
+        SELECT
+        SUM(a.price) price
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_team team ON a.team_id = team_id
+        LEFT JOIN mes_enclosure_task mbt ON mbt.id=a.task_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id=a.process_id
+        <where>
+            a.product_type=#{productType} and team.organization_type=1
+            <if test="factoryId">
+                and a.factory_id=#{factoryId}
+            </if>
+            <if test="teamId">
+                and a.team_id=#{teamId}
+            </if>
+            <if test="productionLineId">
+                and team.production_line_id=#{productionLineId}
+            </if>
+            <if test="workshopId">
+                and a.workshop_id=#{workshopId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+    </select>
+    <select id="reportSourceList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.ReportSourceDO">
+        SELECT
+            report.id,
+            report.create_time date,
+            report.quantity,
+            report.process_id,
+            report.team_id,
+            user.`name` user_name,
+            leader.`name` leaderName,
+            factory.`name` 'factory.name',
+            workshop.`name` 'workshop.name',
+            production_line.`name` 'production_line.name',
+            process.`name` process_name
+        FROM
+            mes_enclosure_produce_team_report report
+            LEFT JOIN mes_enclosure_task_process task_process ON report.task_process_id=task_process.id
+            LEFT JOIN mes_enclosure_factory factory ON factory.id=task_process.factory_id
+            LEFT JOIN mes_enclosure_workshop workshop ON workshop.id=task_process.workshop_id
+            LEFT JOIN mes_enclosure_production_line production_line ON production_line.id=task_process.production_line_id
+            LEFT JOIN mes_enclosure_process process ON process.id=report.process_id
+            LEFT JOIN sys_user user ON user.id=report.user_id
+            LEFT JOIN mes_enclosure_team_user_link team_user_link ON team_user_link.team_id=report.team_id  AND team_user_link.bool_delete_enum=FALSE AND team_user_link.bool_leader_enum=TRUE
+            LEFT JOIN sys_user leader ON leader.id=team_user_link.user_id
+            <where>
+                report.bool_delete_enum=FALSE AND report.product_id=#{id} AND report.product_type=#{prodcutType}
+            </where>
+        ORDER BY task_process.sequence
+    </select>
+    <select id="artifactTaskList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.task.MesEnclosureArtifactTaskProcessDO">
+
+
+        SELECT a.* FROM
+        (
+        SELECT
+        report.task_process_id id,
+        report.create_time,
+        report.number,
+        product.serial_number,
+        c.user_name teamLeaderName
+        FROM
+        `mes_enclosure_produce_team_report` report
+        LEFT JOIN tech_artifact product ON report.product_id = product.id
+        LEFT JOIN mes_enclosure_team_user_link c ON report.team_id = c.team_id
+        AND c.bool_leader_enum = 1
+        AND c.bool_delete_enum = 0
+        WHERE
+        task_process_id = #{previousTaskProcessId}
+        AND report.bool_delete_enum = 0
+        AND report.inspection_quantity = report.quantity
+        ) a
+        LEFT JOIN (
+        SELECT
+        report.task_process_id id,
+        report.number
+        FROM
+        `mes_enclosure_produce_team_report` report
+        WHERE
+        task_process_id = #{taskProcessId}
+        AND report.bool_delete_enum = 0)b ON a.number=b.number
+        WHERE b.id IS NULL
+        <if test="number!=null">
+            AND a.number=#{number}
+        </if>
+       order by a.number
+<!--        SELECT-->
+<!--            report.task_process_id id,-->
+<!--            report.create_time,-->
+<!--            report.number,-->
+<!--            product.serial_number,-->
+<!--            c.user_name teamLeaderName-->
+<!--        FROM-->
+<!--            `mes_enclosure_produce_team_report` report-->
+<!--                LEFT JOIN tech_artifact product ON report.product_id=product.id-->
+<!--               LEFT JOIN mes_enclosure_team_user_link c ON report.team_id = c.team_id AND c.bool_leader_enum = 1 AND c.bool_delete_enum = 0-->
+<!--        WHERE task_process_id=#{taskProcessId}-->
+<!--              <if test="number!=null">-->
+<!--                  AND  number=#{number}-->
+<!--              </if>-->
+<!--        AND report.bool_delete_enum = 0-->
+<!--        AND report.inspection_quantity=report.quantity-->
+    </select>
+
+    <select id="artifactTaskLogList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.task.MesEnclosureArtifactTaskProcessDO">
+        SELECT
+        report.task_process_id id,
+        report.create_time,
+        report.number,
+        product.serial_number,
+        c.user_name teamLeaderName
+        FROM
+        `mes_enclosure_produce_team_report` report
+        LEFT JOIN tech_artifact product ON report.product_id = product.id
+        LEFT JOIN mes_enclosure_team_user_link c ON report.team_id = c.team_id
+        AND c.bool_leader_enum = 1
+        AND c.bool_delete_enum = 0
+        WHERE
+        task_process_id = #{previousTaskProcessId}
+        AND report.bool_delete_enum = 0
+    </select>
+    <select id="artifactInspectionTaskList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.task.MesEnclosureArtifactTaskProcessDO">
+        SELECT
+        report.task_process_id id,
+        report.create_time,
+        report.number,
+        product.serial_number,
+        c.user_name teamLeaderName
+        FROM
+        `mes_enclosure_produce_team_report` report
+        LEFT JOIN tech_artifact product ON report.product_id=product.id
+        LEFT JOIN mes_enclosure_team_user_link c ON report.team_id = c.team_id AND c.bool_leader_enum = 1 AND c.bool_delete_enum = 0
+        WHERE task_process_id=#{taskProcessId}
+        <if test="number!=null">
+            AND  number=#{number}
+        </if>
+        <if test="teamId!=null">
+            AND  report.team_id=#{teamId}
+        </if>
+        AND report.bool_delete_enum = 0
+        AND report.inspection_quantity!=report.quantity
+        AND report.number  NOT IN (	SELECT b.number FROM mes_enclosure_qhse a
+        LEFT JOIN mes_enclosure_qhse_inspection_link b ON a.id=b.qhse_id
+        WHERE task_process_id=#{taskProcessId}
+        AND a.bool_delete_enum=0 AND b.bool_delete_enum=0 AND b.number IS NOT NULL)
+        order by report.number
+    </select>
+
+    <select id="artifactNumberStatusList" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.MesEnclosureReportNumberStatusDTO">
+        select
+        mr.id,
+        mr.number,
+        mr.process_id,
+        wr.status,
+        b.name
+        from mes_enclosure_produce_team_report mr
+        LEFT JOIN mes_enclosure_warehouse_record wr on wr.product_id = mr.product_id and mr.number = wr.number and wr.type = 1 and wr.product_type = #{taskTypeEnum} and plan_id = #{planId}
+        LEFT JOIN mes_enclosure_process b on b.id = mr.process_id
+        where mr.id in
+        (select max(a.id)
+        from mes_enclosure_produce_team_report a
+        where a.product_id = #{productId} and a.task_id = #{taskId} and a.task_type_enum = #{taskTypeEnum} and a.inspection_quantity = 1
+        GROUP BY a.number)
+    </select>
+    <select id="listByConditionBydate"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.ProduceTeamReportDO">
+
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.id,
+        a.process_id 'process.id',
+        a.product_id,
+        a.task_type_enum,
+        a.quantity,
+        a.inspection_quantity,
+        a.report_type,
+        mba.serial_number serial_number,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        pd.id 'area.id',
+        pd.`name` 'area.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbpl.id 'production_line.id',
+        mbpl.`name` 'production_line.name',
+        mbp.NAME 'process.name',
+        su.id 'user.id',
+        su.name 'user.name',
+        gro.id 'groups.id',
+        gro.name 'groups.name'
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ,mba.name productName
+        </if>
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.plan_id
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id = task.factory_id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbw.id = task.workshop_id
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id = task.production_line_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id = a.process_id
+        LEFT JOIN mes_enclosure_groups gro ON gro.id = task.groups_id
+        LEFT JOIN sys_user su ON a.user_id =su.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="startDate !=null">
+                AND date(a.create_time) >=date(#{startDate})
+            </if>
+            <if test="endDate !=null">
+                AND date(a.create_time) &lt;=date(#{endDate})
+            </if>
+            <if test="serialNumber !=null and serialNumber !=''">
+                AND mba.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="productId !=null">
+                AND a.product_id = #{productId}
+            </if>
+            <if test="reportType !=null">
+                AND a.report_ype = #{reportType}
+            </if>
+            <if test="taskTypeEnum !=null">
+                AND a.task_type_enum &amp;#{taskTypeEnum}
+            </if>
+            <if test="teamId !=null">
+                AND a.team_id =#{teamId}
+            </if>
+            <if test="taskId !=null">
+                AND a.task_id = #{taskId}
+            </if>
+            <if test="projectId !=null">
+                AND cp.id = #{projectId}
+            </if>
+            <if test="monomerId !=null">
+                AND pm.id = #{monomerId}
+            </if>
+            <if test="planId !=null">
+                AND pd.id = #{planId}
+            </if>
+            <if test="workshopId !=null">
+                AND mbw.id = #{workshopId}
+            </if>
+            <if test="productLineId !=null">
+                AND mbpl.id = #{productLineId}
+            </if>
+            <if test="factoryId !=null">
+                AND mbf.id = #{factoryId}
+            </if>
+        </where>
+        order by a.create_time DESC
+    </select>
+    <select id="inspectionListByConditionByDate"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.ProduceInspectionTeamReportDO">
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.id,
+        a.process_id 'process.id',
+        a.product_id,
+        a.task_type_enum,
+        a.inspection_quantity,
+        a.user_id 'user.id',
+        a.bool_adopt_enum,
+        mba.serial_number serial_number,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        pd.id 'area.id',
+        pd.`name` 'area.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbpl.id 'production_line.id',
+        mbpl.`name` 'production_line.name',
+        mbp.NAME 'process.name',
+        su.name 'user.name',
+        gro.id 'groups.id',
+        gro.name 'groups.name'
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType() or taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ,mba.name productName
+        </if>
+        FROM
+        mes_enclosure_produce_inspection_team_report a
+        LEFT JOIN mes_enclosure_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.plan_id
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id = task.factory_id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbw.id = task.workshop_id
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id = task.production_line_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id = a.process_id
+        LEFT JOIN mes_enclosure_groups gro ON gro.id = task.groups_id
+        LEFT JOIN sys_user su ON a.user_id =su.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="startDate !=null">
+                AND date(a.create_time) >=date(#{startDate})
+            </if>
+            <if test="endDate !=null">
+                AND date(a.create_time) &lt;=date(#{endDate})
+            </if>
+            <if test="serialNumber !=null and serialNumber !=''">
+                and mba.serial_number Like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="productId !=null">
+                AND a.product_id = #{productId}
+            </if>
+            <if test="boolAdoptEnum !=null">
+                AND a.bool_adopt_enum = #{boolAdoptEnum}
+            </if>
+            <if test="taskTypeEnum !=null">
+                AND a.task_type_enum &amp; #{taskTypeEnum}
+            </if>
+            <if test="teamId !=null">
+                AND a.team_id =#{teamId}
+            </if>
+            <if test="taskId !=null">
+                AND a.task_id =#{taskId}
+            </if>
+            <if test="projectId !=null">
+                AND cp.id = #{projectId}
+            </if>
+            <if test="monomerId !=null">
+                AND pm.id = #{monomerId}
+            </if>
+            <if test="planId !=null">
+                AND pd.id = #{planId}
+            </if>
+            <if test="workshopId !=null">
+                AND mbw.id = #{workshopId}
+            </if>
+            <if test="productLineId !=null">
+                AND mbpl.id = #{productLineId}
+            </if>
+            <if test="factoryId !=null">
+                AND mbf.id = #{factoryId}
+            </if>
+        </where>
+    </select>
+    <select id="teamReportMachinePartList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.ProduceTeamReportDTO">
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.id,
+        a.process_id 'process.id',
+        a.product_id,
+        a.task_type_enum,
+        a.quantity,
+        a.inspection_quantity,
+        a.report_type,
+        mba.serial_number serial_number,
+        cp.id 'project.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        pd.id 'area.id',
+        pd.`name` 'area.name',
+        mbw.id 'workshop.id',
+        mbw.`name` 'workshop.name',
+        mbpl.id 'production_line.id',
+        mbpl.`name` 'production_line.name',
+        mbp.NAME 'process.name',
+        su.id 'user.id',
+        su.name 'user.name',
+        gro.id 'groups.id',
+        gro.name 'groups.name'
+        FROM
+        mes_enclosure_produce_team_report a
+        LEFT JOIN mes_enclosure_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.plan_id
+        LEFT JOIN mes_enclosure_factory mbf ON mbf.id = task.factory_id
+        LEFT JOIN mes_enclosure_workshop mbw ON mbw.id = task.workshop_id
+        LEFT JOIN mes_enclosure_production_line mbpl ON mbpl.id = task.production_line_id
+        LEFT JOIN mes_enclosure_process mbp ON mbp.id = a.process_id
+        LEFT JOIN mes_enclosure_groups gro ON gro.id = task.groups_id
+        LEFT JOIN sys_user su ON a.user_id =su.id
+        <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part mba ON a.product_id =mba.id AND mba.bool_delete_enum=FALSE
+        </if>
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="startDate !=null">
+                AND date(a.create_time) >=date(#{startDate})
+            </if>
+            <if test="endDate !=null">
+                AND date(a.create_time) &lt;=date(#{endDate})
+            </if>
+            <if test="serialNumber !=null and serialNumber !=''">
+                    mba.serial_number like CONCAT('%',#{serialNumber},'%')
+            </if>
+            <if test="taskTypeEnum !=null">
+                AND a.task_type_enum =#{taskTypeEnum}
+            </if>
+            <if test="projectId !=null">
+                AND cp.id = #{projectId}
+            </if>
+            <if test="processType==@com.hzchum.scim.mes.enclosure.core.api.enums.process.ProcessTypeEnum@DRILL_HOLE.getType()">
+                AND mbp.type = 8
+            </if>
+            <if test="cutId !=null">
+                AND task.nest_cut_plate_id = #{cutId}
+            </if>
+        </where>
+    </select>
+    <select id="artifactSourceReportProductList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.ArtifactReportSourceDTO">
+        SELECT DISTINCT
+            report.process_id 'process.id',
+            process.`name` 'process.name',
+            production_line.id 'productionLine.id',
+            production_line.`name` 'productionLine.name',
+            report.groups_id 'groups.id',
+            gro.`name` 'groups.name',
+            users.id 'user.id',
+            users.`name` 'user.name',
+            sum(report.quantity) quantity,
+            process.sort
+            <if test="number!=null">
+                ,report.create_time date
+            </if>
+        FROM
+            mes_enclosure_produce_team_report report
+                LEFT JOIN mes_enclosure_task_process task_process ON report.task_process_id = task_process.id
+                LEFT JOIN mes_enclosure_production_line production_line ON production_line.id = task_process.production_line_id
+                LEFT JOIN mes_enclosure_process process ON process.id = report.process_id
+                LEFT JOIN mes_enclosure_groups gro ON gro.id=report.groups_id
+                LEFT JOIN sys_user users ON users.id = report.user_id
+        WHERE
+            report.bool_delete_enum = FALSE
+          AND report.product_id = #{productId}
+          AND report.task_type_enum = 2
+            <if test="number!=null">
+                AND report.number=#{number}
+            </if>
+        GROUP BY
+        report.process_id,
+        production_line.id,
+        report.groups_id,
+        users.id
+        <if test="number!=null">
+            ,report.create_time
+        </if>
+    </select>
+    <select id="getMeteByYear" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._do.report.YearMeteDO">
+        <if test="processTypeEnum!=null">
+            SELECT
+            `month`,
+            SUM(mete) mete
+            FROM
+            (
+            SELECT
+            `month`,
+            task_id,
+            MIN(mete) mete
+            FROM
+            (
+            SELECT
+            DATE_FORMAT(report.create_time,"%Y-%m") MONTH,
+            report.task_id,
+            report.quantity * artifact.net_weight mete
+            FROM
+            mes_enclosure_produce_team_report report
+            LEFT JOIN tech_artifact artifact ON report.product_id = artifact.id
+            WHERE
+            task_type_enum = 2
+            <if test="projectId!=null">
+               AND artifact.project_id= #{projectId}
+            </if>
+            <if test="dateTime!=null">
+                AND DATE_FORMAT(report.create_time, "%Y")=DATE_FORMAT(#{dateTime}, "%Y")
+            </if>
+            AND process_id IN ( SELECT id FROM mes_enclosure_process WHERE product_type = 2 AND type = #{processTypeEnum})) a
+            GROUP BY
+            `month`,
+            task_id
+            ) a
+            GROUP BY
+            `month`
+        </if>
+        <if test="processTypeEnum==null">
+            SELECT
+            `month`,
+            SUM( mete ) mete
+            FROM
+            (
+                SELECT
+                DATE_FORMAT( complete.create_time, "%Y-%m" ) `month`,
+                complete.quantity * artifact.net_weight mete
+                FROM
+                mes_enclosure_complete complete
+                LEFT JOIN tech_artifact artifact ON artifact.id = complete.product_id
+                WHERE
+                complete.task_type_enum = 2
+                <if test="projectId!=null">
+                    AND complete.project_id = #{projectId}
+                </if>
+                <if test="dateTime!=null">
+                    AND DATE_FORMAT(complete.create_time, "%Y" ) = DATE_FORMAT(#{dateTime}, "%Y")
+                </if>
+            ) a
+            GROUP BY
+            `month`
+        </if>
+
+    </select>
+    <select id="productTeamSummaryReport" resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.productTeamSummaryDTO">
+        SELECT
+            a.process_id 'process.id',
+            a.process_name 'process.name',
+            a.task_type_enum,
+            a.workshop_id 'workshop.id',
+            a.workshop_name 'workshop.name',
+            a.groups_id 'groups.id',
+            a.groups_name 'groups.name',
+            a.team_id 'team.id',
+            a.user_name 'team.name',
+            IFNULL( SUM( a.inspection_quantity ), 0 ) inspection_quantity,
+            IFNULL( SUM( a.net_weight ), 0 ) net_weight
+        FROM
+            (
+                SELECT
+                    process.id process_id,
+                    process.`name` process_name,
+                    process.product_type task_type_enum,
+                    workshop.id workshop_id,
+                    workshop.`name` workshop_name,
+                    gro.id groups_id,
+                    gro.`name` groups_name,
+                    report.team_id team_id,
+                    user_link.user_name user_name,
+                    report.inspection_quantity,
+                    CASE
+                        report.task_type_enum
+                        WHEN 1 THEN
+                            report.inspection_quantity * part.net_weight
+                        WHEN 2 THEN
+                            report.inspection_quantity * artifact.net_weight
+                        WHEN 16 THEN
+                            report.inspection_quantity * assemble.net_weight
+                        END net_weight
+                FROM
+                    `mes_enclosure_produce_team_report` report
+                        LEFT JOIN tech_artifact artifact ON artifact.id = report.product_id
+                        LEFT JOIN tech_assemble assemble ON assemble.id = report.product_id
+                        LEFT JOIN tech_machine_part part ON part.id = report.product_id
+                        LEFT JOIN mes_enclosure_process process ON process.id = report.process_id
+                        LEFT JOIN mes_enclosure_groups gro ON gro.id = report.groups_id
+                        LEFT JOIN mes_enclosure_workshop workshop ON workshop.id = gro.workshop_id
+                        LEFT JOIN mes_enclosure_team_user_link user_link ON user_link.team_id = report.team_id
+                        AND user_link.bool_delete_enum = 0
+                        AND user_link.bool_leader_enum = 1
+                WHERE
+                    report.bool_delete_enum = 0
+                    <if test="processId!=null">
+                        AND report.process_id=#{processId}
+                    </if>
+                    <if test="workshopId!=null">
+                        AND gro.workshop_id=#{workshopId}
+                    </if>
+                    <if test="startDate!=null">
+                        AND DATE(report.create_time)>=DATE(#{startDate})
+                    </if>
+                    <if test="endDate!=null">
+                        AND DATE(report.create_time)&lt;=DATE(#{endDate})
+                    </if>
+            ) a
+        GROUP BY
+            a.team_id,
+            a.user_name,
+            a.process_id,
+            a.workshop_id,
+            a.groups_id
+    </select>
+    <select id="productTeamSummaryReportDetailList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.ProductTeamSummaryDetailDTO">
+        SELECT
+            cp.id 'project.id',
+            cp.`name` 'project.name',
+            cp.short_name 'project.shortName',
+            cp.serial_number 'project.serialNumber',
+            pm.id 'monomer.id',
+            pm.`name` 'monomer.name',
+            pa.id 'area.id',
+            pa.`name` 'area.name',
+            a.id,
+            a.serial_number,
+            a.specification,
+            a.material,
+            a.length,
+            a.net_weight,
+            a.inspection_quantity quantity
+        FROM
+            (
+                SELECT
+               <choose>
+                   <when test="taskTypeEnum==16">
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.project_id
+                       END project_id,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.monomer_id
+                       END monomer_id,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.plan_id ELSE null
+                       END plan_id,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.id
+                       END id,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.serial_number
+                       END serial_number,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.specification
+                       END specification,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.length
+                       END length,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.material
+                       END material,
+                       CASE
+                       report.task_type_enum
+                       WHEN 16 THEN
+                       ta.net_weight
+                       END net_weight,
+                   </when>
+               <otherwise>
+                   ta.project_id,
+                   ta.monomer_id,
+                   ta.plan_id,
+                   ta.id,
+                   ta.serial_number,
+                   ta.material,
+                   ta.specification,
+                   ta.length,
+                   ta.net_weight,
+               </otherwise>
+               </choose>
+                    SUM( report.inspection_quantity ) inspection_quantity
+                FROM
+                    mes_enclosure_produce_team_report report
+                    LEFT JOIN mes_enclosure_groups gro ON gro.id = report.groups_id
+                    <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                        LEFT JOIN tech_artifact ta ON ta.id = report.product_id
+                    </if>
+                    <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                        LEFT JOIN tech_assemble ta ON ta.id = report.product_id
+                    </if>
+                    <if test="taskTypeEnum==@com.hzchum.scim.mes.enclosure.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                        LEFT JOIN tech_machine_part ta ON report.product_id =ta.id
+                    </if>
+                WHERE
+                    report.bool_delete_enum = 0
+                <if test="workshopId!=null">
+                    AND gro.workshop_id = #{workshopId}
+                </if>
+                <choose>
+                    <when test="taskTypeEnum==16">
+                        AND report.task_type_enum &amp;16
+                    </when>
+                    <otherwise>
+                        AND report.task_type_enum = #{taskTypeEnum}
+                    </otherwise>
+                </choose>
+                <if test="teamId!=null">
+                    AND report.team_id = #{teamId}
+                </if>
+                <if test="groupsId!=null">
+                    AND report.groups_id = #{groupsId}
+                </if>
+                <if test="processId!=null">
+                    AND report.process_id = #{processId}
+                </if>
+                <if test="startDate!=null">
+                    AND DATE(report.create_time)>=DATE(#{startDate})
+                </if>
+                <if test="endDate!=null">
+                    AND DATE(report.create_time)&lt;=DATE(#{endDate})
+                </if>
+                GROUP BY
+                    report.task_type_enum,
+                    ta.project_id,
+                    ta.monomer_id,
+                    ta.plan_id,
+                    ta.id
+            ) a
+                LEFT JOIN contract_project cp ON cp.id = a.project_id
+                LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+                LEFT JOIN plan_area pa ON pa.id = a.plan_id
+    </select>
+
+    <select id="assembleSourceReportProductList"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.AssembleReportSourceDTO">
+        SELECT DISTINCT
+        report.process_id 'process.id',
+        process.`name` 'process.name',
+        production_line.id 'productionLine.id',
+        production_line.`name` 'productionLine.name',
+        report.groups_id 'groups.id',
+        gro.`name` 'groups.name',
+        users.id 'user.id',
+        users.`name` 'user.name',
+        sum(report.quantity) quantity,
+        process.sort
+        FROM
+        mes_enclosure_produce_team_report report
+        LEFT JOIN mes_enclosure_task_process task_process ON report.task_process_id = task_process.id
+        LEFT JOIN mes_enclosure_production_line production_line ON production_line.id = task_process.production_line_id
+        LEFT JOIN mes_enclosure_process process ON process.id = report.process_id
+        LEFT JOIN mes_enclosure_groups gro ON gro.id=report.groups_id
+        LEFT JOIN sys_user users ON users.id = report.user_id
+        WHERE
+        report.bool_delete_enum = FALSE
+        AND report.product_id = #{productId}
+        AND report.task_type_enum = 16
+        GROUP BY
+        report.process_id,
+        production_line.id,
+        report.groups_id,
+        users.id
+    </select>
+    <select id="listRecords"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.ProduceTeamReportDTO">
+        SELECT
+            rep.create_time,
+            rep.id,
+            rep.product_id,
+            rep.quantity,
+            enc.serial_number,
+            enc.`name` 'productName',
+            enc.length 'length',
+            pro.id 'project.id' ,
+            pro.`name` 'project.name',
+            pro.serial_number 'project.serialNumber',
+            pro.short_name 'project.shortName',
+            plan.id 'plan.id',
+            plan.`name` 'plan.name',
+            shop.id 'workshop.id',
+            shop.`name` 'workshop.name',
+            line.id 'productionLine.id',
+            line.`name` 'productionLine.name',
+            cess.id 'process.id',
+            cess.`name` 'process.name',
+            rep.user_id 'user.id',
+            us.`name` 'user.name'
+        FROM
+            mes_enclosure_produce_team_report rep
+                LEFT JOIN tech_enclosure enc ON rep.product_id =enc.id
+                LEFT JOIN contract_project pro ON enc.project_id=pro.id
+                LEFT JOIN enclosure_plan plan ON plan.id=enc.enclosure_plan_id
+                LEFT JOIN mes_building_factory  fac ON  fac.id=rep.factory_id
+                LEFT JOIN mes_building_workshop shop ON shop.id=rep.workshop_id
+                LEFT JOIN mes_enclosure_production_line line ON line.id=rep.production_line_id
+                LEFT JOIN mes_enclosure_process cess ON rep.process_id=cess.id
+                LEFT JOIN sys_user us ON rep.user_id=us.id
+       where
+            rep.bool_delete_enum=0
+        <if test="serialNumber != null ">
+            and enc.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="projectId != null ">
+            and enc.project_id=#{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="teamIds != null and teamIds.size() != 0">
+            AND rep.team_id IN
+            <foreach collection="teamIds" item="teamId" separator="," close=")" open="(">
+                #{teamId}
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            AND date(rep.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(rep.create_time) &lt;= date(#{endDate})
+        </if>
+        ORDER BY rep.create_time DESC
+    </select>
+    <select id="listRecordsV2"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.ProduceTeamReportDTO">
+        SELECT
+        rep.create_time,
+        rep.id,
+        rep.product_id,
+        rep.quantity,
+        enc.serial_number,
+        enc.`name` 'productName',
+        enc.length 'length',
+        pro.id 'project.id' ,
+        pro.`name` 'project.name',
+        pro.serial_number 'project.serialNumber',
+        pro.short_name 'project.shortName',
+        pm.id 'monomer.id',
+        pm.`name` 'monomer.name',
+        area.id 'area.id',
+        area.`name` 'area.name',
+        shop.id 'workshop.id',
+        shop.`name` 'workshop.name',
+        line.id 'productionLine.id',
+        line.`name` 'productionLine.name',
+        cess.id 'process.id',
+        cess.`name` 'process.name',
+        rep.user_id 'user.id',
+        us.`name` 'user.name'
+        FROM
+        mes_enclosure_produce_team_report rep
+        LEFT JOIN tech_enclosure enc ON rep.product_id =enc.id
+        LEFT JOIN contract_project pro ON enc.project_id=pro.id
+        LEFT JOIN plan_monomer pm ON pm.id=enc.monomer_id
+        LEFT JOIN plan_area area ON area.id=enc.area_id
+        LEFT JOIN mes_building_factory  fac ON  fac.id=rep.factory_id
+        LEFT JOIN mes_building_workshop shop ON shop.id=rep.workshop_id
+        LEFT JOIN mes_enclosure_production_line line ON line.id=rep.production_line_id
+        LEFT JOIN mes_enclosure_process cess ON rep.process_id=cess.id
+        LEFT JOIN sys_user us ON rep.user_id=us.id
+        where
+        rep.bool_delete_enum=0
+        <if test="serialNumber != null ">
+            and enc.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="projectId != null ">
+            and enc.project_id=#{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="teamIds != null and teamIds.size() != 0">
+            AND rep.team_id IN
+            <foreach collection="teamIds" item="teamId" separator="," close=")" open="(">
+                #{teamId}
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            AND date(rep.create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(rep.create_time) &lt;= date(#{endDate})
+        </if>
+        ORDER BY rep.create_time DESC
+    </select>
+    <select id="listDetail"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.TeamProduceDetailDTO">
+        SELECT
+        pro.id 'project.id',
+        pro.NAME 'project.name',
+        pro.serial_number 'project.serialNumber',
+        pro.short_name 'project.shortName',
+        plan.id 'plan.id',
+        plan.NAME 'plan.name',
+        SUM( rep.quantity ) 'reportQuantity',
+        SUM( rep.quantity ) * enc.length 'reportTotalLength',
+        rep.price,
+        enc.id 'productId',
+        enc.NAME,
+        enc.material,
+        enc.serial_number,
+        enc.plate,
+        enc.thickness,
+        enc.quantity 'listQuantity',
+        enc.length,
+        enc.quantity * enc.length 'listTotalLength',
+        enc.color,
+        enc.category,
+        enc.brand,
+        enc.weight,
+        enc.coating,
+        enc.plating
+        FROM
+            mes_enclosure_produce_team_report rep
+                LEFT JOIN tech_enclosure enc ON rep.product_id = enc.id
+                LEFT JOIN contract_project pro ON pro.id = enc.project_id
+                LEFT JOIN enclosure_plan plan ON enc.enclosure_plan_id=plan.id
+        WHERE rep.bool_delete_enum=0
+        <if test="price != null">
+            AND rep.price=#{price}
+        </if>
+        <if test="startTime != null">
+            AND date(rep.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime != null">
+            AND date(rep.create_time) &lt;= date(#{endTime})
+        </if>
+        <if test="projectId != null">
+            AND enc.project_id =#{projectId}
+        </if>
+        <if test="teamId != null">
+            AND rep.team_id =#{teamId}
+        </if>
+        <if test="lineId != null">
+            AND rep.production_line_id =#{lineId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND enc.project_id IN
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="category != null">
+            AND enc.category =#{category}
+        </if>
+        GROUP BY
+        rep.product_id
+    </select>
+    <select id="produceAnalysis"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.CategoryProduceAnalysisDTO">
+        SELECT
+            enc.category 'category',
+            IFNULL(SUM( rep.quantity * enc.length ) ,0) 'completeLength'
+        FROM
+            mes_enclosure_produce_team_report rep
+                LEFT JOIN tech_enclosure enc ON rep.product_id = enc.id
+                LEFT JOIN contract_project pro ON enc.project_id = pro.id
+        WHERE
+            rep.bool_delete_enum = 0
+        <if test="startTime != null">
+            AND date(rep.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime != null">
+            AND date(rep.create_time) &lt;= date(#{endTime})
+        </if>
+        <if test="projectId != null">
+            AND enc.project_id =#{projectId}
+        </if>
+        GROUP BY
+            enc.category
+    </select>
+    <select id="plateAnalysis"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.factory.PlateProduceAnalysisDTO">
+        SELECT
+        enc.plate 'plate',
+        IFNULL(SUM( rep.quantity * enc.length ) ,0) 'completeLength'
+        FROM
+        mes_enclosure_produce_team_report rep
+        LEFT JOIN tech_enclosure enc ON rep.product_id = enc.id
+        LEFT JOIN contract_project pro ON enc.project_id = pro.id
+        WHERE
+        rep.bool_delete_enum = 0
+        <if test="startTime != null">
+            AND date(rep.create_time) >= date(#{startTime})
+        </if>
+        <if test="endTime != null">
+            AND date(rep.create_time) &lt;= date(#{endTime})
+        </if>
+        <if test="projectId != null">
+            AND enc.project_id =#{projectId}
+        </if>
+        <if test="category != null">
+            AND enc.category =#{category}
+        </if>
+        GROUP BY
+        enc.plate
+    </select>
+    <select id="findEnclosureReport"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.report.MesEnclosureProduceTeamReportDTO">
+        select report.*,
+        en.id 'enclosureId',
+        en.name 'enclosureName',
+        en.bool_status_enum 'boolStatusEnum'
+        from mes_enclosure_produce_team_report report
+        left join
+        tech_enclosure en on report.product_id = en.id
+        where report.bool_delete_enum = 0
+        and report.task_order_id = #{orderId}
+        and report.task_id in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
+
+    <select id="findFreezeEnclosure"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechEnclosureDTO">
+        select
+            en.id,
+            en.name
+        from mes_enclosure_task task
+        left join tech_enclosure en on task.product_id = en.id and task.category = en.category
+        where task.bool_delete_enum = 0
+        and task.task_order_id = #{orderId}
+        and en.bool_status_enum = false
+        and task.id in
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
+</mapper>

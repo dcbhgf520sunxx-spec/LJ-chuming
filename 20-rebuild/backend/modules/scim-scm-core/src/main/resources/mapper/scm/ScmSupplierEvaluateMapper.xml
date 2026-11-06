@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.scm.ScmSupplierEvaluateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._doModel.scm.ScmSupplierEvaluate">
+        <id column="id" property="id" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="template_id" property="templateId" />
+        <result column="evaluate_json" property="evaluateJson" />
+        <result column="evaluate_date" property="evaluateDate" />
+        <result column="score" property="score" />
+        <result column="score_rating" property="scoreRating" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, supplier_id, template_id, evaluate_json, evaluate_date, score, score_rating
+    </sql>
+
+
+    <select id="listEvaluateRecords" resultType="com.hzchum.scim.scm.core.api.pojo.dto.scm.ScmSupplierEvaluateDTO" parameterType="com.hzchum.scim.scm.core.api.pojo.dtoParam.scm.ScmSupplierEvaluateQueryParam">
+        SELECT
+            e.id,
+            e.supplier_id,
+            s.name AS supplier_name,
+            s.short_name AS supplier_short_name,
+            e.template_id,
+            e.evaluate_json,
+            e.serial_number,
+            e.evaluate_date,
+            e.score,
+            e.score_rating,
+            e.classify_id,
+            e.column_map_json,
+            e.user_id,
+            u.name AS evaluator_name,
+            e.review_status,
+            e.approve_record_id,
+            e.reviewer_id,
+            e.reviewer_name,
+            e.review_time
+        FROM scm_supplier_evaluate e
+        LEFT JOIN scm_supplier s ON e.supplier_id = s.id
+        LEFT JOIN sys_user u ON e.user_id = u.id
+        WHERE 1 = 1
+            <!-- 约定空值或0时默认仅查询审核通过(review_status=2)记录；传入具体枚举值时按传入状态过滤。 -->
+            <choose>
+                <when test="param.reviewStatus != null and param.reviewStatus != 0">
+                    AND e.review_status = #{param.reviewStatus}
+                </when>
+                <otherwise>
+                    AND e.review_status = 2
+                </otherwise>
+            </choose>
+            <if test="param.supplierName != null and param.supplierName != ''">
+                AND (s.name LIKE CONCAT('%', #{param.supplierName}, '%')
+                OR s.short_name LIKE CONCAT('%', #{param.supplierName}, '%'))
+            </if>
+            <if test="param.classifyId != null">
+                AND e.classify_id = #{param.classifyId}
+            </if>
+            <if test="param.evaluateYear != null">
+                AND YEAR(e.evaluate_date) = #{param.evaluateYear}
+            </if>
+            <if test="param.scoreRating != null and param.scoreRating != ''">
+                AND e.score_rating LIKE CONCAT('%', #{param.scoreRating}, '%')
+            </if>
+        ORDER BY e.review_time desc ,e.id desc
+    </select>
+
+    <!-- 根据供应商id查询今年最新评价记录 -->
+    <select id="getLatestEvaluateBySupplierIdAndYear" resultType="com.hzchum.scim.scm.core.api.pojo.dto.scm.ScmSupplierEvaluateDTO">
+        SELECT
+            e.id,
+            e.supplier_id,
+            s.name AS supplier_name,
+            s.short_name AS supplier_short_name,
+            e.template_id,
+            e.evaluate_json,
+            e.serial_number,
+            e.evaluate_date,
+            e.score,
+            e.score_rating,
+            e.classify_id,
+            e.column_map_json,
+            e.user_id,
+            u.name AS evaluator_name,
+            e.review_status,
+            e.approve_record_id,
+            e.reviewer_id,
+            e.reviewer_name,
+            e.review_time
+        FROM scm_supplier_evaluate e
+        LEFT JOIN scm_supplier s ON e.supplier_id = s.id
+        LEFT JOIN sys_user u ON e.user_id = u.id
+        WHERE e.supplier_id = #{supplierId}
+          AND e.review_status = 2
+          AND YEAR(e.review_time) = #{year}
+        ORDER BY e.review_time desc ,e.id desc
+        LIMIT 1
+    </select>
+
+</mapper>

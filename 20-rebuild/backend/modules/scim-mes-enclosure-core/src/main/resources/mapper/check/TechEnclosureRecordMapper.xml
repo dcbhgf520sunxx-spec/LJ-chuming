@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.check.TechEnclosureRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._do.check.TechEnclosureRecord">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="category" property="category" />
+        <result column="inventory_operation_id" property="inventoryOperationId" />
+        <result column="area_id" property="areaId" />
+        <result column="bool_status_enum" property="boolStatusEnum" />
+        <result column="bool_abnormal_enum" property="boolAbnormalEnum" />
+        <result column="name" property="name" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="plate" property="plate" />
+        <result column="width" property="width" />
+        <result column="unfolded_width" property="unfoldedWidth" />
+        <result column="thickness" property="thickness" />
+        <result column="length" property="length" />
+        <result column="quantity" property="quantity" />
+        <result column="total_length" property="totalLength" />
+        <result column="surface_area" property="surfaceArea" />
+        <result column="total_area" property="totalArea" />
+        <result column="brand" property="brand" />
+        <result column="color" property="color" />
+        <result column="material" property="material" />
+        <result column="weight" property="weight" />
+        <result column="total_weight" property="totalWeight" />
+        <result column="coating" property="coating" />
+        <result column="plating" property="plating" />
+        <result column="remark" property="remark" />
+        <result column="business_id" property="businessId" />
+        <result column="attachment_id" property="attachmentId" />
+        <result column="bend_times" property="bendTimes" />
+        <result column="weight_meter" property="weightMeter" />
+        <result column="user_id" property="userId" />
+        <result column="produced_quantity" property="producedQuantity" />
+        <result column="scheduling_quantity" property="schedulingQuantity" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, category, inventory_operation_id, area_id, bool_status_enum, bool_abnormal_enum, name, serial_number, plate, width, unfolded_width, thickness, length, quantity, total_length, surface_area, total_area, brand, color, material, weight, total_weight, coating, plating, remark, business_id, attachment_id, bend_times, weight_meter, user_id, produced_quantity, scheduling_quantity
+    </sql>
+
+    <select id="listChangeRecord" resultType="com.hzchum.scim.plan.core.api.biz.check.TechEnclosureChangeRecordDTO">
+        select cr.id,
+        cr.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        cr.monomer_id 'monomer.id',
+        pm.name 'monomer.name',
+        cr.area_id,
+        cr.serial_number,
+        cr.remark,
+        cr.user_id 'user.id',
+        u.name 'user.name',
+        cr.check_status,
+        cr.check_user_id,
+        cr.check_time,
+        cr.create_time,
+        cr.type,
+        check_user.name as check_user_name
+        from tech_enclosure_change_record as cr
+        left join contract_project as cp on cr.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer as pm on cr.monomer_id = pm.id and pm.bool_delete_enum = 0
+        left join sys_user as u on cr.user_id = u.id
+        left join sys_user as check_user on cr.check_user_id = check_user.id
+        where cr.bool_delete_enum = 0
+        <if test="year != null">
+            AND DATE_FORMAT(cr.create_time,'%Y')=DATE_FORMAT(#{year},'%Y')
+        </if>
+        <if test="projectName != null and projectName != ''">
+            and (cp.name like concat('%',#{projectName},'%') or cp.short_name like concat('%',#{projectName},'%') or cp.serial_number like concat('%',#{projectName},'%'))
+        </if>
+        <if test="userName != null and userName != ''">
+            and u.name like concat('%',#{userName},'%')
+        </if>
+        <if test="auditName != null and auditName != ''">
+            and check_user.name like concat('%',#{auditName},'%')
+        </if>
+        <if test="checkStatus != null">
+            and cr.check_status = #{checkStatus}
+        </if>
+        order by cr.check_status asc, cr.id desc
+    </select>
+</mapper>

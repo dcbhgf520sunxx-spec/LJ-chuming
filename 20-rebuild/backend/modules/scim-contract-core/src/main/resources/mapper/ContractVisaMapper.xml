@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractVisaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractVisa">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="type" property="type"/>
+        <result column="project_id" property="projectId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="visa_date" property="visaDate"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="reason_id" property="reasonId"/>
+        <result column="reason_name" property="reasonName"/>
+        <result column="amount" property="visaAmount"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, project_id, serial_number, visa_date, user_id, user_name, reason_id, reason_name, amount, remark
+    </sql>
+    <select id="countByProject" resultType="java.lang.Integer">
+        select count(*) from contract_visa
+        where type = 1
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test="mode != null">
+            and mode = #{mode}
+        </if>
+    </select>
+
+    <select id="selectListByCondition" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractVisa">
+        SELECT
+        cv.id,
+        cv.create_time,
+        cv.update_time,
+        cv.bool_delete_enum,
+        cv.version,
+        cv.type,
+        cv.`mode`,
+        cv.project_id,
+        cv.serial_number,
+        cv.visa_date,
+        cv.user_id,
+        cv.user_name,
+        cv.reason_id,
+        cv.reason_name,
+        cv.visa_amount,
+        cv.breach_amount,
+        cv.settlement_date,
+        cv.settlement_amount,
+        cv.processing_settlement_amount,
+        cv.business_type,
+        cv.create_user_id,
+        cv.create_user_name,
+        cv.check_user_id,
+        cv.check_user_name,
+        cv.`status`,
+        cv.supervision_unit,
+        cv.design_unit,
+        cv.government_regulation,
+        cv.remark,
+        cv.attachment_ids,
+        cv.attachment_remark
+        FROM
+        contract_visa cv
+        INNER JOIN contract_project cp ON cp.id = cv.project_id
+        WHERE
+        cp.bool_delete_enum =0
+        AND cv.bool_delete_enum =0
+        <if test="projectId != null">
+            and cv.project_id=#{projectId}
+        </if>
+        <if test="status!= null">
+            and cv.status=#{status}
+        </if>
+        <if test="userName!= null">
+            and cv.user_name like  concat('%',#{userName},'%')
+        </if>
+        <if test="checkUerName!= null">
+            and cv.check_user_name like CONCAT('%',#{checkUerName},'%')
+        </if>
+        <if test="mode!= null">
+            and cv.mode=#{mode}
+        </if>
+        <if test="year!= null">
+            and DATE_FORMAT(cv.create_time, '%Y')= #{year}
+        </if>
+        <if test="businessType!= null">
+            and cv.business_type=#{businessType}
+        </if>
+        <if test="type!= null">
+            and cv.type=#{type}
+        </if>
+        order by cv.id desc
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from contract_visa
+        where type = 1
+        <if test="date != null">
+            and DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+        </if>
+        <if test="mode != null">
+            and mode = #{mode}
+        </if>
+    </select>
+
+</mapper>

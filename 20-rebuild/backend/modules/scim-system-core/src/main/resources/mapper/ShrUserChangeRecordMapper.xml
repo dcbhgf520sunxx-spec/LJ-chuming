@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ShrUserChangeRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.ShrUserChangeRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="job_name" property="jobName"/>
+        <result column="name" property="name"/>
+        <result column="phone" property="phone"/>
+        <result column="user_type" property="userType"/>
+        <result column="crud_type" property="crudType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,update_time,bool_delete_enum,version,
+        id, dept_name, job_name,name, phone, user_type,crud_type
+    </sql>
+
+
+    <select id="getAll" resultType="com.hzchum.scim.system.core.api.pojo._do.ShrUserChangeRecord">
+        SELECT *
+        FROM shr_user_change_record
+        WHERE bool_delete_enum = 0
+        <if test="deptName != null and deptName != ''">
+            and dept_name LIKE concat('%',#{deptName},'%')
+        </if>
+        <if test="jobName != null and jobName != ''">
+            and job_name LIKE concat('%',#{jobName},'%')
+        </if>
+        <if test="name != null and name != ''">
+            and name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and phone LIKE concat('%',#{phone},'%')
+        </if>
+        <if test="userType != null">
+            AND user_type = #{userType}
+        </if>
+        <if test="crudType != null">
+            AND crud_type = #{crudType}
+        </if>
+        order by create_time DESC
+    </select>
+
+</mapper>

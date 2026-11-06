@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.ApproveInstanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.ApproveInstance">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="abnormal_approve_info" property="abnormalApproveInfo" />
+        <result column="abnormal_approve_process" property="abnormalApproveProcess" />
+        <result column="abnormal_cc_position" property="abnormalCcPosition" />
+        <result column="abnormal_cc_user_ids" property="abnormalCcUserIds" />
+        <result column="abnormal_instance_id" property="abnormalInstanceId" />
+        <result column="abnormal_status" property="abnormalStatus" />
+        <result column="actual_id" property="actualId" />
+        <result column="actual_type" property="actualType" />
+        <result column="approve_info" property="approveInfo" />
+        <result column="approve_process" property="approveProcess" />
+        <result column="cc_position" property="ccPosition" />
+        <result column="cc_user_ids" property="ccUserIds" />
+        <result column="create_user_id" property="createUserId" />
+        <result column="error" property="error" />
+        <result column="from_value" property="fromValue" />
+        <result column="info" property="info" />
+        <result column="instance_id" property="instanceId" />
+        <result column="bool_normal" property="boolNormal" />
+        <result column="project_ids" property="projectIds" />
+        <result column="status" property="status" />
+        <result column="template_id" property="templateId" />
+        <result column="type" property="type" />
+        <result column="create_user_name" property="createUserName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, abnormal_approve_info, abnormal_approve_process, abnormal_cc_position, abnormal_cc_user_ids, abnormal_instance_id, abnormal_status, actual_id, actual_type, approve_info, approve_process, cc_position, cc_user_ids, create_user_id, error, from_value, info, instance_id, bool_normal, project_ids, status, template_id, type, create_user_name
+    </sql>
+
+</mapper>

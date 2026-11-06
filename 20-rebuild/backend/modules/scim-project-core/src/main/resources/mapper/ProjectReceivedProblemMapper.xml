@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectReceivedProblemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectReceivedProblem">
+        <id column="id" property="id" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="supplier_name" property="supplierName" />
+        <result column="cargo_list_id" property="cargoListId" />
+        <result column="license_plate" property="licensePlate" />
+        <result column="attachment_ids" property="attachmentIds" />
+        <result column="state" property="state" />
+        <result column="describe" property="describe" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, supplier_id, supplier_name, cargo_list_id, license_plate, attachment_ids, state, describe
+    </sql>
+
+</mapper>

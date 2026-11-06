@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.scm.core.mapper.SubcontractOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.scm.core.api.pojo._do.SubcontractOrder">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="project_id" property="projectId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="subcontract_class_id" property="subcontractClassId"/>
+        <result column="subcontract_class_name" property="subcontractClassName"/>
+        <result column="amount" property="amount"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="boolSettlementStatus" property="boolSettlementStatus"/>
+        <result column="settlement_amount" property="settlementAmount"/>
+        <result column="sign_date" property="signDate"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, project_id, supplier_id, supplier_name, subcontract_class_id, subcontract_class_name, amount, invoice_type, tax_rate, order_status, bool_settlement_status, settlement_amount, user_id, user_name, , sign_date, attachment_ids, remark
+    </sql>
+
+    <select id="selectSubcontractOrder" resultType="com.hzchum.scim.scm.core.api.pojo.dto.SubcontractOrderDTO">
+        SELECT
+        ord.* ,
+        cp.id as 'project.id',
+        cp.name as 'project.name',
+        cp.short_name as 'project.shortName',
+        cp.serial_number as 'project.serialNumber'
+        FROM scm_subcontract_order AS ord
+        LEFT JOIN contract_project as cp on ord.project_id = cp.id AND cp.bool_delete_enum = 0
+        <where>
+            ord.bool_delete_enum = 0
+            <if test="projectName!= null and projectName != ''">
+                AND cp.name like concat('%',#{projectName},'%')
+            </if>
+
+            <if test="year != null">
+                AND date_format(ord.sign_date,'%Y') = #{year}
+            </if>
+
+            <if test="startDate != null">
+                AND DATE(ord.sign_date) &gt;= DATE(#{startDate})
+            </if>
+
+            <if test="endDate != null">
+                AND DATE(ord.sign_date) &lt;= DATE(#{endDate})
+            </if>
+
+            <if test="serialNumber!= null and serialNumber != ''">
+                AND ord.serial_number like concat('%',#{serialNumber},'%')
+            </if>
+            <if test="projectId != null">
+                AND ord.project_id = #{projectId}
+            </if>
+            <if test="supplierName!= null and supplierName != ''">
+                AND ord.supplier_name like concat('%',#{supplierName},'%')
+            </if>
+            <if test="subcontractClassId != null">
+                AND ord.subcontract_class_id = #{subcontractClassId}
+            </if>
+            <if test="boolSettlementStatus != null">
+                AND ord.bool_settlement_status = #{boolSettlementStatus}
+            </if>
+            <if test="userName!= null and userName != ''">
+                AND ord.user_name like concat('%',#{userName},'%')
+            </if>
+        </where>
+        order by ord.sign_date desc
+    </select>
+    <select id="getPageList" resultType="com.hzchum.scim.scm.core.api.pojo._do.SubcontractOrder">
+        SELECT
+        a.*
+        FROM
+        scm_subcontract_order a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN sys_branch_company bc ON bc.id = a.branch_company_id
+        LEFT JOIN scm_supplier ss ON ss.id = a.supplier_id
+        LEFT JOIN sys_user su ON su.id = a.user_id
+        LEFT JOIN sys_user su2 ON su2.id = a.project_manager_id
+        <where>
+            a.bool_delete_enum = 0
+            <if test="year != null">
+                AND date_format(a.create_time,'%Y') = date_format(#{year},'%Y')
+            </if>
+            <if test="projectManagerId != null">
+                AND a.project_manager_id = #{projectManagerId}
+            </if>
+            <if test="projectAttribute != null and projectAttribute.size() > 0">
+                AND a.project_attribute in
+                <foreach collection="projectAttribute" open="(" separator="," close=")" item="attribute">
+                    #{attribute}
+                </foreach>
+            </if>
+<!--            <if test="type != null">-->
+<!--                AND a.order_status = #{type}-->
+<!--            </if>-->
+            <if test="auditTypeEnum != null">
+                AND a.audit_type_enum = #{auditTypeEnum}
+            </if>
+            <if test="boolSettlementStatus != null">
+                AND a.bool_settlement_status = #{boolSettlementStatus}
+            </if>
+            <if test="userName != null and userName != ''">
+                and su.name like CONCAT('%', #{userName},'%')
+            </if>
+            <if test="projectManagerName != null and projectManagerName != ''">
+                AND su2.name like CONCAT('%', #{projectManagerName},'%')
+            </if>
+            <if test="branchCompanyId != null">
+                and a.branch_company_id = #{branchCompanyId}
+            </if>
+            <if test="branchCompanyName != null and branchCompanyName != ''">
+                and (bc.name like CONCAT('%', #{branchCompanyName},'%')
+                or bc.short_name like CONCAT('%', #{branchCompanyName},'%'))
+            </if>
+            <if test="supplierId != null">
+                and a.supplier_id = #{supplierId}
+            </if>
+            <if test="supplierName != null and supplierName != ''">
+                and ss.name like CONCAT('%', #{supplierName},'%')
+            </if>
+            <if test="serialNumber != null and serialNumber != ''">
+                and a.serial_number like CONCAT('%', #{serialNumber},'%')
+            </if>
+            <if test="projectId != null">
+                and a.project_id = #{projectId}
+            </if>
+            <if test="projectName != null and projectName != ''">
+                and (cp.name like CONCAT('%', #{projectName},'%') or cp.short_name like CONCAT('%', #{projectName},'%'))
+            </if>
+            <if test="level != null">
+                and a.level = #{level}
+            </if>
+        </where>
+        GROUP BY a.id
+        ORDER BY a.bool_settlement_status ASC, a.id DESC
+    </select>
+
+</mapper>

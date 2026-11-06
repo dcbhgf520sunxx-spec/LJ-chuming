@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.ProjectPlanMapper">
+
+    <select id="projectList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectPlanDTO">
+        SELECT
+            cp.id AS project_id,
+            cp.serial_number AS project_serial_number,
+            cp.short_name AS project_short_name,
+            cp.business_type AS order_type,
+            cp.structure_status AS structure_type,
+            cp.structure_type_id,
+            (select name from sys_structure_type where id = cp.structure_type_id) AS structure_type_name,
+            cp.start_date,
+            cp.end_date,
+            DATEDIFF(cp.end_date, cp.start_date) AS duration,
+            ac.count,
+            IF(ac.count > 0, 1, 0) AS plan_status
+        FROM contract_project cp
+        LEFT JOIN (
+                      SELECT
+                          project_id,
+                          COUNT(0) AS count
+                      FROM plan_area
+                      WHERE bool_delete_enum = FALSE
+                      GROUP BY project_id
+                  ) ac ON ac.project_id = cp.id
+        WHERE cp.bool_delete_enum = FALSE
+        <if test="year != null">
+            AND YEAR(cp.create_time) = #{year}
+        </if>
+        <if test="projectNoOrName != null and projectNoOrName != ''">
+            <bind name="projectNoOrNameLike" value="'%' + projectNoOrName + '%'"/>
+            AND (cp.serial_number LIKE #{projectNoOrNameLike} OR cp.short_name LIKE #{projectNoOrNameLike})
+        </if>
+    </select>
+
+    <select id="enclosureProjectPlanList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectPlanDTO">
+        SELECT
+        cp.id AS project_id,
+        cp.serial_number AS project_serial_number,
+        cp.short_name AS project_short_name,
+        cp.business_type AS order_type,
+        cp.structure_status AS structure_type,
+        cp.start_date,
+        cp.end_date,
+        su.name AS user,
+        DATEDIFF(cp.end_date, cp.start_date) AS duration,
+        ac.count,
+        IF(ac.count > 0, 1, 0) AS plan_status
+        FROM contract_project cp
+        LEFT JOIN (
+        SELECT
+        project_id,
+        COUNT(0) AS count
+        FROM plan_area
+        WHERE bool_delete_enum = FALSE
+        and project_plan_product_category = 4
+        GROUP BY project_id
+        ) ac ON ac.project_id = cp.id
+        left join sys_user su on cp.user_id = su.id and su.bool_delete_enum = FALSE
+        WHERE cp.bool_delete_enum = FALSE
+        and ac.project_id is not null
+        <if test="year != null">
+            AND YEAR(cp.create_time) = #{year}
+        </if>
+        <if test="projectNoOrName != null and projectNoOrName != ''">
+            <bind name="projectNoOrNameLike" value="'%' + projectNoOrName + '%'"/>
+            AND (cp.serial_number LIKE #{projectNoOrNameLike} OR cp.short_name LIKE #{projectNoOrNameLike})
+        </if>
+    </select>
+
+</mapper>

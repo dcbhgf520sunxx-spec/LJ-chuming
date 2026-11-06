@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactStandardPartLinkMapper">
+
+    <select id="listByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechArtifactStandardPartLinkDTO">
+        SELECT
+        taspl.*,
+        tsp.name AS standard_part_name,
+        tsp.project_id,
+        tsp.specification as standard_part_specification
+        FROM tech_artifact_standard_part_link taspl
+        LEFT JOIN tech_standard_part tsp ON tsp.bool_delete_enum = FALSE AND tsp.id = taspl.standard_part_id
+        WHERE taspl.bool_delete_enum = FALSE
+        <if test="artifactIdList != null and artifactIdList.size() > 0">
+            AND taspl.artifact_id IN (
+            <foreach collection="artifactIdList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+        <if test="nameList != null and nameList.size() > 0">
+            AND tsp.name IN (
+            <foreach collection="nameList" item="i" separator=",">
+                #{i}
+            </foreach>
+            )
+        </if>
+    </select>
+</mapper>

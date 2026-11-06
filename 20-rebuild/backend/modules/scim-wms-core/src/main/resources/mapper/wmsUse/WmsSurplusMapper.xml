@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsSurplusMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._doModel.wmsUse.WmsSurplus">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="review_status" property="reviewStatus" />
+        <result column="review_time" property="reviewTime" />
+        <result column="applicant_id" property="applicantId" />
+        <result column="applicant_name" property="applicantName" />
+        <result column="reviewer_name" property="reviewerName" />
+        <result column="reviewer_id" property="reviewerId" />
+<!--        <result column="surplus_type" property="surplusType" />-->
+        <result column="basic_class" property="basicClass" />
+        <result column="project_ids" property="projectIds" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, serial_number, review_status, review_time, applicant_id, applicant_name, reviewer_name, reviewer_id, surplus_type, basic_class, project_ids
+    </sql>
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `wms_surplus`
+        WHERE  DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+    <select id="getSurplusList" resultType="com.hzchum.scim.wms.core.api.pojo._doModel.wmsUse.WmsSurplus">
+        select
+        a.*
+        from
+        wms_surplus a
+        where
+        a.bool_delete_enum = 0
+        and (review_status = 2
+        or review_status = 16)
+        <if test=" boolPartyA != null">
+            and
+            EXISTS (
+            SELECT 1
+            FROM wms_surplus_detail b
+            WHERE
+            b.bool_delete_enum = 0
+            AND b.bool_party_a = #{boolPartyA}
+            AND b.surplus_id = a.id
+            )
+        </if>
+        <if test=" reviewStatus != null">
+            and review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and a.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and a.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and a.create_time &gt;= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and a.create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] != null">
+                and a.review_time &gt;= #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and a.review_time &lt;= #{reviewTime[1]}
+            </if>
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and a.project_ids is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and a.project_ids IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},a.project_ids)
+        </if>
+        <if test="applicantName != null and applicantName != ''">
+            and (a.applicant_name like CONCAT('%', #{applicantName},'%') or a.reviewer_name like CONCAT('%', #{applicantName},'%'))
+        </if>
+    </select>
+</mapper>

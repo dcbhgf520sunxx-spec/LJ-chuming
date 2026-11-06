@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessArtifactMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessArtifact">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="bool_merge_enum" property="boolMergeEnum"/>
+        <result column="name" property="name"/>
+        <result column="material" property="material"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="total_weight" property="totalWeight"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="pricing_manner" property="pricingManner"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, bool_merge_enum, name, material, total_quantity, total_weight, unit_price, total_price, pricing_manner
+    </sql>
+    <select id="summary" resultType="com.hzchum.scim.business.core.api.pojo._do.ArtifactSummaryDO">
+        select ifnull(sum(total_quantity),0) total_quantity,
+        ifnull(sum(total_weight),0) total_weight,
+        ifnull(sum(CASE pricing_manner WHEN 0 THEN total_weight * unit_price / 1000 ELSE total_length * unit_price END),0) total_price
+        from business_artifact
+        <where>
+            and bool_delete_enum = 0
+            <if test="projectId != null">
+                and project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null">
+                and area_id = #{areaId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

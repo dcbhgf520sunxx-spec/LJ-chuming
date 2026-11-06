@@ -1,0 +1,1471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractProjectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        <id column="id" property="id"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="complete_date" property="completeDate"/>
+        <result column="address" property="address"/>
+        <result column="project_manager_id" property="projectManagerId"/>
+        <result column="business_leader_id" property="businessLeaderId"/>
+        <result column="business_leader_two_id" property="businessLeaderTwoId"/>
+        <result column="attachments" property="attachments"/>
+        <result column="city_id" property="cityId"/>
+        <result column="city_name" property="cityName"/>
+        <result column="country_id" property="countryId"/>
+        <result column="country_name" property="countryName"/>
+        <result column="contract_amount" property="contractAmount"/>
+        <result column="prepayments" property="prepayments"/>
+        <result column="management_fee_rate" property="managementFeeRate"/>
+        <result column="margin_amount" property="marginAmount"/>
+        <result column="margin_type" property="marginType"/>
+        <result column="currency_type" property="currencyType"/>
+        <result column="settlement_status" property="settlementStatus"/>
+        <result column="settlement_amount" property="settlementAmount"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="province_name" property="provinceName"/>
+        <result column="region_id" property="regionId"/>
+        <result column="region_name" property="regionName"/>
+        <result column="contract_sign_body_id" property="contractSignBodyId"/>
+        <result column="business_type" property="businessType"/>
+        <result column="project_type" property="projectType"/>
+        <result column="project_content" property="projectContent"/>
+        <result column="transport_mode" property="transportMode"/>
+        <result column="structure_measure_mode" property="structureMeasureMode"/>
+        <result column="enclosure_measure_mode" property="enclosureMeasureMode"/>
+        <result column="signing_address" property="signingAddress"/>
+        <result column="signing_date" property="signingDate"/>
+        <result column="signer_id" property="signerId"/>
+        <result column="signer_name" property="signerName"/>
+        <result column="is_tax" property="isTax"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="pay_type" property="payType"/>
+        <result column="pay_type_desc" property="payTypeDesc"/>
+        <result column="customer_unit" property="customerUnit"/>
+        <result column="social_code" property="socialCode"/>
+        <result column="customer_unit_phone" property="customerUnitPhone"/>
+        <result column="user_id" property="userId"/>
+        <result column="status" property="status"/>
+        <result column="customer_province_id" property="customerProvinceId"/>
+        <result column="customer_province_name" property="customerProvinceName"/>
+        <result column="customer_city_id" property="customerCityId"/>
+        <result column="customer_city_name" property="customerCityName"/>
+        <result column="customer_region_id" property="customerRegionId"/>
+        <result column="customer_region_name" property="customerRegionName"/>
+        <result column="customer_country_id" property="customerCountryId"/>
+        <result column="customer_address" property="customerAddress"/>
+        <result column="customer_bank_user_name" property="customerBankUserName"/>
+        <result column="customer_bank_code" property="customerBankCode"/>
+        <result column="customer_bank_name" property="customerBankName"/>
+        <result column="customer_manager_one" property="customerManagerOne"/>
+        <result column="customer_manager_one_phone" property="customerManagerOnePhone"/>
+        <result column="customer_manager_two" property="customerManagerTwo"/>
+        <result column="customer_manager_two_phone" property="customerManagerTwoPhone"/>
+        <result column="mode" property="mode"/>
+        <result column="mes_start_date" property="mesStartDate"/>
+        <result column="mes_end_date" property="mesEndDate"/>
+        <result column="happened_amount" property="happenedAmount"/>
+        <result column="out_finish_status" property="outFinishStatus"/>
+        <result column="bool_arrears" property="boolArrears"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        update_time
+        ,
+        create_time,
+        bool_delete_enum,
+        version,
+        transport_mode,
+        structure_measure_mode,
+        enclosure_measure_mode,
+        business_leader_id,
+        business_leader_two_id,
+        id, serial_number, name, short_name, start_date, end_date,complete_date, address, project_manager_id, attachments, city_id, city_name, country_id, country_name, contract_amount, prepayments, management_fee_rate,
+        margin_amount, margin_type, currency_type, settlement_status, settlement_amount, province_id, province_name, region_id, region_name,
+        contract_sign_target, business_type, project_type, project_content, signing_address, signing_date, signer_id, is_tax,signer_name, invoice_type,
+        tax_rate,pay_type, pay_type_desc, customer_unit, customer_credit_code, customer_unit_phone, is_delete, user_id, status, customer_province_id,
+        customer_province_name, customer_city_id, customer_city_name, customer_region_id, customer_region_name, customer_country_id, customer_address,
+        customer_bank_user_name, customer_bank_code, customer_bank_name, customer_manager_one, customer_manager_one_phone, customer_manager_two,
+        customer_manager_two_phone,mode,mes_start_date,mes_end_date,happened_amount,out_finish_status,bool_arrears
+    </sql>
+
+
+    <select id="listByConditions"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectSimpleInfoDTO">
+        SELECT *
+        FROM contract_project
+        WHERE bool_delete_enum = 0
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(create_time,'%Y') = #{year}
+        </if>
+        <if test="projectType != null">
+            AND project_type &amp; #{projectType}
+        </if>
+        order by id desc
+    </select>
+
+
+    <!--合同档案列表-->
+    <select id="listProjectFiles"
+            resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+
+        SELECT p.*
+        FROM contract_project AS p
+        <if test="userId != null ">
+            INNER JOIN sys_project_user_link link on link.project_id = p.id and link.user_id = #{userId}
+            and link.bool_delete_enum = 0
+        </if>
+
+        <!--        <if test="name != null and name != ''">-->
+        <!--            inner join-->
+        <!--            (-->
+        <!--            select distinct id as project_id from contract_project-->
+        <!--            where bool_delete_enum = 0-->
+        <!--            AND (name like concat('%',#{name},'%') or short_name like concat('%',#{name},'%'))-->
+        <!--            ) as pidss on pidss.project_id = p.id-->
+
+        <!--        </if>-->
+
+        WHERE p.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND p.id = #{projectId}
+        </if>
+        <if test="contractProjectFilesParam.year != null">
+            AND DATE_FORMAT(p.create_time,'%Y') = #{contractProjectFilesParam.year}
+        </if>
+        <!--        <if test="contractProjectFilesParam.isArchive != null ">-->
+        <!--            AND p.is_archive = #{contractProjectFilesParam.isArchive}-->
+        <!--        </if>-->
+        <if test="contractProjectFilesParam.projectAttribute != null ">
+            AND p.project_attribute = #{contractProjectFilesParam.projectAttribute}
+        </if>
+        <if test="contractProjectFilesParam.projectType != null ">
+            AND p.project_type &amp; #{contractProjectFilesParam.projectType}
+        </if>
+        <if test="contractProjectFilesParam.businessType != null">
+            AND p.business_type = #{contractProjectFilesParam.businessType}
+        </if>
+        <!--        <if test="contractProjectFilesParam.orderType != null ">-->
+        <!--            AND p.order_type = #{contractProjectFilesParam.orderType}-->
+        <!--        </if>-->
+        <if test="contractProjectFilesParam.structureStatus != null ">
+            AND p.structure_status = #{contractProjectFilesParam.structureStatus}
+        </if>
+        <if test="contractProjectFilesParam.contractSignBodyId != null ">
+            AND p.contract_sign_body_id = #{contractProjectFilesParam.contractSignBodyId}
+        </if>
+        <if test="contractProjectFilesParam.isBuilding != null ">
+            AND p.is_building = #{contractProjectFilesParam.isBuilding}
+        </if>
+        <if test="contractProjectFilesParam.name != null and contractProjectFilesParam.name != '' ">
+            AND p.serial_number like concat('%',#{contractProjectFilesParam.name},'%') or p.name like
+            concat('%',#{contractProjectFilesParam.name},'%') or p.short_name like
+            concat('%',#{contractProjectFilesParam.name},'%')
+        </if>
+        <if test="contractProjectFilesParam.isArchive != null ">
+            AND p.is_archive = #{contractProjectFilesParam.isArchive}
+        </if>
+        order by id desc
+    </select>
+
+
+    <!--项目列表-->
+    <select id="selectProjectsByConditions"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractProjectListDTO">
+        SELECT
+        cp.*,
+        st.name AS structure_type_name,
+        ct.quantity_work as structure_quantity_work,
+        manageuser.name as projectManagerName,
+        createuser.name as createUserName,
+        lastupdateuser.name as lastUpdateUserName
+        FROM contract_project AS cp
+        left join contract_tech ct on ct.bool_delete_enum = false and cp.id = ct.project_id and ct.category_type = 2
+        <if test="userId != null">
+            INNER JOIN sys_project_user_link pul ON pul.project_id = cp.id AND pul.bool_delete_enum = 0
+            AND (pul.user_id = #{userId})
+        </if>
+        left join sys_user as manageuser on cp.project_manager_id = manageuser.id and manageuser.bool_delete_enum = 0
+        left join sys_user as createuser on cp.user_id = createuser.id and createuser.bool_delete_enum = 0
+        left join sys_user as lastupdateuser on cp.last_update_user_id = lastupdateuser.id and
+        lastupdateuser.bool_delete_enum = 0
+        LEFT JOIN sys_structure_type AS st on cp.structure_type_id = st.id
+        WHERE cp.bool_delete_enum = 0
+        <if test="projectContentId != null">
+            AND find_in_set(#{projectContentId},cp.project_content)
+        </if>
+        <if test="structureStatus != null">
+            and cp.structure_status = #{structureStatus}
+        </if>
+        <if test="structureTypeId != null">
+            and cp.structure_type_id = #{structureTypeId}
+        </if>
+        <if test="status != null">
+            and cp.status = #{status}
+        </if>
+        <if test="settlementStatus!=null">
+            and cp.settlement_status = #{settlementStatus}
+        </if>
+        <!--        <if test="serialNumber !=null and serialNumber != '' ">-->
+        <!--            and cp.serial_number like concat('%', #{serialNumber}, '%')-->
+        <!--        </if>-->
+        <!--        <if test="name !=null and name != '' ">-->
+        <!--            and cp.name like concat('%', #{name}, '%')-->
+        <!--        </if>-->
+        <if test="noOrProjectName !=null and noOrProjectName != '' ">
+            and (cp.short_name like concat('%', #{noOrProjectName}, '%')
+            or cp.serial_number like concat('%',#{noOrProjectName},'%')
+            or cp.short_name like concat('%',#{noOrProjectName},'%')
+            )
+        </if>
+        <if test="signerName != null and signerName  != ''">
+            AND (cp.project_manager_id in (select id from sys_user where bool_delete_enum = 0 and name like
+            concat('%',#{signerName},'%'))
+            or
+            cp.sales_leader_id in (select id from sys_user where bool_delete_enum = 0 and name like
+            concat('%',#{signerName},'%')))
+        </if>
+        <if test="address != null and address != ''">
+            and cp.address like concat('%',#{address},'%')
+        </if>
+        <if test="customerUnit != null and customerUnit != ''">
+            and cp.customer_unit like concat('%',#{customerUnit},'%')
+        </if>
+        <if test="businessType != null">
+            AND cp.business_type = #{businessType}
+        </if>
+        <if test="projectType != null">
+            AND cp.project_type &amp; #{projectType}
+        </if>
+        <if test="outFinishStatus != null">
+            and cp.out_finish_status = #{outFinishStatus}
+        </if>
+        <if test="outFinishStatus != null and outFinishStatus == 1">
+            and cp.out_finish_status = #{outFinishStatus} and cp.status = 1
+        </if>
+        <if test="year != null">
+            and DATE_FORMAT(cp.create_time,'%Y') = #{year}
+        </if>
+        <if test="contractSignBodyId != null">
+            and contract_sign_body_id = #{contractSignBodyId}
+        </if>
+        <if test="yearDate != null">
+            and DATE_FORMAT(cp.create_time,'%Y') = DATE_FORMAT(#{yearDate},'%Y')
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = cp.id
+            )
+        </if>
+        <if test="projectAttribute != null ">
+            and cp.project_attribute = #{projectAttribute}
+        </if>
+        <if test="isBuilding != null">
+            and cp.is_building = #{isBuilding}
+        </if>
+        <if test="isEffective != null ">
+            and cp.is_effective = #{isEffective}
+        </if>
+        order by cp.create_time desc
+    </select>
+
+
+    <!--项目列表-->
+    <select id="selectProjectsByIdOrName"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractProjectListForUserDTO">
+        SELECT
+        DISTINCT cp.id,
+        cp.*
+        FROM
+        contract_project AS cp
+        <if test="userId != null">
+            INNER JOIN sys_project_user_link pul ON pul.project_id = cp.id AND pul.bool_delete_enum = 0
+            AND (pul.user_id = #{userId})
+        </if>
+        WHERE cp.bool_delete_enum = 0
+        <if test="noOrProjectName !=null and noOrProjectName != '' ">
+            and (cp.name like concat('%', #{noOrProjectName}, '%') or cp.serial_number like concat('%',
+            #{noOrProjectName},'%'))
+        </if>
+        <if test="status != null">
+            and cp.status = #{status}
+        </if>
+        order by cp.id desc
+    </select>
+
+    <select id="selectProjectIdsByUserId" parameterType="long" resultType="long">
+        SELECT cp.id
+        FROM contract_project cp
+        INNER JOIN sys_project_user_link pul ON pul.project_id = cp.id
+        WHERE cp.bool_delete_enum = 0
+        AND pul.bool_delete_enum = 0
+        AND pul.user_id = #{userId}
+        <if test="level != null">
+            and cp.level &amp; #{level} > 0
+        </if>
+    </select>
+
+    <select id="getProjectInfoById" parameterType="long"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+        select id, serial_number, name, short_name, project_attribute, project_manager_id, contract_sign_body_id
+        from contract_project
+        where id = #{projectId}
+          and bool_delete_enum = 0
+    </select>
+
+    <select id="selectListProject" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT
+        cp.*
+        FROM contract_project cp
+        <if test="userId != null">
+            INNER JOIN sys_project_user_link pul ON pul.project_id = cp.id AND pul.bool_delete_enum = 0
+            and pul.user_id = #{userId}
+        </if>
+        WHERE cp.bool_delete_enum = 0
+        <if test="projectType != null">
+            and cp.project_type &amp; #{projectType}
+        </if>
+        <if test="status != null">
+            and cp.status = #{status}
+        </if>
+        <if test="settlementStatus != null">
+            and cp.settlement_status = #{settlementStatus}
+        </if>
+        <if test="lumpSumSystemType != null">
+            and cp.lump_sum_system_type &amp; #{lumpSumSystemType}
+        </if>
+        <if test="level != null">
+            and cp.level &amp; #{level} > 0
+        </if>
+        order by cp.id desc
+    </select>
+
+
+    <select id="selectProjectLedgerList"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractProjectLedgerDTO">
+        select distinct
+        cp.contract_type,
+        cp.id,
+        cp.serial_number,
+        cp.name,
+        cp.short_name,
+        cp.business_type,
+        cp.project_type,
+        cp.contract_sign_body_id,
+        bc.name as contract_sign_body_name,
+        cp.settlement_status,
+        cp.is_tax,
+        cp.invoice_type,
+        cp.pay_type,
+        cp.tax_rate,
+        cp.project_manager_id,
+        cp.sales_leader_id,
+        (SELECT `name` FROM sys_user WHERE bool_delete_enum = 0 AND id = cp.project_manager_id) AS project_manager_name,
+        cp.status,
+        cp.signer_id,
+        cp.signer_name,
+        cp.signing_date,
+        cp.management_fee_rate,
+        cp.contract_amount,
+        cp.settlement_amount,
+        cp.collection_amount,
+        cp.invoice_amount,
+        cp.happened_amount,
+        cp.customer_unit,
+
+        (select count(*) from contract_collection where bool_delete_enum = 0 and project_id = cp.id and audit_status =
+        1) as un_check_collection_count,
+        (select count(*) from contract_invoice where bool_delete_enum = 0 and project_id = cp.id and audit_status = 1)
+        as un_check_invoice_count
+
+        from contract_project as cp
+        left join sys_branch_company bc on cp.contract_sign_body_id = bc.id and bc.bool_delete_enum = 0
+        <if test="projectManagerName != null and projectManagerName != ''">
+            INNER JOIN sys_user u on cp.project_manager_id = u.id and u.bool_delete_enum = 0
+            AND u.`name` like concat('%',#{projectManagerName},'%')
+        </if>
+
+        <if test="userId != null">
+            INNER JOIN
+            sys_project_user_link as pul on pul.project_id = cp.id and pul.user_id = #{userId}
+        </if>
+
+        where cp.bool_delete_enum = 0
+        <if test="projectId != null">
+            and cp.id = #{projectId}
+        </if>
+
+        <if test="settlementStatus != null">
+            and cp.settlement_status = #{settlementStatus}
+        </if>
+
+        <if test="status != null">
+            and cp.status = #{status}
+        </if>
+
+        <if test="year != null">
+            and DATE_FORMAT(cp.create_time,'%Y') = #{year}
+        </if>
+
+        <if test="serialNumber!= null and serialNumber !=''">
+            and cp.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+
+        <if test="name!= null and name !=''">
+            and cp.name like concat('%',#{name},'%')
+        </if>
+
+        <if test="customerUnit != null and customerUnit != ''">
+            and cp.customer_unit like concat('%',#{customerUnit},'%')
+        </if>
+        order by cp.settlement_status asc, cp.id desc
+    </select>
+
+
+    <select id="listByCondition" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        select * from contract_project
+        where bool_delete_enum = 0
+        <if test="projectId != null">
+            and id = #{projectId}
+        </if>
+        <if test="name != null and name != ''">
+            and (name like CONCAT('%',#{name},'%')
+            or short_name like CONCAT('%',#{name},'%'))
+        </if>
+        <if test="year != null and year != ''">
+            and date_format(create_time, '%Y') = #{year}
+        </if>
+        <if test="userId != null">
+            and (id in (select project_id from sys_project_user_link
+            where bool_delete_enum = 0 and user_id =#{userId})
+            or user_id = #{userId})
+        </if>
+        <if test="projectType != null">
+            and project_type &amp; #{projectType}
+        </if>
+        <if test="lumpSumSystemType != null">
+            and lump_sum_system_type &amp; #{lumpSumSystemType}
+        </if>
+    </select>
+
+
+    <select id="selectMyProjectList"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectSimpleInfoDTO">
+        SELECT
+        cp.*
+        FROM
+        contract_project AS cp
+        INNER JOIN sys_project_user_link AS pul ON cp.id = pul.project_id and pul.bool_delete_enum = 0
+        WHERE cp.bool_delete_enum = 0
+        <!-- and cp.business_type != 4 -->
+        <if test="userId != null">
+            AND pul.user_id = #{userId}
+        </if>
+        <!-- INNER JOIN sys_sys_project_user_link AS pul ON cp.id = pul.project_id and pul.bool_delete_enum = 0 -->
+        <!--WHERE cp.bool_delete_enum = 0-->
+        <!--         and cp.business_type != 4 -->
+        <!--        <if test="userId != null">-->
+        <!--            AND pul.user_id = #{userId}-->
+        <!--        </if>-->
+        <if test="year != null">
+            AND DATE_FORMAT( cp.start_date, '%Y' ) = #{year}
+        </if>
+        <if test="status != null">
+            AND cp.status = #{status}
+        </if>
+        <if test="noName!= null and noName != ''">
+            AND (cp.short_name like concat('%',#{noName},'%')
+            or cp.serial_number like concat('%',#{noName},'%')
+            or cp.name like concat('%',#{noName},'%'))
+        </if>
+        <if test="projectType != null ">
+            AND cp.project_type &amp; #{projectType}
+        </if>
+        <if test="settlementStatus != null ">
+            AND cp.settlement_status = #{settlementStatus}
+        </if>
+        <if test="lumpSumSystemType != null ">
+            AND cp.lump_sum_system_type &amp; #{lumpSumSystemType}
+        </if>
+        -- GROUP BY cp.id
+        <if test="level != null ">
+            AND cp.level &amp; #{level}
+        </if>
+        GROUP BY cp.id
+        ORDER BY cp.id desc
+    </select>
+
+
+    <select id="selectContractAmountSum" resultType="decimal">
+        select ifnull(sum(contract_amount), 0)
+        from contract_project
+        where bool_delete_enum = 0
+        <if test="projectType != null">
+            and project_type &amp; #{projectType}
+        </if>
+        <if test="year != null">
+            and DATE_FORMAT(create_time, '%Y')= #{year}
+        </if>
+        <if test="status!= null">
+            and status = #{status}
+        </if>
+    </select>
+
+    <select id="customerTransactionSummary"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.business.ContractBusinessDTO">
+        select customer_unit name,business_type,
+        ifnull(count(*),0) quantity,
+        ifnull(sum(contract_amount),0) total_contract_amount,
+        ifnull(sum(settlement_amount) ,0) total_settlement_amount
+        from contract_project
+        where bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            and customer_unit like CONCAT('%',#{name},'%')
+        </if>
+        <if test="businessType != null">
+            and business_type = #{businessType}
+        </if>
+        <if test="startDate != null">
+            and date(create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            and id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        group by customer_unit,business_type
+    </select>
+
+    <select id="customerTransactionDetail"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.business.ContractBusinessDetailDTO">
+        select contract_amount,settlement_amount,signing_date,signer_name,
+        id 'project.id',
+        name 'project.name',
+        short_name 'project.short_name',
+        serial_number 'project.serial_number'
+        from contract_project
+        where bool_delete_enum = 0
+        <choose>
+            <when test="projectIds != null and projectIds.size() != 0">
+                and id in
+                <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                    #{projectId}
+                </foreach>
+            </when>
+            <otherwise>and 1 = 0</otherwise>
+        </choose>
+        <choose>
+            <when test="name != null and name != ''">
+                and customer_unit = #{name}
+            </when>
+            <otherwise>
+                and (customer_unit is null or customer_unit = '')
+            </otherwise>
+        </choose>
+        <if test="businessType != null">
+            and business_type = #{businessType}
+        </if>
+        <if test="startDate != null">
+            and date(create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(create_time) &lt;= date(#{endDate})
+        </if>
+    </select>
+
+    <select id="listProjectOrderCount" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractProjectOrderDTO">
+        SELECT DATE_FORMAT(create_time, '%m') AS month,
+            business_type,
+            COUNT( id ) AS count,
+            sum( contract_amount ) AS contract_amount
+        FROM
+            contract_project
+        WHERE
+            bool_delete_enum = 0
+          AND DATE_FORMAT( create_time
+            , '%Y' ) = DATE_FORMAT( #{dateTime}
+            , '%Y' )
+        GROUP BY month, business_type
+    </select>
+
+    <select id="selectAbleCollection"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectAbleCollectionDTO">
+        SELECT
+        *
+        FROM
+        `contract_project`
+        WHERE
+        bool_delete_enum = 0
+        <if test="type != null and type == 1">
+            AND collection_amount &lt; invoice_amount
+        </if>
+        <if test="type != null and type == 2">
+            AND settlement_status = 1 AND collection_amount &lt; settlement_amount
+        </if>
+        order by id
+    </select>
+
+    <select id="costAnalysis" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        select * from contract_project
+        <where>
+            <if test="status!=null">
+                status=#{status}
+            </if>
+            <if test="settlementStatus!=null">
+                settlement_status=#{settlementStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAbleCollectionStatistics"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectAbleCollectionStatisticsDTO">
+        SELECT
+        COUNT(*) as able_collection_quantity,
+        <if test="type == 1">
+            IFNULL(SUM(invoice_amount),0) as invoice_amount,
+            IFNULL(SUM(invoice_amount),0) - IFNULL(SUM(collection_amount),0) as able_collection_amount,
+        </if>
+        <if test="type == 2">
+            IFNULL(SUM(settlement_amount),0) as settlement_amount,
+            IFNULL(SUM(settlement_amount),0) - IFNULL(SUM(collection_amount),0) as able_collection_amount,
+        </if>
+        IFNULL(SUM(collection_amount),0) as collection_amount,
+        FROM contract_project
+        WHERE bool_delete_enum = 0
+        <if test="type == 1">
+            AND collection_amount &lt; invoice_amount
+        </if>
+        <if test="type == 2">
+            AND settlement_status = 1 AND collection_amount &lt; settlement_amount
+        </if>
+    </select>
+
+    <select id="selectListSalesLedger"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.business.ContractLedgerSimpleDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        cp.status,
+        cp.order_source_type,
+        cp.settlement_status,
+        cp.project_content,
+        cp.contract_amount,
+        cp.settlement_amount,
+        cp.happened_amount,
+        cp.collection_amount,
+        cp.invoice_amount
+        FROM contract_project cp
+
+        <if test="userId != null">
+            INNER JOIN sys_project_user_link pul ON pul.project_id = cp.id
+            AND pul.bool_delete_enum = 0
+            AND pul.user_id = #{userId}
+        </if>
+
+        <where>
+            cp.bool_delete_enum = 0
+            <if test="year != null">
+                AND DATE_FORMAT( cp.create_time, '%Y' ) = #{year}
+            </if>
+            <if test="productType != null">
+                and cp.product_category &amp; #{productType} > 0
+            </if>
+            <if test="orderSourceType != null">
+                and cp.order_source_type = #{orderSourceType}
+            </if>
+            <if test="name != null and name != ''">
+                and cp.name like concat('%',#{name},'%')
+            </if>
+            <if test="projectStatus != null and (projectStatus == 1 or projectStatus == 2) ">
+                and cp.status = #{projectStatus}
+            </if>
+            <if test="projectStatus != null and projectStatus == 4">
+                and cp.status = 4 and cp.settlement_status = 0
+            </if>
+            <if test="projectStatus != null and projectStatus == 8">
+                and cp.settlement_status = 1
+            </if>
+            order by cp.id desc
+        </where>
+    </select>
+
+    <select id="projectSummaryYear"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectSimpleInfoDTO">
+        SELECT
+        *
+        FROM
+        contract_project
+        WHERE bool_delete_enum=FALSE
+        <if test="date!=null">
+            AND DATE_FORMAT(create_time,'%Y')=DATE_FORMAT(#{date},'%Y')
+        </if>
+        <if test="status!=null">
+            AND status=#{status}
+        </if>
+        <!--        <if test="projectType!=null">-->
+        <!--            AND project_type=#{projectType}-->
+        <!--        </if>-->
+        AND project_type &amp; 3
+        <if test="name!=null and name!=''">
+            AND (name like concat('%',#{name},'%')
+            or short_name like concat('%',#{name},'%')
+            or serial_number like concat('%',#{name},'%')
+            )
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectProjectFinancialStatement"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractProjectFinanceDTO">
+        select
+        cp.id,
+        cp.id 'project.id',
+        cp.name,
+        cp.name 'project.name',
+        cp.short_name,
+        cp.short_name 'project.short_name',
+        cp.serial_number,
+        cp.serial_number 'project.serial_number',
+        cp.business_type,
+        cp.project_type,
+        cp.order_source_type,
+        cp.contract_amount,
+        cp.status,
+        cp.settlement_status ,
+        cp.settlement_amount,
+        cp.collection_amount,
+        cp.happened_amount,
+        0 cost_amount,
+        (case cp.settlement_status
+        when 0 then cp.contract_amount-cp.collection_amount
+        when 1 then cp.settlement_amount-cp.collection_amount end
+        <!-- 应收金额 -->
+        ) receivable_amount,
+        (cp.collection_amount - cp.happened_amount) available_balance,
+        cv.attachment_ids as settlement_attachment_ids
+        from contract_project cp
+        left join contract_visa cv on cp.id = cv.project_id and cv.type = 2 and cv.status = 2 and cv.bool_delete_enum =
+        0
+        where cp.bool_delete_enum = 0
+        <if test="year != null">
+            and DATE_FORMAT(cp.create_time, '%Y') = #{year}
+        </if>
+        <if test="projectId != null">
+            and cp.id= #{projectId}
+        </if>
+        <if test="businessType != null">
+            and cp.business_type = #{businessType}
+        </if>
+        <if test="projectType != null">
+            and cp.project_type &amp; #{projectType}
+        </if>
+        <if test="orderSourceType != null">
+            and cp.order_source_type = #{orderSourceType}
+        </if>
+        <if test="settlementStatus != null">
+            and cp.settlement_status =#{settlementStatus}
+        </if>
+        <if test="status != null">
+            and cp.status = #{status}
+        </if>
+        order by cp.id desc
+    </select>
+    <select id="getMachinePartTaskprojectList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.util.ProjectDetailDO">
+        SELECT
+        *
+        FROM
+        contract_project
+        where bool_delete_enum=0
+        AND status=1
+        AND DATE_FORMAT(create_time,'%Y')=DATE_FORMAT(#{localDateTime},'%Y')
+        <if test="serialNumber != null and serialNumber !=''">
+            AND (serial_number like concat('%',#{serialNumber},'%') or short_name like concat('%',#{serialNumber},'%')
+            or name like concat('%',#{serialNumber},'%') )
+        </if>
+        AND id IN (SELECT
+        par.project_id
+        FROM
+        mes_building_nest_cut_machine_part_separate sep
+        LEFT JOIN tech_machine_part par ON sep.product_id = par.id
+        WHERE
+        sep.bool_delete_enum = 0
+        <choose>
+            <when test="cutIds!=null and cutIds.size()!=0">
+                AND sep.nest_cut_id IN
+                <foreach collection="cutIds" item="item" separator="," close=")" open="(">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                AND sep.nest_cut_id is null
+            </otherwise>
+        </choose>
+        <if test="projectIds != null and projectIds.size()>0">
+            AND par.project_id IN
+            <foreach collection="projectIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        )
+
+    </select>
+    <select id="listBytimeAndName" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        select
+        *
+        from
+        contract_project
+        where bool_delete_enum=0
+        <if test="startDate != null">
+            AND date(create_time) >= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND date(create_time) &lt;= date(#{endDate})
+        </if>
+        <if test="name != null and name != ''">
+            and (name like concat('%',#{name},'%') or
+            short_name like concat('%',#{name},'%') or
+            serial_number like concat('%',#{name},'%'))
+        </if>
+    </select>
+    <select id="taskOrderProjectList" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT
+        a.*
+        FROM
+        contract_project a
+        WHERE
+        id IN (
+        SELECT DISTINCT
+        a.project_id
+        FROM
+        mes_building_task_process a
+        INNER JOIN mes_building_process p ON p.id = a.process_id
+        WHERE
+        a.bool_delete_enum=0
+        AND a.task_type_enum = 1
+        AND p.type = #{type}
+        <choose>
+            <when test="taskOrderIds!=null and taskOrderIds.size()!=0">
+                AND a.task_order_id IN
+                <foreach collection="taskOrderIds" item="taskOrderId" separator="," close=")" open="(">
+                    #{taskOrderId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND a.task_order_id is null
+            </otherwise>
+        </choose>
+        )
+        AND a.bool_delete_enum = 0
+    </select>
+
+
+    <select id="queryEnclosurePlan" resultType="com.hzchum.scim.plan.core.api.pojo.dto.EnclosurePlanDetailDto">
+        select
+        cp.id projectId,
+        cp.serial_number projectCode,
+        cp.name projectName,
+        cp.short_name shortName,
+        cp.create_time createTime,
+        cp.signer_name signerName,
+        su.name createName,
+        cp.project_content projectContent,
+        cp.start_date startDate,
+        cp.end_date endDate,
+        cp.signing_date signingDate
+        from contract_project cp
+        left join sys_user su on cp.user_id = su.id
+        left join contract_tech ct on cp.id = ct.project_id
+        where cp.bool_delete_enum = 0
+        and cp.status = 1
+        and ct.category_type = 4
+        <if test="projectIds !=null and projectIds.size != 0">
+            and cp.id IN
+            <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="dto.projectName != null and dto.projectName != ''">
+            and (cp.short_name like concat('%', #{dto.projectName}, '%') or cp.serial_number like concat('%',
+            #{dto.projectName},'%'))
+        </if>
+        <if test="dto.signerName != null and dto.signerName != ''">
+            and cp.signer_name like concat('%',#{dto.signerName},'%')
+        </if>
+        <if test="dto.createName != null and dto.createName != ''">
+            and su.name like concat('%',#{dto.createName},'%')
+        </if>
+        <if test="dto.year != null and dto.year != ''">
+            and date_format(cp.create_time,'%Y') = #{dto.year}
+        </if>
+        group by projectId
+        order by cp.create_time desc
+    </select>
+
+
+    <select id="selectSql" resultType="java.lang.String">
+        ${sql}
+    </select>
+
+    <update id="updateSql">
+        ${sql}
+    </update>
+
+    <select id="selectInfoByIdList" resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+        select id, name, short_name, serial_number
+        from contract_project
+        where bool_delete_enum = 0
+        <if test="ids != null and ids.size() != 0">
+            and id in
+            <foreach collection="ids" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="pageByYearAndName" resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechnologyDTO">
+        select
+        cp.id,
+        cp.short_name,
+        cp.serial_number,
+        cp.project_attribute,
+        cp.business_type,
+        cp.structure_status,
+        cp.lump_sum_system_type,
+        cp.signing_date,
+        cp.signing_date AS planCreateDate,
+        suser.name AS projectManagerName
+        from contract_project cp
+        LEFT JOIN sys_user suser on suser.id = cp.project_manager_id
+        <if test="userId != null ">
+            INNER JOIN sys_project_user_link link on link.project_id = cp.id and link.user_id = #{userId}
+            and link.bool_delete_enum = 0
+        </if>
+        where cp.bool_delete_enum = 0
+        <if test="year!= null">
+            and date_format(cp.create_time,'%Y') = #{year}
+        </if>
+        <if test="lumpSumSystemType != null">
+            and cp.lump_sum_system_type &amp; #{lumpSumSystemType}
+        </if>
+        <if test="projectType != null">
+            and cp.project_type &amp; #{projectType}
+        </if>
+        <if test="name!= null and name!= ''">
+            and (cp.name like concat('%',#{name},'%') or
+            cp.short_name like concat('%',#{name},'%') or
+            cp.serial_number like concat('%',#{name},'%'))
+        </if>
+    </select>
+
+    <select id="selectContractProjects"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectSimpleInfoDTO">
+        SELECT DISTINCT cp.* , CASE WHEN plan.id IS NULL THEN 0 ELSE 1 END AS have_plan
+        FROM contract_project cp
+        LEFT JOIN plan_monomer plan ON plan.project_id = cp.id AND plan.bool_delete_enum = 0
+        <if test="userId != null ">
+            INNER JOIN sys_project_user_link link on link.project_id = cp.id and link.user_id = #{userId}
+            and link.bool_delete_enum = 0
+        </if>
+        <where>
+            AND cp.bool_delete_enum = 0
+            <if test="status != null ">
+                AND cp.status = #{status}
+            </if>
+            <if test="noOrName != null and noOrName != '' ">
+                AND cp.name LIKE CONCAT('%', #{noOrName}, '%')
+                OR cp.serial_number LIKE CONCAT('%', #{noOrName}, '%')
+            </if>
+            <if test="firstDayOfYear != null and lastDayOfYear != null ">
+                AND cp.start_date BETWEEN #{firstDayOfYear} AND #{lastDayOfYear}
+            </if>
+            <if test="projectType != null ">
+                AND cp.project_type &amp; #{projectType}
+            </if>
+            <if test="lumpSumSystemType != null ">
+                AND cp.lump_sum_system_type &amp; #{lumpSumSystemType}
+            </if>
+        </where>
+        ORDER BY have_plan ASC , cp.create_time DESC
+    </select>
+    <select id="selectContractProjectList"
+            resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT *
+        FROM contract_project cp
+        <if test="userId != null">
+            INNER JOIN sys_project_user_link link ON link.project_id = cp.id AND link.bool_delete_enum = 0 AND
+            link.user_id = #{userId}
+        </if>
+        WHERE cp.id IN
+        <foreach item="id" collection="combinedIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY cp.create_time DESC
+    </select>
+
+    <select id="selectProjectStandingBook" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ProjectStandingBook">
+        SELECT
+        pro.*,
+        sus.name as user_id ,
+        su.name as project_manager_id
+        FROM
+        `contract_project` pro
+        LEFT JOIN sys_user sus on sus.id = pro.user_id
+        and sus.bool_delete_enum = 0
+        LEFT JOIN sys_user su on su.id = pro.project_manager_id
+        where pro.bool_delete_enum = 0
+        <if test="projectAttribute != null and projectAttribute != ''">
+            and project_attribute = #{projectAttribute}
+        </if>
+        <if test="projectManagerId != null and projectManagerId != ''">
+            and project_manager_id = #{projectManagerId}
+        </if>
+        <if test="projectId != null and projectId != ''">
+            and project_id = #{projectId}
+        </if>
+        <if test="startDate != null">
+            and start_date = #{startDate}
+        </if>
+        <if test="endDate != null">
+            and end_date = #{endDate}
+        </if>
+    </select>
+    <!--    <select id="projectLedgerList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ProjectLedgerDTO">
+            SELECT DISTINCT
+            cp.structure_area,
+            cp.contract_type,
+            cp.id as "project.id",
+            cp.serial_number as "project.serialNumber",
+            cp.NAME as "project.name",
+            cp.short_name AS "project.shortName",
+            cp.business_type,
+            cp.project_type,
+            cp.contract_sign_body_id,
+            bc.NAME AS contract_sign_body_name,
+            cp.settlement_status,
+            cp.project_attribute,
+            cp.is_tax,
+            cp.invoice_type,
+            cp.pay_type,
+            cp.tax_rate,
+            cp.project_manager_id,
+            cp.sales_leader_id,
+            ( SELECT `name` FROM sys_user WHERE bool_delete_enum = 0 AND id = cp.project_manager_id ) AS
+            project_manager_name,
+            ( SELECT `name` FROM sys_department WHERE bool_delete_enum = 0 AND id = cp.dept_id ) AS
+            deptName,
+            cp.STATUS,
+            cp.signer_id,
+            cp.signer_name,
+            cp.signing_date,
+            (select cash_deposit from contract_management_cost where bool_delete_enum = 0 and id = cp.management_cost_id) as managementFeeRate,
+            cp.settlement_amount,
+            cp.collection_amount,
+            cp.invoice_amount,
+            cp.happened_amount,
+            cp.customer_unit,
+            cp.address,
+            ( SELECT count(*) FROM contract_collection WHERE bool_delete_enum = 0 AND project_id = cp.id AND audit_status =
+            1 ) AS un_check_collection_count,
+            ( SELECT count(*) FROM contract_invoice WHERE bool_delete_enum = 0 AND project_id = cp.id AND audit_status = 1 )
+            AS un_check_invoice_count,
+            (select name FROM sys_user WHERE bool_delete_enum = 0 AND id = cp.project_manager_id) as projectManagerName,
+            (select name FROM sys_user WHERE bool_delete_enum = 0 AND id = cp.sales_leader_id) as salesLeaderName,
+            cp.structure_status,
+            (select name FROM sys_country WHERE bool_delete_enum = 0 AND id = cp.country_id) as countryName,
+            (select name from sys_city WHERE bool_delete_enum = 0 AND id = cp.city_id) as cityName,
+            (select name FROM sys_province WHERE bool_delete_enum = 0 AND id = cp.province_id) as provinceName,
+            cp.party_type,
+            cp.sending_mode,
+            cp.start_date,
+            cp.end_date,
+            cp.all_days,
+            cp.contract_amount as amount,
+            cp.currency_type,
+            cp.margin_amount as cashDeposit,
+            cp.margin_type,
+            cp.technology_clause,
+            cp.pay_type_desc
+            FROM
+            contract_project AS cp
+            LEFT JOIN sys_branch_company bc ON cp.contract_sign_body_id = bc.id
+            AND bc.bool_delete_enum = 0
+
+            WHERE
+            cp.bool_delete_enum = 0
+            <if test="projectAttribute != null">
+                AND cp.project_attribute = #{projectAttribute}
+            </if>
+            <if test="projectManagerId != null and projectManagerId != ''">
+                AND cp.project_manager_id = #{projectManagerId}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND cp.id = #{projectId}
+            </if>
+            <if test="userId != null and userId != ''">
+                AND cp.project_manager_id = #{userId}
+            </if>
+            <if test="startDate != null ">
+                AND DATE_FORMAT(cp.start_date,'%Y-%m-%d') &lt;=  DATE_FORMAT(#{startDate},'%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                AND DATE_FORMAT(cp.start_date,'%Y-%m-%d') &gt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+            </if>
+            ORDER BY
+            cp.settlement_status ASC,
+            cp.id DESC
+        </select>-->
+
+    <select id="getProjectInfoByIds" parameterType="long"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+        select id, serial_number, name, short_name,project_attribute,project_manager_id
+        from contract_project
+        where id in
+        <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+        and bool_delete_enum = 0
+    </select>
+
+    <select id="listWastage" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT
+        a.id,
+        a.serial_number,
+        a.short_name,
+        a.name,
+        a.status,
+        a.create_time
+        FROM
+        contract_project a
+        WHERE bool_delete_enum = 0
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(a.create_time,'%Y') = #{year}
+        </if>
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND a.id IN
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="projectLedgerList" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ProjectLedgerDTO">
+        SELECT
+        cp.id,
+        cp.create_time,
+        cp.level,
+        cp.id AS 'project.id',
+        cp.serial_number AS 'project.serialNumber',
+        cp.NAME AS 'project.name',
+        cp.short_name AS 'project.shortName',
+        cp.business_type,
+        cp.project_type,
+        cp.contract_sign_body_id,
+        bc.NAME AS contract_sign_body_name,
+        cp.settlement_status,
+        cp.project_attribute,
+        cp.is_tax,
+        cp.invoice_type,
+        cp.pay_type,
+        cp.tax_rate,
+        cp.project_manager_id,
+        ( SELECT `name` FROM sys_user WHERE bool_delete_enum = 0 AND id = cp.project_manager_id ) AS
+        project_manager_name,
+        cp.STATUS,
+        cp.signer_id,
+        cp.signer_name,
+        cp.sales_leader_id,
+        null AS sales_leader_name,
+        cp.signing_date,
+        cp.settlement_amount,
+        cp.collection_amount,
+        cp.invoice_amount,
+        cp.happened_amount,
+        cp.customer_unit,
+        cp.address,
+        cp.structure_status,
+        ( SELECT count(*) FROM contract_collection WHERE bool_delete_enum = 0 AND project_id = cp.id AND audit_status =
+        1 ) AS un_check_collection_count,
+        ( SELECT count(*) FROM contract_invoice WHERE bool_delete_enum = 0 AND project_id = cp.id AND audit_status = 1 )
+        AS un_check_invoice_count,
+        cp.country_id,
+        cp.country_name,
+        cp.province_id,
+        cp.province_name,
+        cp.city_id,
+        cp.city_name,
+        cp.start_date,
+        cp.end_date,
+        cp.contract_amount AS amount,
+        cp.currency_type,
+        cp.margin_amount AS cashDeposit,
+        cp.margin_type,
+        cp.pay_type_desc
+        FROM
+        contract_project AS cp
+        LEFT JOIN sys_branch_company bc ON cp.contract_sign_body_id = bc.id
+        AND bc.bool_delete_enum = 0
+        WHERE
+        cp.bool_delete_enum = 0
+        <if test="year != null">
+            AND YEAR(cp.create_time) = YEAR(#{year})
+        </if>
+        <if test="settlementStatus != null">
+            AND cp.settlement_status = #{settlementStatus}
+        </if>
+        <if test="level != null">
+            AND cp.level &amp; #{level} > 0
+        </if>
+        <if test="projectAttribute != null">
+            AND cp.project_attribute = #{projectAttribute}
+        </if>
+        <if test="projectManagerId != null">
+            AND cp.project_manager_id = #{projectManagerId}
+        </if>
+        <if test="salesLeaderId != null">
+            AND (cp.sales_leader_id = #{salesLeaderId}
+            OR (cp.sales_leader_id IS NULL and cp.signer_id = #{salesLeaderId}))
+        </if>
+        <if test="projectId != null">
+            AND cp.id = #{projectId}
+        </if>
+        GROUP BY cp.id
+        ORDER BY
+        cp.settlement_status ASC,
+        cp.id DESC
+    </select>
+
+    <resultMap id="ProjectsTreeDTO"
+               type="com.hzchum.scim.common.core.api.pojo.dto.ProjectsTreeDTO">
+        <id column="project_id" property="id"/>
+        <result column="project_name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="serial_number" property="serialNumber"/>
+        <collection property="monomerList" resultMap="MonomerTreeDTO">
+        </collection>
+    </resultMap>
+
+    <resultMap id="MonomerTreeDTO"
+               type="com.hzchum.scim.common.core.api.pojo.dto.MonomerTreeDTO">
+        <result column="monomer_id" property="id"/>
+        <result column="monomer_name" property="name"/>
+        <collection property="areaList" ofType="com.hzchum.scim.common.core.api.pojo.dto.AreaTreeDTO">
+            <result column="area_id" property="id"/>
+            <result column="area_name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="findProjectTreeByProjectid" resultType="com.hzchum.scim.common.core.api.pojo.dto.ProjectsTreeDTO">
+        SELECT project.id project_id,
+        project.`name` project_name,
+        project.short_name short_name,
+        project.serial_number serial_number,
+        monomer.id monomer_id,
+        monomer.`name` monomer_name,
+        area.id area_id,
+        area.`name` area_name
+        from contract_project project
+        left join plan_monomer monomer on project.id = monomer.project_id and monomer.bool_delete_enum = 0
+        left join plan_area area on monomer.id = area.monomer_id and area.bool_delete_enum = 0
+        left join mes_building_task_order orde on project.id = orde.project_id and orde.bool_delete_enum = 0
+        left join mes_building_production_line line on orde.production_line_id = line.id and line.bool_delete_enum = 0
+        where project.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() != 0">
+            and project.id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="workShopId != null">
+            and line.workshop_id = #{workShopId}
+        </if>
+        <if test="dateTime!=null">
+            AND DATE_FORMAT(orde.create_time, '%Y') = DATE_FORMAT(#{dateTime}, '%Y')
+        </if>
+    </select>
+    <select id="UnAuditReport" resultType="java.lang.Long">
+        select count(*)
+        from project_install_report
+        where bool_delete_enum = 0
+          and audit_status = 1
+          and project_id = #{projectId}
+    </select>
+
+
+    <select id="wastageLossProjectList" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT
+        a.id,
+        a.serial_number,
+        a.short_name,
+        a.name,
+        a.status,
+        a.create_time
+        FROM
+        contract_project a
+        WHERE bool_delete_enum = 0
+        <if test="year != null and year != ''">
+            AND DATE_FORMAT(a.create_time,'%Y') = #{year}
+        </if>
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND a.id IN
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+    <select id="getProjectList" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractProject">
+        SELECT
+        *
+        FROM
+        contract_project a
+        WHERE bool_delete_enum = 0
+        <if test="year==1 and yearDate != null">
+            AND DATE_FORMAT(a.create_time,'%Y') = DATE_FORMAT(#{yearDate},'%Y')
+        </if>
+        <if test="year==0 and yearDate != null">
+            AND DATE_FORMAT(a.create_time,'%Y%m') = DATE_FORMAT(#{yearDate},'%Y%m')
+        </if>
+        <if test="businessType!=null">
+            AND business_type &amp; #{businessType} > 0
+        </if>
+        <if test="branchCompanyId!=null">
+            AND EXISTS(
+            select 1 from project_branch_company_link pbcl
+            where pbcl.bool_delete_enum = FALSE
+            and pbcl.branch_company_id = #{branchCompanyId}
+            and pbcl.project_id = a.id
+            )
+        </if>
+    </select>
+    <select id="getDeepMeteGroupMonth"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectExecuteStateDTO">
+        SELECT DATE_FORMAT(ta.create_time, '%Y-%m') as dateTime,
+               (SUM(ta.total_net_weight))           AS deepMete
+        FROM tech_artifact ta
+        WHERE ta.bool_delete_enum = FALSE
+          and ta.project_id = #{projectId}
+        group by DATE_FORMAT(ta.create_time, '%Y-%m')
+    </select>
+    <select id="getProduceMeteGroupMonth"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectExecuteStateDTO">
+        SELECT DATE_FORMAT(mbt.create_time, '%Y-%m')        as dateTime,
+               (SUM(mbt.complete_quantity * ta.net_weight)) AS produceMete
+        FROM mes_building_task mbt
+                 LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbt.product_id
+        WHERE mbt.bool_delete_enum = FALSE
+          AND mbt.task_type_enum = 2
+          and mbt.project_id = #{projectId}
+        GROUP BY DATE_FORMAT(mbt.create_time, '%Y-%m')
+    </select>
+    <select id="getShippingMeteGroupMonth"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectExecuteStateDTO">
+        SELECT DATE_FORMAT(mbws.create_time, '%Y-%m') as dateTime,
+               (SUM(mbws.quantity * ta.net_weight))   AS shippingMete
+        FROM mes_building_warehouse_summary mbws
+                 LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbws.product_id
+        WHERE mbws.bool_delete_enum = FALSE
+          AND mbws.type = 2
+          AND mbws.product_type = 2
+          and mbws.project_id = #{projectId}
+        GROUP BY DATE_FORMAT(mbws.create_time, '%Y-%m')
+    </select>
+    <select id="getInstallMeteGroupMonth"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectExecuteStateDTO">
+        SELECT DATE_FORMAT(pis.create_time, '%Y-%m')      as dateTime,
+               (SUM(pis.actual_quantity * ta.net_weight)) AS installMete
+        FROM project_install_summary pis
+                 LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = pis.product_id
+        WHERE pis.bool_delete_enum = FALSE
+          AND pis.product_type = 2
+          and pis.project_id = #{projectId}
+        GROUP BY DATE_FORMAT(pis.create_time, '%Y-%m')
+    </select>
+    <select id="getInstallMete" resultType="java.math.BigDecimal">
+        SELECT (SUM(pis.actual_quantity * ta.net_weight) / 1000) AS installMete
+        FROM project_install_summary pis
+                 LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = pis.product_id
+        WHERE pis.bool_delete_enum = FALSE
+          AND pis.product_type = 2
+          and pis.project_id = #{projectId}
+    </select>
+    <select id="getProjectPlanListFiltered"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.response.ProjectSimpleInfoDTO">
+        SELECT cp.*,
+        CASE WHEN plan.plan_count IS NULL THEN 0 ELSE 1 END AS have_plan
+        FROM contract_project cp
+        LEFT JOIN (
+        SELECT project_id, COUNT(*) AS plan_count
+        FROM plan_monomer
+        WHERE bool_delete_enum = 0
+        GROUP BY project_id
+        ) plan ON plan.project_id = cp.id
+        <if test="userId != null ">
+            INNER JOIN sys_project_user_link link
+            ON link.project_id = cp.id
+            AND link.user_id = #{userId}
+            AND link.bool_delete_enum = 0
+        </if>
+        <where>
+            AND cp.bool_delete_enum = 0
+            <if test="status != null ">
+                AND
+                CASE
+                WHEN plan.plan_count IS NULL THEN 0
+                ELSE 1
+                END = #{status}
+            </if>
+            <if test="year != null">
+                AND DATE_FORMAT(cp.signing_date, '%Y') = #{year}
+            </if>
+            <if test="projectType != null">
+                AND (cp.project_type &amp; #{projectType}) != 0
+            </if>
+            <if test="lumpSumSystemType != null">
+                AND (cp.lump_sum_system_type &amp; #{lumpSumSystemType}) != 0
+            </if>
+            <if test="noOrName != null and noOrName != '' ">
+                AND (cp.short_name LIKE CONCAT('%', #{noOrName}, '%')
+                OR cp.serial_number LIKE CONCAT('%', #{noOrName}, '%'))
+            </if>
+        </where>
+        ORDER BY have_plan ASC, cp.create_time DESC
+    </select>
+</mapper>

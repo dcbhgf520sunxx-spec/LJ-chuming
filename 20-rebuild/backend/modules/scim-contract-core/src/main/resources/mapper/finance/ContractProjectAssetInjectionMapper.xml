@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractProjectAssetInjectionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractProjectAssetInjection">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="asset_injection_time" property="assetInjectionTime" />
+        <result column="project_id" property="projectId" />
+        <result column="contract_sign_body_id" property="contractSignBodyId" />
+        <result column="contract_sign_body_scale" property="contractSignBodyScale" />
+        <result column="project_manager_id" property="projectManagerId" />
+        <result column="project_manager_scale" property="projectManagerScale" />
+        <result column="asset_injection_enum" property="assetInjectionEnum" />
+        <result column="disburse_enum" property="disburseEnum" />
+        <result column="collection_deposit_bank" property="collectionDepositBank" />
+        <result column="attachment_id" property="attachmentId" />
+        <result column="income_or_disburse" property="incomeOrDisburse" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        id, asset_injection_time, peoject_id, contract_sign_body_id, contract_sign_body_scale, project_manager_id, project_manager_scale, asset_injection_enum, disburse_enum, collection_deposit_bank, attachment_id, inconme_or_disburse, user_id
+    </sql>
+
+</mapper>

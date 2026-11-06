@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.SectionSteelSpecMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.SectionSteelSpec">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="section_steel_id" property="sectionSteelId"/>
+        <result column="specification" property="specification"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, classification_id, specification
+    </sql>
+
+    <resultMap id="specDetail" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.SectionSteelSpecDetailDTO">
+        <id column="sid" property="id"/>
+        <result column="specification" property="specification"/>
+        <result column="section_steel_id" property="sectionSteelId"/>
+        <result column="status" property="status"/>
+        <collection property="standard"
+                    ofType="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.SectionSteelSpecStandardDetailDTO">
+            <result column="standard_id" property="id"/>
+            <result column="unit_net" property="unitNet"/>
+        </collection>
+    </resultMap>
+    <select id="getByConfigId" resultMap="specDetail">
+        SELECT sss.id sid,
+               sss.specification,
+               sss.section_steel_id,
+               sssd.standard_id,
+               sssd.unit_net,
+               sss.status
+        FROM wms_section_steel_spec sss
+                 LEFT JOIN wms_section_steel_spec_standard_detail sssd on sssd.spec_id = sss.id and sssd.bool_delete_enum = 0
+        WHERE sss.section_steel_id = #{configId}
+          and sss.bool_delete_enum = 0
+        <if test="specification != null and specification != ''">
+            and sss.specification like CONCAT('%', #{specification},'%')
+        </if>
+    </select>
+    <select id="getSpecBySectionSteelId" resultType="String">
+        SELECT specification
+        FROM wms_section_steel_config ssc
+        LEFT JOIN wms_section_steel_spec_standard_detail sssd ON ssc.id = sssd.section_steel_id AND sssd.bool_delete_enum = false
+        LEFT JOIN wms_section_steel_spec sss on sssd.spec_id = sss.id and sss.bool_delete_enum = false
+        WHERE sssd.section_steel_id = #{id}
+        GROUP BY sss.specification
+    </select>
+</mapper>

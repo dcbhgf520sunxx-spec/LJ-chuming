@@ -1,0 +1,40 @@
+{
+  "font": "feedback-iconfont / font_1031158_u69w8yhxdu",
+  "matching_local_font_found": false,
+  "reason": "All font-family references occur only in declarations; symbols render explicit SVG paths, not text glyphs.",
+  "sprite_removed_declarations": 6,
+  "sprite_remaining_external_font_references": 0,
+  "sprite_path_elements_preserved": 571,
+  "public_svg_files": [
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/config-94a7d5f1.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 2
+    },
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/delivery-cancel-0c0edd16.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 1
+    },
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/plan-039d5e3c.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 1
+    },
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/project-d5c9be22.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 1
+    },
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/sign-ea27dc05.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 1
+    },
+    {
+      "file": "20-rebuild/frontend-recovered/public/static/svg/user-de6d17db.svg",
+      "removed_declarations": 1,
+      "paths_preserved": 1
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysEnclosureDictionaryDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysEnclosureDictionaryDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="enclosure_dictionary_id" property="enclosureDictionaryId"/>
+        <result column="plate_type" property="plateType"/>
+        <result column="effective_width" property="effectiveWidth"/>
+        <result column="unfolded_width" property="unfoldedWidth"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, enclosure_dictionary_id, plate_type, effective_width, unfolded_width
+    </sql>
+    <select id="selectDetail" resultType="com.hzchum.scim.system.core.api.pojo._do.SysEnclosureDictionaryDetail">
+        SELECT edd.*
+        FROM sys_enclosure_dictionary_detail AS edd
+                 INNER JOIN sys_enclosure_dictionary AS ed ON edd.enclosure_dictionary_id = ed.id
+        WHERE ed.bool_delete_enum = 0
+          AND edd.bool_delete_enum = 0
+          AND ed.STATUS = 1
+          AND ed.type = #{type}
+          AND ed.NAME = #{name}
+          AND ed.label = #{label}
+
+    </select>
+
+
+</mapper>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.PlanAreaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.PlanArea">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="date" property="date"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="axis" property="axis"/>
+        <result column="type" property="type"/>
+        <result column="product_type" property="productType"/>
+        <result column="sort" property="sort"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, date, project_id, monomer_id, axis, type, product_type, sort, remark
+    </sql>
+
+    <!--查询单体下的产品类型列表-->
+<!--    <select id="listProductTypeByMonomerId" parameterType="long" resultType="map">-->
+<!--        select a.product_type as type,-->
+<!--               pc.name         as name-->
+<!--        from plan_area as a,-->
+<!--             contract_project_content as pc-->
+
+<!--        where a.monomer_id = #{monomerId}-->
+<!--          and a.product_type = pc.no-->
+<!--          and a.bool_delete_enum = 0-->
+<!--          and pc.bool_delete_enum = 0-->
+<!--        order by a.product_type asc-->
+<!--    </select>-->
+
+    <select id="selectMaxMinDate" resultType="com.hzchum.scim.plan.core.api.pojo.dto.PlanMaxMinDateDTO">
+        SELECT
+        MIN(date) min_date ,
+        MAX(date) max_date
+        FROM plan_area
+        WHERE bool_delete_enum = 0
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaProductType != null">
+            AND product_type = #{areaProductType}
+        </if>
+    </select>
+    <select id="getMachinePartByAreaList"
+            resultType="com.hzchum.scim.plan.core.api.pojo._do.PlanArea">
+        SELECT
+        *
+        FROM
+        plan_area
+        where bool_delete_enum=0
+        AND id IN (SELECT
+        par.area_id
+        FROM
+        mes_building_nest_cut_machine_part_separate sep
+        LEFT JOIN tech_machine_part par ON sep.product_id = par.id
+        WHERE
+        sep.bool_delete_enum = 0
+        <choose>
+            <when test="cutIds!=null and cutIds.size()!=0">
+                AND sep.nest_cut_id IN
+                <foreach collection="cutIds" item="item" separator="," close=")" open="(">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                AND sep.nest_cut_id is null
+            </otherwise>
+        </choose>
+        <if test="projectIds != null and projectIds.size()>0">
+            AND par.project_id IN
+            <foreach collection="projectIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        )
+    </select>
+    <select id="getArtifactAndAssembleByAreaList" resultType="com.hzchum.scim.plan.core.api.pojo._do.PlanArea">
+        SELECT
+        *
+        FROM
+        plan_area
+        WHERE
+        bool_delete_enum = 0
+        AND id IN (
+        SELECT
+        ta.area_id
+        FROM
+        mes_building_task task
+        <if test=" taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">LEFT
+            JOIN tech_artifact ta ON task.product_id = ta.id
+        </if>
+        <if test="
+        taskTypeEnum==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">LEFT JOIN
+            tech_assemble ta ON task.product_id = ta.id
+        </if>
+            WHERE
+                task.bool_delete_enum = 0
+              AND task.task_type_enum = #{taskTypeEnum}
+        <choose>
+            <when test="assemblesTaskOrderIds!=null and assemblesTaskOrderIds.size()!=0">
+                AND task.task_order_id IN
+                <foreach collection="assemblesTaskOrderIds" item="item" separator="," close=")" open="(">
+                    #{item}
+                </foreach>
+            </when>
+            <otherwise>
+                AND task.task_order_id is null
+            </otherwise>
+        </choose>
+        )
+    </select>
+
+    <select id="getListByProjectId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectPlanAreaDTO">
+        SELECT
+            pa.*,
+            pa.type AS production_way,
+            pa.mete AS budget_volume,
+            pa.unit_name AS unit,
+            pa.shipping_start_date AS shipped_start_date,
+            pa.shipping_end_date AS shipped_end_date
+        FROM plan_area pa
+        WHERE pa.bool_delete_enum = FALSE
+        <if test="projectId != null">
+            AND pa.project_id = #{projectId}
+        </if>
+    </select>
+
+
+</mapper>

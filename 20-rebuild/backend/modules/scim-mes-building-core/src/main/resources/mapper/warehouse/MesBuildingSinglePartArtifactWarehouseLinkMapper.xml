@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.warehouse.MesBuildingSinglePartArtifactWarehouseLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.warehouse.MesBuildingSinglePartArtifactWarehouseLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="single_id" property="singleId" />
+        <result column="warehouse_id" property="warehouseId" />
+        <result column="report_quantity" property="reportQuantity" />
+        <result column="print_user_id" property="printUserId" />
+        <result column="complete_id" property="completeId" />
+        <result column="bool_assist" property="boolAssist" />
+        <result column="warehousing_type" property="warehousingType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, single_id, warehouse_id, report_quantity, print_user_id, complete_id, bool_assist, warehousing_type
+    </sql>
+
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.crm.core.mapper.CrmApplyTechnologyBiddingRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.crm.core.api.pojo._do.CrmApplyTechnologyBiddingRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="informant_user_id" property="informantUserId"/>
+        <result column="informant_user_name" property="informantUserName"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="informant_date_time" property="informantDateTime"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="crm_project_information_warehousing_id" property="crmProjectInformationWarehousingId"/>
+        <result column="bidding_method_id" property="biddingMethodId"/>
+        <result column="crm_bidding_regulations_type_enum" property="crmBiddingRegulationsTypeEnum"/>
+        <result column="tender_submission_method_id" property="tenderSubmissionMethodId"/>
+        <result column="bid_expiration_date" property="bidExpirationDate"/>
+        <result column="bid_opening_date" property="bidOpeningDate"/>
+        <result column="bid_evaluation_method_id" property="bidEvaluationMethodId"/>
+        <result column="controlled_bidding_price" property="controlledBiddingPrice"/>
+        <result column="settlement_method_id" property="settlementMethodId"/>
+        <result column="tender_bond" property="tenderBond"/>
+        <result column="tender_bond_deadline" property="tenderBondDeadline"/>
+        <result column="company_name" property="companyName"/>
+        <result column="deposit_bank" property="depositBank"/>
+        <result column="account" property="account"/>
+        <result column="cash_deposit" property="cashDeposit"/>
+        <result column="type_of_performance_bond_id" property="typeOfPerformanceBondId"/>
+        <result column="warranty_ratio" property="warrantyRatio"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="warranty_date" property="warrantyDate"/>
+        <result column="material_adjustment" property="materialAdjustment"/>
+        <result column="material_brand_regulations" property="materialBrandRegulations"/>
+        <result column="special_rules_for_materials" property="specialRulesForMaterials"/>
+        <result column="offer_sample" property="offerSample"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+        <result column="crm_check_status_enum" property="crmCheckStatusEnum"/>
+        <result column="approve_record_id" property="approveRecordId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, informant_user_id, informant_user_name, department_id, informant_date_time, create_user_id, crm_project_information_warehousing_id, bidding_method_id, crm_bidding_regulations_type_enum, tender_submission_method_id, bid_expiration_date, bid_opening_date, bid_evaluation_method_id, controlled_bidding_price, settlement_method_id, tender_bond, tender_bond_deadline, company_name, deposit_bank, account, cash_deposit, type_of_performance_bond_id, warranty_ratio, start_date, end_date, warranty_date, material_adjustment, material_brand_regulations, special_rules_for_materials, offer_sample, payment_method, attachment_ids, remark, crm_check_status_enum, approve_record_id
+    </sql>
+    <select id="getDetailByDelete"
+            resultType="com.hzchum.scim.crm.core.api.pojo._do.CrmApplyTechnologyBiddingRecord">
+        select *
+        from crm_apply_technology_bidding_record
+        where id = #{id}
+    </select>
+
+</mapper>

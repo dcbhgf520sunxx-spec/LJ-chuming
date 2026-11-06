@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.OutboundMapper">
+
+    <select id="getCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM `wms_outbound`
+        WHERE DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+    <select id="getOutboundList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Outbound">
+        select
+        *
+        from
+        wms_outbound
+        where
+        bool_delete_enum = 0
+        <if test=" type != null">
+            and review_status = #{type}
+        </if>
+        <if test=" basicClass != null">
+            and contain_basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="applicationSN != null and applicationSN != '' ">
+            and application_SN like CONCAT('%', #{applicationSN},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt;= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and project_ids is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and project_ids IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            -- 判断条件与数据结果是否有交集
+            <if test="outboundTime[0] != null and outboundTime[1] != null">
+                and (( outbound_start_time &gt;= #{outboundTime[0]} AND outbound_start_time &lt;= #{outboundTime[1]} )
+                OR ( outbound_end_time &gt;= #{outboundTime[0]} AND outbound_end_time &lt;= #{outboundTime[1]} ))
+            </if>
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (applicant_name like CONCAT('%', #{operatorName},'%')
+            or reviewer_name like CONCAT('%', #{operatorName},'%')
+            or recipients like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="boolScheduling != null">
+            and bool_scheduling = #{boolScheduling}
+        </if>
+    </select>
+
+    <select id="getSNById" resultType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+        select id , serial_number
+        from wms_outbound
+        where bool_delete_enum = 0 and id in
+        <foreach collection="ids" index="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <resultMap id="getByOutId" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.OutboundDetailDTO">
+        <id column="id" property="id"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="outbound_mode" property="materialOutboundMode"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="remark" property="remark"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="outbound_time" property="outboundTime"/>
+
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+
+        <result column="pmName" property="monomerName"/>
+        <result column="paName" property="areaName"/>
+
+        <result column="areaBatchName" property="areaBatchName"/>
+        <!--        出库单位-->
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+        <association property="recipient" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefDeptAndNameDTO">
+            <result property="name" column="un" />
+            <result property="deptName" column="dn" />
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <result property="name" column="mbwName" />
+            <result property="id" column="workshop_id" />
+        </association>
+    </resultMap>
+    <select id="getByOutId" resultMap="getByOutId">
+        select wmod.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        pm.name pmName,
+        pa.name paName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName,
+        u.name un,
+        wm.measure_unit wmu,
+        wm.measure_precision wmp,
+        wm.accounting_unit wau,
+        wm.accounting_precision wap,
+        batch.name areaBatchName,
+        d.name dn
+        from wms_move_outbound_detail wmod
+        left join contract_project p on p.id = wmod.project_id
+        left join wms_measure wm on wm.classification_id = wmod.classify_id
+        left join mes_building_workshop mbf on wmod.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wmod.warehouse_id
+        left join sys_user as u on u.id = wmod.recipient_id and u.bool_delete_enum = 0
+        left join sys_department as d on u.department_id = d.id and d.bool_delete_enum = 0
+        left join plan_monomer pm on pm.id = wmod.monomer_id
+        left join plan_area pa on pa.id = wmod.area_id
+        left join plan_area_batch batch on batch.id  = wmod.area_batch_id and batch.bool_delete_enum = 0
+        where wmod.bool_delete_enum = 0
+        and wmod.outbound_id = #{id}
+    </select>
+
+    <select id="getUnReviewed" resultType="int">
+        select count(id)
+        from wms_outbound
+        where bool_delete_enum = 0 and review_status = #{reviewStatus} and find_in_set(#{projectId},project_ids)
+    </select>
+
+    <select id="getOutboundListV2" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Outbound">
+        select
+        *
+        from
+        wms_outbound
+        where
+        bool_delete_enum = 0
+        <if test="boolPartyA != null">
+            and bool_party_a = #{boolPartyA}
+        </if>
+        <if test="type == 1">
+            <if test="outboundTypeSelection != null">
+                and outbound_type_selection = #{outboundTypeSelection}
+            </if>
+            and (review_status = 1 or review_status = 16)
+        </if>
+        <if test="type == 2">
+            <if test="outboundTypeSelection != null">
+                and outbound_type_selection = #{outboundTypeSelection}
+            </if>
+            and review_status = 2
+        </if>
+        <!--        <if test=" type != null">-->
+        <!--            and review_status = #{type}-->
+        <!--        </if>-->
+        <if test=" basicClass != null">
+            and contain_basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="applicationSN != null and applicationSN != '' ">
+            and application_SN like CONCAT('%', #{applicationSN},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt;= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and project_ids is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and project_ids IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            -- 判断条件与数据结果是否有交集
+            <if test="outboundTime[0] != null and outboundTime[1] != null">
+                and (( outbound_start_time &gt;= #{outboundTime[0]} AND outbound_start_time &lt;= #{outboundTime[1]} )
+                OR ( outbound_end_time &gt;= #{outboundTime[0]} AND outbound_end_time &lt;= #{outboundTime[1]} ))
+            </if>
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (applicant_name like CONCAT('%', #{operatorName},'%')
+            or reviewer_name like CONCAT('%', #{operatorName},'%')
+            or recipients like CONCAT('%', #{operatorName},'%'))
+        </if>
+    </select>
+    <resultMap id="getList" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.OutboundDO">
+        <id column="id" property="id"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="suName" property="applicantName"/>
+        <result column="contain_basic_class" property="basicClass"/>
+        <result column="amount" property="amount"/>
+        <result column="outbound_ime" property="outboundTime"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="startTime" property="applicantTime"/>
+        <result column="mete" property="mete"/>
+        <result column="project_ids" property="projectIds"/>
+    </resultMap>
+    <select id="getList" resultMap="getList">
+        select
+        wo.*,
+        su.name suName,
+        war.start_time startTime
+        from
+        wms_outbound wo
+        left join wms_move_outbound_detail wod on wod.outbound_id = wo.id
+        left join sys_user su on su.id = wo.applicant_id
+        left join wms_approve_record war on war.id = wo.approve_record_id
+        where wo.bool_delete_enum = 0
+        and wo.review_status = 2
+        and wo.outbound_type_selection = 16
+        <if test="basicClass!=null">
+            and wo.contain_basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="projectId != null">
+            and wod.source_project_id = #{projectId}
+        </if>
+        <if test="serialNumber != null">
+            and wo.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and su.name like CONCAT('%', #{operatorName},'%')
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wod.outbound_time >= #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wod.outbound_time &lt;= #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="materialOutboundTime != null and materialOutboundTime.size()>0">
+            <if test="materialOutboundTime[0] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &gt;= date_format(#{materialOutboundTime[0]}, '%Y-%m-%d')
+            </if>
+            <if test="materialOutboundTime[1] != null">
+                AND date_format(wod.outbound_time, '%Y-%m-%d')  &lt;= date_format(#{materialOutboundTime[1]}, '%Y-%m-%d')
+            </if>
+        </if>
+        <if test="reviewTime != null and reviewTime.size()>0">
+            <if test="reviewTime[0] !=null">
+                and wo.review_time >= #{reviewTime[0]}
+            </if>
+            <if test="reviewTime[1] != null">
+                and wo.review_time &lt;= #{reviewTime[1]}
+            </if>
+        </if>
+        group by wo.id
+    </select>
+
+    <select id="getNestingDockingOutboundList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Outbound">
+        select
+        *
+        from
+        wms_outbound
+        where
+        bool_delete_enum = 0
+        and bool_scheduling = 1
+        <if test=" type != null">
+            and review_status = #{type}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt;= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="mesWorkshopId != null">
+            and mes_workshop_id = #{mesWorkshopId}
+        </if>
+    </select>
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Outbound">
+        select wo.*
+        from wms_outbound wo
+        where
+        wo.bool_delete_enum = 0
+        and wo.review_status = 2
+        <if test=" basicClass != null">
+            and wo.contain_basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="boolPartyA != null ">
+            and wo.bool_party_a = #{boolPartyA}
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wo.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and ( wo.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wo.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wo.project_ids  is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wo.project_ids  IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},wo.project_ids)
+        </if>
+        <if test=" outboundTypeSelection != null">
+            and wo.outbound_type_selection = #{outboundTypeSelection}
+        </if>
+        <if test="outboundTime != null and outboundTime.size()>0">
+            <if test="outboundTime[0] != null">
+                and wo.outbound_time >= #{outboundTime[0]}
+            </if>
+            <if test="outboundTime[1] != null">
+                and wo.outbound_time &lt;= #{outboundTime[1]}
+            </if>
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] !=null">
+                and wo.create_time >= #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and wo.create_time &lt;= #{createTime[1]}
+            </if>
+        </if>
+        <if test="orderSupplyType!=null and orderSupplyType==1">
+            AND EXISTS(
+            select 1 from wms_move_outbound_detail wmod
+            where wmod.bool_delete_enum = FALSE
+            and wmod.bool_party_a = 0
+            and wmod.outbound_id = wo.id
+            )
+        </if>
+        <if test="orderSupplyType!=null and orderSupplyType==2">
+            AND EXISTS(
+            select 1 from wms_move_outbound_detail wmod
+            where wmod.bool_delete_enum = FALSE
+            and wmod.bool_party_a = 1
+            and wmod.outbound_id = wo.id
+            )
+        </if>
+    </select>
+    <select id="getPassOrderDetail"
+            resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MoveOutboundDetail">
+        select
+        *
+        from
+        wms_move_outbound_detail wmod
+        left join  wms_outbound wo on wmod.outbound_id = wo.id and wo.bool_delete_enum = 0 and wo.review_status = 2
+        where
+        wmod.bool_delete_enum = 0
+        <if test="basicClass != null and basicClass != ''">
+            and wmod.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="workshopId != null">
+            and wmod.source_workshop_id = #{workshopId}
+        </if>
+        ORDER BY wmod.id DESC
+        <if test="size != null">
+            limit #{size}
+        </if>
+    </select>
+</mapper>

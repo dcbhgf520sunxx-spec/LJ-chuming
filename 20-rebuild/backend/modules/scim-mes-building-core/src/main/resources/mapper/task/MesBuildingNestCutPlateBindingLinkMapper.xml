@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingNestCutPlateBindingLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingNestCutPlateBindingLink">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="machine_part_scheduling_id" property="machinePartSchedulingId" />
+        <result column="nest_cut_plate_id" property="nestCutPlateId" />
+        <result column="task_order_id" property="taskOrderId" />
+        <result column="plate_no" property="plateNo" />
+        <result column="quantity" property="quantity" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, machine_part_scheduling_id, nest_cut_plate_id, task_order_id, plate_no, quantity, user_id
+    </sql>
+
+</mapper>

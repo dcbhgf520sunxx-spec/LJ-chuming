@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectWasteProductChildMapper">
+
+    <resultMap type="com.hzchum.scim.project.core.api.pojo._do.ProjectWasteProductChild" id="projectWasteProductChildMap">
+        <result property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="boolDeleteEnum" column="bool_delete_enum"/>
+        <result property="version" column="version"/>
+        <result property="projectId" column="project_id"/>
+        <result property="monomerId" column="monomer_id"/>
+        <result property="areaId" column="area_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="serialNumber" column="serial_number"/>
+        <result property="specification" column="specification"/>
+        <result property="material" column="material"/>
+        <result property="measureUnit" column="measure_unit"/>
+        <result property="accountingUnit" column="accounting_unit"/>
+        <result property="quantity" column="quantity"/>
+        <result property="mete" column="mete"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="length" column="length"/>
+        <result property="totalLength" column="total_length"/>
+        <result property="plate" column="plate"/>
+        <result property="totalArea" column="total_area"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="weight" column="weight"/>
+        <result property="totalWeight" column="total_weight"/>
+        <result property="mainId" column="main_id"/>
+        <result property="netWeight" column="net_weight"/>
+        <result property="totalNetWeight" column="total_net_weight"/>
+        <result property="mesBuildingWarehouseRecordId" column="mes_building_warehouse_record_id"/>
+        <result property="pricingManner" column="pricing_manner"/>
+        <result property="surfaceArea" column="surface_area"/>
+        <result property="productName" column="product_name"/>
+        <result property="monomerName" column="monomer_name"/>
+        <result property="areaName" column="area_name"/>
+        <result property="planId" column="plan_id"/>
+        <result property="planName" column="plan_name"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="productType" column="product_type"/>
+        <result property="number" column="number"/>
+        <result property="productReason" column="product_reason"/>
+        <result property="storageDuration" column="storage_duration"/>
+        <result property="storageLocation" column="storage_location"/>
+        <result property="useProjectId" column="use_project_id"/>
+    </resultMap>
+
+    <select id="selectWasteProductChildList" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectWasteProductChildDTO">
+        select
+            pwc.id,
+            pwc.create_time,
+            pwc.update_time,
+            pwc.bool_delete_enum,
+            pwc.version,
+            pwc.project_id,
+            pwc.monomer_id,
+            pwc.area_id,
+            pwc.product_id,
+            pwc.serial_number,
+            pwc.specification,
+            pwc.material,
+            pwc.measure_unit,
+            pwc.accounting_unit,
+            pwc.quantity,
+            pwc.mete,
+            pwc.unit_price,
+            pwc.length,
+            pwc.total_length,
+            pwc.plate,
+            pwc.total_area,
+            pwc.total_amount,
+            pwc.weight,
+            pwc.total_weight,
+            pwc.main_id,
+            pwc.net_weight,
+            pwc.total_net_weight,
+            pwc.mes_building_warehouse_record_id,
+            pwc.pricing_manner,
+            pwc.surface_area,
+            pwc.product_name,
+            pwc.monomer_name,
+            pwc.area_name
+        from project_waste_product_child pwc where pwc.bool_delete_enum = 0
+        ORDER BY pwc.create_time DESC
+    </select>
+
+    <select id="getWasteProductChild" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectWasteProductChildDTO">
+        select
+            pwc.id AS id,
+            pwc.create_time AS create_time,
+            pwc.update_time AS update_time,
+            pwc.bool_delete_enum AS bool_delete_enum,
+            pwc.version AS version,
+            pwc.project_id AS project_id,
+            pwc.monomer_id AS monomer_id,
+            pwc.area_id AS area_id,
+            pwc.product_id AS product_id,
+            pwc.serial_number AS serial_number,
+            pwc.specification AS specification,
+            pwc.material AS material,
+            pwc.measure_unit AS measure_unit,
+            pwc.accounting_unit AS accounting_unit,
+            pwc.quantity AS quantity,
+            pwc.mete AS mete,
+            pwc.unit_price AS unit_price,
+            pwc.length AS length,
+            pwc.total_length AS total_length,
+            pwc.plate AS plate,
+            pwc.total_area AS total_area,
+            pwc.total_amount AS total_amount,
+            pwc.weight AS weight,
+            pwc.total_weight AS total_weight,
+            pwc.main_id AS main_id,
+            pwc.net_weight AS net_weight,
+            pwc.total_net_weight AS total_net_weight,
+            pwc.mes_building_warehouse_record_id AS mes_building_warehouse_record_id,
+            pwc.pricing_manner AS pricing_manner,
+            pwc.surface_area AS surface_area,
+            pwc.product_name AS product_name
+        from project_waste_product_child pwc
+        LEFT JOIN project_waste_product_main pwpm ON pwc.main_id = pwpm.id
+        where pwc.bool_delete_enum = 0 and pwc.main_id = #{id}
+<!--        <if test="projectId != null">
+            and pwc.project_id = #{projectId}
+        </if>
+        <if test="productName != null and productName != ''">
+            and pwc.product_name like concat('%', #{productName}, '%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and pwc.specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material != ''">
+            and pwc.material like concat('%', #{material}, '%')
+        </if>-->
+        ORDER BY pwc.create_time DESC
+    </select>
+</mapper>

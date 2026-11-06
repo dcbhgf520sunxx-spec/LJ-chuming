@@ -1,0 +1,40 @@
+import { inject as O } from "vue";
+import { ref as g } from "vue";
+import { computed as S } from "vue";
+import { ElMessage as W } from "element-plus";
+import { resolveComponent as c } from "vue";
+import { openBlock as w } from "vue";
+import { createBlock as h } from "vue";
+import { withCtx as a } from "vue";
+import { createElementVNode as s } from "vue";
+import { createTextVNode as p } from "vue";
+import { toDisplayString as _ } from "vue";
+import { unref as o } from "vue";
+import { createVNode as t } from "vue";
+import { ElTag as A } from "element-plus";
+import { ElTableColumn as $ } from "element-plus";
+import { ElInput as D } from "element-plus";
+import { ElForm as K } from "element-plus";
+import { _ as G, ao as J, o as Q, T as X, ky as Y, aw as Z } from "../../../../../shared/runtime.js";
+const ee = { style: { margin: "0 5px" } }, te = { style: { display: "flex", "justify-content": "space-between", "align-items": "center" } }, le = { class: "add-row-box" }, ae = { __name: "form", props: { projectId: { type: [Number, String], default: void 0 }, enclosurePlan: { type: Array, default: void 0 } }, setup(P) {
+  const V = O("globalProject"), x = g(), U = g(), q = P, I = S(() => q.enclosurePlan.find((r) => r.id === n.query.enclosurePlanId) || {}), C = { areaId: 0, monomerId: 0, projectId: 0, standardPartList: [] }, R = g([{ value: true, label: "重量" }, { value: false, label: "其它" }]), E = g([{ value: "千克", label: "千克" }, { value: "吨", label: "吨" }]), { CRUD: v, crud: n, form: u } = J(C, x), { maxHeight: T } = Q({ mainBox: ".standard-part", extraBox: ".el-drawer__header", wrapperBox: ".el-drawer__body", paginate: false, minHeight: 300, navbar: false, clientHRepMainH: true }, U), M = { useProperty: [{ required: true, message: "请输入选择使用范围", trigger: "change" }], name: [{ required: true, message: "请输入名称", trigger: "blur" }], specification: [{ required: true, message: "请输入规格", trigger: "blur" }], measureUnit: [{ required: true, message: "请输入单位", trigger: "blur" }], quantity: [{ required: true, message: "请输入数量", trigger: "change" }] }, { tableValidate: j, wrongCellMask: z } = Z({ rules: M });
+  function B(i) {
+    u.standardPartList.splice(i, 1);
+  }
+  function H() {
+    u.standardPartList.push({ ...n.query });
+  }
+  return v.HOOK.beforeToCU = () => {
+    u.projectId = n.query.projectId, u.category = n.query.category, u.enclosurePlanId = n.query.enclosurePlanId, u.monomerId = n.query.monomerId, u.areaId = n.query.areaId;
+  }, v.HOOK.beforeSubmit = (i, r) => {
+    if (i.form.standardPartList.length <= 0) return W({ message: "请先填写明细", type: "error" }), false;
+    const { validResult: f } = j(i.form.standardPartList);
+    if (!f) return false;
+  }, (i, r) => {
+    const f = A, y = c("common-button"), d = $, b = c("common-select"), m = D, k = c("common-input-number"), L = c("common-table"), N = K, F = c("common-drawer");
+    return w(), h(F, { ref_key: "drawerRef", ref: U, "before-close": o(n).cancelCU, "show-close": true, title: o(n).status.title, visible: o(n).status.cu > 0, "wrapper-closable": false, "custom-class": "standard-part", size: "90%" }, { titleAfter: a(() => [s("div", null, [r[1] || (r[1] = p(" 项目:")), s("span", null, _(o(V).serialNumber), 1), s("span", ee, _(o(V).shortName), 1), t(f, { style: { "margin-right": "5px" } }, { default: a(() => [p(_(o(X).VL[o(n).query.category]), 1)]), _: 1 }), t(f, { type: "success" }, { default: a(() => [p("计划：" + _(I.value.name), 1)]), _: 1 })])]), titleRight: a(() => [t(y, { loading: o(n).status.cu === 2, size: "default", type: "primary", onClick: o(n).submitCU }, { default: a(() => r[2] || (r[2] = [p("确认 ")])), _: 1, __: [2] }, 8, ["loading", "onClick"])]), content: a(() => [t(N, { ref_key: "formRef", ref: x, model: o(u), "label-width": "140px", size: "default" }, { default: a(() => [t(L, { ref: "detailRef", "cell-class-name": o(z), data: o(u).standardPartList, "max-height": o(T) - 110, showEmptySymbol: false, border: "", class: "table-form", "return-source-data": "", style: { width: "100%" } }, { default: a(() => [t(d, { align: "center", label: "序号", type: "index", width: "55" }), t(d, { align: "center", label: "使用范围", prop: "useProperty" }, { default: a((e) => [t(b, { modelValue: e.row.useProperty, "onUpdate:modelValue": (l) => e.row.useProperty = l, options: o(Y).ENUM, clearable: "", placeholder: "使用范围", size: "default", type: "enum" }, null, 8, ["modelValue", "onUpdate:modelValue", "options"])]), _: 1 }), t(d, { align: "center", label: "名称", "min-width": "120", prop: "name" }, { default: a((e) => [t(m, { modelValue: e.row.name, "onUpdate:modelValue": (l) => e.row.name = l, modelModifiers: { trim: true }, maxlength: "20", placeholder: "名称", style: { width: "100%" }, type: "text" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "规格", "min-width": "150", prop: "specification" }, { default: a((e) => [t(m, { modelValue: e.row.specification, "onUpdate:modelValue": (l) => e.row.specification = l, modelModifiers: { trim: true }, maxlength: "30", placeholder: "规格", style: { width: "100%" }, type: "text" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "单位", prop: "measureUnit" }, { default: a((e) => [t(m, { modelValue: e.row.measureUnit, "onUpdate:modelValue": (l) => e.row.measureUnit = l, modelModifiers: { trim: true }, maxlength: "10", placeholder: "单位", style: { width: "100%" }, type: "text" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "数量", prop: "quantity" }, { default: a((e) => [t(k, { modelValue: e.row.quantity, "onUpdate:modelValue": (l) => e.row.quantity = l, controls: false, max: 999999999, min: 0, step: 1, placeholder: "数量", size: "default" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "核算单位", "min-width": "120", prop: "accountingUnit" }, { default: a((e) => [s("div", te, [s("div", null, [e.row.boolWeightTypeEnum ? (w(), h(b, { key: 1, modelValue: e.row.accountingUnit, "onUpdate:modelValue": (l) => e.row.accountingUnit = l, "data-structure": { key: "value", label: "label", value: "value" }, options: E.value, style: { width: "110px" } }, null, 8, ["modelValue", "onUpdate:modelValue", "options"])) : (w(), h(m, { key: 0, modelValue: e.row.accountingUnit, "onUpdate:modelValue": (l) => e.row.accountingUnit = l, placeholder: "核算单位", style: { width: "110px" } }, null, 8, ["modelValue", "onUpdate:modelValue"]))]), t(b, { modelValue: e.row.boolWeightTypeEnum, "onUpdate:modelValue": (l) => e.row.boolWeightTypeEnum = l, "data-structure": { key: "value", label: "label", value: "value" }, options: R.value, style: { width: "100px" } }, null, 8, ["modelValue", "onUpdate:modelValue", "options"])])]), _: 1 }), t(d, { align: "center", label: "核算量", "min-width": "80", prop: "mete" }, { default: a((e) => [t(k, { modelValue: e.row.mete, "onUpdate:modelValue": (l) => e.row.mete = l, controls: false, max: 9999999, min: 0, precision: 3, step: 1e-3, placeholder: "核算量", style: { width: "100%" }, type: "text" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "备注", prop: "remark" }, { default: a((e) => [t(m, { modelValue: e.row.remark, "onUpdate:modelValue": (l) => e.row.remark = l, modelModifiers: { trim: true }, autosize: { minRows: 1, maxRows: 6 }, maxlength: 200, placeholder: "备注", style: { width: "100%" }, type: "textarea" }, null, 8, ["modelValue", "onUpdate:modelValue"])]), _: 1 }), t(d, { align: "center", label: "操作", width: "80" }, { default: a((e) => [t(y, { icon: "el-icon-delete", size: "default", type: "danger", onClick: (l) => B(e.$index) }, null, 8, ["onClick"])]), _: 1 })]), _: 1 }, 8, ["cell-class-name", "data", "max-height"]), s("div", le, [t(y, { icon: "el-icon-circle-plus", size: "default", style: { "margin-right": "15px" }, type: "warning", onClick: r[0] || (r[0] = (e) => H()) }, { default: a(() => r[3] || (r[3] = [p("继续添加 ")])), _: 1, __: [3] })])]), _: 1 }, 8, ["model"])]), _: 1 }, 8, ["before-close", "title", "visible"]);
+  };
+} }, re = G(ae, [["__scopeId", "data-v-28f419b5"]]);
+export {
+  re as default
+};

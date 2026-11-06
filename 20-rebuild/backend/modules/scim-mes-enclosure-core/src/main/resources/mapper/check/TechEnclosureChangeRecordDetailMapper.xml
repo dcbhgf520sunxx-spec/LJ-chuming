@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.check.TechEnclosureChangeRecordDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._do.check.TechEnclosureChangeRecordDetail">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="change_record_id" property="changeRecordId" />
+        <result column="type" property="type" />
+        <result column="enclosure_id" property="enclosureId" />
+        <result column="name" property="name" />
+        <result column="change_name" property="changeName" />
+        <result column="quantity" property="quantity" />
+        <result column="change_quantity" property="changeQuantity" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="change_serial_number" property="changeSerialNumber" />
+        <result column="specification" property="specification" />
+        <result column="change_specification" property="changeSpecification" />
+        <result column="width" property="width" />
+        <result column="change_width" property="changeWidth" />
+        <result column="unfolded_width" property="unfoldedWidth" />
+        <result column="change_unfolded_width" property="changeUnfoldedWidth" />
+        <result column="thickness" property="thickness" />
+        <result column="change_thickness" property="changeThickness" />
+        <result column="length" property="length" />
+        <result column="change_length" property="changeLength" />
+        <result column="weight" property="weight" />
+        <result column="change_weight" property="changeWeight" />
+        <result column="remark" property="remark" />
+        <result column="change_remark" property="changeRemark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, change_record_id, type, enclosure_id, name, change_name, quantity, change_quantity, serial_number, change_serial_number, specification, change_specification, width, change_width, unfolded_width, change_unfolded_width, thickness, change_thickness, length, change_length, weight, change_weight, remark, change_remark
+    </sql>
+
+</mapper>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.PrintDetailMapper">
+
+
+    <resultMap id="list" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.LabelPrintMaterialDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="specification" property="specification"/>
+        <result column="mete" property="mete"/>
+        <result column="quantity" property="quantity"/>
+        <result column="brand" property="brand"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="barcode" property="barcode"/>
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="color" property="color" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="print_number" property="printedNumber" />
+        <result column="standard_name" property="nationalStandard" />
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="ri"/>
+            <result property="receiptType" column="rt"/>
+            <result property="serialNumber" column="rsn"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="list" resultMap="list">
+        select wlpd.*,
+               lp.receipt_id ri,
+               lp.receipt_serial_number rsn,
+               lp.receipt_type rt,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_print_detail wlpd
+        left join wms_print lp on lp.id = wlpd.print_id
+        left join contract_project p on p.id = wlpd.project_id
+        left join wms_workshop mbf on wlpd.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wlpd.warehouse_id
+        where
+        wlpd.bool_delete_enum = 0
+        <if test="boolPrinted != null ">
+            and wlpd.bool_printed = #{boolPrinted}
+        </if>
+        <if test="materialLabelPrintType != null ">
+            and wlpd.type = #{materialLabelPrintType}
+        </if>
+        <if test="projectWarehouseType == 1">
+            and wlpd.project_id is null
+        </if>
+        <if test=" projectWarehouseType == 2 ">
+            and wlpd.project_id is not null
+        </if>
+        <if test="projectId != null">
+            and wlpd.project_id =  #{projectId}
+        </if>
+        <if test="basicClass != null ">
+            and wlpd.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="createDate != null and createDate.size()>0">
+            <if test="createDate[0] != null">
+                and wlpd.create_time &gt;= #{createDate[0]}
+            </if>
+            <if test="createDate[1] != null">
+                and wlpd.create_time &lt;= #{createDate[1]}
+            </if>
+        </if>
+    </select>
+    <select id="getMaxNumber" resultType="long">
+        select ifnull(MAX(after_serial_number),0) from wms_barcode
+    </select>
+    <select id="getMaxProjectNumber" resultType="long">
+        select ifnull(MAX(front_serial_number),0) from wms_barcode
+    </select>
+    <select id="getPublicNumber" resultType="long">
+        select ifnull(MAX(public_serial_number),0) from wms_barcode
+    </select>
+
+    <select id="getByLabelPrintId" resultMap="list" >
+        select wlpd.*,
+               p.id pid,
+               p.short_name psName,
+               p.serial_number pSN,
+               p.name pn,
+               mbf.id mbfId,
+               mbf.name mbfName,
+               ww.id wwId,
+               ww.name wwName
+        from wms_print_detail wlpd
+                 left join contract_project p on p.id = wlpd.project_id
+                 left join wms_workshop mbf on wlpd.workshop_id = mbf.id
+                 left join wms_warehouse ww on ww.id = wlpd.warehouse_id
+        where
+            wlpd.bool_delete_enum = 0
+        and wlpd.print_id = #{id}
+    </select>
+
+    <resultMap id="LabelPrintMaterialMap" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.LabelPrintMaterialDTO">
+        <!-- 普通字段映射 -->
+        <id property="id" column="id" />
+        <result property="barcode" column="barcode" />
+        <result property="boolPartyA" column="bool_party_a" />
+        <result property="boolHasFrozen" column="bool_has_frozen" />
+        <result property="serialNumber" column="serial_number" />
+        <result property="classifyId" column="classify_id" />
+        <result property="basicClass" column="basic_class" />
+        <result property="printedNumber" column="print_number" />
+        <result property="specification" column="specification" />
+        <result property="mete" column="mete" />
+        <result property="frozenMete" column="frozen_mete" />
+        <result property="quantity" column="quantity" />
+        <result property="frozenQuantity" column="frozen_quantity" />
+        <result property="thickness" column="thickness" />
+        <result property="length" column="length" />
+        <result property="width" column="width" />
+        <result property="brand" column="brand" />
+        <result property="color" column="color" />
+        <result property="heatNoAndBatchNo" column="heat_no_and_batch_no" />
+        <result property="nationalStandard" column="national_standard" />
+        <result property="createTime" column="create_time" />
+
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid" />
+            <result property="shortName" column="psName" />
+            <result property="serialNumber" column="pSN" />
+            <result property="name" column="pn" />
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId" />
+            <result property="name" column="mbfName" />
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId" />
+            <result property="name" column="wwName" />
+        </association>
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="ri" />
+            <result property="serialNumber" column="rsn" />
+            <result property="receiptType" column="rt" />
+        </association>
+
+    </resultMap>
+
+    <select id="listV2" resultMap="LabelPrintMaterialMap">
+        select wlpd.*,
+        lp.receipt_id ri,
+        lp.receipt_serial_number rsn,
+        lp.receipt_type rt,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_print_detail wlpd
+        left join wms_print lp on lp.id = wlpd.print_id
+        left join contract_project p on p.id = wlpd.project_id
+        left join wms_workshop mbf on wlpd.workshop_id = mbf.id
+        left join wms_warehouse ww on ww.id = wlpd.warehouse_id
+        where
+        wlpd.bool_delete_enum = 0
+        <if test="boolPrinted != null ">
+            and wlpd.bool_printed = #{boolPrinted}
+        </if>
+        <if test="materialLabelPrintType != null ">
+            and wlpd.type = #{materialLabelPrintType}
+        </if>
+        <if test="projectWarehouseType == 1">
+            and wlpd.project_id is null
+        </if>
+        <if test=" projectWarehouseType == 2 ">
+            and wlpd.project_id is not null
+        </if>
+        <if test="projectId != null">
+            and wlpd.project_id =  #{projectId}
+        </if>
+        <if test="basicClass != null ">
+            and wlpd.basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="createDate != null and createDate.size()>0">
+            <if test="createDate[0] != null">
+                and wlpd.create_time &gt;= #{createDate[0]}
+            </if>
+            <if test="createDate[1] != null">
+                and wlpd.create_time &lt;= #{createDate[1]}
+            </if>
+        </if>
+        <if test="boolPartyA != null">
+            and wlpd.bool_party_a = #{boolPartyA}
+        </if>
+    </select>
+    <update id="updatePrinted" >
+        UPDATE wms_print_detail SET bool_printed = 1 WHERE print_id = #{printId}
+    </update>
+</mapper>

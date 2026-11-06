@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.SysAuxiliaryClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.SysAuxiliaryClassification">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="name" property="name" />
+        <result column="sort" property="sort" />
+        <result column="basic_class" property="basicClass" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, sort, basic_class, type
+    </sql>
+
+    <resultMap id="BaseMap" type="com.hzchum.scim.system.core.api.pojo.dto.SysAuxiliaryClassificationDTO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="sort" property="sort" />
+        <result column="basic_class" property="basicClass" />
+        <result column="type" property="type" />
+        <collection property="auxiliarySerialNumberList" ofType="com.hzchum.scim.system.core.api.pojo.dto.SysAuxiliarySerialNumberDTO">
+            <result column="sn_id" property="id" />
+            <result column="serial_number" property="serialNumber" />
+            <result column="auxiliary_class_id" property="auxiliaryClassId" />
+        </collection>
+        <collection property="classifyLinks" ofType="com.hzchum.scim.system.core.api.pojo.dto.steel.SteelClassifyLinkDTO">
+            <result property="classifyId" column="classify_id"/>
+            <result property="classifyName" column="classify_name"/>
+            <result property="path" column="path"/>
+        </collection>
+        <collection column="classify_id" property="boundFinalClassifyIds" ofType="long">
+            <result column="classify_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectByCondition" resultMap="BaseMap">
+        SELECT
+        ac.id,
+        ac.name,
+        ac.sort,
+        ac.basic_class,
+        ac.type,
+        sn.id sn_id,
+        sn.serial_number,
+        sn.auxiliary_class_id,
+        sc.classify_id,
+        sc.classify_name,
+        sc.path
+        FROM sys_auxiliary_classification ac
+        LEFT JOIN sys_auxiliary_serial_number sn ON ac.id = sn.auxiliary_class_id AND sn.bool_delete_enum = 0
+        LEFT JOIN sys_auxiliary_classify_link sc ON sc.auxiliary_id = ac.id and sc.bool_delete_enum = 0
+        WHERE ac.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND ac.`name` like concat('%',#{name},'%')
+        </if>
+        ORDER BY ac.sort, ac.id
+    </select>
+
+</mapper>

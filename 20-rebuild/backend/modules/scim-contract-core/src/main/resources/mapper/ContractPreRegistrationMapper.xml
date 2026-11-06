@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractPreRegistrationMapper">
+
+    <select id="getCountByDay" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `contract_pre_registration`
+        WHERE DATE_FORMAT(#{date}, '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <select id="listInfo" resultType="com.hzchum.scim.contract.core.api.pojo._do.ContractPreRegistration">
+        select *
+        from contract_pre_registration
+        where bool_delete_enum = 0
+        <if test="reviewStatus != null and reviewStatus != ''">
+        AND review_status = #{reviewStatus}
+        </if>
+        <if test="boolQuote != null">
+            AND bool_quote = #{boolQuote}
+        </if>
+        <if test="preRegistrationNo != null and preRegistrationNo != ''">
+            AND pre_registration_no like concat('%',#{preRegistrationNo},'%')
+        </if>
+        <if test="projectName != null and projectName != ''">
+            AND project_name like concat('%',#{projectName},'%')
+        </if>
+        order by create_time desc
+    </select>
+
+</mapper>

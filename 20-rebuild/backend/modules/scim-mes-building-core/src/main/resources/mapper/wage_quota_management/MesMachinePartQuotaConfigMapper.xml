@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_quota_management.MesMachinePartQuotaConfigMapper">
+
+    <select id="getMaxNumber" resultType="java.lang.Integer">
+        SELECT IFNULL(MAX(RIGHT(quota_number, 3)), 0) FROM mes_machine_part_quota_config WHERE bool_delete_enum = 0
+    </select>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_quota_management.MesMachinePartQuotaConfigDTO">
+        SELECT
+            mmpqc.*,
+            mbp.name AS process_name,
+            mbp.type AS process_type
+        FROM mes_machine_part_quota_config mmpqc
+        LEFT JOIN mes_building_process mbp ON mbp.bool_delete_enum = 0 AND mbp.id = mmpqc.process_id
+        WHERE mmpqc.bool_delete_enum = 0
+        <if test="id != null">
+            AND mmpqc.id = #{id}
+        </if>
+        <if test="workshopId != null">
+            AND FIND_IN_SET(#{workshopId}, mmpqc.workshop_ids) > 0
+        </if>
+        <if test="classId != null">
+            AND FIND_IN_SET(#{classId}, mmpqc.machine_part_class_ids) > 0
+        </if>
+        <if test="quotaNumber != null and quotaNumber != ''">
+            <bind name="quotaNumberLike" value="'%' + quotaNumber + '%'"/>
+            AND mmpqc.quota_number LIKE #{quotaNumberLike}
+        </if>
+        <if test="processId != null">
+            AND mmpqc.process_id = #{processId}
+        </if>
+        <if test="machinePartType != null">
+            AND mmpqc.machine_part_type = #{machinePartType}
+        </if>
+        <if test="status != null">
+            AND mmpqc.status = #{status}
+        </if>
+    </select>
+
+</mapper>

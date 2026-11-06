@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.ReturnMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, basic_class, serial_number, project_ids, outbound_ids, review_status, editable, applicant_id, applicant_name, editor_id, editor_name, reviewer_id, reviewer_name, user_update_time, review_time, return_time, original_id, rebuilding_number, approval_comments
+    </sql>
+
+
+    <select id="getCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM `wms_return`
+        WHERE bool_delete_enum = 0
+          and DATE_FORMAT(NOW(), '%Y%m%d') = DATE_FORMAT(create_time, '%Y%m%d')
+    </select>
+
+    <select id="returnList" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Return">
+        select
+       *
+        from wms_return
+        where
+        bool_delete_enum = 0
+
+        <if test="boolRealReturn != null">
+            and bool_real_return = #{boolRealReturn}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class = #{basicClass}
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="reviewStatus != null ">
+            and review_status = #{reviewStatus}
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            and (applicant_name like CONCAT('%', #{operatorName},'%')
+            or reviewer_name like CONCAT('%', #{operatorName},'%')
+            or editor_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and project_ids  is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and project_ids  IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+
+    </select>
+
+    <update id="updateEditable" >
+        UPDATE wms_return SET editable = #{i} WHERE original_id = #{id} and bool_delete_enum = 0
+    </update>
+
+    <select id="selectAPPReturnDetailDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.AppRrtunrnDetailDTO">
+        SELECT
+        wms_return_detail.id,
+        wms_return.id returnId,
+        wms_return_detail.create_time,
+        wms_return.applicant_name,
+        wms_return_detail.thickness,
+        wms_return_detail.specification,
+        wms_return_detail.area,
+        wms_return_detail.create_time,
+        wms_return_detail.workshop_id,
+        wms_return_detail.nest_surplus_code,
+        wms_return_detail.classify_id,
+        wms_return_detail.mete,
+        wms_return.review_status,
+        wms_return_detail.dxf_url,
+        wms_return_detail.img_url
+        FROM
+        wms_return_detail wms_return_detail
+        LEFT JOIN wms_return wms_return ON wms_return_detail.return_id = wms_return.id
+        WHERE
+        wms_return_detail.bool_delete_enum = 0
+        <if test="boolNestSurplus != null">
+            AND wms_return_detail.bool_nest_surplus =#{boolNestSurplus}
+        </if>
+        <if test="reviewStatus != null">
+            AND wms_return.review_status = #{reviewStatus}
+        </if>
+    </select>
+
+</mapper>

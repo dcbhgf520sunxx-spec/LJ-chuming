@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectReceivingSummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectReceivingSummary">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="project_type" property="projectType"/>
+        <result column="product_type" property="productType"/>
+        <result column="category" property="category"/>
+        <result column="product_id" property="productId"/>
+        <result column="name" property="name"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="specification" property="specification"/>
+        <result column="material" property="material"/>
+        <result column="quantity" property="quantity"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="mete" property="mete"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="install_quantity" property="installQuantity"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, project_type, product_type, category, product_id, name, serial_number, specification, quantity,mete,measure_unit, mete,accounting_unit, total_area, install_quantity
+    </sql>
+
+    <select id="selectReceivingMete" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReceivingMeteDO">
+        select
+        IFNULL(SUM(quantity),0) as quantity,
+        IFNULL(SUM(mete),0) as mete,
+        IFNULL(SUM(total_area),0) as total_area
+        FROM project_receiving_summary
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        <if test="monomerId != null">
+            and monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and area_id = #{areaId}
+        </if>
+        <if test="productType == 4 and category != null">
+            and category = #{category}
+        </if>
+    </select>
+
+    <select id="selectAreaReceivingMete" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectReceivingMeteDO">
+        select IFNULL(SUM(quantity), 0)   as quantity,
+               IFNULL(SUM(mete), 0)       as mete,
+               IFNULL(SUM(total_area), 0) as total_area
+        FROM project_receiving_summary
+        where bool_delete_enum = 0
+          and area_id = #{areaId}
+    </select>
+
+    <!--收货看板-->
+    <select id="selectReceivingBoard" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivingBoardDTO">
+
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+                SELECT
+                a.id product_id,
+                #{productType} product_type,
+                a.name ,
+                <if test="productType != 8">
+                    a.serial_number,
+                </if>
+                <if test="productType != 4">
+                    a.specification,
+                </if>
+                a.quantity,
+                IFNULL(rs.quantity,0) AS receiving_quantity,
+                (CASE IFNULL(rs.quantity,0) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END) AS receiving_status
+
+                <if test="productType == 2">
+                    FROM tech_artifact AS a
+                </if>
+
+                <if test="productType == 4">
+                    FROM tech_enclosure AS a
+                </if>
+
+                <if test="productType == 8">
+                    FROM tech_standard_part AS a
+                </if>
+
+                <if test="productType &amp; 17 > 0">
+                    FROM tech_machine_part AS a
+                </if>
+            </when>
+        </choose>
+        LEFT JOIN project_receiving_summary AS rs
+        ON a.id = rs.product_id AND rs.product_type &amp; #{productType} > 0 AND rs.bool_delete_enum = 0
+        WHERE a.bool_delete_enum = 0
+
+        <if test="receivingStatus != null">
+            AND ( CASE IFNULL( rs.quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) = #{receivingStatus}
+        </if>
+        <if test="projectId != null">
+            AND a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null and productType != 4">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="category != null and productType == 4">
+            AND a.category = #{category}
+        </if>
+        <if test="areaId != null and productType != 4">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="areaId != null and productType == 4">
+            AND a.enclosure_plan_id = #{areaId}
+        </if>
+        ORDER BY a.id ASC
+
+    </select>
+
+    <!--收安报表-->
+    <select id="selectReceivingInstall"
+            resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivingInstallDTO">
+        SELECT
+        prs.*,
+        prs.monomer_id as 'monomer.id',
+        m.name as 'monomer.name',
+        prs.area_id as 'area.id',
+        (case prs.product_type when 4 then ep.name else a.name end ) as 'area.name',
+        prs.quantity as receiving_quantity,
+
+        (
+        select IFNULL(SUM(report_quantity),0)
+        from project_install_report
+        where bool_delete_enum = 0
+        and product_id = prs.product_id
+        and product_type = prs.product_type
+        and audit_status = 1) un_audit_quantity
+
+        from project_receiving_summary as prs
+        left join plan_monomer m on m.id = prs.monomer_id and prs.product_type != 4 and m.bool_delete_enum = 0
+        left join plan_area a on a.id = prs.area_id and prs.product_type != 4 and a.bool_delete_enum = 0
+        left join enclosure_plan ep on ep.id = prs.area_id and prs.product_type = 4 and ep.bool_delete_enum = 0
+
+        where prs.bool_delete_enum = 0
+
+        <if test="productType != null">
+            AND prs.product_type = #{productType}
+        </if>
+        <if test="projectId != null">
+            AND prs.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null ">
+            AND prs.monomer_id = #{monomerId}
+        </if>
+        <if test="category != null">
+            AND prs.category = #{category}
+        </if>
+        <if test="areaId != null">
+            AND prs.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            AND prs.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND prs.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ORDER BY prs.product_id
+
+    </select>
+
+    <!--原型安装审核数量不能选择，审核数量可选择这里还需调整-->
+    <select id="selectReceivingInstallV2" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivingInstallDTO">
+        SELECT
+        prs.project_id,
+        prs.project_type,
+        prs.product_id,
+        prs.product_type,
+        prs.category,
+        prs.name,
+        prs.serial_number,
+        prs.material,
+        prs.specification,
+        prs.length,
+        prs.width,
+        prs.net_weight,
+        cp.id as 'project.id',
+        cp.`name` as 'project.name',
+        cp.project_type as 'project.projectType',
+        cp.`serial_number` as 'project.serial_number',
+        prs.monomer_id as 'monomer.id',
+        m.name as 'monomer.name',
+        prs.area_id as 'area.id',
+        a.name as 'area.name',
+        prs.quantity as quantity,
+        prs.quantity as receiving_quantity,
+        report.un_audit_quantity,
+        prs.quantity - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0) as canInstallQuantity,
+        CASE
+        WHEN prs.product_type = 2 THEN prs.net_weight * (prs.quantity - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0))
+        WHEN prs.product_type = 4 THEN prs.length / 1000 * (prs.quantity - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0))
+        ELSE 0
+        END AS mete
+        from project_receiving_summary as prs
+        left join (
+        select
+        product_id,sum(report_quantity) as un_audit_quantity
+        from project_install_report
+        where bool_delete_enum = 0
+        and product_type = #{productType}
+        and audit_status = ${@com.hzchum.scim.project.core.api.enums.AuditStatusEnum@AUDITING.getType()}
+        group by product_id
+        )report on report.product_id = prs.product_id
+        LEFT JOIN contract_project cp ON cp.id = prs.project_id and cp.bool_delete_enum = 0
+        left join plan_monomer m on m.id = prs.monomer_id and prs.product_type != 4 and m.bool_delete_enum = 0
+        left join plan_area a on a.id = prs.area_id and prs.product_type != 4 and a.bool_delete_enum = 0
+        where prs.bool_delete_enum = 0
+        and prs.quantity - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0) > 0
+        <if test="productType != null">
+            AND prs.product_type = #{productType}
+        </if>
+        <if test="projectId != null">
+            AND prs.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null ">
+            AND prs.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND prs.area_id = #{areaId}
+        </if>
+        <if test="areaIds != null and areaIds.size() != 0">
+            and prs.area_id in
+            <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="name != null and name != ''">
+            AND prs.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND prs.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ORDER BY prs.product_id
+    </select>
+    <!--清单划分收安报表-->
+    <select id="getListMethodReceivingInstall" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivingInstallDTO">
+        SELECT
+        prs.project_id,
+        opl.supplier_id,
+        prs.project_type,
+        prs.product_id,
+        prs.product_type,
+        prs.category,
+        prs.name,
+        prs.serial_number,
+        prs.material,
+        prs.specification,
+        prs.length,
+        prs.width,
+        prs.net_weight,
+        cp.id as 'project.id',
+        cp.`name` as 'project.name',
+        cp.project_type as 'project.projectType',
+        cp.`serial_number` as 'project.serial_number',
+        prs.monomer_id as 'monomer.id',
+        m.name as 'monomer.name',
+        prs.area_id as 'area.id',
+        a.name as 'area.name',
+        opl.quantity as quantity,
+        prs.quantity as receiving_quantity,
+        opl.install_quantity as installQuantity,
+        report.un_audit_quantity,
+        LEAST(prs.quantity, IFNULL(opl.quantity,0)) - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0) as canInstallQuantity,
+        CASE
+        WHEN prs.product_type = 2 THEN opl.net_weight * (LEAST(prs.quantity, IFNULL(opl.quantity,0)) - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0))
+        WHEN prs.product_type = 4 THEN opl.length / 1000 * (LEAST(prs.quantity, IFNULL(opl.quantity,0)) - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0))
+        ELSE 0
+        END AS mete
+        from project_receiving_summary as prs
+        left join (
+        select
+        product_id,sum(report_quantity) as un_audit_quantity
+        from project_install_report
+        where bool_delete_enum = 0
+        and product_type = #{productType}
+        and audit_status = ${@com.hzchum.scim.project.core.api.enums.AuditStatusEnum@AUDITING.getType()}
+        group by product_id
+        )report on report.product_id = prs.product_id
+        inner join
+        (
+        select
+        product_id,
+        supplier_id,
+        net_weight,
+        length,
+        surface_area,
+        quantity,
+        actual_quantity as install_quantity ,
+        accounting_unit
+        from project_labor_subsupplier_order_product_link
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        <if test="supplierId != null">
+            and supplier_id = #{supplierId}
+        </if>
+        )opl on opl.product_id = prs.product_id
+        LEFT JOIN contract_project cp ON cp.id = prs.project_id and cp.bool_delete_enum = 0
+        left join plan_monomer m on m.id = prs.monomer_id  and m.bool_delete_enum = 0
+        left join plan_area a on a.id = prs.area_id  and a.bool_delete_enum = 0
+        where prs.bool_delete_enum = 0
+        and LEAST(prs.quantity, opl.quantity) - IFNULL(prs.install_quantity,0) - IFNULL(report.un_audit_quantity,0)  > 0
+        <if test="productType != null">
+            AND prs.product_type = #{productType}
+        </if>
+        <if test="projectId != null">
+            AND prs.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null ">
+            AND prs.monomer_id = #{monomerId}
+        </if>
+        <if test="category != null">
+            AND prs.category = #{category}
+        </if>
+        <if test="areaId != null">
+            AND prs.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            AND prs.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND prs.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ORDER BY prs.product_id
+    </select>
+
+</mapper>

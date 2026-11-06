@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.StatisticsOutboundMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsOutbound">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="basic_class" property="basicClass"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="material_is_whole" property="materialIsWhole"/>
+        <result column="warehouse_type" property="warehouseType"/>
+        <result column="bool_party_a" property="boolPartyA"/>
+        <result column="project_id" property="projectId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="mete" property="mete"/>
+        <result column="unit_net" property="unitNet"/>
+        <result column="length" property="length"/>
+        <result column="width" property="width"/>
+        <result column="thickness" property="thickness"/>
+        <result column="theory_thickness" property="theoryThickness"/>
+        <result column="brand" property="brand"/>
+        <result column="color" property="color"/>
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVat"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount_excluding_vat" property="amountExcludingVat"/>
+        <result column="amount" property="amount"/>
+        <result column="input_vat" property="inputVat"/>
+        <result column="standard_id" property="standardId"/>
+        <result column="standard_name" property="standardName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, basic_class, classify_id, classify_name, specification, material_is_whole, warehouse_type, type, bool_party_a, project_id, quantity, mete, unit_net, length, width, thickness, theory_thickness, brand, color, heat_no_and_batch_no, workshop_id, warehouse_id, invoice_type, tax_rate, unit_price_excluding_vat, unit_price, amount_excluding_vat, amount, input_vat, standard_id, standard_name
+    </sql>
+
+
+    <select id="getDetailDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.DetailDTO">
+        select sum(mete)                 mete,
+               sum(quantity)             quantity,
+               sum(input_VAT)            inputVAT,
+               sum(amount)               amount,
+               sum(amount_excluding_VAT) amountExcludingVAT
+        from wms_statistics_outbound
+        where bool_delete_enum = 0 and statistics_id = #{id}
+    </select>
+
+    <resultMap id="getDetailDTOList" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.StatisticsDetailDTO">
+        <id column="id" property="id" />
+        <result column="basic_class" property="basicClass" />
+        <result column="classify_id" property="classifyId" />
+        <result column="classifyName" property="classifyName" />
+        <result column="specification" property="specification" />
+        <result column="material_is_whole" property="materialIsWhole" />
+        <result column="quantity" property="quantity" />
+        <result column="length" property="length" />
+        <result column="width" property="width" />
+        <result column="thickness" property="thickness" />
+        <result column="brand" property="brand" />
+        <result column="heat_no_and_batch_no" property="heatNoAndBatchNo" />
+        <result column="color" property="color" />
+        <result column="mete" property="mete" />
+        <result column="unit_price" property="unitPrice" />
+        <result column="unit_price_excluding_vat" property="unitPriceExcludingVAT" />
+        <result column="amount" property="amount" />
+        <result column="amount_excluding_vat" property="amountExcludingVAT" />
+
+        <result column="unit_price_no_freight" property="unitPriceNoFreight" />
+        <result column="unit_price_excluding_vat_no_freight" property="unitPriceExcludingVATNoFreight" />
+        <result column="amount_no_freight" property="amountNoFreight" />
+        <result column="amount_excluding_vat_no_freight" property="amountExcludingVATNoFreight" />
+
+        <result column="invoice_type" property="invoiceType" />
+        <result column="bool_party_a" property="boolPartyA" />
+        <result column="outbound_relation_type" property="outboundRelationType" />
+        <result column="create_time" property="createTime" />
+
+        <result column="wmu" property="measureUnit"/>
+        <result column="wmp" property="measurePrecision"/>
+        <result column="wau" property="accountingUnit"/>
+        <result column="wap" property="accountingPrecision"/>
+
+        <result column="pmName" property="monomerName" />
+        <result column="paName" property="areaName" />
+
+        <association property="receipt" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndSNDTO">
+            <id property="id" column="receipt_id"/>
+            <result property="serialNumber" column="receipt_serial_number"/>
+            <result property="receiptType" column="receipt_type"/>
+        </association>
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id property="id" column="pid"/>
+            <result property="name" column="pn"/>
+            <result property="serialNumber" column="pSN"/>
+            <result property="shortName" column="psName"/>
+        </association>
+        <association property="workshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="mbfId"/>
+            <result property="name" column="mbfName"/>
+        </association>
+        <association property="mesWorkshop" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="obfId"/>
+            <result property="name" column="obfName"/>
+        </association>
+        <association property="warehouse" javaType="com.hzchum.scim.wms.core.api.pojo.dto.common.BriefIdAndNameDTO">
+            <id property="id" column="wwId"/>
+            <result property="name" column="wwName"/>
+        </association>
+    </resultMap>
+    <select id="getDetailDTOListUser" resultMap="getDetailDTOList">
+        select wso.*,
+        p.id pid,
+        p.short_name psName,
+        p.serial_number pSN,
+        p.name pn,
+        pm.name          pmName,
+        pa.name          paName,
+        mbf.id mbfId,
+        mbf.name mbfName,
+        obf.id obfId,
+        obf.name obfName,
+        wm.measure_unit         wmu,
+        wm.measure_precision    wmp,
+        wm.accounting_unit      wau,
+        wm.accounting_precision wap,
+        wc.name classifyName,
+        ww.id wwId,
+        ww.name wwName
+        from wms_statistics_outbound wso
+        left join contract_project p on p.id = wso.project_id
+        left join wms_measure wm on wm.classification_id = wso.classify_id
+        left join wms_workshop mbf on wso.workshop_id = mbf.id
+        left join wms_move_outbound_detail `mod` on `mod`.id = wso.detail_id and wso.receipt_type = 14
+        left join wms_return_detail rd on rd.id = wso.detail_id and wso.receipt_type = 16
+        left join wms_material_returnable mr2 on mr2.id = rd.material_returnable_id
+        left join mes_building_workshop obf on obf.id = CASE WHEN wso.receipt_type = 14 THEN `mod`.workshop_id ELSE mr2.workshop_id END
+        left join wms_warehouse ww on ww.id = wso.warehouse_id
+        left join wms_classification wc on wso.classify_id = wc.id
+        left join plan_monomer pm on pm.id = wso.monomer_id
+        left join plan_area pa on pa.id = wso.area_id
+        where wso.bool_delete_enum = 0
+        <if test="times.startTime !=null">
+            and outbound_time &gt; #{times.startTime}
+        </if>
+        <if test="times.endTime !=null">
+            and outbound_time &lt; #{times.endTime}
+        </if>
+        <if test="ids != null and ids.size()>0 " >
+            and wso.statistics_id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="getDetailDTOList" resultMap="getDetailDTOList">
+        select wso.*,
+               p.id pid,
+               p.short_name psName,
+               p.serial_number pSN,
+               p.name pn,
+               pm.name          pmName,
+               pa.name          paName,
+               mbf.id mbfId,
+               mbf.name mbfName,
+               obf.id obfId,
+               obf.name obfName,
+                wm.measure_unit         wmu,
+                wm.measure_precision    wmp,
+                wm.accounting_unit      wau,
+               wm.accounting_precision wap,
+               wc.name classifyName,
+               ww.id wwId,
+               ww.name wwName
+        from wms_statistics_outbound wso
+                 left join contract_project p on p.id = wso.project_id
+                left join wms_measure wm on wm.classification_id = wso.classify_id
+                 left join wms_workshop mbf on wso.workshop_id = mbf.id
+                 left join wms_move_outbound_detail `mod` on `mod`.id = wso.detail_id and wso.receipt_type = 14
+                 left join wms_return_detail rd on rd.id = wso.detail_id and wso.receipt_type = 16
+                 left join wms_material_returnable mr2 on mr2.id = rd.material_returnable_id
+                 left join mes_building_workshop obf on obf.id = CASE WHEN wso.receipt_type = 14 THEN `mod`.workshop_id ELSE mr2.workshop_id END
+                 left join wms_warehouse ww on ww.id = wso.warehouse_id
+                 left join wms_classification wc on wso.classify_id = wc.id
+                 left join plan_monomer pm on pm.id = wso.monomer_id
+                 left join plan_area pa on pa.id = wso.area_id
+        where wso.bool_delete_enum = 0
+          and wso.create_time &gt; #{times.startTime}
+          and wso.create_time &lt; #{times.endTime}
+        <if test="ids != null and ids.size()>0 " >
+            and wso.statistics_id in
+            <foreach collection="ids" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getOne" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.StatisticsOutbound">
+        select *
+        from  wms_statistics_outbound
+        where
+        DATE_FORMAT(NOW(), '%Y%m') = DATE_FORMAT(create_time, '%Y%m')
+        and statistics_id = #{id}
+        and bool_delete_enum = 0
+        and basic_class = #{mat.basicClass}
+        and classify_id = #{mat.classifyId}
+        and bool_party_a = #{mat.boolPartyA}
+        <if test="mat.taxRate != null ">
+            AND tax_rate = #{mat.taxRate}
+        </if>
+        <if test="mat.taxRate == null ">
+            AND tax_rate is null
+        </if>
+        <if test="mat.workshopId != null ">
+            and workshop_id = #{mat.workshopId}
+        </if>
+        <if test="mat.warehouseId != null ">
+            AND warehouse_id = #{mat.warehouseId}
+        </if>
+        <if test="mat.specification != null and mat.specification != ''">
+            AND specification = #{mat.specification}
+        </if>
+        <if test="mat.specification == null ">
+            AND specification is null
+        </if>
+        <if test="mat.length != null ">
+            AND length = #{mat.length}
+        </if>
+        <if test="mat.length == null ">
+            AND length is null
+        </if>
+        <if test="mat.width != null ">
+            AND width = #{mat.width}
+        </if>
+        <if test="mat.width == null ">
+            AND width is null
+        </if>
+        <if test="mat.thickness != null ">
+            AND thickness = #{mat.thickness}
+        </if>
+        <if test="mat.thickness == null ">
+            AND thickness is null
+        </if>
+        <if test="mat.unitNet != null ">
+            AND unit_net = #{mat.unitNet}
+        </if>
+        <if test="mat.unitNet == null ">
+            AND unit_net is null
+        </if>
+        <if test="mat.projectId != null ">
+            AND project_id = #{mat.projectId}
+        </if>
+        <if test="mat.projectId == null ">
+            AND project_id is null
+        </if>
+        <if test="mat.heatNoAndBatchNo != null and mat.heatNoAndBatchNo != ''">
+            AND heat_no_and_batch_no = #{mat.heatNoAndBatchNo}
+        </if>
+        <if test="mat.heatNoAndBatchNo == null ">
+            AND heat_no_and_batch_no is null
+        </if>
+        <if test="mat.brand != null and mat.brand != ''">
+            AND brand = #{mat.brand}
+        </if>
+        <if test="mat.brand == null ">
+            AND brand is null
+        </if>
+        <if test="mat.color != null and mat.color != ''">
+            AND color = #{mat.color}
+        </if>
+        <if test="mat.color == null ">
+            AND color is null
+        </if>
+    </select>
+    <select id="getSumAmount" resultType="decimal">
+        select SUM(amount_excluding_vat)
+        from wms_statistics_outbound
+        where bool_delete_enum = 0
+        <if test="times.startTime !=null">
+            and outbound_time &gt; #{times.startTime}
+        </if>
+        <if test="times.endTime !=null">
+            and outbound_time &lt; #{times.endTime}
+        </if>
+    </select>
+
+    <select id="getOutboundAmount" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MonthSummaryDO">
+        select
+        DATE_FORMAT(create_time,'%m') date,
+        case
+        when #{type} = 1 then ifnull(sum(amount),0)
+        when #{type} = 2 then ifnull(sum(amount_excluding_vat),0)
+        END amount
+        from wms_statistics_outbound
+        where bool_delete_enum = 0
+        and basic_class &amp; #{basicClass} &gt; 0
+          and date_format(create_time, '%Y') = date_format(#{year}, '%Y')
+        GROUP BY DATE_FORMAT(create_time,'%m')
+    </select>
+    <select id="getSumAmountNewOne" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(amount_excluding_vat),0)
+        from wms_statistics_outbound
+        where bool_delete_enum = 0
+          and create_time &gt; #{times.startTime}
+          and create_time &lt; #{times.endTime}
+        <if test="basicClass != null and basicClass != ''">
+            and basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and workshop_id = #{workshopId}
+        </if>
+    </select>
+    <select id="getSumMeteNewOne" resultType="java.math.BigDecimal">
+        select IFNULL(SUM(mete),0)
+        from wms_statistics_outbound
+        where bool_delete_enum = 0
+        and create_time &gt; #{times.startTime}
+        and create_time &lt; #{times.endTime}
+        <if test="basicClass != null and basicClass != ''">
+            and basic_class &amp; #{basicClass} &gt; 0
+        </if>
+        <if test="workshopId != null and workshopId != ''">
+            and workshop_id = #{workshopId}
+        </if>
+
+    </select>
+
+</mapper>

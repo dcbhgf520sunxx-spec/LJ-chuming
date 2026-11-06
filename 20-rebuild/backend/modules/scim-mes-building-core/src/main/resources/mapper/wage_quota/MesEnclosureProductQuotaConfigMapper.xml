@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_quota.MesEnclosureProductQuotaConfigMapper">
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.wage_quota.MesEnclosureProductQuotaConfigDTO">
+        SELECT
+            mepqc.*
+        FROM mes_enclosure_product_quota_config mepqc
+        WHERE mepqc.bool_delete_enum = 0
+    </select>
+
+    <select id="getMaxNumber" resultType="java.lang.Integer">
+        SELECT IFNULL(MAX(RIGHT(quota_number, 3)), 0) FROM mes_enclosure_product_quota_config WHERE bool_delete_enum = 0
+    </select>
+
+</mapper>

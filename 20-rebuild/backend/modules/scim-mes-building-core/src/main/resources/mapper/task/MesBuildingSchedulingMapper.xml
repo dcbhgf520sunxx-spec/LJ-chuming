@@ -1,0 +1,1155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingScheduling">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_process_id" property="productProcessId"/>
+        <result column="scheduling_quantity" property="schedulingQuantity"/>
+        <result column="task_quantity" property="taskQuantity"/>
+        <result column="complete_quantity" property="completeQuantity"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="status" property="status"/>
+        <result column="issue_status" property="issueStatus"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        ,
+	factory_id,
+	workshop_id,
+	production_line_id,
+	project_id,
+	monomer_id,
+	area_id,
+	product_id,
+	product_type,
+    product_process_id,
+	scheduling_quantity,
+	task_quantity,
+	complete_quantity,
+    ask_complete_time,
+    complete_time,
+	STATUS,
+    issue_status,
+	user_id,
+	create_time,
+	update_time,
+	bool_delete_enum,
+	version
+    </sql>
+    <!-- 通用查询条件列 -->
+    <sql id="sql_condition">
+
+    </sql>
+    <select id="listByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingSchedulingDO">
+        select
+        a.id,
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.area_id 'area.id',
+        a.factory_id 'factory.id',
+        a.workshop_id 'workshop.id',
+        a.production_line_id 'production_line.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'area.name',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        mbpl.`name` 'production_line.name',
+        a.product_id,
+        a.product_type,
+        a.product_process_id,
+        a.scheduling_quantity,
+        a.task_quantity,
+        a.complete_quantity,
+        a.ask_complete_time,
+        a.complete_time,
+        a.STATUS,
+        a.issue_status,
+        product.serial_number serial_number,
+        product.bool_abnormal_enum,
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            product.plate plate,
+            product.`name`,
+            product.color,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            product.specification specification,
+            product.`name`,
+            material,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            product.specification specification,
+            material,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            product.specification specification,
+        </if>
+        product.length length,
+        a.user_id,
+        a.create_time,
+        a.update_time,
+        a.bool_delete_enum,
+        a.version,
+        (SELECT
+        SUM(in_production_quantity)
+        FROM
+        mes_building_task
+        WHERE scheduling_id=a.id AND bool_delete_enum=FALSE AND product_type=a.product_type) in_production_quantity
+        from mes_building_scheduling a
+        LEFT JOIN mes_building_factory mbf ON a.factory_id = mbf.id AND mbf.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_workshop mbw ON a.workshop_id = mbw.id AND mbw.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_production_line mbpl ON a.production_line_id=mbpl.id AND mbpl.bool_delete_enum=FALSE
+        LEFT JOIN contract_project cp ON cp.id =a.project_id AND cp.bool_delete_enum=FALSE
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id AND pm.bool_delete_enum=FALSE
+        LEFT JOIN plan_area pd ON pd.id =a.area_id AND pd.bool_delete_enum=FALSE
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part product ON a.product_id =product.id
+        </if>
+        <!--关联产品信息-->
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="boolAbnormalEnum != null">
+                AND product.bool_abnormal_enum = #{boolAbnormalEnum}
+            </if>
+            <if test="factoryId != null ">
+                AND a.factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null ">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND a.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND a.project_id=#{projectId}
+            </if>
+
+            <if test="monomerId != null">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null ">
+                AND a.area_id = #{areaId}
+            </if>
+            <if test="productType != null ">
+                AND a.product_type = #{productType}
+            </if>
+            <if test="status != null">
+                AND a.STATUS = #{status}
+            </if>
+            <if test="issueStatus != null">
+                AND a.issue_status = #{issueStatus}
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                <if test="serialNumber!=null and serialNumber!=''">
+                    AND product.serial_number=#{serialNumber}
+                </if>
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                <if test="serialNumber!=null and serialNumber!=''">
+                    AND product.serial_number like CONCAT('%',#{serialNumber},'%')
+                </if>
+                <if test="name!=null and name!=''">
+                    AND product.name like CONCAT('%',#{name},'%')
+                </if>
+                <if test="specification!=null and specification!=''">
+                    AND product.specification like CONCAT('%',#{specification},'%')
+                </if>
+                <if test="material!=null and material!=''">
+                    AND product.material like CONCAT('%',#{material},'%')
+                </if>
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                <if test="serialNumber!=null and serialNumber!=''">
+                    AND product.serial_number like CONCAT('%',#{productType},'%')
+                </if>
+                <if test="name!=null and name!=''">
+                    AND product.name like CONCAT('%',#{name},'%')
+                </if>
+                <if test="plate!=null and plate!=''">
+                    AND product.plate like CONCAT('%',#{plate},'%')
+                </if>
+                <if test="color!=null and color!=''">
+                    AND product.color like CONCAT('%',#{color},'%')
+                </if>
+                <if test="category!=null">
+                    AND product.category = #{category}
+                </if>
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                <if test="serialNumber!=null and serialNumber!=''">
+                    AND product.serial_number like CONCAT('%',#{serialNumber},'%')
+                </if>
+                <if test="specification!=null and specification!=''">
+                    AND product.specification like CONCAT('%',#{specification},'%')
+                </if>
+                <if test="material!=null and material!=''">
+                    AND product.material like CONCAT('%',#{material},'%')
+                </if>
+            </if>
+            <choose>
+                <when test="date!=null">
+                    AND date(a.create_time) =date(#{date})
+                </when>
+                <otherwise>
+                    <if test="startDate != null">
+                        date(a.create_time) >=date(#{startDate})
+                    </if>
+                    <if test="endDate != null ">
+                        date(a.create_time) &lt;=date(#{endDate})
+                    </if>
+                </otherwise>
+            </choose>
+
+        </where>
+    </select>
+
+    <select id="listById"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingSchedulingDO">
+        select
+        a.id,
+        a.project_id 'project.id',
+        a.monomer_id 'monomer.id',
+        a.area_id 'area.id',
+        a.factory_id 'factory.id',
+        a.workshop_id 'workshop.id',
+        a.production_line_id 'production_line.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'area.name',
+        mbf.`name` 'factory.name',
+        mbw.`name` 'workshop.name',
+        mbpl.`name` 'production_line.name',
+        a.product_id,
+        a.product_type,
+        a.product_process_id,
+        a.scheduling_quantity,
+        a.task_quantity,
+        a.complete_quantity,
+        a.ask_complete_time,
+        a.complete_time,
+        a.STATUS,
+        a.issue_status,
+        product.serial_number serial_number,
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            product.plate plate,
+            product.`name`,
+            product.color,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            product.specification specification,
+            product.`name`,
+            material,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            product.specification specification,
+            material,
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            product.specification specification,
+        </if>
+        product.length length,
+        a.user_id,
+        a.create_time,
+        a.update_time,
+        a.bool_delete_enum,
+        a.version,
+        (SELECT
+        SUM(in_production_quantity)
+        FROM
+        mes_building_task
+        WHERE scheduling_id=a.id AND bool_delete_enum=FALSE AND product_type=a.product_type) in_production_quantity
+        from mes_building_scheduling a
+        LEFT JOIN mes_building_factory mbf ON a.factory_id = mbf.id AND mbf.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_workshop mbw ON a.workshop_id = mbw.id AND mbw.bool_delete_enum=FALSE
+        LEFT JOIN mes_building_production_line mbpl ON a.production_line_id=mbpl.id AND mbpl.bool_delete_enum=FALSE
+        LEFT JOIN contract_project cp ON cp.id =a.project_id AND cp.bool_delete_enum=FALSE
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id AND pm.bool_delete_enum=FALSE
+        LEFT JOIN plan_area pd ON pd.id =a.area_id AND pd.bool_delete_enum=FALSE
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            LEFT JOIN tech_enclosure product ON a.product_id =product.id
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part product ON a.product_id =product.id
+        </if>
+        <!--关联产品信息-->
+        <where>
+            <if test="id!=null">
+                a.id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAssembleSchedulingGroupByDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingAssembleSchedulingSummaryDO">
+        SELECT date_format(a.create_time, '%Y-%m-%d') date,
+        SUM( a.scheduling_quantity ) total_scheduling_quantity,
+        SUM( a.scheduling_quantity * b.length ) total_scheduling_length ,
+        SUM( a.scheduling_quantity * b.net_weight ) total_scheduling_net_weight,
+        SUM( a.task_quantity ) total_task_quantity,
+        SUM( a.task_quantity * b.length ) total_task_length,
+        SUM( a.task_quantity * b.net_weight ) total_task_net_weight,
+        SUM( a.complete_quantity ) total_complete_quantity,
+        SUM( a.complete_quantity * b.length ) total_complete_length,
+        SUM( a.complete_quantity * b.net_weight ) total_complete_net_weight
+        FROM
+        mes_building_scheduling a
+        LEFT JOIN tech_assemble b
+        ON a.product_id=b.id
+        <where>
+            a.bool_delete_enum= FALSE
+            AND
+            date_format( a.create_time, '%Y-%m' )= date_format( #{date}, '%Y-%m' )
+            <if test="factoryId != null ">
+                AND a.factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <!--<choose>
+                <when test="projectIds != null">
+                    AND a.project_id in
+                    <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                        #{projectId}
+                    </foreach>
+                </when>
+                <otherwise>
+                    AND a.project_id =0
+                </otherwise>
+            </choose>-->
+            <if test="monomerId != null  ">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null  ">
+                AND a.area_id = #{areaId}
+            </if>
+            AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND a.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND a.project_id=#{projectId}
+            </if>
+        </where>
+        GROUP BY date;
+    </select>
+    <select id="selectSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingSchedulingSummaryDO">
+        select
+        IFNULL(SUM( complete_quantity ),0) total_complete_quantity,
+        IFNULL(SUM( task_quantity ),0) total_task_quantity,
+        IFNULL(SUM( scheduling_quantity ),0)total_scheduling_quantity
+        FROM mes_building_scheduling
+        <where>
+            bool_delete_enum=FALSE
+            <if test="factoryId != null ">
+                AND factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null">
+                AND workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND production_line_id = #{productionLineId}
+            </if>
+            <if test="projectId != null ">
+                AND project_id = #{projectId}
+            </if>
+            <if test="monomerId != null  ">
+                AND monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null  ">
+                AND area_id = #{areaId}
+            </if>
+            <if test="productId != null  and productType != null">
+                AND product_id = #{productId}
+            </if>
+            <if test="productType != null  ">
+                AND product_type = #{productType}
+            </if>
+            <if test="status != null ">
+                AND STATUS = #{status}
+            </if>
+            <if test="issueStatus != null">
+                AND issue_status = #{issueStatus}
+            </if>
+        </where>
+    </select>
+    <select id="getSchedulingGroupProductionLineId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingSchedulingProductionLineDO">
+        SELECT
+        production_line_id,
+        IFNULL(SUM( complete_quantity ),0) produced_quantity,
+        IFNULL(SUM( task_quantity ),0) total_task_quantity,
+        IFNULL(SUM( scheduling_quantity ),0)total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        <where>
+            bool_delete_enum=FALSE
+            <if test="productId != null and productType != null">
+                AND product_id = #{productId}
+            </if>
+            <if test="productType != null">
+                AND product_type = #{productType}
+            </if>
+        </where>
+        GROUP BY production_line_id
+    </select>
+    <select id="getSchedulingGroupProductionLineIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingSchedulingProductionLineDO">
+        SELECT
+        product_id,
+        production_line_id,
+        IFNULL(SUM( complete_quantity ),0) produced_quantity,
+        IFNULL(SUM( task_quantity ),0) total_task_quantity,
+        IFNULL(SUM( scheduling_quantity ),0)total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        <where>
+            bool_delete_enum=FALSE
+            <if test="productIds.size() != 0">
+                AND product_id in
+                <foreach collection="productIds" item="productId" open="(" close=")" separator=",">
+                    #{productId}
+                </foreach>
+            </if>
+            <if test="productType != null">
+                AND product_type = #{productType}
+            </if>
+        </where>
+        GROUP BY production_line_id,product_id
+    </select>
+    <select id="getArtifactSchedulingGroupByDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingArtifactSchedulingSummaryDO">
+        SELECT date_format(a.create_time, '%Y-%m-%d') date,
+        IFNULL(SUM( a.scheduling_quantity ),0) total_scheduling_quantity,
+        IFNULL(SUM(a.scheduling_quantity*b.net_weight ),0) total_scheduling_net_weight,
+        IFNULL(SUM(a.scheduling_quantity*b.gross_weight ),0) total_scheduling_gross_weight,
+        IFNULL(SUM(a.task_quantity),0) total_task_quantity,
+        IFNULL(SUM(a.task_quantity*b.net_weight ),0) total_task_net_weight,
+        IFNULL(SUM(a.task_quantity*b.gross_weight ),0) total_task_gross_weight,
+        IFNULL(SUM(a.complete_quantity),0) total_complete_quantity,
+        IFNULL(SUM(a.complete_quantity*b.net_weight ),0) total_complete_net_weight,
+        IFNULL(SUM(a.complete_quantity*b.gross_weight ),0) total_complete_gross_weight
+        FROM
+        mes_building_scheduling a
+        LEFT JOIN tech_artifact b
+        ON a.product_id=b.id AND b.bool_delete_enum= FALSE
+        <where>
+            a.bool_delete_enum= FALSE
+            AND
+            date_format( a.create_time, '%Y-%m' )= date_format( #{date}, '%Y-%m' )
+            <if test="factoryId != null ">
+                AND a.factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND a.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND a.project_id=#{projectId}
+            </if>
+            <if test="monomerId != null  ">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null  ">
+                AND a.area_id = #{areaId}
+            </if>
+            AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        </where>
+        GROUP BY date;
+    </select>
+    <select id="getEnclosureSchedulingGroupByDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingEnclosureSchedulingSummaryDO">
+        SELECT date_format(a.create_time, '%Y-%m-%d') date,
+        IFNULL( SUM( a.scheduling_quantity ), 0 ) total_scheduling_quantity,
+        IFNULL( SUM( a.scheduling_quantity * b.length ), 0 ) total_scheduling_length,
+        IFNULL( SUM( a.scheduling_quantity * b.length * b.width ), 0 ) total_scheduling_area,
+        IFNULL( SUM( a.task_quantity ), 0 ) total_task_quantity,
+        IFNULL( SUM( a.task_quantity * b.length ), 0 ) total_task_length,
+        IFNULL( SUM( a.task_quantity * b.length * b.width ), 0 ) total_task_area,
+        IFNULL( SUM( a.complete_quantity ), 0 ) total_complete_quantity,
+        IFNULL( SUM( a.complete_quantity * b.length ), 0 ) total_complete_length,
+        IFNULL( SUM( a.complete_quantity * b.length * b.width ), 0 ) total_complete_area
+        FROM
+        mes_building_scheduling a
+        LEFT JOIN tech_enclosure b
+        ON a.product_id = b.id AND b.bool_delete_enum= FALSE
+        <where>
+            a.bool_delete_enum= FALSE
+            AND
+            date_format( a.create_time, '%Y-%m' )= date_format( #{date}, '%Y-%m' )
+            <if test="factoryId != null ">
+                AND a.factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND a.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND a.project_id=#{projectId}
+            </if>
+            <if test="monomerId != null  ">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null  ">
+                AND a.area_id = #{areaId}
+            </if>
+            <if test="category != null  ">
+                AND b.category = #{category}
+            </if>
+            AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        </where>
+        GROUP BY
+        date;
+    </select>
+    <select id="getMachinePartSchedulingGroupByDay"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingMachinePartSchedulingSummaryDO">
+        SELECT date_format(a.create_time, '%Y-%m-%d') date,
+        IFNULL(SUM( a.scheduling_quantity ),0) total_scheduling_quantity,
+        IFNULL(SUM(a.scheduling_quantity*b.net_weight ),0) total_scheduling_net_weight,
+        IFNULL(SUM(a.scheduling_quantity*b.gross_weight ),0) total_scheduling_gross_weight,
+        IFNULL(SUM(a.task_quantity),0) total_task_quantity,
+        IFNULL(SUM(a.task_quantity*b.net_weight ),0) total_task_net_weight,
+        IFNULL(SUM(a.task_quantity*b.gross_weight ),0) total_task_gross_weight,
+        IFNULL(SUM(a.complete_quantity),0) total_complete_quantity,
+        IFNULL(SUM(a.complete_quantity*b.net_weight ),0) total_complete_net_weight,
+        IFNULL(SUM(a.complete_quantity*b.gross_weight ),0) total_complete_gross_weight
+        FROM
+        mes_building_scheduling a
+        LEFT JOIN tech_machine_part b
+        ON a.product_id = b.id AND b.bool_delete_enum= FALSE
+        <where>
+            a.bool_delete_enum= FALSE
+            AND
+            date_format( a.create_time, '%Y-%m' )= date_format( #{date}, '%Y-%m' )
+            <if test="factoryId != null ">
+                AND a.factory_id = #{factoryId}
+            </if>
+            <if test="workshopId != null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId != null ">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND a.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND a.project_id=#{projectId}
+            </if>
+            <if test="monomerId != null  ">
+                AND a.monomer_id = #{monomerId}
+            </if>
+            <if test="areaId != null  ">
+                AND a.area_id = #{areaId}
+            </if>
+            AND a.product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+        </where>
+        GROUP BY
+        date;
+    </select>
+    <select id="selectSchedulingDetailByProductIdAndProductType"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.SchedulingDetailDO">
+        SELECT
+        <if test="assembleId != null">
+            IFNULL((SELECT sum(task_quantity) FROM mes_building_task WHERE product_id = #{productId} AND product_type = #{productType} )/b.quantity,0)
+        </if>
+        <if test="assembleId == null">
+            IFNULL((SELECT sum(scheduling_quantity) FROM mes_building_scheduling WHERE product_id = #{productId} AND product_type = #{productType} ),0)
+        </if>
+        total_scheduling_quantity,
+        IFNULL((SELECT sum(task_quantity) FROM mes_building_task WHERE product_id = #{productId}	AND product_type = #{productType} ),0)  total_task_quantity,
+        IFNULL((SELECT sum(in_production_quantity) FROM mes_building_task WHERE product_id = #{productId}	AND product_type = #{productType} ),0)  in_production_quantity,
+        IFNULL((SELECT sum(complete_quantity) FROM mes_building_task WHERE product_id = #{productId}	AND product_type = #{productType} ),0)  complete_quantity
+        FROM
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+        tech_assemble a
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+        tech_artifact a
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+        tech_enclosure a
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+        tech_machine_part a
+        </if>
+        <if test="assembleId != null">
+        LEFT JOIN tech_assemble_machine_part_link b ON a.id=b.machine_part_id AND b.assemble_id=#{assembleId}
+        </if>
+        WHERE a.id=#{productId}
+
+
+
+        <!--SELECT ifnull(SUM(a.scheduling_quantity), 0)    total_scheduling_quantity,
+               ifnull(SUM(a.task_quantity), 0)          total_task_quantity,
+               ifnull(SUM(b.in_production_quantity), 0) in_production_quantity,
+               ifnull(SUM(b.complete_quantity), 0)      complete_quantity
+        FROM mes_building_scheduling a
+                 LEFT JOIN(
+            SELECT scheduling_id,
+                   product_type,
+                   SUM(in_production_quantity) in_production_quantity,
+                   SUM(complete_quantity)      complete_quantity
+            FROM mes_building_task
+            where bool_delete_enum = FALSE
+            GROUP BY scheduling_id,
+                     product_type
+        ) b ON a.id = b.scheduling_id and a.product_type = b.product_type
+        WHERE a.product_id = #{productId}
+          AND a.product_type = #{productType}
+          AND a.bool_delete_enum = FALSE-->
+    </select>
+    <select id="listSchedulingArtifactByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingArtifactDO">
+        SELECT a.* from (
+        SELECT
+        a.create_time,
+        a.update_time,
+        a.bool_delete_enum,
+        a.version,
+        a.id,
+        a.project_id,
+        a.monomer_id,
+        a.area_id,
+        a.bool_status_enum,
+        a.NAME,
+        a.serial_number,
+        a.specification,
+        a.length,
+        a.material,
+        a.quantity,
+        a.net_weight,
+        a.total_net_weight,
+        a.gross_weight,
+        a.total_gross_weight,
+        a.surface_area,
+        a.drawing_number,
+        a.remark,
+        a.business_id,
+        a.bool_abnormal_enum,
+        cp.`name` project_name,
+        pm.`name` monomer_name,
+        pd.`name` Area_name,
+        IFNULL(b.produced_quantity, 0 ) produced_quantity,
+        IFNULL(b.total_task_quantity, 0 ) total_task_quantity,
+        IFNULL(b.total_scheduling_quantity, 0 ) total_scheduling_quantity
+        FROM
+        tech_artifact a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        SUM( complete_quantity ) produced_quantity,
+        SUM( task_quantity ) total_task_quantity,
+        SUM( scheduling_quantity ) total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        WHERE
+        product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()}
+        AND bool_delete_enum = 0
+        GROUP BY
+        product_id
+        ) AS b ON a.id = b.product_id
+        LEFT JOIN contract_project cp ON cp.id =a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id
+        LEFT JOIN plan_area pd ON pd.id =a.area_id
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="copy.boolAbnormalEnum != null">
+                AND a.bool_abnormal_enum = #{copy.boolAbnormalEnum}
+            </if>
+            <if test="copy.assembleLink !=true">
+                and a.assemble_id is not NULL
+            </if>
+            <if test=" copy.id != null  and  copy.id != ''">
+                AND a. id = #{copy.id}
+            </if>
+            <if test="copy.projectId != null  and copy.projectId != ''">
+                AND a.project_id = #{copy.projectId}
+            </if>
+            <if test="copy.monomerId != null  and copy.monomerId != ''">
+                AND a.monomer_id = #{copy.monomerId}
+            </if>
+            <if test="copy.areaId != null  and copy.areaId != ''">
+                AND a.area_id = #{copy.areaId}
+            </if>
+            <if test="copy.boolStatusEnum != null  and copy.boolStatusEnum != ''">
+                AND a.bool_status_enum = #{copy.boolStatusEnum}
+            </if>
+            <if test="copy.name != null  and copy.name != ''">
+                AND a.name like CONCAT('%', #{copy.name},'%')
+            </if>
+            <if test="copy.serialNumber != null  and copy.serialNumber != ''">
+                AND a.serial_number like CONCAT('%', #{copy.serialNumber},'%')
+            </if>
+            <if test="copy.specification != null  and copy.specification != ''">
+                AND a.specification like CONCAT('%', #{copy.specification},'%')
+            </if>
+            <if test="copy.length != null  and copy.length != ''">
+                AND a.length = #{copy.length}
+            </if>
+            <if test="copy.material != null  and copy.material != ''">
+                AND a.material like CONCAT('%', #{copy.material},'%')
+            </if>
+            <if test="copy.quantity != null  and copy.quantity != ''">
+                AND a.quantity = #{copy.quantity}
+            </if>
+            <if test="copy.drawingNumber != null  and copy.drawingNumber != ''">
+                AND a.drawing_number = #{copy.drawingNumber}
+            </if>
+            <if test="copy.businessId != null  and copy.businessId != ''">
+                AND a.business_id = #{copy.businessId}
+            </if>
+            <if test="copy.assembleId != null  and copy.assembleId != ''">
+                AND a.assemble_id = #{copy.assembleId}
+            </if>
+            <if test="copy.assembleSerialNumber != null  and copy.assembleSerialNumber != ''">
+                AND a.assemble_serial_number = #{copy.assembleSerialNumber}
+            </if>
+        </where>
+        GROUP BY
+        a.id ) as a
+        <where>
+            <if test="copy.statusType==1">
+                and  a.total_scheduling_quantity=0
+            </if>
+            <if test="copy.statusType==2">
+                and  a.total_scheduling_quantity>0 and a.quantity>total_scheduling_quantity
+            </if>
+            <if test="copy.statusType==4">
+                and a.quantity=a.total_scheduling_quantity
+            </if>
+        </where>
+
+    </select>
+    <select id="listSchedulingAssembleByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingAssembleDO">
+        SELECT a.* from (
+        SELECT
+        a.id, a.project_id, a.monomer_id, a.area_id, a.serial_number,a.length,
+        a.quantity, a.used_quantity, a.remark,cp.`name` project_name,pm.`name` monomer_name,pd.`name` Area_name,a.bool_abnormal_enum,
+        IFNULL(b.produced_quantity, 0 ) produced_quantity,
+        IFNULL(b.total_task_quantity, 0 ) total_task_quantity,
+        IFNULL(b.total_scheduling_quantity, 0 ) total_scheduling_quantity
+        FROM
+        tech_assemble a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        SUM(complete_quantity) produced_quantity,
+        SUM(task_quantity ) total_task_quantity,
+        SUM(scheduling_quantity ) total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        WHERE
+        product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()}
+        AND bool_delete_enum = 0
+        GROUP BY
+        product_id
+        ) AS b ON a.id = b.product_id
+        LEFT JOIN contract_project cp ON cp.id =a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id
+        LEFT JOIN plan_area pd ON pd.id =a.area_id
+        <where>
+            a.bool_delete_enum=FALSE AND a.bool_scheduling_enum =TRUE
+            <if test="assemble.boolAbnormalEnum != null">
+                AND a.bool_abnormal_enum = #{assemble.boolAbnormalEnum}
+            </if>
+            <if test=" assemble.id != null  and  assemble.id != ''">
+                AND a.id = #{assemble.id}
+            </if>
+            <if test=" assemble.projectId != null  and assemble.projectId != ''">
+                AND a.project_id = #{assemble.projectId}
+            </if>
+            <if test=" assemble.monomerId != null  and  assemble.monomerId != ''">
+                AND a.monomer_id = #{assemble.monomerId}
+            </if>
+            <if test=" assemble.areaId != null  and  assemble.areaId != ''">
+                AND a.area_id = #{assemble.areaId}
+            </if>
+            <if test=" assemble.serialNumber != null  and  assemble.serialNumber != ''">
+                AND a.serial_number = #{assemble.serialNumber}
+            </if>
+        </where>
+        GROUP BY
+        a.id) as a
+        <where>
+            <if test="assemble.statusType==1">
+                and  a.total_scheduling_quantity=0
+            </if>
+            <if test="assemble.statusType==2">
+                and  a.total_scheduling_quantity>0 and a.quantity>total_scheduling_quantity
+            </if>
+            <if test="assemble.statusType==4">
+                and a.quantity=a.total_scheduling_quantity
+            </if>
+        </where>
+    </select>
+    <select id="listSchedulingEnclosureByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingEnclosureDO">
+        SELECT * from (
+        SELECT
+        a.id,a. project_id, a.monomer_id, a.area_id, a.bool_status_enum, a.category, a.name, a.serial_number,a.bool_abnormal_enum,
+        cp.`name` project_name,pm.`name` monomer_name,pd.`name` Area_name,
+        a.plate,a.attachment_id,
+        a.color, a.material, a.weight, a.thickness, a.width, a.length, a.quantity, a.total_length, a.total_area,
+        a.remark, a.business_id, a.brand,a.unfolded_width,
+        IFNULL(b.produced_quantity, 0 ) produced_quantity,
+        IFNULL(b.total_task_quantity, 0 ) total_task_quantity,
+        IFNULL(b.total_scheduling_quantity, 0 ) total_scheduling_quantity
+        FROM
+        tech_enclosure a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        SUM(complete_quantity) produced_quantity,
+        SUM(task_quantity ) total_task_quantity,
+        SUM(scheduling_quantity ) total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        WHERE
+        product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()}
+        AND bool_delete_enum = 0
+        GROUP BY
+        product_id
+        ) AS b ON a.id = b.product_id
+        LEFT JOIN contract_project cp ON cp.id =a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id
+        LEFT JOIN plan_area pd ON pd.id =a.area_id
+        <where>
+            a.bool_delete_enum=FALSE
+            <if test="boolAbnormalEnum != null">
+                AND a.bool_abnormal_enum = #{boolAbnormalEnum}
+            </if>
+            <if test=" id != null  and  id != ''">
+                AND a. id = #{ id}
+            </if>
+            <if test=" projectId != null  and  projectId != ''">
+                AND a. project_id = #{ projectId}
+            </if>
+            <if test=" monomerId != null  and  monomerId != ''">
+                AND a. monomer_id = #{ monomerId}
+            </if>
+            <if test=" areaId != null  and  areaId != ''">
+                AND a. area_id = #{ areaId}
+            </if>
+            <if test=" boolStatusEnum != null  and  boolStatusEnum != ''">
+                AND a. bool_status_enum = #{ boolStatusEnum}
+            </if>
+            <if test=" category != null  and  category != ''">
+                AND a. category = #{ category}
+            </if>
+            <if test=" name != null  and  name != ''">
+                AND a. name = #{ name}
+            </if>
+            <if test=" serialNumber != null  and  serialNumber != ''">
+                AND a. serial_number = #{ serialNumber}
+            </if>
+            <if test=" plate != null  and  plate != ''">
+                AND a. plate = #{ plate}
+            </if>
+            <if test=" color != null  and  color != ''">
+                AND a. color = #{ color}
+            </if>
+            <if test=" material != null  and  material != ''">
+                AND a. material = #{ material}
+            </if>
+            <if test=" businessId != null  and  businessId != ''">
+                AND a. business_id = #{ businessId}
+            </if>
+            <if test=" brand != null  and  brand != ''">
+                AND a. brand = #{ brand}
+            </if>
+            <if test=" type != null">
+                AND a. type = #{ type}
+            </if>
+        </where>
+        GROUP BY a.id) as a
+        <where>
+            <if test="statusType==1">
+                and  a.total_scheduling_quantity=0
+            </if>
+            <if test="statusType==2">
+                and  a.total_scheduling_quantity>0 and a.quantity>total_scheduling_quantity
+            </if>
+            <if test="statusType==4">
+                and a.quantity=a.total_scheduling_quantity
+            </if>
+        </where>
+    </select>
+    <select id="listSchedulingMachinePartByCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingMachinePartDO">
+        SELECT a.* from (
+        SELECT
+        a.id,
+        a. bool_status_enum,
+        a. area_id,
+        a.material,
+        a.monomer_id,
+        a.project_id,
+        a.serial_number,
+        a.specification,
+        a.bool_abnormal_enum,
+        a.quantity,
+        a.length,
+        a.net_weight,
+        a.type,
+        cp.`name` project_name,
+        pm.`name` monomer_name,
+        pd.`name` Area_name,
+        IFNULL(b.produced_quantity, 0 ) produced_quantity,
+        IFNULL(b.total_task_quantity, 0 ) total_task_quantity,
+        IFNULL(b.total_scheduling_quantity, 0 ) total_scheduling_quantity
+        FROM
+        tech_machine_part a
+        LEFT JOIN (
+        SELECT
+        product_id,
+        SUM(complete_quantity) produced_quantity,
+        SUM(task_quantity ) total_task_quantity,
+        SUM(scheduling_quantity ) total_scheduling_quantity
+        FROM
+        mes_building_scheduling
+        WHERE
+        product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()}
+        AND bool_delete_enum = 0
+        GROUP BY
+        product_id
+        ) AS b ON a.id = b.product_id
+        LEFT JOIN contract_project cp ON cp.id =a.project_id
+        LEFT JOIN plan_monomer pm ON pm.id =a.monomer_id
+        LEFT JOIN plan_area pd ON pd.id =a.area_id
+        <where>
+            a.bool_delete_enum=FALSE AND a.relation_type=2 AND a.bool_scheduling_enum =TRUE
+            <if test="copy.boolAbnormalEnum != null">
+                AND a.bool_abnormal_enum = #{copy.boolAbnormalEnum}
+            </if>
+            <if test="copy.steelId != null">
+                AND a.steel_id = #{copy.steelId}
+            </if>
+            <if test="copy.steelId == null">
+                AND a.steel_id is null
+            </if>
+            <if test="copy.steelSpec != null and copy.steelSpec!='' and copy.steelSpec!='未分类'">
+                AND a.steel_spec = #{copy.steelSpec}
+            </if>
+            <if test="copy.steelSpec == null or copy.steelSpec==''">
+                AND a.steel_spec is null
+            </if>
+            <if test="copy.id != null  and copy.id != ''">
+                AND a.id = #{id}
+            </if>
+            <if test=" copy.boolStatusEnum != null  and  copy.boolStatusEnum != ''">
+                AND a. bool_status_enum = #{copy.boolStatusEnum}
+            </if>
+            <if test=" copy.areaId != null  and  copy.areaId != ''">
+                AND a. area_id = #{copy.areaId}
+            </if>
+            <if test="copy.material != null  and copy.material != ''">
+                AND a.material = #{copy.material}
+            </if>
+            <if test=" copy.monomerId != null  and  copy.monomerId != ''">
+                AND a. monomer_id = #{copy.monomerId}
+            </if>
+            <if test="copy.projectId != null  and copy.projectId != ''">
+                AND a.project_id = #{copy.projectId}
+            </if>
+            <if test="copy.serialNumber != null  and copy.serialNumber != ''">
+                AND a.serial_number = #{copy.serialNumber}
+            </if>
+            <if test="copy.specification != null  and copy.specification != ''">
+                AND a.specification = #{copy.specification}
+            </if>
+            <if test="copy.type != null  and copy.type != ''">
+                AND a.type = #{copy.type}
+            </if>
+            <if test=" copy.areaIds != null">
+                AND a.area_id IN
+                <foreach collection="copy.areaIds" item="areaId" open="(" close=")" separator=",">
+                    #{areaId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        a.id) as a
+        <where>
+            <if test="copy.statusType==1">
+                and  a.total_scheduling_quantity=0
+            </if>
+            <if test="copy.statusType==2">
+                and  a.total_scheduling_quantity>0 and a.quantity>total_scheduling_quantity
+            </if>
+            <if test="copy.statusType==4">
+                and a.quantity=a.total_scheduling_quantity
+            </if>
+        </where>
+    </select>
+    <select id="schedulingSummaryMachinePartByConditionList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.product.MesBuildingMachinePartSummaryDO">
+        SELECT
+        a.steel_spec,
+        a.steel_id,
+        steel.`name`,
+        ifnull( sum( a.quantity ), 0 ) quantity,
+        ifnull( sum( a.quantity * a.net_weight ), 0 ) total_net_weight,
+        ifnull( sum( a.quantity * a.gross_weight ), 0 ) total_gross_weight ,
+        ifnull( sum( b.total_scheduling_quantity ), 0 ) total_scheduling_quantity,
+        ifnull( sum( b.total_scheduling_quantity * a.net_weight ), 0 ) total_scheduling_net_weight,
+        ifnull( sum( b.total_scheduling_quantity * a.gross_weight ), 0 ) total_scheduling_gross_weight
+        from
+        tech_machine_part a
+        left join ( select product_id, sum( scheduling_quantity ) total_scheduling_quantity from mes_building_scheduling
+        where bool_delete_enum = false and product_type = ${@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()} group by product_id ) as b on a.id = b.product_id
+        left join sys_steel_classification steel on steel.id = a.steel_id
+        <where>
+            a.bool_delete_enum = false
+            and a.bool_scheduling_enum =true
+            and a.relation_type = 2
+            <if test="boolAbnormalEnum != null">
+                AND a.bool_abnormal_enum = #{boolAbnormalEnum}
+            </if>
+            <if test=" monomerId != null">
+                AND a. monomer_id = #{ monomerId}
+            </if>
+            <if test="projectId != null">
+                AND a.project_id = #{projectId}
+            </if>
+            <if test=" areaIds != null">
+                AND a.area_id IN
+                <foreach collection="areaIds" item="areaId" open="(" close=")" separator=",">
+                    #{areaId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        a.steel_id,
+        a.steel_spec,
+        steel.`name`
+        ORDER BY  a.steel_spec IS NULL ,case
+        WHEN a.steel_spec like '%*%' then 2
+        ELSE 1
+        end ,a.steel_spec*1
+    </select>
+    <select id="getScheduling"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingScheduling">
+        SELECT *
+        FROM mes_building_scheduling
+        WHERE
+            DATE ( create_time )= date (#{today})
+          AND DATE ( ask_complete_time )= date (#{askTime})
+          AND product_id=#{productId}
+          AND product_type=#{productType}
+          AND production_line_id=#{productionLineId}
+          AND task_quantity&lt;>0
+          AND bool_delete_enum=0
+            LIMIT 1
+    </select>
+
+    <select id="selectTotalScheduling" resultType="java.lang.Integer">
+        SELECT
+            IFNULL( sum( quantity ), 0 )
+        FROM
+            mes_building_artifact_scheduling
+        WHERE
+            bool_delete_enum = 0
+          AND product_id = #{productId}
+    </select>
+    <select id="getProductLine" resultType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+        select id, name
+        from mes_building_production_line
+        <where>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                AND product_type=#{productType}
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+                AND product_type=#{productType}
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+                AND product_type=#{productType}
+            </if>
+            <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                AND product_type=#{productType}
+            </if>
+            AND production_line_type_enum = 1
+            AND bool_enabled_enum=TRUE
+            AND bool_delete_enum=FALSE
+        </where>
+    </select>
+
+    <select id="selectSummaryData"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.building.ProductLineSummary">
+
+
+
+    </select>
+
+
+</mapper>

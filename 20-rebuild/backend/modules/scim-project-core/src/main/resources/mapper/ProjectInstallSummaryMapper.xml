@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectInstallSummaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectInstallSummary">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="category" property="category"/>
+        <result column="product_id" property="productId"/>
+        <result column="name" property="name"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="specification" property="specification"/>
+        <result column="actual_quantity" property="actualQuantity"/>
+        <result column="actual_mete" property="actualMete"/>
+        <result column="actual_total_area" property="actualTotalArea"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, product_type, category, product_id, name, serial_number, specification, actual_quantity, actual_mete, actual_total_area
+    </sql>
+
+    <select id="selectActualInstallMete" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectInstallMeteDO">
+        SELECT
+        IFNULL(SUM(actual_quantity), 0) AS actual_quantity,
+        IFNULL(SUM(actual_mete), 0) AS actual_mete,
+        IFNULL(SUM(actual_total_area), 0) AS actual_total_area
+        FROM project_install_summary
+        WHERE bool_delete_enum = 0
+        <if test="projectId !=null">
+            AND project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND area_id = #{areaId}
+        </if>
+        <if test="productType != null">
+            AND product_type = #{productType}
+        </if>
+        <if test="category != null">
+            AND category = #{category}
+        </if>
+    </select>
+
+    <!--安装看板-->
+    <select id="selectInstallBoard" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectInstallBoardDTO">
+        SELECT
+        temp_table.*,
+        temp_table.monomer_id as 'monomer.id',
+        m.name as 'monomer.name',
+        temp_table.area_id as 'area.id',
+        area.name as 'area.name'
+        FROM
+        (
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+
+            <if test="productType == 2">
+                SELECT
+                a.id product_id,
+                2 product_type,
+                a.monomer_id,
+                a.area_id,
+                a.name,
+                a.serial_number,
+                a.quantity,
+                IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) AS
+                install_status
+                FROM
+                tech_artifact AS a
+                LEFT JOIN project_install_summary AS pis ON a.id = pis.product_id AND pis.product_type = 2
+                AND a.project_id = pis.project_id AND pis.bool_delete_enum = 0
+            </if>
+
+            <if test="productType == 4">
+                SELECT
+                a.id product_id,
+                4 product_type,
+                a.category,
+                null as monomer_id,
+                null as area_id,
+                a.name,
+                a.serial_number,
+                a.quantity,
+                IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) AS install_status
+                FROM tech_enclosure AS a
+                LEFT JOIN project_install_summary AS pis
+                ON a.id = pis.product_id AND pis.product_type = 4 AND pis.bool_delete_enum = 0
+            </if>
+
+            <if test="productType ==8">
+                SELECT
+                a.id product_id,
+                8 product_type,
+                a.monomer_id,
+                a.area_id,
+                a.name,
+                a.quantity,
+                IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) install_status
+                FROM tech_standard_part AS a
+                LEFT JOIN project_install_summary AS pis
+                ON a.id = pis.product_id AND pis.product_type = 8 AND pis.bool_delete_enum = 0
+            </if>
+            </when>
+        </choose>
+
+        WHERE a.bool_delete_enum = 0
+        AND a.project_id = #{projectId}
+        <if test="monomerId != null and productType != 4">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="category != null">
+            AND a.category = #{category}
+        </if>
+        <if test="areaId != null and productType != 4">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="areaId != null and (projectType == 1 or projectType == 2) and productType == 4">
+            AND a.enclosure_plan_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ) as temp_table
+        left join plan_monomer as m on m.id = temp_table.monomer_id and m.bool_delete_enum = 0
+        left join plan_area as area on area.id = temp_table.area_id and temp_table.product_type != 4  and area.bool_delete_enum = 0
+        left join enclosure_plan as ep on ep.id = temp_table.area_id  and temp_table.product_type = 4 and ep.bool_delete_enum = 0
+        <where>
+            <if test="installStatus != null">
+                temp_table.install_status = #{installStatus}
+            </if>
+        </where>
+    </select>
+    <select id="selectInstallBoardV2" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectInstallBoardDTO">
+
+        SELECT
+        temp_table.*,
+        temp_table.monomer_id as 'monomer.id',
+        m.name as 'monomer.name',
+        temp_table.area_id as 'area.id',
+        area.name as 'area.name'
+        FROM
+        (
+        <choose>
+            <when test="projectType == 1 or projectType == 2">
+
+                <if test="productType == 2">
+                    SELECT
+                    a.id product_id,
+                    2 product_type,
+                    a.monomer_id,
+                    a.area_id,
+                    a.name,
+                    a.serial_number,
+                    a.quantity,
+                    IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                    ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) AS
+                    install_status
+                    FROM
+                    tech_artifact AS a
+                    LEFT JOIN project_install_summary AS pis ON a.id = pis.product_id AND pis.product_type = 2
+                    AND a.project_id = pis.project_id AND pis.bool_delete_enum = 0
+                </if>
+
+                <if test="productType == 4">
+                    SELECT
+                    a.id product_id,
+                    4 product_type,
+                    a.category,
+                    null as monomer_id,
+                    null as area_id,
+                    a.name,
+                    a.serial_number,
+                    a.quantity,
+                    IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                    ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) AS install_status
+                    FROM tech_enclosure AS a
+                    LEFT JOIN project_install_summary AS pis
+                    ON a.id = pis.product_id AND pis.product_type = 4 AND pis.bool_delete_enum = 0
+                </if>
+
+                <if test="productType ==8">
+                    SELECT
+                    a.id product_id,
+                    8 product_type,
+                    a.monomer_id,
+                    a.area_id,
+                    a.name,
+                    a.quantity,
+                    IFNULL( pis.actual_quantity, 0 ) AS install_quantity,
+                    ( CASE IFNULL( pis.actual_quantity, 0 ) WHEN 0 THEN 1 WHEN a.quantity THEN 4 ELSE 2 END ) install_status
+                    FROM tech_standard_part AS a
+                    LEFT JOIN project_install_summary AS pis
+                    ON a.id = pis.product_id AND pis.product_type = 8 AND pis.bool_delete_enum = 0
+                </if>
+            </when>
+        </choose>
+        WHERE a.bool_delete_enum = 0
+        AND a.project_id = #{projectId}
+        <if test="monomerId != null and productType != 4">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="name != null and name != ''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        ) as temp_table
+        left join plan_monomer as m on m.id = temp_table.monomer_id and m.bool_delete_enum = 0
+        left join plan_area as area on area.id = temp_table.area_id and temp_table.product_type != 4  and area.bool_delete_enum = 0
+        left join enclosure_plan as ep on ep.id = temp_table.area_id  and temp_table.product_type = 4 and ep.bool_delete_enum = 0
+        <where>
+            <if test="installStatus != null">
+                temp_table.install_status = #{installStatus}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

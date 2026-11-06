@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.WasteSaleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.WasteSale">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="sale_date" property="saleDate"/>
+        <result column="branch_company_id" property="branchCompanyId"/>
+        <result column="contract_waste_id" property="contractWasteId"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="creator_remark" property="creatorRemark"/>
+        <result column="audit_status_enum" property="auditStatusEnum"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="auditor_remark" property="auditorRemark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, sale_date, branch_company_id, contract_waste_id, plate_number, total_amount, create_user_id, creator_remark, audit_status_enum, audit_user_id, audit_time, auditor_remark
+    </sql>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.WasteSaleDTO">
+        select
+        ws.*,
+        cw.serial_number,
+        cw.purchaser,
+        bc.name as branch_company_name,
+        u1.name as create_user_name,
+        u2.name as audit_user_name
+        from wms_waste_sale as ws
+        left join wms_waste_sale_detail as wsd on ws.id = wsd.waste_sale_id
+        left join contract_waste as cw on ws.contract_waste_id = cw.id
+        left join sys_branch_company as bc on ws.branch_company_id = bc.id
+        left join sys_user as u1 on ws.create_user_id = u1.id
+        left join sys_user as u2 on ws.audit_user_id = u2.id
+        where ws.bool_delete_enum = 0
+        and wsd.bool_delete_enum = 0
+        <if test="auditStatusEnum != null">
+            AND ws.audit_status_enum = #{auditStatusEnum}
+        </if>
+        <if test="startDate != null">
+            AND DATE(ws.sale_date) &gt;= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE(ws.sale_date) &lt;= DATE(#{endDate})
+        </if>
+        <if test="branchCompanyId != null">
+            AND ws.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="plateNumber != null and plateNumber != ''">
+            AND ws.plate_number like concat('%',#{plateNumber},'%')
+        </if>
+        <if test="contractWasteId != null">
+            AND ws.contract_waste_id = #{contractWasteId}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND cw.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            AND cw.purchaser like concat('%',#{purchaser},'%')
+        </if>
+        <if test="wasteClassificationId != null">
+            AND wsd.waste_classification_id = #{wasteClassificationId}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            AND u1.name like concat('%',#{createUserName},'%')
+        </if>
+        <if test="auditUserName != null and auditUserName != ''">
+            AND u2.name like concat('%',#{auditUserName},'%')
+        </if>
+        GROUP BY ws.id
+        ORDER BY ws.audit_status_enum, ws.sale_date DESC, ws.id DESC
+
+    </select>
+    <select id="getWasteSaleMeteDetail" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsDateMeteDTO">
+        SELECT
+        y_t.`year` as `dateTime`,
+        IFNULL(temp1.mete, 0) as mete
+        FROM (
+        <foreach collection="dateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y-%m') as `year`
+        </foreach>
+        ) y_t
+        LEFT JOIN
+        (
+        select
+        DATE_FORMAT(ws.sale_date, "%Y-%m") as `dateTime`,
+        sum(wsd.sale_mete) as mete
+        from wms_waste_sale as ws
+        right join wms_waste_sale_detail as wsd on ws.id = wsd.waste_sale_id
+        left join contract_waste as cw on ws.contract_waste_id = cw.id
+        left join sys_branch_company as bc on ws.branch_company_id = bc.id
+        where ws.bool_delete_enum = 0
+        and wsd.bool_delete_enum = 0
+        <if test="branchCompanyId != null">
+            AND ws.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="yearDate!=null">
+            AND DATE_FORMAT(ws.sale_date, "%Y") = DATE_FORMAT(#{yearDate}, "%Y")
+        </if>
+        group by DATE_FORMAT(ws.sale_date, "%Y-%m")
+        ) AS temp1 ON temp1.dateTime = y_t.`year`
+    </select>
+    <select id="getWasteSaleMete" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.WmsDateMeteDTO">
+        SELECT
+        y_t.`year` as `dateTime`,
+        IFNULL(temp1.mete, 0) as mete
+        FROM (
+        <foreach collection="dateList" item="i" separator="UNION ALL">
+            select DATE_FORMAT(#{i}, '%Y') as `year`
+        </foreach>
+        ) y_t
+        LEFT JOIN
+        (
+        select
+        DATE_FORMAT(ws.sale_date, "%Y") as `dateTime`,
+        sum(wsd.sale_mete) as mete
+        from wms_waste_sale as ws
+        right join wms_waste_sale_detail as wsd on ws.id = wsd.waste_sale_id
+        left join contract_waste as cw on ws.contract_waste_id = cw.id
+        left join sys_branch_company as bc on ws.branch_company_id = bc.id
+        where ws.bool_delete_enum = 0
+        and wsd.bool_delete_enum = 0
+        <if test="branchCompanyId != null">
+            AND ws.branch_company_id = #{branchCompanyId}
+        </if>
+        group by DATE_FORMAT(ws.sale_date, "%Y")
+        ) AS temp1 ON temp1.dateTime = y_t.`year`
+    </select>
+
+</mapper>

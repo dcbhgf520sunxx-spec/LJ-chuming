@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardProductLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardProductLink">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="tech_capp_craft_card_storehouse_id" property="techCappCraftCardStorehouseId"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_serial_number" property="productSerialNumber"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="craft_type" property="craftType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , product_id, tech_capp_craft_card_storehouse_id, product_type, product_serial_number, monomer_id, area_id, craft_type
+    </sql>
+    <select id="list" resultType="com.hzchum.scim.plan.core.api.pojo.vo.CappCraftCardProductLinkVO"
+            parameterType="com.hzchum.scim.plan.core.api.pojo.dto.CappCraftCardProductLinkListDTO">
+        select
+        tccpl.id as id,
+        product.id as productId,
+        tccpw.welding_serial_number as weldSerialNumber,
+        product.name as productName,
+        <if test="productType==@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            product.initial_serial_number as productSerialNumber,
+        </if>
+        <if test="productType!=@com.hzchum.scim.plan.core.api.enums.DrawingProductTypeEnum@ASSEMBLE.getType()">
+            product.serial_number as productSerialNumber,
+        </if>
+        product.specification as productSpecification,
+        product.length as productLength,
+        product.material as productMaterial,
+        product.quantity as weldCount,
+        product.drawing_number as productDwgNum,
+        tccs.id as techCappCraftCardStorehouseId,
+        tccs.serial_number techCappCraftCardStorehouseSerialNumber,
+        tccpw.craft_type as craftType,
+        CASE
+        WHEN EXISTS (
+        SELECT 1
+        FROM tech_capp_craft_product_task tpk
+        WHERE tpk.product_id = product.id AND tpk.bool_delete_enum = 0
+        LIMIT 1
+        ) THEN true
+        ELSE false
+        END as isIssued
+        from
+        tech_capp_craft_card_product_welding tccpw
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            inner join tech_artifact as product on tccpw.serial_number = product.serial_number and
+            product.bool_delete_enum = 0
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            inner join tech_assemble as product on tccpw.serial_number = product.initial_serial_number and
+            product.bool_delete_enum = 0
+        </if>
+        left join tech_capp_craft_card_product_link as tccpl on product.id = tccpl.product_id and
+        tccpl.welding_serial_number = tccpw.welding_serial_number and tccpl.bool_delete_enum = 0
+        left join tech_capp_craft_card_storehouse as tccs on tccpl.tech_capp_craft_card_storehouse_id = tccs.id
+        <where>
+            tccpw.bool_delete_enum = 0
+            and tccpw.monomer_id = #{monomerId}
+            <if test="productType != null">
+                and tccpw.product_type = #{productType}
+            </if>
+            <if test="monomerId != null">
+                and product.monomer_id = #{monomerId}
+            </if>
+            <if test="isBind != null and isBind == true">
+                and tccpl.product_id is not null
+            </if>
+            <if test="isBind != null and isBind == false">
+                and tccpl.product_id is null
+            </if>
+            <if test="areaId != null">
+                and product.area_id = #{areaId}
+            </if>
+            <if test="craftType != null ">
+                and tccpw.craft_type = #{craftType}
+            </if>
+            <if test="batchNumber != null and batchNumber != ''">
+                and te.batch_number like concat('%',#{batchNumber},'%')
+            </if>
+            <if test="productSpecification != null and productSpecification != ''">
+                and product.specification like concat('%',#{productSpecification},'%')
+            </if>
+            <if test="productMaterial != null and productMaterial != ''">
+                and product.material like concat('%',#{productMaterial},'%')
+            </if>
+            <if test="weldSerialNumber != null and weldSerialNumber != ''">
+                and tccpw.welding_serial_number like concat('%',#{weldSerialNumber},'%')
+            </if>
+            <if test="productName != null and productName != ''">
+                and product.name like concat('%',#{productName},'%')
+            </if>
+            <if test="productSerialNumber != null and productSerialNumber != '' ">
+                and product.serial_number like concat('%',#{productSerialNumber},'%')
+            </if>
+            <if test="techCappCraftCardStorehouseSerialNumber != null and techCappCraftCardStorehouseSerialNumber != ''">
+                and tccs.serial_number like
+                concat('%',#{techCappCraftCardStorehouseSerialNumber},'%')
+            </if>
+            <if test="productDwgNum != null and productDwgNum != ''">
+                and product.drawing_number like concat('%',#{productDwgNum},'%')
+            </if>
+        </where>
+        ORDER BY
+        tccpw.create_time IS NULL,
+        tccpw.create_time DESC
+    </select>
+
+</mapper>

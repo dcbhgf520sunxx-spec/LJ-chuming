@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftCardStorehouseTemperatureLinkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftCardStorehouseTemperatureLink">
+        <id column="id" property="id" />
+        <result column="thickness" property="thickness" />
+        <result column="preheating_temperature" property="preheatingTemperature" />
+        <result column="road_temperature" property="roadTemperature" />
+        <result column="tech_capp_craft_card_storehouse_id" property="techCappCraftCardStorehouseId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, thickness, preheating_temperature, road_temperature, tech_capp_craft_card_storehouse_id
+    </sql>
+
+</mapper>

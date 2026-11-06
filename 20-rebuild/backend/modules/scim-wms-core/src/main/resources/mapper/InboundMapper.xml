@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.InboundMapper">
+
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Inbound">
+        SELECT
+        *
+        FROM wms_inbound
+        where
+        bool_delete_enum = 0
+        <if test=" inboundWay != null">
+            and inbound_way = #{inboundWay}
+        </if>
+        <if test=" qualityTestingEnum != null">
+            and quality_testing_enum &amp; #{qualityTestingEnum} &gt; 0
+        </if>
+        <if test="reviewStatus != null">
+            and review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipmentNumber != null and shipmentNumber != '' ">
+            and shipment_number like CONCAT('%', #{shipmentNumber},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+            and license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+        <if test="createTime != null and createTime.size()>0">
+            <if test="createTime[0] != null">
+                and create_time &gt; #{createTime[0]}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt; #{createTime[1]}
+            </if>
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and purchase_SN like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and bool_party_a = 0
+        </if>
+        <if test=" supplierId != null ">
+            and supplier_id = #{supplierId}
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (editor_name like CONCAT('%', #{operatorName},'%')
+            or reviewer_name like CONCAT('%', #{operatorName},'%')
+            or applicant_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1">
+            and project_ids is null
+        </if>
+        <if test=" projectWarehouseType == 2 ">
+            and project_ids is not null
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},project_ids)
+        </if>
+        <if test="rejectStatus != null and rejectStatus.size()>0">
+            and reject_status in
+            <foreach collection="rejectStatus" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+
+    <!--根据订单id 获取入库累计金额-->
+    <select id="selectInboundSum" resultType="java.math.BigDecimal">
+        select
+        IFNULL(sum(wid.amount), 0)
+        from wms_inbound as wi,
+        wms_inbound_detail as wid
+        where wi.bool_delete_enum = 0
+        and wid.bool_delete_enum = 0
+        and wi.id = wid.inbound_id
+        <if test="purchaseOrderId != null">
+            and wi.purchase_id = #{purchaseOrderId}
+        </if>
+        <if test="reviewStatus != null">
+            and wi.review_status = #{reviewStatus}
+        </if>
+    </select>
+    <select id="list" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.Inbound">
+        select wi.*
+        from wms_inbound wi
+        left join scm_purchase_order spo on wi.purchase_id = spo.id
+        left join wms_inbound_detail wid on wi.id = wid.inbound_id
+        where
+        wi.bool_delete_enum = 0
+        and wi.review_status = 2
+        <if test="rejectStatus != null">
+            and wi.reject_status = #{rejectStatus}
+        </if>
+        <if test="inboundWay != null">
+            and wi.inbound_way = #{inboundWay}
+        </if>
+        <if test="branchCompanyId != null">
+            and spo.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test=" basicClass != null">
+            and wi.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wi.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="shipmentNumber != null and shipmentNumber != '' ">
+            and wi.shipment_number like CONCAT('%', #{shipmentNumber},'%')
+        </if>
+        <if test="licensePlate != null and licensePlate != '' ">
+            and wi.license_plate like CONCAT('%', #{licensePlate},'%')
+        </if>
+        <if test="inboundTime != null and inboundTime.size()>0">
+            <if test="inboundTime[0] != null">
+                and wi.review_time &gt; #{inboundTime[0]}
+            </if>
+            <if test="inboundTime[1] != null">
+                and wi.review_time &lt; #{inboundTime[1]}
+            </if>
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wi.purchase_SN like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="orderSupplyType == 2 ">
+            and wi.bool_party_a = 1
+        </if>
+        <if test="orderSupplyType == 1 ">
+            and wi.bool_party_a = 0
+        </if>
+        <if test=" supplierId != null ">
+            and wi.supplier_id = #{supplierId}
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and (wi.editor_name like CONCAT('%', #{operatorName},'%')
+            or wi.applicant_name like CONCAT('%', #{operatorName},'%')
+            or wi.reviewer_name like CONCAT('%', #{operatorName},'%'))
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wi.project_ids  is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wi.project_ids  IS NOT NULL
+        </if>
+        <if test=" projectId != null ">
+            and find_in_set(#{projectId},wi.project_ids)
+        </if>
+        <if test="workshopIds != null and workshopIds.size() > 0">
+            and wid.workshop_id in
+            <foreach collection="workshopIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        group by wi.id
+    </select>
+
+    <update id="updateEditable">
+        UPDATE wms_inbound
+        SET editable = #{value}
+        WHERE original_id = #{id}
+          and bool_delete_enum = 0
+    </update>
+
+    <select id="selectInboundAmountSum" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(amount), 0)
+        FROM wms_inbound
+        WHERE bool_delete_enum = 0
+        AND review_status = 2
+        <if test="purchaseId != null">
+            AND purchase_id =#{purchaseId}
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id =#{supplierId}
+        </if>
+    </select>
+
+    <select id="selectInboundAmountSumV2" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(amount_no_freight), 0)
+        FROM wms_inbound
+        WHERE bool_delete_enum = 0
+        AND review_status = 2
+        <if test="purchaseId != null">
+            AND purchase_id =#{purchaseId}
+        </if>
+        <if test="supplierId != null">
+            AND supplier_id =#{supplierId}
+        </if>
+    </select>
+    <select id="getConstructionInboundDetailList" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.ConstructionInboundDetailDTO">
+        select
+        record.id id,
+        detail.id as purchaseDetailId,
+        record.quantity as quantity,
+        record.mete as mete,
+        record.create_time as applicantDate,
+        record.measure_unit as unit,
+        record.accounting_unit as accountingUnit,
+        record.actual_received_mete as actualReceivedMete,
+        record.reject_quantity as rejectQuantity,
+        record.reject_mete as rejectMete,
+        record.reject_actual_received_mete as rejectActualReceivedMete,
+        operate.user_id as 'applicant.id',
+        operate.user_name as 'applicant.name'
+        from project_receiving_record record
+        left join scm_purchase_order_detail detail on detail.id = record.purchase_details_id  and detail.bool_delete_enum = 0
+        left join project_purchase_order_received_operate_record as operate on operate.id = record.operate_record_id
+        where record.bool_delete_enum = 0
+        and record.source_type = 2
+        <if test="detailIds != null and detailIds.size()>0">
+            and record.purchase_details_id in
+            <foreach collection="detailIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by record.create_time desc
+    </select>
+
+    <select id="selectAPPInboundDetailDTO" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.AppInboundDetailDTO">
+        SELECT
+        wms_inbound_detail.id,
+        wms_inbound.id inboundId,
+        wms_inbound_detail.create_time,
+        wms_inbound.applicant_name,
+        wms_inbound_detail.thickness,
+        wms_inbound_detail.specification,
+        wms_inbound_detail.area,
+        wms_inbound_detail.create_time,
+        wms_inbound_detail.workshop_id,
+        wms_inbound_detail.nest_surplus_code,
+        wms_inbound_detail.classify_id,
+        wms_inbound_detail.classify_name,
+        wms_inbound_detail.mete,
+        wms_inbound.review_status,
+        wms_inbound_detail.dxf_url,
+        wms_inbound_detail.img_url
+        FROM
+        wms_inbound_detail wms_inbound_detail
+        LEFT JOIN wms_inbound wms_inbound ON wms_inbound_detail.inbound_id = wms_inbound.id
+        WHERE
+        wms_inbound_detail.bool_delete_enum = 0
+        <if test="boolNestSurplus != null">
+            AND wms_inbound_detail.bool_nest_surplus =#{boolNestSurplus}
+        </if>
+        <if test="reviewStatus != null">
+            AND wms_inbound.review_status = #{reviewStatus}
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,46 @@
+{
+  "name": "lj-aps-recovered-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node --max-old-space-size=8192 ./node_modules/vite/bin/vite.js build",
+    "dev": "vite --host 127.0.0.1 --port 3120 --strictPort",
+    "test": "node tools/test.mjs",
+    "verify:static": "node tools/verify-static-coverage.mjs"
+  },
+  "dependencies": {
+    "vue": "3.5.17",
+    "vue-router": "4.5.1",
+    "vuex": "4.1.0",
+    "element-plus": "2.14.7",
+    "@element-plus/icons-vue": "2.3.1",
+    "jsencrypt": "3.5.4",
+    "axios": "0.22.0",
+    "qs": "6.10.1",
+    "lodash": "4.17.21",
+    "moment": "2.30.1",
+    "convert-units": "2.3.4",
+    "qrcode.vue": "3.6.0",
+    "jr-qrcode": "1.1.4",
+    "xlsx": "0.17.5",
+    "xlsx-legacy": "npm:xlsx@0.16.8",
+    "pdf-lib": "1.17.1",
+    "jszip": "3.10.1",
+    "nprogress": "0.2.0",
+    "vue3-tree-org": "4.2.2",
+    "vxe-table": "4.13.50",
+    "vxe-pc-ui": "4.6.41",
+    "@vxe-ui/core": "4.1.5",
+    "xe-utils": "3.7.4"
+  },
+  "devDependencies": {
+    "vite": "7.3.1",
+    "@babel/parser": "7.28.5",
+    "esbuild": "0.27.4"
+  },
+  "overrides": {
+    "@vxe-ui/core": "4.1.5",
+    "xe-utils": "3.7.4"
+  }
+}

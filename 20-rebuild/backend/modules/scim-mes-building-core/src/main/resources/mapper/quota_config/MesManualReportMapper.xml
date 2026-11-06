@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.quota_config.MesManualReportMapper">
+
+    <select id="unreportedEnclosureList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesManualReportDTO">
+        SELECT
+            FALSE AS bool_assist,
+            met.id AS task_id,
+            p.id 'project.id',
+            p.`name` 'project.name',
+            p.short_name 'project.short_name',
+            p.serial_number 'project.serial_number',
+            m.id 'monomer.id',
+            m.`name` 'monomer.name',
+            a.id 'area.id',
+            a.`name` 'area.name',
+            product.id AS 'product.id',
+            product.serial_number AS 'product.serial_number',
+            product.plate AS 'product.plate',
+            product.monomer_id AS 'product.monomer_id',
+            dict.id AS 'product.dictionary_id',
+            dict.label AS 'product.dictionary_label',
+            (met.task_quantity - met.complete_quantity) AS unreported_quantity
+        FROM mes_enclosure_task met
+        LEFT JOIN tech_enclosure product ON product.id = met.product_id
+        left JOIN sys_dictionary dict ON dict.id = product.dictionary_id
+        left join contract_project p ON p.id = met.project_id
+        left join plan_monomer m ON m.id = met.monomer_id
+        left join plan_area a ON a.id = met.area_id
+        WHERE met.bool_delete_enum = 0
+          AND met.task_quantity > met.complete_quantity
+          AND met.workshop_id = #{workshopId}
+          AND met.process_id = #{processId}
+          and met.team_id = #{teamId}
+          and met.project_id = #{projectId}
+          and met.monomer_id = #{monomerId}
+          and met.area_id = #{areaId}
+        <if test="dictionaryId != null">
+            and dict.id = #{dictionaryId}
+        </if>
+        <if test="productSerialNumber != null and productSerialNumber != ''">
+            and product.serial_number LIKE concat('%', #{productSerialNumber}, '%')
+        </if>
+    </select>
+
+    <select id="flexibleProcessUnreportedList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.quota_config.MesManualReportDTO">
+        SELECT
+            FALSE AS bool_assist,
+            task.id AS task_id,
+            (task.task_quantity - IFNULL(t1.reported_quantity, 0)) AS unreported_quantity,
+            product.id AS 'product.id',
+            product.serial_number AS 'product.serial_number',
+            product.name AS 'product.name',
+            product.specification AS 'product.specification',
+            product.monomer_id AS 'product.monomerId',
+            p.id 'project.id',
+            p.`name` 'project.name',
+            p.short_name 'project.short_name',
+            p.serial_number 'project.serial_number',
+            m.id 'monomer.id',
+            m.`name` 'monomer.name',
+            a.id 'area.id',
+            a.`name` 'area.name'
+        FROM mes_building_task task
+        LEFT JOIN (
+                SELECT
+                    mbptr.task_id,
+                    SUM(mbptr.inspection_quantity) AS reported_quantity
+                FROM mes_building_produce_team_report mbptr
+                WHERE mbptr.bool_delete_enum = 0
+                    AND mbptr.process_id = #{processId}
+                    and mbptr.team_id = #{teamId}
+                GROUP BY mbptr.task_id
+                ) t1 ON t1.task_id = task.id
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact product ON task.product_id = product.id
+            LEFT JOIN sys_structure_classification class ON product.structure_class_id = class.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble product ON task.product_id = product.id
+            LEFT JOIN sys_assemble_config class ON product.assemble_config_id = class.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part product ON task.product_id = product.id
+            LEFT JOIN sys_steel_classification class ON product.steel_id = class.id
+        </if>
+        LEFT JOIN contract_project p ON p.id = task.project_id AND p.bool_delete_enum = FALSE
+        LEFT JOIN plan_monomer m ON m.id = task.monomer_id AND m.bool_delete_enum = FALSE
+        LEFT JOIN plan_area a ON a.id = task.area_id AND a.bool_delete_enum = FALSE
+        WHERE task.bool_delete_enum = 0
+            AND task.task_quantity > IFNULL(t1.reported_quantity, 0)
+            AND task.task_type_enum &amp; #{productType}
+            AND task.workshop_id = #{workshopId}
+            and task.project_id = #{projectId}
+            and task.monomer_id = #{monomerId}
+            and task.area_id = #{areaId}
+            <if test="productClassId != null">
+                and class.id = #{productClassId}
+            </if>
+            <if test="productSerialNumber != null and productSerialNumber != ''">
+                and product.serial_number LIKE concat('%', #{productSerialNumber}, '%')
+            </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingAreaSchedulingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.scheduling.MesBuildingAreaScheduling">
+        <id column="id" property="id"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="version" property="version"/>
+        <result column="area_id" property="areaId"/>
+        <result column="end_date" property="endDate"/>
+        <result column="factory_id" property="factoryId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="production_line_id" property="productionLineId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="user_id" property="userId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="product_type" property="productType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bool_delete_enum
+        ,
+        create_time,
+        update_time,
+        version,
+        id, area_id, end_date, factory_id, monomer_id, production_line_id, project_id, start_date, user_id, workshop_id, product_type
+    </sql>
+    <select id="getProjectScheduling"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.ProjectSchedulingDO">
+        SELECT
+        project.create_time,
+        project.serial_number 'project.serial_number',
+        project.id 'project.id',
+        project.`name` 'project.name',
+        project.short_name 'project.short_name',
+        project.start_date,
+        project.end_date,
+        TIMESTAMPDIFF(DAY,project.start_date,project.end_date) as `construction_day`,
+        IFNULL( artifact.quantity, 0 ) quantity,
+        IFNULL( artifact.total_net_weight, 0 ) total_net_weight,
+        IFNULL( scheduling.quantity, 0 ) scheduling_quantity,
+        IFNULL( scheduling.total_net_weight, 0 ) scheduling_total_net_weight,
+        CASE
+        IFNULL( artifact.quantity, 0 )- IFNULL( scheduling.quantity, 0 )
+        WHEN 0 THEN
+        CASE
+        IFNULL( artifact.quantity, 0 )
+        WHEN 0 THEN
+        1 ELSE 4
+        END
+        WHEN IFNULL( artifact.quantity, 0 ) THEN
+        1 ELSE 2
+        END `status`,
+        IFNULL(smbas.production_scheduling_quantity, 0) AS production_scheduling_quantity,
+        IFNULL(smbas.production_scheduling_weight, 0) AS production_scheduling_weight
+        FROM
+        contract_project project
+        LEFT JOIN ( SELECT project_id, sum( quantity ) quantity, sum( quantity * net_weight ) total_net_weight FROM
+        tech_artifact WHERE bool_delete_enum = 0 GROUP BY project_id ) AS artifact ON artifact.project_id = project.id
+        LEFT JOIN (
+        SELECT
+        a.project_id,
+        sum( a.quantity ) quantity,
+        sum( a.total_net_weight ) total_net_weight
+        FROM
+        (
+        SELECT
+        area.project_id,
+        area.id,
+        scheduling.quantity quantity,
+        scheduling.total_net_weight total_net_weight
+        FROM
+        plan_area_batch area
+        LEFT JOIN (
+        SELECT
+        scheduling.area_batch_id,
+        artifact.quantity,
+        artifact.total_net_weight
+        FROM
+        mes_building_area_scheduling scheduling
+        LEFT JOIN ( SELECT area_batch_id, sum(quantity)quantity, sum(quantity * net_weight) total_net_weight FROM
+        tech_artifact WHERE bool_delete_enum = 0 GROUP BY area_batch_id ) AS artifact ON artifact.area_batch_id = scheduling.area_batch_id
+        WHERE
+        scheduling.bool_delete_enum = FALSE
+        AND scheduling.start_date IS NOT NULL
+        <if test="endTimeList != null and endTimeList.size > 1">
+            and  date_format(scheduling.end_date, '%Y/%m/%d')  &lt;= date_format(#{endTimeList[0]}, '%Y/%m/%d')
+            and  date_format(scheduling.end_date, '%Y/%m/%d')  >= date_format(#{endTimeList[1]}, '%Y/%m/%d')
+        </if>
+        ) AS scheduling ON area.id = scheduling.area_batch_id
+        WHERE
+        area.bool_delete_enum = 0
+        ) AS a
+        GROUP BY
+        a.project_id
+        ) AS scheduling ON scheduling.project_id = project.id
+        LEFT JOIN (
+        SELECT
+        mbas.project_id,
+        SUM(mbas.quantity) AS production_scheduling_quantity,
+        SUM(mbas.quantity * ta.net_weight) AS production_scheduling_weight
+        FROM mes_building_artifact_scheduling mbas
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = mbas.product_id
+        WHERE mbas.bool_delete_enum = FALSE
+        GROUP BY mbas.project_id
+        ) smbas ON smbas.project_id = project.id
+        WHERE
+        project.bool_delete_enum = 0
+        AND project.settlement_status = 0
+        AND project.`status` &amp; 1
+        AND project.product_category &amp; 2
+        AND project.project_type &amp;3
+        <if test="dateTime!=null">
+            AND date_format(project.create_time, '%Y') = date_format(#{dateTime}, '%Y')
+        </if>
+        <if test="status==1">
+            AND IFNULL( scheduling.quantity, 0 )=0
+        </if>
+        <if test="status==2">
+            AND IFNULL( scheduling.quantity, 0 )!=IFNULL( artifact.quantity, 0 ) AND IFNULL( scheduling.quantity, 0 )!=0
+        </if>
+        <if test="status==4">
+            AND IFNULL( scheduling.quantity, 0 )=IFNULL( artifact.quantity, 0 ) AND IFNULL( scheduling.quantity, 0 )!=0
+        </if>
+        <if test="endDate!=null">
+            AND date(project.end_date, '%Y-%m-%d') &lt;= date(#{dateTime}, '%Y-%m-%d')
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            and project.id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        order by project.create_time desc
+    </select>
+    <select id="getAreaSchedulingList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.AreaSchedulingDO">
+        SELECT project.id 'project.id',
+               project.serial_number 'project.serial_number',
+               project.`name` 'project.name',
+               project.short_name 'project.short_name',
+               monomer.id 'monomer.id',
+               monomer.`name` 'monomer.name',
+               monomer.`building_type_enum` 'monomer.buildingTypeEnum',
+                case monomer.`building_type_enum`
+                    WHEN 1 THEN 1
+                        when 2 then 2
+                            when 4 then 2 end mesProductEnum,
+              area.id 'area.id',
+              area.`name` 'area.name',
+               factory.id 'factory.id',
+               factory.`name` 'factory.name',
+               workshop.id 'workshop.id',
+               workshop.`name` 'workshop.name',
+               production_line.id 'production_line.id',
+               production_line.`name` 'production_line.name',
+               areaBatch.id 'areaBatch.id',
+               areaBatch.`name` 'areaBatch.name',
+               areaBatch.`process_end_date` 'closing_date',
+               ifnull(TIMESTAMPDIFF(DAY,areaBatch.process_start_date, scheduling.end_date) + 1,TIMESTAMPDIFF(DAY,areaBatch.process_start_date, areaBatch.process_end_date) + 1) as `construction_day`,
+               scheduling.start_date,
+               scheduling.id,
+               <!--如果设置交货日期为空，则设置该日期为计划管理中区域的加工计划结束时间-->
+               IFNULL(scheduling.end_date, area.process_end_date) as end_date,
+               IFNULL(artifact.quantity, 0)                         quantity,
+               IFNULL(artifact.total_net_weight, 0)                 total_net_weight
+        FROM plan_area_batch areaBatch
+                 LEFT JOIN (SELECT
+                            area_batch_id,
+                            sum(quantity) quantity,
+                            sum(quantity * net_weight) total_net_weight
+                            FROM tech_artifact
+                            WHERE bool_delete_enum = 0
+                            GROUP BY area_batch_id) AS artifact ON artifact.area_batch_id = areaBatch.id
+                 LEFT JOIN mes_building_area_scheduling scheduling
+                           ON areaBatch.id = scheduling.area_batch_id AND scheduling.bool_delete_enum = 0
+                 LEFT JOIN contract_project project ON project.id = areaBatch.project_id AND project.bool_delete_enum = FALSE
+                 LEFT JOIN plan_monomer monomer ON monomer.id = areaBatch.monomer_id AND monomer.bool_delete_enum = FALSE
+                 LEFT JOIN plan_area area ON area.id = areaBatch.area_id AND area.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_factory factory
+                           ON factory.id = scheduling.factory_id AND factory.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_workshop workshop
+                           ON workshop.id = scheduling.workshop_id AND workshop.bool_delete_enum = FALSE
+                 LEFT JOIN mes_building_production_line production_line
+                           ON production_line.id = scheduling.production_line_id AND
+                              production_line.bool_delete_enum = FALSE
+        WHERE areaBatch.bool_delete_enum = 0
+          AND areaBatch.product_category &amp; 2
+          and area.project_plan_product_category = 2
+          AND project.settlement_status=0
+          AND project.project_type &amp;3
+          AND project.status=1
+          AND areaBatch.project_id=#{projectId}
+    </select>
+    <select id="getSumMeteByCondition" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProductMeteDTO">
+        SELECT
+        IFNULL(SUM(a.quantity), 0) quantity,
+        IFNULL(SUM(a.total_net_weight), 0) mete
+        FROM
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            tech_artifact a
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@ASSEMBLE.getType()">
+            tech_assemble a
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            tech_machine_part a
+        </if>
+        where
+        a.bool_delete_enum=FALSE
+
+        <if test="projectId">
+            AND a.project_id=#{projectId}
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.ProductTypeEnum@MACHINE_PART.getType()">
+            AND relation_type IN (2,16)
+        </if>
+    </select>
+
+    <resultMap id="ProjectSchedulingDetailDO"
+               type="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.ProjectSchedulingTreeDO">
+        <id column="project_id" property="id"/>
+        <result column="project_name" property="name"/>
+        <result column="project_serial_number" property="serialNumber"/>
+        <result column="project_short_name" property="shortName"/>
+        <collection property="monomerSchedulingTreeDO" resultMap="monomerSchedulingDetailDO">
+        </collection>
+    </resultMap>
+
+    <resultMap id="monomerSchedulingDetailDO"
+               type="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MonomerSchedulingTreeDO">
+        <result column="monomer_name" property="name"/>
+        <result column="monomer_id" property="id"/>
+        <collection property="areaSchedulingTreeDO"
+                    ofType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.AreaSchedulingTreeDO">
+            <result column="area_name" property="name"/>
+            <result column="area_id" property="id"/>
+            <result column="start_date" property="startDate"/>
+            <result column="end_date" property="endDate"/>
+            <result column="quantity" property="quantity"/>
+            <result column="total_net_weight" property="totalNetWeight"/>
+            <result column="scheduling_quantity" property="schedulingQuantity"/>
+            <result column="scheduling_total_net_weight" property="schedulingTotalNetWeight"/>
+            <result column="factory_id" property="factory.id"/>
+            <result column="factory_name" property="factory.name"/>
+            <result column="workshop_id" property="workshop.id"/>
+            <result column="workshop_name" property="workshop.name"/>
+            <result column="production_line_id" property="productionLine.id"/>
+            <result column="production_line_name" property="productionLine.name"/>
+        </collection>
+    </resultMap>
+    <select id="getScheduling" resultMap="ProjectSchedulingDetailDO">
+        SELECT project.id                                            project_id,
+               project.serial_number                                 project_serial_number,
+               project.`name`                                        project_name,
+               project.short_name                                    project_short_name,
+               monomer.id                                            monomer_id,
+               monomer.`name`                                        monomer_name,
+               factory.id                                            factory_id,
+               factory.`name`                                        factory_name,
+               workshop.id                                           workshop_id,
+               workshop.`name`                                       workshop_name,
+               production_line.id                                    production_line_id,
+               production_line.`name`                                production_line_name,
+               areaBatch.id                                               area_id,
+                areaBatch.`name`                                           area_name,
+                areaBatch.date                                             closing_date,
+               TIMESTAMPDIFF(DAY, monomer.create_time, areaBatch.date) AS `construction_day`,
+               scheduling.start_date,
+               scheduling.end_date,
+               IFNULL(artifact.quantity, 0)                          quantity,
+               IFNULL(artifact.total_net_weight, 0)                  total_net_weight
+        FROM mes_building_area_scheduling scheduling
+        LEFT JOIN (SELECT
+        artifact.area_batch_id,
+        sum( artifact.quantity ) quantity,
+        sum( artifact.total_net_weight ) total_net_weight,
+        sum( artifact.task_quantity ) task_quantity
+        FROM
+        (
+        SELECT
+        area_batch_id,
+        (artifact.quantity - artifact.subscription_quantity) AS quantity,
+        (artifact.quantity - artifact.subscription_quantity) * net_weight total_net_weight,
+        IFNULL( scheduling.task_quantity_quantity, 0 ) task_quantity
+        FROM
+        tech_artifact artifact
+        LEFT JOIN ( SELECT scheduling.product_id, sum( task_quantity ) task_quantity_quantity FROM
+        mes_building_artifact_scheduling scheduling WHERE scheduling.bool_delete_enum = 0 GROUP BY scheduling.product_id
+        ) scheduling ON scheduling.product_id = artifact.id
+        WHERE
+        artifact.bool_delete_enum = 0 and artifact.bool_scheduling_enum = 1
+        ) artifact
+        GROUP BY
+        artifact.area_batch_id) AS artifact ON artifact.area_batch_id = scheduling.area_batch_id
+                 LEFT JOIN contract_project project ON project.id = scheduling.project_id
+            AND project.bool_delete_enum =
+                FALSE
+                 LEFT JOIN plan_monomer monomer ON monomer.id = scheduling.monomer_id
+            AND monomer.bool_delete_enum = FALSE
+                 LEFT JOIN plan_area_batch areaBatch ON scheduling.area_batch_id = areaBatch.id
+                 LEFT JOIN mes_building_factory factory ON factory.id = scheduling.factory_id
+            AND factory.bool_delete_enum =
+                FALSE
+                 LEFT JOIN mes_building_workshop workshop ON workshop.id = scheduling.workshop_id
+            AND workshop.bool_delete_enum =
+                FALSE
+                 LEFT JOIN mes_building_production_line production_line
+                           ON production_line.id = scheduling.production_line_id
+                               AND production_line.bool_delete_enum = FALSE
+        WHERE scheduling.bool_delete_enum = 0
+          AND areaBatch.bool_delete_enum = 0
+          <if test="dateTime!=null">
+              AND DATE_FORMAT(scheduling.end_date, '%Y-%m') = DATE_FORMAT(#{dateTime}, '%Y-%m')
+          </if>
+        <if test="workshopId!=null">
+            AND scheduling.workshop_id = #{workshopId}
+        </if>
+        AND artifact.quantity!=artifact.task_quantity
+    </select>
+
+</mapper>

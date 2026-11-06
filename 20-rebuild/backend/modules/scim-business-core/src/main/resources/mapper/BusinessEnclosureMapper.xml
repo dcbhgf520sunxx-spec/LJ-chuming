@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.business.core.mapper.BusinessEnclosureMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.business.core.api.pojo.doModel.BusinessEnclosure">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="category" property="category"/>
+        <result column="name" property="name"/>
+        <result column="plate" property="plate"/>
+        <result column="color" property="color"/>
+        <result column="material" property="material"/>
+        <result column="thickness" property="thickness"/>
+        <result column="length" property="length"/>
+        <result column="total_quantity" property="totalQuantity"/>
+        <result column="total_length" property="totalLength"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="unit_price" property="unitPrice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, category, name, plate, color, material, thickness, length, total_quantity, total_length, total_area, unit_price
+    </sql>
+    <select id="summary" resultType="com.hzchum.scim.business.core.api.pojo._do.EnclosureSummaryDO">
+        select
+        category,ifnull(unit_price,0)unit_price,
+        ifnull(sum(total_quantity),0) total_quantity,
+        ifnull(sum(total_length),0) total_length,
+        ifnull(sum(total_area),0) total_area
+        from business_enclosure
+        <where>
+            <if test="projectId != null">
+                and project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and monomer_id = #{monomerId}
+            </if>
+        </where>
+        GROUP BY
+        category,unit_price
+    </select>
+
+</mapper>

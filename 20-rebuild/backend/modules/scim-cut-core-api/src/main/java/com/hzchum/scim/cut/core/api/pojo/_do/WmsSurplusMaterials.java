@@ -1,0 +1,2607 @@
+package com.hzchum.scim.cut.core.api.pojo._do;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hzchum.pangu.mybatisplus.pojo.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@ApiModel(value = "WmsSurplusMaterials对象", description = "虚拟余料表用")
+@Entity
+@TableName("wms_surplus_materials")
+@Table(name = "wms_surplus_materials")
+@org.hibernate.annotations.Table(appliesTo = "wms_surplus_materials")
+public class WmsSurplusMaterials extends BaseEntity<Long> {
+   private static final long serialVersionUID = 1L;
+   @ApiModelProperty(name = "id", value = "主键ID")
+   @JsonProperty("id")
+   @JSONField(name = "id")
+   @TableId(type = IdType.AUTO)
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private Long id;
+   @ApiModelProperty(name = "useStatus", value = "使用状态[0 没有使用完,1 已使用完],物料入库后重量会进行加权,在退库时就会产生差会产生负数,设置为已使用完")
+   @JsonProperty("useStatus")
+   @JSONField(name = "useStatus")
+   @TableField("use_status")
+   @Column(name = "use_status")
+   private Boolean useStatus;
+   @ApiModelProperty(name = "serialNumber", value = "物料编号")
+   @JsonProperty("serialNumber")
+   @JSONField(name = "serialNumber")
+   @TableField("serial_number")
+   @Column(name = "serial_number")
+   private String serialNumber;
+   @ApiModelProperty(name = "basicClass", value = "物料基础类型")
+   @JsonProperty("basicClass")
+   @JSONField(name = "basicClass")
+   @TableField("basic_class")
+   @Column(name = "basic_class")
+   private Integer basicClass;
+   @ApiModelProperty(name = "classifyId", value = "科目ID")
+   @JsonProperty("classifyId")
+   @JSONField(name = "classifyId")
+   @TableField("classify_id")
+   @Column(name = "classify_id")
+   private Long classifyId;
+   @ApiModelProperty(name = "classifyName", value = "科目名称")
+   @JsonProperty("classifyName")
+   @JSONField(name = "classifyName")
+   @TableField("classify_name")
+   @Column(name = "classify_name")
+   private String classifyName;
+   @ApiModelProperty(name = "specification", value = "规格")
+   @JsonProperty("specification")
+   @JSONField(name = "specification")
+   @TableField("specification")
+   @Column(name = "specification")
+   private String specification;
+   @ApiModelProperty(name = "materialIsWhole", value = "物料是否完整[1 整料,2 余料]")
+   @JsonProperty("materialIsWhole")
+   @JSONField(name = "materialIsWhole")
+   @TableField("material_is_whole")
+   @Column(name = "material_is_whole")
+   private Integer materialIsWhole;
+   @ApiModelProperty(name = "warehouseType", value = "仓库类型[1 公共库,2 项目库]")
+   @JsonProperty("warehouseType")
+   @JSONField(name = "warehouseType")
+   @TableField("warehouse_type")
+   @Column(name = "warehouse_type")
+   private Integer warehouseType;
+   @ApiModelProperty(name = "projectId", value = "项目ID")
+   @JsonProperty("projectId")
+   @JSONField(name = "projectId")
+   @TableField("project_id")
+   @Column(name = "project_id")
+   private Long projectId;
+   @ApiModelProperty(name = "monomerId", value = "单体ID", notes = "单体ID")
+   @JsonProperty("monomerId")
+   @JSONField(name = "monomerId")
+   @TableField("monomer_id")
+   @Column(name = "monomer_id", columnDefinition = "bigint(20)  COMMENT '单体ID'", nullable = true)
+   private Long monomerId;
+   @ApiModelProperty(name = "areaId", value = "区域ID", notes = "区域ID")
+   @JsonProperty("areaId")
+   @JSONField(name = "areaId")
+   @TableField("area_id")
+   @Column(name = "area_id", columnDefinition = "bigint(20)  COMMENT '区域ID'", nullable = true)
+   private Long areaId;
+   @ApiModelProperty(name = "boolPartyA", value = "是否甲供物料")
+   @JsonProperty("boolPartyA")
+   @JSONField(name = "boolPartyA")
+   @TableField("bool_party_a")
+   @Column(name = "bool_party_a")
+   private Boolean boolPartyA;
+   @ApiModelProperty(name = "quantity", value = "余料总数量")
+   @JsonProperty("quantity")
+   @JSONField(name = "quantity")
+   @TableField("quantity")
+   @Column(name = "quantity")
+   private BigDecimal quantity;
+   @ApiModelProperty(name = "stockQuantity", value = "排样图总数量")
+   @JsonProperty("stockQuantity")
+   @JSONField(name = "stockQuantity")
+   @TableField("stock_quantity")
+   @Column(name = "stock_quantity")
+   private BigDecimal stockQuantity;
+   @ApiModelProperty(name = "length", value = "长度")
+   @JsonProperty("length")
+   @JSONField(name = "length")
+   @TableField("length")
+   @Column(name = "length")
+   private BigDecimal length;
+   @ApiModelProperty(name = "width", value = "宽度")
+   @JsonProperty("width")
+   @JSONField(name = "width")
+   @TableField("width")
+   @Column(name = "width")
+   private BigDecimal width;
+   @ApiModelProperty(name = "thickness", value = "厚度")
+   @JsonProperty("thickness")
+   @JSONField(name = "thickness")
+   @TableField("thickness")
+   @Column(name = "thickness")
+   private BigDecimal thickness;
+   @ApiModelProperty(name = "theoryThickness", value = "理论厚度")
+   @JsonProperty("theoryThickness")
+   @JSONField(name = "theoryThickness")
+   @TableField("theory_thickness")
+   @Column(name = "theory_thickness")
+   private BigDecimal theoryThickness;
+   @ApiModelProperty(name = "oneTheoryWeight", value = "单件理论重量")
+   @JsonProperty("oneTheoryWeight")
+   @JSONField(name = "oneTheoryWeight")
+   @TableField("one_theory_weight")
+   @Column(name = "one_theory_weight")
+   private BigDecimal oneTheoryWeight;
+   @ApiModelProperty(name = "brand", value = "品牌")
+   @JsonProperty("brand")
+   @JSONField(name = "brand")
+   @TableField("brand")
+   @Column(name = "brand")
+   private String brand;
+   @ApiModelProperty(name = "heatNoAndBatchNo", value = "炉批号")
+   @JsonProperty("heatNoAndBatchNo")
+   @JSONField(name = "heatNoAndBatchNo")
+   @TableField("heat_no_and_batch_no")
+   @Column(name = "heat_no_and_batch_no")
+   private String heatNoAndBatchNo;
+   @ApiModelProperty(name = "color", value = "颜色")
+   @JsonProperty("color")
+   @JSONField(name = "color")
+   @TableField("color")
+   @Column(name = "color")
+   private String color;
+   @ApiModelProperty(name = "measureUnit", value = "计量单位")
+   @JsonProperty("measureUnit")
+   @JSONField(name = "measureUnit")
+   @TableField("measure_unit")
+   @Column(name = "measure_unit")
+   private String measureUnit;
+   @ApiModelProperty(name = "accountingPrecision", value = "核算精度")
+   @JsonProperty("accountingPrecision")
+   @JSONField(name = "accountingPrecision")
+   @TableField("accounting_precision")
+   @Column(name = "accounting_precision")
+   private Integer accountingPrecision;
+   @ApiModelProperty(name = "accountingUnit", value = "核算单位")
+   @JsonProperty("accountingUnit")
+   @JSONField(name = "accountingUnit")
+   @TableField("accounting_unit")
+   @Column(name = "accounting_unit")
+   private String accountingUnit;
+   @ApiModelProperty(name = "unitNet", value = "单位净量")
+   @JsonProperty("unitNet")
+   @JSONField(name = "unitNet")
+   @TableField("unit_net")
+   @Column(name = "unit_net")
+   private BigDecimal unitNet;
+   @ApiModelProperty(name = "mete", value = "总核算量,钢材为当前物料总核算")
+   @JsonProperty("mete")
+   @JSONField(name = "mete")
+   @TableField("mete")
+   @Column(name = "mete")
+   private BigDecimal mete;
+   @ApiModelProperty(name = "warehouseId", value = "仓库ID")
+   @JsonProperty("warehouseId")
+   @JSONField(name = "warehouseId")
+   @TableField("warehouse_id")
+   @Column(name = "warehouse_id")
+   private Long warehouseId;
+   @ApiModelProperty(name = "factoryId", value = "工厂ID")
+   @JsonProperty("factoryId")
+   @JSONField(name = "factoryId")
+   @TableField("factory_id")
+   @Column(name = "factory_id")
+   private Long factoryId;
+   @ApiModelProperty(name = "weightMeasurementMode", value = "重量计量方式 [1理计 , 2 磅计 ,混合计]")
+   @JsonProperty("weightMeasurementMode")
+   @JSONField(name = "weightMeasurementMode")
+   @TableField("weight_measurement_mode")
+   @Column(name = "weight_measurement_mode")
+   private Integer weightMeasurementMode;
+   @ApiModelProperty(name = "taxRate", value = "税率(百分比)")
+   @JsonProperty("taxRate")
+   @JSONField(name = "taxRate")
+   @TableField("tax_rate")
+   @Column(name = "tax_rate")
+   private BigDecimal taxRate;
+   @ApiModelProperty(name = "invoiceType", value = "发票类型 [InvoiceTypeEnum]")
+   @JsonProperty("invoiceType")
+   @JSONField(name = "invoiceType")
+   @TableField("invoice_type")
+   @Column(name = "invoice_type")
+   private Integer invoiceType;
+   @ApiModelProperty(name = "remark", value = "备注")
+   @JsonProperty("remark")
+   @JSONField(name = "remark")
+   @TableField("remark")
+   @Column(name = "remark")
+   private String remark;
+   @ApiModelProperty(name = "outboundSn", value = "出库单编号,针对物料半出后产生余料的溯源")
+   @JsonProperty("outboundSn")
+   @JSONField(name = "outboundSn")
+   @TableField("outbound_SN")
+   @Column(name = "outbound_SN")
+   private String outboundSn;
+   @ApiModelProperty(name = "weightedAverageSpec", value = "加权平均规格(将规格拆分获取不参与加权规格以*号拼接)")
+   @JsonProperty("weightedAverageSpec")
+   @JSONField(name = "weightedAverageSpec")
+   @TableField("weighted_average_spec")
+   @Column(name = "weighted_average_spec")
+   private String weightedAverageSpec;
+   @ApiModelProperty(name = "inventoryStartTime", value = "存储开始时间,物料第一次入库后的时间,当物料使用完后设置为空")
+   @JsonProperty("inventoryStartTime")
+   @JSONField(name = "inventoryStartTime")
+   @TableField(value = "inventory_start_time", updateStrategy = FieldStrategy.IGNORED)
+   @Column(name = "inventory_start_time")
+   private LocalDateTime inventoryStartTime;
+   @ApiModelProperty(name = "inventoryEndTime", value = "存储结束时间,记录物料每一次入库的时间")
+   @JsonProperty("inventoryEndTime")
+   @JSONField(name = "inventoryEndTime")
+   @TableField(value = "inventory_end_time", updateStrategy = FieldStrategy.IGNORED)
+   @Column(name = "inventory_end_time")
+   private LocalDateTime inventoryEndTime;
+   @ApiModelProperty(name = "standardId", value = "型材执行国标ID")
+   @JsonProperty("standardId")
+   @JSONField(name = "standardId")
+   @TableField("standard_id")
+   @Column(name = "standard_id")
+   private Long standardId;
+   @ApiModelProperty(name = "standardName", value = "型材执行国标名称")
+   @JsonProperty("standardName")
+   @JSONField(name = "standardName")
+   @TableField("standard_name")
+   @Column(name = "standard_name")
+   private String standardName;
+   @ApiModelProperty(name = "sectionSteelWeight", value = "型材标准重量(Kg/m)")
+   @JsonProperty("sectionSteelWeight")
+   @JSONField(name = "sectionSteelWeight")
+   @TableField("section_steel_weight")
+   @Column(name = "section_steel_weight")
+   private BigDecimal sectionSteelWeight;
+   @ApiModelProperty(name = "surplusGraphicsPath", value = "余料图纸路径")
+   @JsonProperty("surplusGraphicsPath")
+   @JSONField(name = "surplusGraphicsPath")
+   @TableField("surplus_graphics_path")
+   @Column(name = "surplus_graphics_path")
+   private String surplusGraphicsPath;
+   @ApiModelProperty(name = "sourceMaterielId", value = "原物料ID")
+   @JsonProperty("sourceMaterielId")
+   @JSONField(name = "sourceMaterielId")
+   @TableField("source_materiel_id")
+   @Column(name = "source_materiel_id")
+   private Long sourceMaterielId;
+   @ApiModelProperty(name = "barcode", value = "条形码")
+   @JsonProperty("barcode")
+   @JSONField(name = "barcode")
+   @TableField("barcode")
+   @Column(name = "barcode")
+   private String barcode;
+   @ApiModelProperty(name = "surplusSn", value = "余料编号", notes = "余料编号")
+   @JsonProperty("surplusSn")
+   @JSONField(name = "surplusSn")
+   @TableField("surplus_sn")
+   @Column(name = "surplus_sn", columnDefinition = "varchar(255)  COMMENT '余料编号'", nullable = true)
+   private String surplusSn;
+   @ApiModelProperty(name = "plateId", value = "云排中板材id 来自与柏楚云排系统中")
+   @JsonProperty("plateId")
+   @JSONField(name = "plateId")
+   @TableField("plate_id")
+   @Column(name = "plate_id")
+   private Long plateId;
+   @ApiModelProperty(name = "materialInventoryId", value = "物料仓ID", notes = "物料仓ID")
+   @JsonProperty("materialInventoryId")
+   @JSONField(name = "materialInventoryId")
+   @TableField("material_inventory_id")
+   @Column(name = "material_inventory_id", columnDefinition = "bigint  COMMENT '物料仓ID'", nullable = true)
+   private Long materialInventoryId;
+   @ApiModelProperty(name = "guid", value = "柏楚板材guid(余料)", notes = "柏楚板材guid(余料)")
+   @JsonProperty("guid")
+   @JSONField(name = "guid")
+   @TableField("guid")
+   @Column(name = "guid", columnDefinition = "varchar(255)  COMMENT '柏楚板材guid(余料)'", nullable = true)
+   private String guid;
+   @ApiModelProperty(name = "stockGuid", value = "柏楚排样图guid如：切0001", notes = "柏楚排样图guid")
+   @JsonProperty("stockGuid")
+   @JSONField(name = "stockGuid")
+   @TableField("stock_guid")
+   @Column(name = "stock_guid", columnDefinition = "varchar(255)  COMMENT '柏楚板材guid'", nullable = true)
+   private String stockGuid;
+   @ApiModelProperty(name = "stockCutGuid", value = "切割任务guid(mes会生成子的如：切0001-01)", notes = "切割任务guid")
+   @JsonProperty("stockCutGuid")
+   @JSONField(name = "stockCutGuid")
+   @TableField("stock_cut_guid")
+   @Column(name = "stock_cut_guid", columnDefinition = "varchar(255)  COMMENT '切割任务guid'", nullable = true)
+   private String stockCutGuid;
+   @ApiModelProperty(name = "boolNestVirtual", value = "柏楚余料是否虚拟(为true的时间段为切割任务已经下发,切割任务还没有完成,切割任务完成之后此项为fasle)", notes = "柏楚余料")
+   @JsonProperty("boolNestVirtual")
+   @JSONField(name = "boolNestVirtual")
+   @TableField("bool_nest_virtual")
+   @Column(name = "bool_nest_virtual", columnDefinition = "tinyint(1) DEFAULT '0' COMMENT '柏楚余料'", nullable = true)
+   private Boolean boolNestVirtual;
+   @ApiModelProperty(name = "dxfUrl", value = "余料dxfUrl", notes = "余料dxfurl")
+   @JsonProperty("dxfUrl")
+   @JSONField(name = "dxfUrl")
+   @TableField("dxf_url")
+   @Column(name = "dxf_url", columnDefinition = "varchar(255)  COMMENT '余料dxfUrl'", nullable = true)
+   private String dxfUrl;
+   @ApiModelProperty(name = "imageUrl", value = "余料缩略图", notes = "余料缩略图")
+   @JsonProperty("imageUrl")
+   @JSONField(name = "imageUrl")
+   @TableField("image_url")
+   @Column(name = "image_url", columnDefinition = "varchar(255)  COMMENT '余料缩略图'", nullable = true)
+   private String imageUrl;
+   @ApiModelProperty(name = "imageName", value = "余料缩略图名", notes = "余料缩略图名")
+   @JsonProperty("imageName")
+   @JSONField(name = "image_name")
+   @TableField("image_name")
+   @Column(name = "image_name", columnDefinition = "varchar(255)  COMMENT '余料缩略图名'", nullable = true)
+   private String imageName;
+   @ApiModelProperty(name = "dxfName", value = "余料dxf文件名", notes = "余料dxf文件名")
+   @JsonProperty("dxfName")
+   @JSONField(name = "dxf_name")
+   @TableField("dxf_name")
+   @Column(name = "dxf_name", columnDefinition = "varchar(255)  COMMENT '余料dxf文件名'", nullable = true)
+   private String dxfName;
+   @ApiModelProperty(name = "materialId")
+   @JsonProperty("materialId")
+   @JSONField(name = "materialId")
+   @TableField("material_id")
+   @Column(name = "material_id", columnDefinition = "bigint  COMMENT '柏楚材质id'", nullable = true)
+   private Long materialId;
+   @ApiModelProperty(name = "boolNestFrozen", value = "物料是否套料冻结( 如果本次套料任务试用虚拟余料，就设置该虚拟余料为冻结状态 待切割完成之后，直接将该余料冻结)")
+   @JsonProperty("boolNestFrozen")
+   @JSONField(name = "boolNestFrozen")
+   @TableField("bool_nest_frozen")
+   @Column(name = "bool_nest_frozen", columnDefinition = "tinyint(1) DEFAULT '0' COMMENT '物料是否套料冻结'", nullable = true)
+   private Boolean boolNestFrozen;
+   @ApiModelProperty(name = "nestFrozenGuid", value = "哪个排样图冻结的该虚拟余料", notes = "哪个排样图冻结的该虚拟余料")
+   @JsonProperty("nestFrozenGuid")
+   @JSONField(name = "nestFrozenGuid")
+   @TableField("nest_frozen_guid")
+   @Column(name = "nest_frozen_guid", columnDefinition = "varchar(255)  COMMENT '哪个排样图冻结的该虚拟余料'", nullable = true)
+   private String nestFrozenGuid;
+   @ApiModelProperty(name = "area", value = "余料的面积 通过dxf自己算的")
+   @JsonProperty("area")
+   @JSONField(name = "area")
+   @TableField("area")
+   @Column(name = "area")
+   private BigDecimal area;
+   @ApiModelProperty(name = "ossImageUrl", value = "余料dxf云路径", notes = "余料dxf云路径")
+   @JsonProperty("ossImageUrl")
+   @JSONField(name = "ossImageUrl")
+   @TableField("oss_image_url")
+   @Column(name = "oss_image_url", columnDefinition = "varchar(255)  COMMENT '余料缩略图名'", nullable = true)
+   private String ossImageUrl;
+   @ApiModelProperty(name = "OssDxfUrl", value = "余料dxf文件名", notes = "余料dxf云路径")
+   @JsonProperty("OssDxfUrl")
+   @JSONField(name = "OssDxfUrl")
+   @TableField("oss_dxf_url")
+   @Column(name = "oss_dxf_url", columnDefinition = "varchar(255)  COMMENT '余料dxf云路径'", nullable = true)
+   private String ossDxfUrl;
+
+   public static WmsSurplusMaterials.WmsSurplusMaterialsBuilder builder() {
+      return new WmsSurplusMaterials.WmsSurplusMaterialsBuilder();
+   }
+
+   public WmsSurplusMaterials() {
+   }
+
+   public WmsSurplusMaterials(
+      final Long id,
+      final Boolean useStatus,
+      final String serialNumber,
+      final Integer basicClass,
+      final Long classifyId,
+      final String classifyName,
+      final String specification,
+      final Integer materialIsWhole,
+      final Integer warehouseType,
+      final Long projectId,
+      final Long monomerId,
+      final Long areaId,
+      final Boolean boolPartyA,
+      final BigDecimal quantity,
+      final BigDecimal stockQuantity,
+      final BigDecimal length,
+      final BigDecimal width,
+      final BigDecimal thickness,
+      final BigDecimal theoryThickness,
+      final BigDecimal oneTheoryWeight,
+      final String brand,
+      final String heatNoAndBatchNo,
+      final String color,
+      final String measureUnit,
+      final Integer accountingPrecision,
+      final String accountingUnit,
+      final BigDecimal unitNet,
+      final BigDecimal mete,
+      final Long warehouseId,
+      final Long factoryId,
+      final Integer weightMeasurementMode,
+      final BigDecimal taxRate,
+      final Integer invoiceType,
+      final String remark,
+      final String outboundSn,
+      final String weightedAverageSpec,
+      final LocalDateTime inventoryStartTime,
+      final LocalDateTime inventoryEndTime,
+      final Long standardId,
+      final String standardName,
+      final BigDecimal sectionSteelWeight,
+      final String surplusGraphicsPath,
+      final Long sourceMaterielId,
+      final String barcode,
+      final String surplusSn,
+      final Long plateId,
+      final Long materialInventoryId,
+      final String guid,
+      final String stockGuid,
+      final String stockCutGuid,
+      final Boolean boolNestVirtual,
+      final String dxfUrl,
+      final String imageUrl,
+      final String imageName,
+      final String dxfName,
+      final Long materialId,
+      final Boolean boolNestFrozen,
+      final String nestFrozenGuid,
+      final BigDecimal area,
+      final String ossImageUrl,
+      final String ossDxfUrl
+   ) {
+      this.id = id;
+      this.useStatus = useStatus;
+      this.serialNumber = serialNumber;
+      this.basicClass = basicClass;
+      this.classifyId = classifyId;
+      this.classifyName = classifyName;
+      this.specification = specification;
+      this.materialIsWhole = materialIsWhole;
+      this.warehouseType = warehouseType;
+      this.projectId = projectId;
+      this.monomerId = monomerId;
+      this.areaId = areaId;
+      this.boolPartyA = boolPartyA;
+      this.quantity = quantity;
+      this.stockQuantity = stockQuantity;
+      this.length = length;
+      this.width = width;
+      this.thickness = thickness;
+      this.theoryThickness = theoryThickness;
+      this.oneTheoryWeight = oneTheoryWeight;
+      this.brand = brand;
+      this.heatNoAndBatchNo = heatNoAndBatchNo;
+      this.color = color;
+      this.measureUnit = measureUnit;
+      this.accountingPrecision = accountingPrecision;
+      this.accountingUnit = accountingUnit;
+      this.unitNet = unitNet;
+      this.mete = mete;
+      this.warehouseId = warehouseId;
+      this.factoryId = factoryId;
+      this.weightMeasurementMode = weightMeasurementMode;
+      this.taxRate = taxRate;
+      this.invoiceType = invoiceType;
+      this.remark = remark;
+      this.outboundSn = outboundSn;
+      this.weightedAverageSpec = weightedAverageSpec;
+      this.inventoryStartTime = inventoryStartTime;
+      this.inventoryEndTime = inventoryEndTime;
+      this.standardId = standardId;
+      this.standardName = standardName;
+      this.sectionSteelWeight = sectionSteelWeight;
+      this.surplusGraphicsPath = surplusGraphicsPath;
+      this.sourceMaterielId = sourceMaterielId;
+      this.barcode = barcode;
+      this.surplusSn = surplusSn;
+      this.plateId = plateId;
+      this.materialInventoryId = materialInventoryId;
+      this.guid = guid;
+      this.stockGuid = stockGuid;
+      this.stockCutGuid = stockCutGuid;
+      this.boolNestVirtual = boolNestVirtual;
+      this.dxfUrl = dxfUrl;
+      this.imageUrl = imageUrl;
+      this.imageName = imageName;
+      this.dxfName = dxfName;
+      this.materialId = materialId;
+      this.boolNestFrozen = boolNestFrozen;
+      this.nestFrozenGuid = nestFrozenGuid;
+      this.area = area;
+      this.ossImageUrl = ossImageUrl;
+      this.ossDxfUrl = ossDxfUrl;
+   }
+
+   public Long getId() {
+      return this.id;
+   }
+
+   public Boolean getUseStatus() {
+      return this.useStatus;
+   }
+
+   public String getSerialNumber() {
+      return this.serialNumber;
+   }
+
+   public Integer getBasicClass() {
+      return this.basicClass;
+   }
+
+   public Long getClassifyId() {
+      return this.classifyId;
+   }
+
+   public String getClassifyName() {
+      return this.classifyName;
+   }
+
+   public String getSpecification() {
+      return this.specification;
+   }
+
+   public Integer getMaterialIsWhole() {
+      return this.materialIsWhole;
+   }
+
+   public Integer getWarehouseType() {
+      return this.warehouseType;
+   }
+
+   public Long getProjectId() {
+      return this.projectId;
+   }
+
+   public Long getMonomerId() {
+      return this.monomerId;
+   }
+
+   public Long getAreaId() {
+      return this.areaId;
+   }
+
+   public Boolean getBoolPartyA() {
+      return this.boolPartyA;
+   }
+
+   public BigDecimal getQuantity() {
+      return this.quantity;
+   }
+
+   public BigDecimal getStockQuantity() {
+      return this.stockQuantity;
+   }
+
+   public BigDecimal getLength() {
+      return this.length;
+   }
+
+   public BigDecimal getWidth() {
+      return this.width;
+   }
+
+   public BigDecimal getThickness() {
+      return this.thickness;
+   }
+
+   public BigDecimal getTheoryThickness() {
+      return this.theoryThickness;
+   }
+
+   public BigDecimal getOneTheoryWeight() {
+      return this.oneTheoryWeight;
+   }
+
+   public String getBrand() {
+      return this.brand;
+   }
+
+   public String getHeatNoAndBatchNo() {
+      return this.heatNoAndBatchNo;
+   }
+
+   public String getColor() {
+      return this.color;
+   }
+
+   public String getMeasureUnit() {
+      return this.measureUnit;
+   }
+
+   public Integer getAccountingPrecision() {
+      return this.accountingPrecision;
+   }
+
+   public String getAccountingUnit() {
+      return this.accountingUnit;
+   }
+
+   public BigDecimal getUnitNet() {
+      return this.unitNet;
+   }
+
+   public BigDecimal getMete() {
+      return this.mete;
+   }
+
+   public Long getWarehouseId() {
+      return this.warehouseId;
+   }
+
+   public Long getFactoryId() {
+      return this.factoryId;
+   }
+
+   public Integer getWeightMeasurementMode() {
+      return this.weightMeasurementMode;
+   }
+
+   public BigDecimal getTaxRate() {
+      return this.taxRate;
+   }
+
+   public Integer getInvoiceType() {
+      return this.invoiceType;
+   }
+
+   public String getRemark() {
+      return this.remark;
+   }
+
+   public String getOutboundSn() {
+      return this.outboundSn;
+   }
+
+   public String getWeightedAverageSpec() {
+      return this.weightedAverageSpec;
+   }
+
+   public LocalDateTime getInventoryStartTime() {
+      return this.inventoryStartTime;
+   }
+
+   public LocalDateTime getInventoryEndTime() {
+      return this.inventoryEndTime;
+   }
+
+   public Long getStandardId() {
+      return this.standardId;
+   }
+
+   public String getStandardName() {
+      return this.standardName;
+   }
+
+   public BigDecimal getSectionSteelWeight() {
+      return this.sectionSteelWeight;
+   }
+
+   public String getSurplusGraphicsPath() {
+      return this.surplusGraphicsPath;
+   }
+
+   public Long getSourceMaterielId() {
+      return this.sourceMaterielId;
+   }
+
+   public String getBarcode() {
+      return this.barcode;
+   }
+
+   public String getSurplusSn() {
+      return this.surplusSn;
+   }
+
+   public Long getPlateId() {
+      return this.plateId;
+   }
+
+   public Long getMaterialInventoryId() {
+      return this.materialInventoryId;
+   }
+
+   public String getGuid() {
+      return this.guid;
+   }
+
+   public String getStockGuid() {
+      return this.stockGuid;
+   }
+
+   public String getStockCutGuid() {
+      return this.stockCutGuid;
+   }
+
+   public Boolean getBoolNestVirtual() {
+      return this.boolNestVirtual;
+   }
+
+   public String getDxfUrl() {
+      return this.dxfUrl;
+   }
+
+   public String getImageUrl() {
+      return this.imageUrl;
+   }
+
+   public String getImageName() {
+      return this.imageName;
+   }
+
+   public String getDxfName() {
+      return this.dxfName;
+   }
+
+   public Long getMaterialId() {
+      return this.materialId;
+   }
+
+   public Boolean getBoolNestFrozen() {
+      return this.boolNestFrozen;
+   }
+
+   public String getNestFrozenGuid() {
+      return this.nestFrozenGuid;
+   }
+
+   public BigDecimal getArea() {
+      return this.area;
+   }
+
+   public String getOssImageUrl() {
+      return this.ossImageUrl;
+   }
+
+   public String getOssDxfUrl() {
+      return this.ossDxfUrl;
+   }
+
+   @JsonProperty("id")
+   public WmsSurplusMaterials setId(final Long id) {
+      this.id = id;
+      return this;
+   }
+
+   @JsonProperty("useStatus")
+   public WmsSurplusMaterials setUseStatus(final Boolean useStatus) {
+      this.useStatus = useStatus;
+      return this;
+   }
+
+   @JsonProperty("serialNumber")
+   public WmsSurplusMaterials setSerialNumber(final String serialNumber) {
+      this.serialNumber = serialNumber;
+      return this;
+   }
+
+   @JsonProperty("basicClass")
+   public WmsSurplusMaterials setBasicClass(final Integer basicClass) {
+      this.basicClass = basicClass;
+      return this;
+   }
+
+   @JsonProperty("classifyId")
+   public WmsSurplusMaterials setClassifyId(final Long classifyId) {
+      this.classifyId = classifyId;
+      return this;
+   }
+
+   @JsonProperty("classifyName")
+   public WmsSurplusMaterials setClassifyName(final String classifyName) {
+      this.classifyName = classifyName;
+      return this;
+   }
+
+   @JsonProperty("specification")
+   public WmsSurplusMaterials setSpecification(final String specification) {
+      this.specification = specification;
+      return this;
+   }
+
+   @JsonProperty("materialIsWhole")
+   public WmsSurplusMaterials setMaterialIsWhole(final Integer materialIsWhole) {
+      this.materialIsWhole = materialIsWhole;
+      return this;
+   }
+
+   @JsonProperty("warehouseType")
+   public WmsSurplusMaterials setWarehouseType(final Integer warehouseType) {
+      this.warehouseType = warehouseType;
+      return this;
+   }
+
+   @JsonProperty("projectId")
+   public WmsSurplusMaterials setProjectId(final Long projectId) {
+      this.projectId = projectId;
+      return this;
+   }
+
+   @JsonProperty("monomerId")
+   public WmsSurplusMaterials setMonomerId(final Long monomerId) {
+      this.monomerId = monomerId;
+      return this;
+   }
+
+   @JsonProperty("areaId")
+   public WmsSurplusMaterials setAreaId(final Long areaId) {
+      this.areaId = areaId;
+      return this;
+   }
+
+   @JsonProperty("boolPartyA")
+   public WmsSurplusMaterials setBoolPartyA(final Boolean boolPartyA) {
+      this.boolPartyA = boolPartyA;
+      return this;
+   }
+
+   @JsonProperty("quantity")
+   public WmsSurplusMaterials setQuantity(final BigDecimal quantity) {
+      this.quantity = quantity;
+      return this;
+   }
+
+   @JsonProperty("stockQuantity")
+   public WmsSurplusMaterials setStockQuantity(final BigDecimal stockQuantity) {
+      this.stockQuantity = stockQuantity;
+      return this;
+   }
+
+   @JsonProperty("length")
+   public WmsSurplusMaterials setLength(final BigDecimal length) {
+      this.length = length;
+      return this;
+   }
+
+   @JsonProperty("width")
+   public WmsSurplusMaterials setWidth(final BigDecimal width) {
+      this.width = width;
+      return this;
+   }
+
+   @JsonProperty("thickness")
+   public WmsSurplusMaterials setThickness(final BigDecimal thickness) {
+      this.thickness = thickness;
+      return this;
+   }
+
+   @JsonProperty("theoryThickness")
+   public WmsSurplusMaterials setTheoryThickness(final BigDecimal theoryThickness) {
+      this.theoryThickness = theoryThickness;
+      return this;
+   }
+
+   @JsonProperty("oneTheoryWeight")
+   public WmsSurplusMaterials setOneTheoryWeight(final BigDecimal oneTheoryWeight) {
+      this.oneTheoryWeight = oneTheoryWeight;
+      return this;
+   }
+
+   @JsonProperty("brand")
+   public WmsSurplusMaterials setBrand(final String brand) {
+      this.brand = brand;
+      return this;
+   }
+
+   @JsonProperty("heatNoAndBatchNo")
+   public WmsSurplusMaterials setHeatNoAndBatchNo(final String heatNoAndBatchNo) {
+      this.heatNoAndBatchNo = heatNoAndBatchNo;
+      return this;
+   }
+
+   @JsonProperty("color")
+   public WmsSurplusMaterials setColor(final String color) {
+      this.color = color;
+      return this;
+   }
+
+   @JsonProperty("measureUnit")
+   public WmsSurplusMaterials setMeasureUnit(final String measureUnit) {
+      this.measureUnit = measureUnit;
+      return this;
+   }
+
+   @JsonProperty("accountingPrecision")
+   public WmsSurplusMaterials setAccountingPrecision(final Integer accountingPrecision) {
+      this.accountingPrecision = accountingPrecision;
+      return this;
+   }
+
+   @JsonProperty("accountingUnit")
+   public WmsSurplusMaterials setAccountingUnit(final String accountingUnit) {
+      this.accountingUnit = accountingUnit;
+      return this;
+   }
+
+   @JsonProperty("unitNet")
+   public WmsSurplusMaterials setUnitNet(final BigDecimal unitNet) {
+      this.unitNet = unitNet;
+      return this;
+   }
+
+   @JsonProperty("mete")
+   public WmsSurplusMaterials setMete(final BigDecimal mete) {
+      this.mete = mete;
+      return this;
+   }
+
+   @JsonProperty("warehouseId")
+   public WmsSurplusMaterials setWarehouseId(final Long warehouseId) {
+      this.warehouseId = warehouseId;
+      return this;
+   }
+
+   @JsonProperty("factoryId")
+   public WmsSurplusMaterials setFactoryId(final Long factoryId) {
+      this.factoryId = factoryId;
+      return this;
+   }
+
+   @JsonProperty("weightMeasurementMode")
+   public WmsSurplusMaterials setWeightMeasurementMode(final Integer weightMeasurementMode) {
+      this.weightMeasurementMode = weightMeasurementMode;
+      return this;
+   }
+
+   @JsonProperty("taxRate")
+   public WmsSurplusMaterials setTaxRate(final BigDecimal taxRate) {
+      this.taxRate = taxRate;
+      return this;
+   }
+
+   @JsonProperty("invoiceType")
+   public WmsSurplusMaterials setInvoiceType(final Integer invoiceType) {
+      this.invoiceType = invoiceType;
+      return this;
+   }
+
+   @JsonProperty("remark")
+   public WmsSurplusMaterials setRemark(final String remark) {
+      this.remark = remark;
+      return this;
+   }
+
+   @JsonProperty("outboundSn")
+   public WmsSurplusMaterials setOutboundSn(final String outboundSn) {
+      this.outboundSn = outboundSn;
+      return this;
+   }
+
+   @JsonProperty("weightedAverageSpec")
+   public WmsSurplusMaterials setWeightedAverageSpec(final String weightedAverageSpec) {
+      this.weightedAverageSpec = weightedAverageSpec;
+      return this;
+   }
+
+   @JsonProperty("inventoryStartTime")
+   public WmsSurplusMaterials setInventoryStartTime(final LocalDateTime inventoryStartTime) {
+      this.inventoryStartTime = inventoryStartTime;
+      return this;
+   }
+
+   @JsonProperty("inventoryEndTime")
+   public WmsSurplusMaterials setInventoryEndTime(final LocalDateTime inventoryEndTime) {
+      this.inventoryEndTime = inventoryEndTime;
+      return this;
+   }
+
+   @JsonProperty("standardId")
+   public WmsSurplusMaterials setStandardId(final Long standardId) {
+      this.standardId = standardId;
+      return this;
+   }
+
+   @JsonProperty("standardName")
+   public WmsSurplusMaterials setStandardName(final String standardName) {
+      this.standardName = standardName;
+      return this;
+   }
+
+   @JsonProperty("sectionSteelWeight")
+   public WmsSurplusMaterials setSectionSteelWeight(final BigDecimal sectionSteelWeight) {
+      this.sectionSteelWeight = sectionSteelWeight;
+      return this;
+   }
+
+   @JsonProperty("surplusGraphicsPath")
+   public WmsSurplusMaterials setSurplusGraphicsPath(final String surplusGraphicsPath) {
+      this.surplusGraphicsPath = surplusGraphicsPath;
+      return this;
+   }
+
+   @JsonProperty("sourceMaterielId")
+   public WmsSurplusMaterials setSourceMaterielId(final Long sourceMaterielId) {
+      this.sourceMaterielId = sourceMaterielId;
+      return this;
+   }
+
+   @JsonProperty("barcode")
+   public WmsSurplusMaterials setBarcode(final String barcode) {
+      this.barcode = barcode;
+      return this;
+   }
+
+   @JsonProperty("surplusSn")
+   public WmsSurplusMaterials setSurplusSn(final String surplusSn) {
+      this.surplusSn = surplusSn;
+      return this;
+   }
+
+   @JsonProperty("plateId")
+   public WmsSurplusMaterials setPlateId(final Long plateId) {
+      this.plateId = plateId;
+      return this;
+   }
+
+   @JsonProperty("materialInventoryId")
+   public WmsSurplusMaterials setMaterialInventoryId(final Long materialInventoryId) {
+      this.materialInventoryId = materialInventoryId;
+      return this;
+   }
+
+   @JsonProperty("guid")
+   public WmsSurplusMaterials setGuid(final String guid) {
+      this.guid = guid;
+      return this;
+   }
+
+   @JsonProperty("stockGuid")
+   public WmsSurplusMaterials setStockGuid(final String stockGuid) {
+      this.stockGuid = stockGuid;
+      return this;
+   }
+
+   @JsonProperty("stockCutGuid")
+   public WmsSurplusMaterials setStockCutGuid(final String stockCutGuid) {
+      this.stockCutGuid = stockCutGuid;
+      return this;
+   }
+
+   @JsonProperty("boolNestVirtual")
+   public WmsSurplusMaterials setBoolNestVirtual(final Boolean boolNestVirtual) {
+      this.boolNestVirtual = boolNestVirtual;
+      return this;
+   }
+
+   @JsonProperty("dxfUrl")
+   public WmsSurplusMaterials setDxfUrl(final String dxfUrl) {
+      this.dxfUrl = dxfUrl;
+      return this;
+   }
+
+   @JsonProperty("imageUrl")
+   public WmsSurplusMaterials setImageUrl(final String imageUrl) {
+      this.imageUrl = imageUrl;
+      return this;
+   }
+
+   @JsonProperty("imageName")
+   public WmsSurplusMaterials setImageName(final String imageName) {
+      this.imageName = imageName;
+      return this;
+   }
+
+   @JsonProperty("dxfName")
+   public WmsSurplusMaterials setDxfName(final String dxfName) {
+      this.dxfName = dxfName;
+      return this;
+   }
+
+   @JsonProperty("materialId")
+   public WmsSurplusMaterials setMaterialId(final Long materialId) {
+      this.materialId = materialId;
+      return this;
+   }
+
+   @JsonProperty("boolNestFrozen")
+   public WmsSurplusMaterials setBoolNestFrozen(final Boolean boolNestFrozen) {
+      this.boolNestFrozen = boolNestFrozen;
+      return this;
+   }
+
+   @JsonProperty("nestFrozenGuid")
+   public WmsSurplusMaterials setNestFrozenGuid(final String nestFrozenGuid) {
+      this.nestFrozenGuid = nestFrozenGuid;
+      return this;
+   }
+
+   @JsonProperty("area")
+   public WmsSurplusMaterials setArea(final BigDecimal area) {
+      this.area = area;
+      return this;
+   }
+
+   @JsonProperty("ossImageUrl")
+   public WmsSurplusMaterials setOssImageUrl(final String ossImageUrl) {
+      this.ossImageUrl = ossImageUrl;
+      return this;
+   }
+
+   @JsonProperty("OssDxfUrl")
+   public WmsSurplusMaterials setOssDxfUrl(final String ossDxfUrl) {
+      this.ossDxfUrl = ossDxfUrl;
+      return this;
+   }
+
+   @Override
+   public String toString() {
+      return "WmsSurplusMaterials(id="
+         + this.getId()
+         + ", useStatus="
+         + this.getUseStatus()
+         + ", serialNumber="
+         + this.getSerialNumber()
+         + ", basicClass="
+         + this.getBasicClass()
+         + ", classifyId="
+         + this.getClassifyId()
+         + ", classifyName="
+         + this.getClassifyName()
+         + ", specification="
+         + this.getSpecification()
+         + ", materialIsWhole="
+         + this.getMaterialIsWhole()
+         + ", warehouseType="
+         + this.getWarehouseType()
+         + ", projectId="
+         + this.getProjectId()
+         + ", monomerId="
+         + this.getMonomerId()
+         + ", areaId="
+         + this.getAreaId()
+         + ", boolPartyA="
+         + this.getBoolPartyA()
+         + ", quantity="
+         + this.getQuantity()
+         + ", stockQuantity="
+         + this.getStockQuantity()
+         + ", length="
+         + this.getLength()
+         + ", width="
+         + this.getWidth()
+         + ", thickness="
+         + this.getThickness()
+         + ", theoryThickness="
+         + this.getTheoryThickness()
+         + ", oneTheoryWeight="
+         + this.getOneTheoryWeight()
+         + ", brand="
+         + this.getBrand()
+         + ", heatNoAndBatchNo="
+         + this.getHeatNoAndBatchNo()
+         + ", color="
+         + this.getColor()
+         + ", measureUnit="
+         + this.getMeasureUnit()
+         + ", accountingPrecision="
+         + this.getAccountingPrecision()
+         + ", accountingUnit="
+         + this.getAccountingUnit()
+         + ", unitNet="
+         + this.getUnitNet()
+         + ", mete="
+         + this.getMete()
+         + ", warehouseId="
+         + this.getWarehouseId()
+         + ", factoryId="
+         + this.getFactoryId()
+         + ", weightMeasurementMode="
+         + this.getWeightMeasurementMode()
+         + ", taxRate="
+         + this.getTaxRate()
+         + ", invoiceType="
+         + this.getInvoiceType()
+         + ", remark="
+         + this.getRemark()
+         + ", outboundSn="
+         + this.getOutboundSn()
+         + ", weightedAverageSpec="
+         + this.getWeightedAverageSpec()
+         + ", inventoryStartTime="
+         + this.getInventoryStartTime()
+         + ", inventoryEndTime="
+         + this.getInventoryEndTime()
+         + ", standardId="
+         + this.getStandardId()
+         + ", standardName="
+         + this.getStandardName()
+         + ", sectionSteelWeight="
+         + this.getSectionSteelWeight()
+         + ", surplusGraphicsPath="
+         + this.getSurplusGraphicsPath()
+         + ", sourceMaterielId="
+         + this.getSourceMaterielId()
+         + ", barcode="
+         + this.getBarcode()
+         + ", surplusSn="
+         + this.getSurplusSn()
+         + ", plateId="
+         + this.getPlateId()
+         + ", materialInventoryId="
+         + this.getMaterialInventoryId()
+         + ", guid="
+         + this.getGuid()
+         + ", stockGuid="
+         + this.getStockGuid()
+         + ", stockCutGuid="
+         + this.getStockCutGuid()
+         + ", boolNestVirtual="
+         + this.getBoolNestVirtual()
+         + ", dxfUrl="
+         + this.getDxfUrl()
+         + ", imageUrl="
+         + this.getImageUrl()
+         + ", imageName="
+         + this.getImageName()
+         + ", dxfName="
+         + this.getDxfName()
+         + ", materialId="
+         + this.getMaterialId()
+         + ", boolNestFrozen="
+         + this.getBoolNestFrozen()
+         + ", nestFrozenGuid="
+         + this.getNestFrozenGuid()
+         + ", area="
+         + this.getArea()
+         + ", ossImageUrl="
+         + this.getOssImageUrl()
+         + ", ossDxfUrl="
+         + this.getOssDxfUrl()
+         + ")";
+   }
+
+   @Override
+   public boolean equals(final Object o) {
+      if (o == this) {
+         return true;
+      }
+
+      if (!(o instanceof WmsSurplusMaterials)) {
+         return false;
+      }
+
+      WmsSurplusMaterials other = (WmsSurplusMaterials)o;
+      if (!other.canEqual(this)) {
+         return false;
+      }
+
+      if (!super.equals(o)) {
+         return false;
+      }
+
+      Object this$id = this.getId();
+      Object other$id = other.getId();
+      if (this$id == null ? other$id == null : this$id.equals(other$id)) {
+         Object this$useStatus = this.getUseStatus();
+         Object other$useStatus = other.getUseStatus();
+         if (this$useStatus == null ? other$useStatus == null : this$useStatus.equals(other$useStatus)) {
+            Object this$basicClass = this.getBasicClass();
+            Object other$basicClass = other.getBasicClass();
+            if (this$basicClass == null ? other$basicClass == null : this$basicClass.equals(other$basicClass)) {
+               Object this$classifyId = this.getClassifyId();
+               Object other$classifyId = other.getClassifyId();
+               if (this$classifyId == null ? other$classifyId == null : this$classifyId.equals(other$classifyId)) {
+                  Object this$materialIsWhole = this.getMaterialIsWhole();
+                  Object other$materialIsWhole = other.getMaterialIsWhole();
+                  if (this$materialIsWhole == null ? other$materialIsWhole == null : this$materialIsWhole.equals(other$materialIsWhole)) {
+                     Object this$warehouseType = this.getWarehouseType();
+                     Object other$warehouseType = other.getWarehouseType();
+                     if (this$warehouseType == null ? other$warehouseType == null : this$warehouseType.equals(other$warehouseType)) {
+                        Object this$projectId = this.getProjectId();
+                        Object other$projectId = other.getProjectId();
+                        if (this$projectId == null ? other$projectId == null : this$projectId.equals(other$projectId)) {
+                           Object this$monomerId = this.getMonomerId();
+                           Object other$monomerId = other.getMonomerId();
+                           if (this$monomerId == null ? other$monomerId == null : this$monomerId.equals(other$monomerId)) {
+                              Object this$areaId = this.getAreaId();
+                              Object other$areaId = other.getAreaId();
+                              if (this$areaId == null ? other$areaId == null : this$areaId.equals(other$areaId)) {
+                                 Object this$boolPartyA = this.getBoolPartyA();
+                                 Object other$boolPartyA = other.getBoolPartyA();
+                                 if (this$boolPartyA == null ? other$boolPartyA == null : this$boolPartyA.equals(other$boolPartyA)) {
+                                    Object this$accountingPrecision = this.getAccountingPrecision();
+                                    Object other$accountingPrecision = other.getAccountingPrecision();
+                                    if (this$accountingPrecision == null
+                                       ? other$accountingPrecision == null
+                                       : this$accountingPrecision.equals(other$accountingPrecision)) {
+                                       Object this$warehouseId = this.getWarehouseId();
+                                       Object other$warehouseId = other.getWarehouseId();
+                                       if (this$warehouseId == null ? other$warehouseId == null : this$warehouseId.equals(other$warehouseId)) {
+                                          Object this$factoryId = this.getFactoryId();
+                                          Object other$factoryId = other.getFactoryId();
+                                          if (this$factoryId == null ? other$factoryId == null : this$factoryId.equals(other$factoryId)) {
+                                             Object this$weightMeasurementMode = this.getWeightMeasurementMode();
+                                             Object other$weightMeasurementMode = other.getWeightMeasurementMode();
+                                             if (this$weightMeasurementMode == null
+                                                ? other$weightMeasurementMode == null
+                                                : this$weightMeasurementMode.equals(other$weightMeasurementMode)) {
+                                                Object this$invoiceType = this.getInvoiceType();
+                                                Object other$invoiceType = other.getInvoiceType();
+                                                if (this$invoiceType == null ? other$invoiceType == null : this$invoiceType.equals(other$invoiceType)) {
+                                                   Object this$standardId = this.getStandardId();
+                                                   Object other$standardId = other.getStandardId();
+                                                   if (this$standardId == null ? other$standardId == null : this$standardId.equals(other$standardId)) {
+                                                      Object this$sourceMaterielId = this.getSourceMaterielId();
+                                                      Object other$sourceMaterielId = other.getSourceMaterielId();
+                                                      if (this$sourceMaterielId == null
+                                                         ? other$sourceMaterielId == null
+                                                         : this$sourceMaterielId.equals(other$sourceMaterielId)) {
+                                                         Object this$plateId = this.getPlateId();
+                                                         Object other$plateId = other.getPlateId();
+                                                         if (this$plateId == null ? other$plateId == null : this$plateId.equals(other$plateId)) {
+                                                            Object this$materialInventoryId = this.getMaterialInventoryId();
+                                                            Object other$materialInventoryId = other.getMaterialInventoryId();
+                                                            if (this$materialInventoryId == null
+                                                               ? other$materialInventoryId == null
+                                                               : this$materialInventoryId.equals(other$materialInventoryId)) {
+                                                               Object this$boolNestVirtual = this.getBoolNestVirtual();
+                                                               Object other$boolNestVirtual = other.getBoolNestVirtual();
+                                                               if (this$boolNestVirtual == null
+                                                                  ? other$boolNestVirtual == null
+                                                                  : this$boolNestVirtual.equals(other$boolNestVirtual)) {
+                                                                  Object this$materialId = this.getMaterialId();
+                                                                  Object other$materialId = other.getMaterialId();
+                                                                  if (this$materialId == null
+                                                                     ? other$materialId == null
+                                                                     : this$materialId.equals(other$materialId)) {
+                                                                     Object this$boolNestFrozen = this.getBoolNestFrozen();
+                                                                     Object other$boolNestFrozen = other.getBoolNestFrozen();
+                                                                     if (this$boolNestFrozen == null
+                                                                        ? other$boolNestFrozen == null
+                                                                        : this$boolNestFrozen.equals(other$boolNestFrozen)) {
+                                                                        Object this$serialNumber = this.getSerialNumber();
+                                                                        Object other$serialNumber = other.getSerialNumber();
+                                                                        if (this$serialNumber == null
+                                                                           ? other$serialNumber == null
+                                                                           : this$serialNumber.equals(other$serialNumber)) {
+                                                                           Object this$classifyName = this.getClassifyName();
+                                                                           Object other$classifyName = other.getClassifyName();
+                                                                           if (this$classifyName == null
+                                                                              ? other$classifyName == null
+                                                                              : this$classifyName.equals(other$classifyName)) {
+                                                                              Object this$specification = this.getSpecification();
+                                                                              Object other$specification = other.getSpecification();
+                                                                              if (this$specification == null
+                                                                                 ? other$specification == null
+                                                                                 : this$specification.equals(other$specification)) {
+                                                                                 Object this$quantity = this.getQuantity();
+                                                                                 Object other$quantity = other.getQuantity();
+                                                                                 if (this$quantity == null
+                                                                                    ? other$quantity == null
+                                                                                    : this$quantity.equals(other$quantity)) {
+                                                                                    Object this$stockQuantity = this.getStockQuantity();
+                                                                                    Object other$stockQuantity = other.getStockQuantity();
+                                                                                    if (this$stockQuantity == null
+                                                                                       ? other$stockQuantity == null
+                                                                                       : this$stockQuantity.equals(other$stockQuantity)) {
+                                                                                       Object this$length = this.getLength();
+                                                                                       Object other$length = other.getLength();
+                                                                                       if (this$length == null
+                                                                                          ? other$length == null
+                                                                                          : this$length.equals(other$length)) {
+                                                                                          Object this$width = this.getWidth();
+                                                                                          Object other$width = other.getWidth();
+                                                                                          if (this$width == null
+                                                                                             ? other$width == null
+                                                                                             : this$width.equals(other$width)) {
+                                                                                             Object this$thickness = this.getThickness();
+                                                                                             Object other$thickness = other.getThickness();
+                                                                                             if (this$thickness == null
+                                                                                                ? other$thickness == null
+                                                                                                : this$thickness.equals(other$thickness)) {
+                                                                                                Object this$theoryThickness = this.getTheoryThickness();
+                                                                                                Object other$theoryThickness = other.getTheoryThickness();
+                                                                                                if (this$theoryThickness == null
+                                                                                                   ? other$theoryThickness == null
+                                                                                                   : this$theoryThickness.equals(other$theoryThickness)) {
+                                                                                                   Object this$oneTheoryWeight = this.getOneTheoryWeight();
+                                                                                                   Object other$oneTheoryWeight = other.getOneTheoryWeight();
+                                                                                                   if (this$oneTheoryWeight == null
+                                                                                                      ? other$oneTheoryWeight == null
+                                                                                                      : this$oneTheoryWeight.equals(other$oneTheoryWeight)) {
+                                                                                                      Object this$brand = this.getBrand();
+                                                                                                      Object other$brand = other.getBrand();
+                                                                                                      if (this$brand == null
+                                                                                                         ? other$brand == null
+                                                                                                         : this$brand.equals(other$brand)) {
+                                                                                                         Object this$heatNoAndBatchNo = this.getHeatNoAndBatchNo();
+                                                                                                         Object other$heatNoAndBatchNo = other.getHeatNoAndBatchNo();
+                                                                                                         if (this$heatNoAndBatchNo == null
+                                                                                                            ? other$heatNoAndBatchNo == null
+                                                                                                            : this$heatNoAndBatchNo.equals(
+                                                                                                               other$heatNoAndBatchNo
+                                                                                                            )) {
+                                                                                                            Object this$color = this.getColor();
+                                                                                                            Object other$color = other.getColor();
+                                                                                                            if (this$color == null
+                                                                                                               ? other$color == null
+                                                                                                               : this$color.equals(other$color)) {
+                                                                                                               Object this$measureUnit = this.getMeasureUnit();
+                                                                                                               Object other$measureUnit = other.getMeasureUnit();
+                                                                                                               if (this$measureUnit == null
+                                                                                                                  ? other$measureUnit == null
+                                                                                                                  : this$measureUnit.equals(other$measureUnit)) {
+                                                                                                                  Object this$accountingUnit = this.getAccountingUnit();
+                                                                                                                  Object other$accountingUnit = other.getAccountingUnit();
+                                                                                                                  if (this$accountingUnit == null
+                                                                                                                     ? other$accountingUnit == null
+                                                                                                                     : this$accountingUnit.equals(
+                                                                                                                        other$accountingUnit
+                                                                                                                     )) {
+                                                                                                                     Object this$unitNet = this.getUnitNet();
+                                                                                                                     Object other$unitNet = other.getUnitNet();
+                                                                                                                     if (this$unitNet == null
+                                                                                                                        ? other$unitNet == null
+                                                                                                                        : this$unitNet.equals(other$unitNet)) {
+                                                                                                                        Object this$mete = this.getMete();
+                                                                                                                        Object other$mete = other.getMete();
+                                                                                                                        if (this$mete == null
+                                                                                                                           ? other$mete == null
+                                                                                                                           : this$mete.equals(other$mete)) {
+                                                                                                                           Object this$taxRate = this.getTaxRate();
+                                                                                                                           Object other$taxRate = other.getTaxRate();
+                                                                                                                           if (this$taxRate == null
+                                                                                                                              ? other$taxRate == null
+                                                                                                                              : this$taxRate.equals(
+                                                                                                                                 other$taxRate
+                                                                                                                              )) {
+                                                                                                                              Object this$remark = this.getRemark();
+                                                                                                                              Object other$remark = other.getRemark();
+                                                                                                                              if (this$remark == null
+                                                                                                                                 ? other$remark == null
+                                                                                                                                 : this$remark.equals(
+                                                                                                                                    other$remark
+                                                                                                                                 )) {
+                                                                                                                                 Object this$outboundSn = this.getOutboundSn();
+                                                                                                                                 Object other$outboundSn = other.getOutboundSn();
+                                                                                                                                 if (this$outboundSn == null
+                                                                                                                                    ? other$outboundSn == null
+                                                                                                                                    : this$outboundSn.equals(
+                                                                                                                                       other$outboundSn
+                                                                                                                                    )) {
+                                                                                                                                    Object this$weightedAverageSpec = this.getWeightedAverageSpec();
+                                                                                                                                    Object other$weightedAverageSpec = other.getWeightedAverageSpec();
+                                                                                                                                    if (this$weightedAverageSpec
+                                                                                                                                          == null
+                                                                                                                                       ? other$weightedAverageSpec
+                                                                                                                                          == null
+                                                                                                                                       : this$weightedAverageSpec.equals(
+                                                                                                                                          other$weightedAverageSpec
+                                                                                                                                       )) {
+                                                                                                                                       Object this$inventoryStartTime = this.getInventoryStartTime();
+                                                                                                                                       Object other$inventoryStartTime = other.getInventoryStartTime();
+                                                                                                                                       if (this$inventoryStartTime
+                                                                                                                                             == null
+                                                                                                                                          ? other$inventoryStartTime
+                                                                                                                                             == null
+                                                                                                                                          : this$inventoryStartTime.equals(
+                                                                                                                                             other$inventoryStartTime
+                                                                                                                                          )) {
+                                                                                                                                          Object this$inventoryEndTime = this.getInventoryEndTime();
+                                                                                                                                          Object other$inventoryEndTime = other.getInventoryEndTime();
+                                                                                                                                          if (this$inventoryEndTime
+                                                                                                                                                == null
+                                                                                                                                             ? other$inventoryEndTime
+                                                                                                                                                == null
+                                                                                                                                             : this$inventoryEndTime.equals(
+                                                                                                                                                other$inventoryEndTime
+                                                                                                                                             )) {
+                                                                                                                                             Object this$standardName = this.getStandardName();
+                                                                                                                                             Object other$standardName = other.getStandardName();
+                                                                                                                                             if (this$standardName
+                                                                                                                                                   == null
+                                                                                                                                                ? other$standardName
+                                                                                                                                                   == null
+                                                                                                                                                : this$standardName.equals(
+                                                                                                                                                   other$standardName
+                                                                                                                                                )) {
+                                                                                                                                                Object this$sectionSteelWeight = this.getSectionSteelWeight();
+                                                                                                                                                Object other$sectionSteelWeight = other.getSectionSteelWeight();
+                                                                                                                                                if (this$sectionSteelWeight
+                                                                                                                                                      == null
+                                                                                                                                                   ? other$sectionSteelWeight
+                                                                                                                                                      == null
+                                                                                                                                                   : this$sectionSteelWeight.equals(
+                                                                                                                                                      other$sectionSteelWeight
+                                                                                                                                                   )) {
+                                                                                                                                                   Object this$surplusGraphicsPath = this.getSurplusGraphicsPath();
+                                                                                                                                                   Object other$surplusGraphicsPath = other.getSurplusGraphicsPath();
+                                                                                                                                                   if (this$surplusGraphicsPath
+                                                                                                                                                         == null
+                                                                                                                                                      ? other$surplusGraphicsPath
+                                                                                                                                                         == null
+                                                                                                                                                      : this$surplusGraphicsPath.equals(
+                                                                                                                                                         other$surplusGraphicsPath
+                                                                                                                                                      )) {
+                                                                                                                                                      Object this$barcode = this.getBarcode();
+                                                                                                                                                      Object other$barcode = other.getBarcode();
+                                                                                                                                                      if (this$barcode
+                                                                                                                                                            == null
+                                                                                                                                                         ? other$barcode
+                                                                                                                                                            == null
+                                                                                                                                                         : this$barcode.equals(
+                                                                                                                                                            other$barcode
+                                                                                                                                                         )) {
+                                                                                                                                                         Object this$surplusSn = this.getSurplusSn();
+                                                                                                                                                         Object other$surplusSn = other.getSurplusSn();
+                                                                                                                                                         if (this$surplusSn
+                                                                                                                                                               == null
+                                                                                                                                                            ? other$surplusSn
+                                                                                                                                                               == null
+                                                                                                                                                            : this$surplusSn.equals(
+                                                                                                                                                               other$surplusSn
+                                                                                                                                                            )) {
+                                                                                                                                                            Object this$guid = this.getGuid();
+                                                                                                                                                            Object other$guid = other.getGuid();
+                                                                                                                                                            if (this$guid
+                                                                                                                                                                  == null
+                                                                                                                                                               ? other$guid
+                                                                                                                                                                  == null
+                                                                                                                                                               : this$guid.equals(
+                                                                                                                                                                  other$guid
+                                                                                                                                                               )
+                                                                                                                                                               )
+                                                                                                                                                             {
+                                                                                                                                                               Object this$stockGuid = this.getStockGuid();
+                                                                                                                                                               Object other$stockGuid = other.getStockGuid();
+                                                                                                                                                               if (this$stockGuid
+                                                                                                                                                                     == null
+                                                                                                                                                                  ? other$stockGuid
+                                                                                                                                                                     == null
+                                                                                                                                                                  : this$stockGuid.equals(
+                                                                                                                                                                     other$stockGuid
+                                                                                                                                                                  )
+                                                                                                                                                                  )
+                                                                                                                                                                {
+                                                                                                                                                                  Object this$stockCutGuid = this.getStockCutGuid();
+                                                                                                                                                                  Object other$stockCutGuid = other.getStockCutGuid();
+                                                                                                                                                                  if (this$stockCutGuid
+                                                                                                                                                                        == null
+                                                                                                                                                                     ? other$stockCutGuid
+                                                                                                                                                                        == null
+                                                                                                                                                                     : this$stockCutGuid.equals(
+                                                                                                                                                                        other$stockCutGuid
+                                                                                                                                                                     )
+                                                                                                                                                                     )
+                                                                                                                                                                   {
+                                                                                                                                                                     Object this$dxfUrl = this.getDxfUrl();
+                                                                                                                                                                     Object other$dxfUrl = other.getDxfUrl();
+                                                                                                                                                                     if (this$dxfUrl
+                                                                                                                                                                           == null
+                                                                                                                                                                        ? other$dxfUrl
+                                                                                                                                                                           == null
+                                                                                                                                                                        : this$dxfUrl.equals(
+                                                                                                                                                                           other$dxfUrl
+                                                                                                                                                                        )
+                                                                                                                                                                        )
+                                                                                                                                                                      {
+                                                                                                                                                                        Object this$imageUrl = this.getImageUrl();
+                                                                                                                                                                        Object other$imageUrl = other.getImageUrl();
+                                                                                                                                                                        if (this$imageUrl
+                                                                                                                                                                              == null
+                                                                                                                                                                           ? other$imageUrl
+                                                                                                                                                                              == null
+                                                                                                                                                                           : this$imageUrl.equals(
+                                                                                                                                                                              other$imageUrl
+                                                                                                                                                                           )
+                                                                                                                                                                           )
+                                                                                                                                                                         {
+                                                                                                                                                                           Object this$imageName = this.getImageName();
+                                                                                                                                                                           Object other$imageName = other.getImageName();
+                                                                                                                                                                           if (this$imageName
+                                                                                                                                                                                 == null
+                                                                                                                                                                              ? other$imageName
+                                                                                                                                                                                 == null
+                                                                                                                                                                              : this$imageName.equals(
+                                                                                                                                                                                 other$imageName
+                                                                                                                                                                              )
+                                                                                                                                                                              )
+                                                                                                                                                                            {
+                                                                                                                                                                              Object this$dxfName = this.getDxfName();
+                                                                                                                                                                              Object other$dxfName = other.getDxfName();
+                                                                                                                                                                              if (this$dxfName
+                                                                                                                                                                                    == null
+                                                                                                                                                                                 ? other$dxfName
+                                                                                                                                                                                    == null
+                                                                                                                                                                                 : this$dxfName.equals(
+                                                                                                                                                                                    other$dxfName
+                                                                                                                                                                                 )
+                                                                                                                                                                                 )
+                                                                                                                                                                               {
+                                                                                                                                                                                 Object this$nestFrozenGuid = this.getNestFrozenGuid();
+                                                                                                                                                                                 Object other$nestFrozenGuid = other.getNestFrozenGuid();
+                                                                                                                                                                                 if (this$nestFrozenGuid
+                                                                                                                                                                                       == null
+                                                                                                                                                                                    ? other$nestFrozenGuid
+                                                                                                                                                                                       == null
+                                                                                                                                                                                    : this$nestFrozenGuid.equals(
+                                                                                                                                                                                       other$nestFrozenGuid
+                                                                                                                                                                                    )
+                                                                                                                                                                                    )
+                                                                                                                                                                                  {
+                                                                                                                                                                                    Object this$area = this.getArea();
+                                                                                                                                                                                    Object other$area = other.getArea();
+                                                                                                                                                                                    if (this$area
+                                                                                                                                                                                          == null
+                                                                                                                                                                                       ? other$area
+                                                                                                                                                                                          == null
+                                                                                                                                                                                       : this$area.equals(
+                                                                                                                                                                                          other$area
+                                                                                                                                                                                       )
+                                                                                                                                                                                       )
+                                                                                                                                                                                     {
+                                                                                                                                                                                       Object this$ossImageUrl = this.getOssImageUrl();
+                                                                                                                                                                                       Object other$ossImageUrl = other.getOssImageUrl();
+                                                                                                                                                                                       if (this$ossImageUrl
+                                                                                                                                                                                             == null
+                                                                                                                                                                                          ? other$ossImageUrl
+                                                                                                                                                                                             == null
+                                                                                                                                                                                          : this$ossImageUrl.equals(
+                                                                                                                                                                                             other$ossImageUrl
+                                                                                                                                                                                          )
+                                                                                                                                                                                          )
+                                                                                                                                                                                        {
+                                                                                                                                                                                          Object this$ossDxfUrl = this.getOssDxfUrl();
+                                                                                                                                                                                          Object other$ossDxfUrl = other.getOssDxfUrl();
+                                                                                                                                                                                          return this$ossDxfUrl
+                                                                                                                                                                                                == null
+                                                                                                                                                                                             ? other$ossDxfUrl
+                                                                                                                                                                                                == null
+                                                                                                                                                                                             : this$ossDxfUrl.equals(
+                                                                                                                                                                                                other$ossDxfUrl
+                                                                                                                                                                                             );
+                                                                                                                                                                                       } else {
+                                                                                                                                                                                          return false;
+                                                                                                                                                                                       }
+                                                                                                                                                                                    } else {
+                                                                                                                                                                                       return false;
+                                                                                                                                                                                    }
+                                                                                                                                                                                 } else {
+                                                                                                                                                                                    return false;
+                                                                                                                                                                                 }
+                                                                                                                                                                              } else {
+                                                                                                                                                                                 return false;
+                                                                                                                                                                              }
+                                                                                                                                                                           } else {
+                                                                                                                                                                              return false;
+                                                                                                                                                                           }
+                                                                                                                                                                        } else {
+                                                                                                                                                                           return false;
+                                                                                                                                                                        }
+                                                                                                                                                                     } else {
+                                                                                                                                                                        return false;
+                                                                                                                                                                     }
+                                                                                                                                                                  } else {
+                                                                                                                                                                     return false;
+                                                                                                                                                                  }
+                                                                                                                                                               } else {
+                                                                                                                                                                  return false;
+                                                                                                                                                               }
+                                                                                                                                                            } else {
+                                                                                                                                                               return false;
+                                                                                                                                                            }
+                                                                                                                                                         } else {
+                                                                                                                                                            return false;
+                                                                                                                                                         }
+                                                                                                                                                      } else {
+                                                                                                                                                         return false;
+                                                                                                                                                      }
+                                                                                                                                                   } else {
+                                                                                                                                                      return false;
+                                                                                                                                                   }
+                                                                                                                                                } else {
+                                                                                                                                                   return false;
+                                                                                                                                                }
+                                                                                                                                             } else {
+                                                                                                                                                return false;
+                                                                                                                                             }
+                                                                                                                                          } else {
+                                                                                                                                             return false;
+                                                                                                                                          }
+                                                                                                                                       } else {
+                                                                                                                                          return false;
+                                                                                                                                       }
+                                                                                                                                    } else {
+                                                                                                                                       return false;
+                                                                                                                                    }
+                                                                                                                                 } else {
+                                                                                                                                    return false;
+                                                                                                                                 }
+                                                                                                                              } else {
+                                                                                                                                 return false;
+                                                                                                                              }
+                                                                                                                           } else {
+                                                                                                                              return false;
+                                                                                                                           }
+                                                                                                                        } else {
+                                                                                                                           return false;
+                                                                                                                        }
+                                                                                                                     } else {
+                                                                                                                        return false;
+                                                                                                                     }
+                                                                                                                  } else {
+                                                                                                                     return false;
+                                                                                                                  }
+                                                                                                               } else {
+                                                                                                                  return false;
+                                                                                                               }
+                                                                                                            } else {
+                                                                                                               return false;
+                                                                                                            }
+                                                                                                         } else {
+                                                                                                            return false;
+                                                                                                         }
+                                                                                                      } else {
+                                                                                                         return false;
+                                                                                                      }
+                                                                                                   } else {
+                                                                                                      return false;
+                                                                                                   }
+                                                                                                } else {
+                                                                                                   return false;
+                                                                                                }
+                                                                                             } else {
+                                                                                                return false;
+                                                                                             }
+                                                                                          } else {
+                                                                                             return false;
+                                                                                          }
+                                                                                       } else {
+                                                                                          return false;
+                                                                                       }
+                                                                                    } else {
+                                                                                       return false;
+                                                                                    }
+                                                                                 } else {
+                                                                                    return false;
+                                                                                 }
+                                                                              } else {
+                                                                                 return false;
+                                                                              }
+                                                                           } else {
+                                                                              return false;
+                                                                           }
+                                                                        } else {
+                                                                           return false;
+                                                                        }
+                                                                     } else {
+                                                                        return false;
+                                                                     }
+                                                                  } else {
+                                                                     return false;
+                                                                  }
+                                                               } else {
+                                                                  return false;
+                                                               }
+                                                            } else {
+                                                               return false;
+                                                            }
+                                                         } else {
+                                                            return false;
+                                                         }
+                                                      } else {
+                                                         return false;
+                                                      }
+                                                   } else {
+                                                      return false;
+                                                   }
+                                                } else {
+                                                   return false;
+                                                }
+                                             } else {
+                                                return false;
+                                             }
+                                          } else {
+                                             return false;
+                                          }
+                                       } else {
+                                          return false;
+                                       }
+                                    } else {
+                                       return false;
+                                    }
+                                 } else {
+                                    return false;
+                                 }
+                              } else {
+                                 return false;
+                              }
+                           } else {
+                              return false;
+                           }
+                        } else {
+                           return false;
+                        }
+                     } else {
+                        return false;
+                     }
+                  } else {
+                     return false;
+                  }
+               } else {
+                  return false;
+               }
+            } else {
+               return false;
+            }
+         } else {
+            return false;
+         }
+      } else {
+         return false;
+      }
+   }
+
+   @Override
+   protected boolean canEqual(final Object other) {
+      return other instanceof WmsSurplusMaterials;
+   }
+
+   @Override
+   public int hashCode() {
+      int PRIME = 59;
+      int result = super.hashCode();
+      Object $id = this.getId();
+      result = result * 59 + ($id == null ? 43 : $id.hashCode());
+      Object $useStatus = this.getUseStatus();
+      result = result * 59 + ($useStatus == null ? 43 : $useStatus.hashCode());
+      Object $basicClass = this.getBasicClass();
+      result = result * 59 + ($basicClass == null ? 43 : $basicClass.hashCode());
+      Object $classifyId = this.getClassifyId();
+      result = result * 59 + ($classifyId == null ? 43 : $classifyId.hashCode());
+      Object $materialIsWhole = this.getMaterialIsWhole();
+      result = result * 59 + ($materialIsWhole == null ? 43 : $materialIsWhole.hashCode());
+      Object $warehouseType = this.getWarehouseType();
+      result = result * 59 + ($warehouseType == null ? 43 : $warehouseType.hashCode());
+      Object $projectId = this.getProjectId();
+      result = result * 59 + ($projectId == null ? 43 : $projectId.hashCode());
+      Object $monomerId = this.getMonomerId();
+      result = result * 59 + ($monomerId == null ? 43 : $monomerId.hashCode());
+      Object $areaId = this.getAreaId();
+      result = result * 59 + ($areaId == null ? 43 : $areaId.hashCode());
+      Object $boolPartyA = this.getBoolPartyA();
+      result = result * 59 + ($boolPartyA == null ? 43 : $boolPartyA.hashCode());
+      Object $accountingPrecision = this.getAccountingPrecision();
+      result = result * 59 + ($accountingPrecision == null ? 43 : $accountingPrecision.hashCode());
+      Object $warehouseId = this.getWarehouseId();
+      result = result * 59 + ($warehouseId == null ? 43 : $warehouseId.hashCode());
+      Object $factoryId = this.getFactoryId();
+      result = result * 59 + ($factoryId == null ? 43 : $factoryId.hashCode());
+      Object $weightMeasurementMode = this.getWeightMeasurementMode();
+      result = result * 59 + ($weightMeasurementMode == null ? 43 : $weightMeasurementMode.hashCode());
+      Object $invoiceType = this.getInvoiceType();
+      result = result * 59 + ($invoiceType == null ? 43 : $invoiceType.hashCode());
+      Object $standardId = this.getStandardId();
+      result = result * 59 + ($standardId == null ? 43 : $standardId.hashCode());
+      Object $sourceMaterielId = this.getSourceMaterielId();
+      result = result * 59 + ($sourceMaterielId == null ? 43 : $sourceMaterielId.hashCode());
+      Object $plateId = this.getPlateId();
+      result = result * 59 + ($plateId == null ? 43 : $plateId.hashCode());
+      Object $materialInventoryId = this.getMaterialInventoryId();
+      result = result * 59 + ($materialInventoryId == null ? 43 : $materialInventoryId.hashCode());
+      Object $boolNestVirtual = this.getBoolNestVirtual();
+      result = result * 59 + ($boolNestVirtual == null ? 43 : $boolNestVirtual.hashCode());
+      Object $materialId = this.getMaterialId();
+      result = result * 59 + ($materialId == null ? 43 : $materialId.hashCode());
+      Object $boolNestFrozen = this.getBoolNestFrozen();
+      result = result * 59 + ($boolNestFrozen == null ? 43 : $boolNestFrozen.hashCode());
+      Object $serialNumber = this.getSerialNumber();
+      result = result * 59 + ($serialNumber == null ? 43 : $serialNumber.hashCode());
+      Object $classifyName = this.getClassifyName();
+      result = result * 59 + ($classifyName == null ? 43 : $classifyName.hashCode());
+      Object $specification = this.getSpecification();
+      result = result * 59 + ($specification == null ? 43 : $specification.hashCode());
+      Object $quantity = this.getQuantity();
+      result = result * 59 + ($quantity == null ? 43 : $quantity.hashCode());
+      Object $stockQuantity = this.getStockQuantity();
+      result = result * 59 + ($stockQuantity == null ? 43 : $stockQuantity.hashCode());
+      Object $length = this.getLength();
+      result = result * 59 + ($length == null ? 43 : $length.hashCode());
+      Object $width = this.getWidth();
+      result = result * 59 + ($width == null ? 43 : $width.hashCode());
+      Object $thickness = this.getThickness();
+      result = result * 59 + ($thickness == null ? 43 : $thickness.hashCode());
+      Object $theoryThickness = this.getTheoryThickness();
+      result = result * 59 + ($theoryThickness == null ? 43 : $theoryThickness.hashCode());
+      Object $oneTheoryWeight = this.getOneTheoryWeight();
+      result = result * 59 + ($oneTheoryWeight == null ? 43 : $oneTheoryWeight.hashCode());
+      Object $brand = this.getBrand();
+      result = result * 59 + ($brand == null ? 43 : $brand.hashCode());
+      Object $heatNoAndBatchNo = this.getHeatNoAndBatchNo();
+      result = result * 59 + ($heatNoAndBatchNo == null ? 43 : $heatNoAndBatchNo.hashCode());
+      Object $color = this.getColor();
+      result = result * 59 + ($color == null ? 43 : $color.hashCode());
+      Object $measureUnit = this.getMeasureUnit();
+      result = result * 59 + ($measureUnit == null ? 43 : $measureUnit.hashCode());
+      Object $accountingUnit = this.getAccountingUnit();
+      result = result * 59 + ($accountingUnit == null ? 43 : $accountingUnit.hashCode());
+      Object $unitNet = this.getUnitNet();
+      result = result * 59 + ($unitNet == null ? 43 : $unitNet.hashCode());
+      Object $mete = this.getMete();
+      result = result * 59 + ($mete == null ? 43 : $mete.hashCode());
+      Object $taxRate = this.getTaxRate();
+      result = result * 59 + ($taxRate == null ? 43 : $taxRate.hashCode());
+      Object $remark = this.getRemark();
+      result = result * 59 + ($remark == null ? 43 : $remark.hashCode());
+      Object $outboundSn = this.getOutboundSn();
+      result = result * 59 + ($outboundSn == null ? 43 : $outboundSn.hashCode());
+      Object $weightedAverageSpec = this.getWeightedAverageSpec();
+      result = result * 59 + ($weightedAverageSpec == null ? 43 : $weightedAverageSpec.hashCode());
+      Object $inventoryStartTime = this.getInventoryStartTime();
+      result = result * 59 + ($inventoryStartTime == null ? 43 : $inventoryStartTime.hashCode());
+      Object $inventoryEndTime = this.getInventoryEndTime();
+      result = result * 59 + ($inventoryEndTime == null ? 43 : $inventoryEndTime.hashCode());
+      Object $standardName = this.getStandardName();
+      result = result * 59 + ($standardName == null ? 43 : $standardName.hashCode());
+      Object $sectionSteelWeight = this.getSectionSteelWeight();
+      result = result * 59 + ($sectionSteelWeight == null ? 43 : $sectionSteelWeight.hashCode());
+      Object $surplusGraphicsPath = this.getSurplusGraphicsPath();
+      result = result * 59 + ($surplusGraphicsPath == null ? 43 : $surplusGraphicsPath.hashCode());
+      Object $barcode = this.getBarcode();
+      result = result * 59 + ($barcode == null ? 43 : $barcode.hashCode());
+      Object $surplusSn = this.getSurplusSn();
+      result = result * 59 + ($surplusSn == null ? 43 : $surplusSn.hashCode());
+      Object $guid = this.getGuid();
+      result = result * 59 + ($guid == null ? 43 : $guid.hashCode());
+      Object $stockGuid = this.getStockGuid();
+      result = result * 59 + ($stockGuid == null ? 43 : $stockGuid.hashCode());
+      Object $stockCutGuid = this.getStockCutGuid();
+      result = result * 59 + ($stockCutGuid == null ? 43 : $stockCutGuid.hashCode());
+      Object $dxfUrl = this.getDxfUrl();
+      result = result * 59 + ($dxfUrl == null ? 43 : $dxfUrl.hashCode());
+      Object $imageUrl = this.getImageUrl();
+      result = result * 59 + ($imageUrl == null ? 43 : $imageUrl.hashCode());
+      Object $imageName = this.getImageName();
+      result = result * 59 + ($imageName == null ? 43 : $imageName.hashCode());
+      Object $dxfName = this.getDxfName();
+      result = result * 59 + ($dxfName == null ? 43 : $dxfName.hashCode());
+      Object $nestFrozenGuid = this.getNestFrozenGuid();
+      result = result * 59 + ($nestFrozenGuid == null ? 43 : $nestFrozenGuid.hashCode());
+      Object $area = this.getArea();
+      result = result * 59 + ($area == null ? 43 : $area.hashCode());
+      Object $ossImageUrl = this.getOssImageUrl();
+      result = result * 59 + ($ossImageUrl == null ? 43 : $ossImageUrl.hashCode());
+      Object $ossDxfUrl = this.getOssDxfUrl();
+      return result * 59 + ($ossDxfUrl == null ? 43 : $ossDxfUrl.hashCode());
+   }
+
+   public static class WmsSurplusMaterialsBuilder {
+      private Long id;
+      private Boolean useStatus;
+      private String serialNumber;
+      private Integer basicClass;
+      private Long classifyId;
+      private String classifyName;
+      private String specification;
+      private Integer materialIsWhole;
+      private Integer warehouseType;
+      private Long projectId;
+      private Long monomerId;
+      private Long areaId;
+      private Boolean boolPartyA;
+      private BigDecimal quantity;
+      private BigDecimal stockQuantity;
+      private BigDecimal length;
+      private BigDecimal width;
+      private BigDecimal thickness;
+      private BigDecimal theoryThickness;
+      private BigDecimal oneTheoryWeight;
+      private String brand;
+      private String heatNoAndBatchNo;
+      private String color;
+      private String measureUnit;
+      private Integer accountingPrecision;
+      private String accountingUnit;
+      private BigDecimal unitNet;
+      private BigDecimal mete;
+      private Long warehouseId;
+      private Long factoryId;
+      private Integer weightMeasurementMode;
+      private BigDecimal taxRate;
+      private Integer invoiceType;
+      private String remark;
+      private String outboundSn;
+      private String weightedAverageSpec;
+      private LocalDateTime inventoryStartTime;
+      private LocalDateTime inventoryEndTime;
+      private Long standardId;
+      private String standardName;
+      private BigDecimal sectionSteelWeight;
+      private String surplusGraphicsPath;
+      private Long sourceMaterielId;
+      private String barcode;
+      private String surplusSn;
+      private Long plateId;
+      private Long materialInventoryId;
+      private String guid;
+      private String stockGuid;
+      private String stockCutGuid;
+      private Boolean boolNestVirtual;
+      private String dxfUrl;
+      private String imageUrl;
+      private String imageName;
+      private String dxfName;
+      private Long materialId;
+      private Boolean boolNestFrozen;
+      private String nestFrozenGuid;
+      private BigDecimal area;
+      private String ossImageUrl;
+      private String ossDxfUrl;
+
+      WmsSurplusMaterialsBuilder() {
+      }
+
+      @JsonProperty("id")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder id(final Long id) {
+         this.id = id;
+         return this;
+      }
+
+      @JsonProperty("useStatus")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder useStatus(final Boolean useStatus) {
+         this.useStatus = useStatus;
+         return this;
+      }
+
+      @JsonProperty("serialNumber")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder serialNumber(final String serialNumber) {
+         this.serialNumber = serialNumber;
+         return this;
+      }
+
+      @JsonProperty("basicClass")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder basicClass(final Integer basicClass) {
+         this.basicClass = basicClass;
+         return this;
+      }
+
+      @JsonProperty("classifyId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder classifyId(final Long classifyId) {
+         this.classifyId = classifyId;
+         return this;
+      }
+
+      @JsonProperty("classifyName")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder classifyName(final String classifyName) {
+         this.classifyName = classifyName;
+         return this;
+      }
+
+      @JsonProperty("specification")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder specification(final String specification) {
+         this.specification = specification;
+         return this;
+      }
+
+      @JsonProperty("materialIsWhole")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder materialIsWhole(final Integer materialIsWhole) {
+         this.materialIsWhole = materialIsWhole;
+         return this;
+      }
+
+      @JsonProperty("warehouseType")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder warehouseType(final Integer warehouseType) {
+         this.warehouseType = warehouseType;
+         return this;
+      }
+
+      @JsonProperty("projectId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder projectId(final Long projectId) {
+         this.projectId = projectId;
+         return this;
+      }
+
+      @JsonProperty("monomerId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder monomerId(final Long monomerId) {
+         this.monomerId = monomerId;
+         return this;
+      }
+
+      @JsonProperty("areaId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder areaId(final Long areaId) {
+         this.areaId = areaId;
+         return this;
+      }
+
+      @JsonProperty("boolPartyA")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder boolPartyA(final Boolean boolPartyA) {
+         this.boolPartyA = boolPartyA;
+         return this;
+      }
+
+      @JsonProperty("quantity")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder quantity(final BigDecimal quantity) {
+         this.quantity = quantity;
+         return this;
+      }
+
+      @JsonProperty("stockQuantity")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder stockQuantity(final BigDecimal stockQuantity) {
+         this.stockQuantity = stockQuantity;
+         return this;
+      }
+
+      @JsonProperty("length")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder length(final BigDecimal length) {
+         this.length = length;
+         return this;
+      }
+
+      @JsonProperty("width")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder width(final BigDecimal width) {
+         this.width = width;
+         return this;
+      }
+
+      @JsonProperty("thickness")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder thickness(final BigDecimal thickness) {
+         this.thickness = thickness;
+         return this;
+      }
+
+      @JsonProperty("theoryThickness")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder theoryThickness(final BigDecimal theoryThickness) {
+         this.theoryThickness = theoryThickness;
+         return this;
+      }
+
+      @JsonProperty("oneTheoryWeight")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder oneTheoryWeight(final BigDecimal oneTheoryWeight) {
+         this.oneTheoryWeight = oneTheoryWeight;
+         return this;
+      }
+
+      @JsonProperty("brand")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder brand(final String brand) {
+         this.brand = brand;
+         return this;
+      }
+
+      @JsonProperty("heatNoAndBatchNo")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder heatNoAndBatchNo(final String heatNoAndBatchNo) {
+         this.heatNoAndBatchNo = heatNoAndBatchNo;
+         return this;
+      }
+
+      @JsonProperty("color")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder color(final String color) {
+         this.color = color;
+         return this;
+      }
+
+      @JsonProperty("measureUnit")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder measureUnit(final String measureUnit) {
+         this.measureUnit = measureUnit;
+         return this;
+      }
+
+      @JsonProperty("accountingPrecision")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder accountingPrecision(final Integer accountingPrecision) {
+         this.accountingPrecision = accountingPrecision;
+         return this;
+      }
+
+      @JsonProperty("accountingUnit")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder accountingUnit(final String accountingUnit) {
+         this.accountingUnit = accountingUnit;
+         return this;
+      }
+
+      @JsonProperty("unitNet")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder unitNet(final BigDecimal unitNet) {
+         this.unitNet = unitNet;
+         return this;
+      }
+
+      @JsonProperty("mete")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder mete(final BigDecimal mete) {
+         this.mete = mete;
+         return this;
+      }
+
+      @JsonProperty("warehouseId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder warehouseId(final Long warehouseId) {
+         this.warehouseId = warehouseId;
+         return this;
+      }
+
+      @JsonProperty("factoryId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder factoryId(final Long factoryId) {
+         this.factoryId = factoryId;
+         return this;
+      }
+
+      @JsonProperty("weightMeasurementMode")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder weightMeasurementMode(final Integer weightMeasurementMode) {
+         this.weightMeasurementMode = weightMeasurementMode;
+         return this;
+      }
+
+      @JsonProperty("taxRate")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder taxRate(final BigDecimal taxRate) {
+         this.taxRate = taxRate;
+         return this;
+      }
+
+      @JsonProperty("invoiceType")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder invoiceType(final Integer invoiceType) {
+         this.invoiceType = invoiceType;
+         return this;
+      }
+
+      @JsonProperty("remark")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder remark(final String remark) {
+         this.remark = remark;
+         return this;
+      }
+
+      @JsonProperty("outboundSn")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder outboundSn(final String outboundSn) {
+         this.outboundSn = outboundSn;
+         return this;
+      }
+
+      @JsonProperty("weightedAverageSpec")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder weightedAverageSpec(final String weightedAverageSpec) {
+         this.weightedAverageSpec = weightedAverageSpec;
+         return this;
+      }
+
+      @JsonProperty("inventoryStartTime")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder inventoryStartTime(final LocalDateTime inventoryStartTime) {
+         this.inventoryStartTime = inventoryStartTime;
+         return this;
+      }
+
+      @JsonProperty("inventoryEndTime")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder inventoryEndTime(final LocalDateTime inventoryEndTime) {
+         this.inventoryEndTime = inventoryEndTime;
+         return this;
+      }
+
+      @JsonProperty("standardId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder standardId(final Long standardId) {
+         this.standardId = standardId;
+         return this;
+      }
+
+      @JsonProperty("standardName")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder standardName(final String standardName) {
+         this.standardName = standardName;
+         return this;
+      }
+
+      @JsonProperty("sectionSteelWeight")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder sectionSteelWeight(final BigDecimal sectionSteelWeight) {
+         this.sectionSteelWeight = sectionSteelWeight;
+         return this;
+      }
+
+      @JsonProperty("surplusGraphicsPath")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder surplusGraphicsPath(final String surplusGraphicsPath) {
+         this.surplusGraphicsPath = surplusGraphicsPath;
+         return this;
+      }
+
+      @JsonProperty("sourceMaterielId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder sourceMaterielId(final Long sourceMaterielId) {
+         this.sourceMaterielId = sourceMaterielId;
+         return this;
+      }
+
+      @JsonProperty("barcode")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder barcode(final String barcode) {
+         this.barcode = barcode;
+         return this;
+      }
+
+      @JsonProperty("surplusSn")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder surplusSn(final String surplusSn) {
+         this.surplusSn = surplusSn;
+         return this;
+      }
+
+      @JsonProperty("plateId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder plateId(final Long plateId) {
+         this.plateId = plateId;
+         return this;
+      }
+
+      @JsonProperty("materialInventoryId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder materialInventoryId(final Long materialInventoryId) {
+         this.materialInventoryId = materialInventoryId;
+         return this;
+      }
+
+      @JsonProperty("guid")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder guid(final String guid) {
+         this.guid = guid;
+         return this;
+      }
+
+      @JsonProperty("stockGuid")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder stockGuid(final String stockGuid) {
+         this.stockGuid = stockGuid;
+         return this;
+      }
+
+      @JsonProperty("stockCutGuid")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder stockCutGuid(final String stockCutGuid) {
+         this.stockCutGuid = stockCutGuid;
+         return this;
+      }
+
+      @JsonProperty("boolNestVirtual")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder boolNestVirtual(final Boolean boolNestVirtual) {
+         this.boolNestVirtual = boolNestVirtual;
+         return this;
+      }
+
+      @JsonProperty("dxfUrl")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder dxfUrl(final String dxfUrl) {
+         this.dxfUrl = dxfUrl;
+         return this;
+      }
+
+      @JsonProperty("imageUrl")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder imageUrl(final String imageUrl) {
+         this.imageUrl = imageUrl;
+         return this;
+      }
+
+      @JsonProperty("imageName")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder imageName(final String imageName) {
+         this.imageName = imageName;
+         return this;
+      }
+
+      @JsonProperty("dxfName")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder dxfName(final String dxfName) {
+         this.dxfName = dxfName;
+         return this;
+      }
+
+      @JsonProperty("materialId")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder materialId(final Long materialId) {
+         this.materialId = materialId;
+         return this;
+      }
+
+      @JsonProperty("boolNestFrozen")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder boolNestFrozen(final Boolean boolNestFrozen) {
+         this.boolNestFrozen = boolNestFrozen;
+         return this;
+      }
+
+      @JsonProperty("nestFrozenGuid")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder nestFrozenGuid(final String nestFrozenGuid) {
+         this.nestFrozenGuid = nestFrozenGuid;
+         return this;
+      }
+
+      @JsonProperty("area")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder area(final BigDecimal area) {
+         this.area = area;
+         return this;
+      }
+
+      @JsonProperty("ossImageUrl")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder ossImageUrl(final String ossImageUrl) {
+         this.ossImageUrl = ossImageUrl;
+         return this;
+      }
+
+      @JsonProperty("OssDxfUrl")
+      public WmsSurplusMaterials.WmsSurplusMaterialsBuilder ossDxfUrl(final String ossDxfUrl) {
+         this.ossDxfUrl = ossDxfUrl;
+         return this;
+      }
+
+      public WmsSurplusMaterials build() {
+         return new WmsSurplusMaterials(
+            this.id,
+            this.useStatus,
+            this.serialNumber,
+            this.basicClass,
+            this.classifyId,
+            this.classifyName,
+            this.specification,
+            this.materialIsWhole,
+            this.warehouseType,
+            this.projectId,
+            this.monomerId,
+            this.areaId,
+            this.boolPartyA,
+            this.quantity,
+            this.stockQuantity,
+            this.length,
+            this.width,
+            this.thickness,
+            this.theoryThickness,
+            this.oneTheoryWeight,
+            this.brand,
+            this.heatNoAndBatchNo,
+            this.color,
+            this.measureUnit,
+            this.accountingPrecision,
+            this.accountingUnit,
+            this.unitNet,
+            this.mete,
+            this.warehouseId,
+            this.factoryId,
+            this.weightMeasurementMode,
+            this.taxRate,
+            this.invoiceType,
+            this.remark,
+            this.outboundSn,
+            this.weightedAverageSpec,
+            this.inventoryStartTime,
+            this.inventoryEndTime,
+            this.standardId,
+            this.standardName,
+            this.sectionSteelWeight,
+            this.surplusGraphicsPath,
+            this.sourceMaterielId,
+            this.barcode,
+            this.surplusSn,
+            this.plateId,
+            this.materialInventoryId,
+            this.guid,
+            this.stockGuid,
+            this.stockCutGuid,
+            this.boolNestVirtual,
+            this.dxfUrl,
+            this.imageUrl,
+            this.imageName,
+            this.dxfName,
+            this.materialId,
+            this.boolNestFrozen,
+            this.nestFrozenGuid,
+            this.area,
+            this.ossImageUrl,
+            this.ossDxfUrl
+         );
+      }
+
+      @Override
+      public String toString() {
+         return "WmsSurplusMaterials.WmsSurplusMaterialsBuilder(id="
+            + this.id
+            + ", useStatus="
+            + this.useStatus
+            + ", serialNumber="
+            + this.serialNumber
+            + ", basicClass="
+            + this.basicClass
+            + ", classifyId="
+            + this.classifyId
+            + ", classifyName="
+            + this.classifyName
+            + ", specification="
+            + this.specification
+            + ", materialIsWhole="
+            + this.materialIsWhole
+            + ", warehouseType="
+            + this.warehouseType
+            + ", projectId="
+            + this.projectId
+            + ", monomerId="
+            + this.monomerId
+            + ", areaId="
+            + this.areaId
+            + ", boolPartyA="
+            + this.boolPartyA
+            + ", quantity="
+            + this.quantity
+            + ", stockQuantity="
+            + this.stockQuantity
+            + ", length="
+            + this.length
+            + ", width="
+            + this.width
+            + ", thickness="
+            + this.thickness
+            + ", theoryThickness="
+            + this.theoryThickness
+            + ", oneTheoryWeight="
+            + this.oneTheoryWeight
+            + ", brand="
+            + this.brand
+            + ", heatNoAndBatchNo="
+            + this.heatNoAndBatchNo
+            + ", color="
+            + this.color
+            + ", measureUnit="
+            + this.measureUnit
+            + ", accountingPrecision="
+            + this.accountingPrecision
+            + ", accountingUnit="
+            + this.accountingUnit
+            + ", unitNet="
+            + this.unitNet
+            + ", mete="
+            + this.mete
+            + ", warehouseId="
+            + this.warehouseId
+            + ", factoryId="
+            + this.factoryId
+            + ", weightMeasurementMode="
+            + this.weightMeasurementMode
+            + ", taxRate="
+            + this.taxRate
+            + ", invoiceType="
+            + this.invoiceType
+            + ", remark="
+            + this.remark
+            + ", outboundSn="
+            + this.outboundSn
+            + ", weightedAverageSpec="
+            + this.weightedAverageSpec
+            + ", inventoryStartTime="
+            + this.inventoryStartTime
+            + ", inventoryEndTime="
+            + this.inventoryEndTime
+            + ", standardId="
+            + this.standardId
+            + ", standardName="
+            + this.standardName
+            + ", sectionSteelWeight="
+            + this.sectionSteelWeight
+            + ", surplusGraphicsPath="
+            + this.surplusGraphicsPath
+            + ", sourceMaterielId="
+            + this.sourceMaterielId
+            + ", barcode="
+            + this.barcode
+            + ", surplusSn="
+            + this.surplusSn
+            + ", plateId="
+            + this.plateId
+            + ", materialInventoryId="
+            + this.materialInventoryId
+            + ", guid="
+            + this.guid
+            + ", stockGuid="
+            + this.stockGuid
+            + ", stockCutGuid="
+            + this.stockCutGuid
+            + ", boolNestVirtual="
+            + this.boolNestVirtual
+            + ", dxfUrl="
+            + this.dxfUrl
+            + ", imageUrl="
+            + this.imageUrl
+            + ", imageName="
+            + this.imageName
+            + ", dxfName="
+            + this.dxfName
+            + ", materialId="
+            + this.materialId
+            + ", boolNestFrozen="
+            + this.boolNestFrozen
+            + ", nestFrozenGuid="
+            + this.nestFrozenGuid
+            + ", area="
+            + this.area
+            + ", ossImageUrl="
+            + this.ossImageUrl
+            + ", ossDxfUrl="
+            + this.ossDxfUrl
+            + ")";
+      }
+   }
+}

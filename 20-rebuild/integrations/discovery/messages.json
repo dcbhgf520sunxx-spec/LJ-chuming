@@ -1,0 +1,700 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-06",
+  "phase": "static_preparation_before_testing",
+  "claim": "六项均未接通验收；config_ready仅表示已有读取入口，不代表部署传入、凭据有效或业务可用。",
+  "constraints": [
+    "未测试或构建",
+    "未调用外部API或发送消息",
+    "未操作数据库或密钥",
+    "未重启live3119/3120、容器或调度",
+    "不修改AuthFilter、微信签发及root独占MessagePushUtil"
+  ],
+  "common": {
+    "deployment": {
+      "sources": [
+        "standalone/compose.json:81-100",
+        "standalone/compose.json:154-158",
+        "standalone/bootstrap.py:173"
+      ],
+      "findings": [
+        "backend.environment未声明LJAPS_QIWEI_*、LJAPS_SMS_*、LJAPS_JIGUANG_*，宿主变量不会自动传入容器。",
+        "Spring配置可经已挂载business.properties传入；本次local/business.properties无wechat.app或钉钉应用凭据，SMTP password为空。仅记录键和状态，不记录值。",
+        "backend只接入internal=true的isolated网络；真实出网需独立准备，不修改live网络。",
+        "root统一负责env/properties透传。下列proposed_env需root显式插值，不能声称已存在源码getenv入口。"
+      ]
+    },
+    "lifecycle": {
+      "sources": [
+        "backend/app/src/main/java/com/ljaps/rebuild/business/BusinessConfiguration.java:27-37",
+        "backend/app/src/main/java/com/ljaps/rebuild/business/LocalBusinessLifecycle.java:27-52"
+      ],
+      "findings": [
+        "rest.runner和rest.schedule默认被扫描排除，再由LocalBusinessLifecycle显式登记本地业务任务。",
+        "DingDingInitRunner、DDTokenRefreshSchedule、MessagePushSchedule、SystemExpirationSmsSchedule未登记，保持排除。",
+        "DingDingInitRunner会删并重新注册回调、创建审批模板及初始化钉钉用户，不能作为只读配置检查。",
+        "业务方法仍可能直接发送或创建Timer，排除调度不能证明无外部副作用。"
+      ]
+    },
+    "auth": {
+      "sources": [
+        "backend/app/src/main/java/com/ljaps/rebuild/auth/AuthFilter.java:25-40",
+        "backend/app/src/main/java/com/ljaps/rebuild/auth/AuthService.java:68-95"
+      ],
+      "findings": [
+        "匿名白名单仅/api/user/login、/api/user/public-key、/api/health；微信登录/验证码/绑定和钉钉回调均要求新平台JWT。",
+        "新平台authenticate要求jti、uid、pwdv；微信仍走历史JwtTokenUtil，尚无兼容证据。",
+        "本阶段不放宽token验证，不开放匿名回调。"
+      ]
+    }
+  },
+  "integrations": [
+    {
+      "id": "I07",
+      "name": "企业微信",
+      "status": "PREPARATION_ONLY_NOT_CONNECTED",
+      "config_ready": [
+        {
+          "existing_env": [
+            "LJAPS_QIWEI_CORP_ID",
+            "LJAPS_QIWEI_CORP_SECRET"
+          ],
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushQiweiUtil.java:20-21",
+          "container_pass_through_present": false
+        },
+        {
+          "db_fields": [
+            "sys_push_webhook_config.hook_url",
+            "sys_push_webhook_config.name",
+            "sys_push_webhook_config.status",
+            "sys_push_webhook_config.notification_type"
+          ],
+          "consumer": "MessagePushUtil#sendDingTalkMessage",
+          "gate": "spring.profiles.active=company",
+          "note": "群Webhook由root另审，方法名不能证明对端是钉钉。"
+        },
+        {
+          "db_fields": [
+            "sys_push_approve_config.app_key",
+            "sys_push_approve_config.app_secret",
+            "sys_push_approve_config.robot_code",
+            "sys_push_approve_config.app_type=2",
+            "sys_push_approve_config.status"
+          ],
+          "note": "仅有企微枚举/配置表，不等于存在审批发送实现。"
+        }
+      ],
+      "code_blocker": [
+        {
+          "finding": "专用企业微信类只有private getAccessToken/private sendMessage，无公开入口；全源码引用仅命中类定义。",
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushQiweiUtil.java:18-53"
+        },
+        {
+          "finding": "专用类无token缓存/刷新与业务errcode校验，仅记录发送响应；未发现app_type=2消费链。",
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/enums/notification/AppTypeEnum.java:4-5"
+        }
+      ],
+      "http_routes": {
+        "dedicated_send": null,
+        "config": [
+          "GET /api/notification/webhook/config/getWebhookList",
+          "POST /api/notification/webhook/config/save",
+          "POST /api/notification/webhook/config/update",
+          "PUT /api/notification/webhook/config/status"
+        ]
+      },
+      "outbound_endpoints": [
+        "https://qyapi.weixin.qq.com/cgi-bin/gettoken",
+        "https://qyapi.weixin.qq.com/cgi-bin/message/send"
+      ],
+      "cache": "专用企业微信类无缓存。",
+      "hardcoded_to_externalize": [],
+      "needs_material": [
+        "确认企业应用消息或群机器人场景",
+        "企业应用方案需CorpId、CorpSecret、AgentId、应用可见范围、收件userId及sys_user映射、受控测试接收人",
+        "机器人方案需测试群Webhook、对端平台、签名要求、允许@all/@手机号范围及业务通知类型",
+        "出网与可信IP要求；如需回调，另给事件、URL、Token/EncodingAESKey及验签协议"
+      ],
+      "minimal_recommendation": [
+        "先补env透传与资料，不新增通知抽象、不猜企业微信API。",
+        "root独占Webhook路径；企业应用消息需先确认协议再补公开入口/AgentId/用户映射。"
+      ],
+      "unknown": [
+        "企业应用消息是否在交付范围",
+        "AgentId和用户映射尚无实现",
+        "provider方法/权限/回执协议未验证"
+      ]
+    },
+    {
+      "id": "I08",
+      "name": "微信小程序登录/绑定及订阅通知",
+      "status": "PREPARATION_ONLY_CODE_BLOCKED",
+      "config_ready": [
+        {
+          "spring_keys": [
+            "wechat.app.endpoint",
+            "wechat.app.appid",
+            "wechat.app.secret"
+          ],
+          "proposed_env": [
+            "LJAPS_WECHAT_ENDPOINT",
+            "LJAPS_WECHAT_APP_ID",
+            "LJAPS_WECHAT_APP_SECRET"
+          ],
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/config/WeChatAppConfigProperties.java:6-35",
+          "note": "LJAPS变量为root显式映射建议，源码无直接getenv。"
+        },
+        {
+          "dependency": "I10短信",
+          "existing_env": [
+            "LJAPS_SMS_ACCESS_KEY_ID",
+            "LJAPS_SMS_ACCESS_KEY_SECRET"
+          ]
+        }
+      ],
+      "http_routes": [
+        {
+          "method": "POST",
+          "path": "/api/we_chat/login",
+          "body": [
+            "code"
+          ],
+          "chain": "WeChatApi#login -> UserBizImpl#weChatLogin -> getOpenid(code) -> sys_user.open_id查询；已绑定启用用户调用generateTokenMap；未绑定返回Redis随机key(300s)。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/we_chat/sendCode",
+          "query": [
+            "phone"
+          ],
+          "chain": "sendCode校验非FBS且TEMP_USER或MES花名册用户，缓存已有则返回true，否则六位code经SmsUtils发送，成功后缓存600s。"
+        },
+        {
+          "method": "POST",
+          "path": "/api/we_chat/binding",
+          "body": [
+            "key",
+            "phone",
+            "code"
+          ],
+          "chain": "weChatBindAndLogin读取key->openid，校验短信code、花名册/用户类型、未绑定与启用状态，写sys_user.open_id，generateTokenMap，删除缓存，并创建对应考勤提醒Timer。"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/we_chat/logout",
+          "chain": "logoutAndRelieveBind清空当前用户open_id和历史USER_MAP。"
+        },
+        {
+          "method": "GET",
+          "path": "/api/we_chat/getQRCode",
+          "chain": "getQrCode取token后请求小程序码并返回image。"
+        }
+      ],
+      "sources": [
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/WeChatApi.java:25-75",
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1270-1417",
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/WxMsgUtil.java:33-117"
+      ],
+      "db_fields": [
+        "sys_user.open_id",
+        "sys_user.phone",
+        "sys_user.is_enabled",
+        "sys_user.user_type",
+        "sys_user.username",
+        "MesRoster.userId映射（物理表名待核对）"
+      ],
+      "cache": [
+        {
+          "key": "<random UUID>",
+          "ttl_seconds": 300,
+          "purpose": "待绑定openid"
+        },
+        {
+          "key": "wechat_bind_openid_code_cache",
+          "ttl_seconds": 600,
+          "purpose": "phone -> code，Redis hash"
+        },
+        {
+          "key": "wx_msg_token",
+          "ttl_seconds": 7000,
+          "purpose": "订阅通知token，key未按appid隔离"
+        }
+      ],
+      "code_blocker": [
+        {
+          "finding": "登录/发码/绑定匿名入口被AuthFilter拦截。",
+          "source": "backend/app/src/main/java/com/ljaps/rebuild/auth/AuthFilter.java:25-40"
+        },
+        {
+          "finding": "generateTokenMap使用历史jwtTokenUtil.generateToken(TokenInfo(username))，新平台JWT兼容未实现；且记录明文JWT。",
+          "source": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1400-1406"
+        },
+        {
+          "finding": "绑定成功会创建真实提醒Timer，不能当只读准备探测。",
+          "source": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1313-1319"
+        }
+      ],
+      "hardcoded_to_externalize": [
+        {
+          "names": [
+            "template_id",
+            "miniprogram_state",
+            "lang"
+          ],
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/pojo/request/SendMsgToWxUserRequestDTOParam.java:7-9",
+          "note": "DTO虽有setter，WxMsgUtil只填data/page/touser，未从部署赋模板/状态。若订阅通知在范围，需补赋值入口；不记录模板值。"
+        },
+        {
+          "names": [
+            "微信绑定短信模板代码"
+          ],
+          "source": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1392"
+        }
+      ],
+      "needs_material": [
+        "小程序AppId/AppSecret、API endpoint和合法请求域名",
+        "可运行小程序端版本、一次性wx.login code与响应契约（token对象或待绑定key）",
+        "确认劳务/TEMP_USER/MES花名册绑定规则、受控用户phone/openid",
+        "I10短信签名及绑定模板的code参数、测试手机",
+        "若含订阅通知：template_id、字段、订阅授权、跳转page、formal/trial/developer环境及测试openid",
+        "确认复用新平台JWT签发/退出/失效策略，不放宽authenticate接纳历史token"
+      ],
+      "minimal_safe_compatibility_proposal": [
+        "保留既有参数和Service校验；成功认证的用户交给AuthService统一签发含uid/jti/pwdv的新JWT。",
+        "确认小程序契约后，按精确方法和路径准备匿名登录/发码/绑定；不整体放行/api/we_chat/**。",
+        "保留未绑定key和用户范围；退出/解绑继续新平台认证。",
+        "任何回调需另确认签名协议；本阶段不改AuthFilter或微信签发。"
+      ],
+      "unknown": [
+        "实际小程序版本与响应契约",
+        "历史JWT claims未执行兼容验证",
+        "订阅消息模板字段及用户授权"
+      ]
+    },
+    {
+      "id": "I09",
+      "name": "钉钉",
+      "status": "PREPARATION_ONLY_CODE_BLOCKED",
+      "config_ready": [
+        {
+          "spring_keys": [
+            "chum.config.dd-app-key",
+            "chum.config.dd-app-secret",
+            "chum.config.dd-chatid",
+            "chum.config.enable",
+            "chum.config.url",
+            "chum.config.corp-id",
+            "chum.config.token",
+            "chum.config.aes-key"
+          ],
+          "proposed_env": [
+            "LJAPS_DINGDING_APP_KEY",
+            "LJAPS_DINGDING_APP_SECRET",
+            "LJAPS_DINGDING_CHAT_ID",
+            "LJAPS_DINGDING_CORP_ID",
+            "LJAPS_DINGDING_CALLBACK_TOKEN",
+            "LJAPS_DINGDING_CALLBACK_AES_KEY",
+            "LJAPS_DINGDING_CALLBACK_BASE_URL"
+          ],
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/config/ConfigProperties.java:7-29",
+          "note": "建议root显式映射；dd.enable未见本路径使用，勿替代chum.config.enable。"
+        },
+        {
+          "db_fields": [
+            "sys_push_approve_config.app_key",
+            "sys_push_approve_config.app_secret",
+            "sys_push_approve_config.robot_code",
+            "sys_push_approve_config.app_type=1",
+            "sys_push_approve_config.status=1"
+          ],
+          "consumer": "ApproveMesssagePushDingdingUtil#sendMessage",
+          "note": "V2审批只读DB，不会因env齐全自动获得配置。"
+        }
+      ],
+      "sources": [
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/DingDingUtils.java:94-140,237-287",
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/DingDingInitRunner.java:24-60",
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/schedule/DDTokenRefreshSchedule.java:17-28",
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushDingdingUtil.java:64-66,133-227"
+      ],
+      "http_routes": [
+        {
+          "method": "POST",
+          "path": "/api/dd/callback",
+          "query": [
+            "signature",
+            "timestamp",
+            "nonce"
+          ],
+          "body": [
+            "encrypt"
+          ],
+          "chain": "DingCallbackCrypto(Token,AesKey,CorpId)验签解密 -> BPMS任务/实例及组织用户变更 -> 加密success回复",
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/dingDing/CallbackController.java:34-111",
+          "current_auth": "要求新平台Authorization，第三方回调兼容未准备"
+        },
+        {
+          "method": "GET",
+          "path": "/api/notification/approve/config/getPushApproveList"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notification/approve/config/save"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notification/approve/config/update"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/notification/approve/config/status"
+        }
+      ],
+      "cache": [
+        {
+          "key": "MapConstants.stringConstantsMap[ddAccessToken]",
+          "ttl_seconds": null,
+          "refresh": "排除的初始化和DDTokenRefreshSchedule每小时刷新"
+        },
+        {
+          "key": "sync:approve:push:token<appKey>",
+          "ttl_seconds": 6600,
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushDingdingUtil.java:184-193"
+        }
+      ],
+      "db_dependencies": [
+        "sys_user.phone",
+        "sys_user.dd_user_id",
+        "sys_user.dd_dept_id",
+        "审批模板/实例记录与provider process_code/instance_id映射"
+      ],
+      "code_blocker": [
+        {
+          "finding": "旧token依赖被排除的初始化和刷新，配置齐全也不会自动写Map；不得为取token启用整套初始化。",
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/runner/DingDingInitRunner.java:32-60"
+        },
+        {
+          "finding": "回调被AuthFilter拦截，需确认并复用DingCallbackCrypto协议后才考虑窄化入口。",
+          "source": "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/dingDing/CallbackController.java:46-58"
+        },
+        {
+          "finding": "初始化/刷新记录token，V2 cacheToken还记录appKey/appSecret/token；启用前去除。",
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/notification/ApproveMesssagePushDingdingUtil.java:184-193"
+        }
+      ],
+      "hardcoded_to_externalize": [],
+      "needs_material": [
+        "明确旧审批同步、V2审批机器人或群Webhook业务范围",
+        "AppKey/AppSecret、CorpId、应用可见范围、通讯录及按手机号查询权限",
+        "robotCode、sampleMarkdown模板及text/title约定、受控测试userid/手机号",
+        "若含旧审批：模板名称/process_code、发起/审批/抄送映射、测试审批样例",
+        "公网回调URL、Token、EncodingAESKey、CorpId、订阅事件、验签解密样例、重放/幂等要求",
+        "现有订阅快照；禁止启动时删除/重注册",
+        "出网与源IP要求"
+      ],
+      "minimal_recommendation": [
+        "保留生命周期排除；root准备配置不代表DB通知配置就绪。",
+        "旧token如需启用应独立准备无业务写副作用的取token入口，不能启动批量初始化。",
+        "回调维持code_blocker，不预先匿名放行。"
+      ],
+      "unknown": [
+        "选用的钉钉应用、API版本/权限有效性",
+        "DB配置有效性（未查DB）",
+        "回调可达性和幂等策略"
+      ]
+    },
+    {
+      "id": "I10",
+      "name": "阿里云短信",
+      "status": "PREPARATION_ONLY_NOT_CONNECTED",
+      "config_ready": [
+        {
+          "existing_env": [
+            "LJAPS_SMS_ACCESS_KEY_ID",
+            "LJAPS_SMS_ACCESS_KEY_SECRET"
+          ],
+          "container_pass_through_present": false,
+          "sources": [
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/SmsUtils.java:28-31",
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/AliYunSMSUtil.java:19-20",
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/constant/SmsConstants.java:6-7",
+            "backend/modules/pangu-common/src/main/java/com/hzchum/pangu/common/config/SmsProperties.java:6-12"
+          ]
+        },
+        {
+          "spring_keys": [
+            "chum.sms.access-key-id",
+            "chum.sms.access-key-secret",
+            "chum.sms.sign-name",
+            "chum.sms.sign-title"
+          ],
+          "note": "仅SmsUtil使用SmsProperties；SmsUtils/AliYunSMSUtil独立getenv，不读取这些签名覆盖。"
+        }
+      ],
+      "http_routes": [
+        "GET /api/we_chat/sendCode",
+        "GET /api/user/verifyCode",
+        "GET /api/user/app/verifyCode",
+        "POST /api/user/send/verificationCode",
+        "招投标/发运/收费业务可间接发送，不得当配置探测调用"
+      ],
+      "sources": [
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java:245-256,705",
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1369-1397",
+        "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/biz/impl/cargoList/MesBuildingCargoListBizImpl.java:1337,1705",
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/ConfigServiceImpl.java:904,954,1088",
+        "backend/modules/pangu-common/src/main/java/com/hzchum/pangu/common/util/SmsUtil.java:22-39"
+      ],
+      "db_dependencies": [
+        "sys_user.phone",
+        "sys_sms_records收费通知记录",
+        "招投标message_template与供应商联系人手机号（按启用范围核对）"
+      ],
+      "cache": [
+        {
+          "key": "reset_password_verify_code_cache",
+          "ttl_seconds": 600
+        },
+        {
+          "key": "wechat_bind_openid_code_cache",
+          "ttl_seconds": 600
+        }
+      ],
+      "hardcoded_to_externalize": [
+        {
+          "names": [
+            "短信签名",
+            "region",
+            "业务审核模板代码"
+          ],
+          "sources": [
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/SmsUtils.java:40-43",
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/AliYunSMSUtil.java:21-24,81-82",
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/constant/SmsConstants.java:8-18"
+          ],
+          "note": "只对确认要切换账号的活跃路径最小外置；SmsProperties已可配置签名，无需重复改造。"
+        },
+        {
+          "names": [
+            "调用点模板代码，部分未引用SmsConstants"
+          ],
+          "sources": [
+            "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java:251,705",
+            "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/UserBizImpl.java:1392",
+            "backend/modules/scim-mes-building-core/src/main/java/com/hzchum/scim/mes/building/core/biz/impl/cargoList/MesBuildingCargoListBizImpl.java:1337,1705",
+            "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/biz/impl/MessageTemplateBizImpl.java:61,70,118,123,128,133"
+          ]
+        }
+      ],
+      "code_blocker": [
+        {
+          "finding": "直接getenv路径当前无compose透传；只写chum.sms属性不能覆盖所有业务。",
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/SmsUtils.java:28-31"
+        },
+        {
+          "finding": "sendSmsBid声明phone,templateCode,templateParam，多个调用却传phone,消息JSON,模板代码；真实发送前核对。",
+          "source": "backend/modules/scim-bid-core/src/main/java/com/hzchum/scim/bid/core/biz/impl/MessageTemplateBizImpl.java:61,70,118,123,128,133"
+        },
+        {
+          "finding": "AliYunSMSUtil复用static CommonRequest，多请求会改写phone/template；并发真实发送前需消除串参风险。",
+          "source": "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/AliYunSMSUtil.java:28,44-47"
+        }
+      ],
+      "needs_material": [
+        "AccessKeyId/AccessKeySecret及最小短信权限、region/endpoint、余额限额",
+        "确认启用业务范围",
+        "每项审核通过签名、模板代码及变量名/示例：重置密码code、微信绑定code、超重/物流、收费到期、招投标",
+        "受控测试手机与单条发送授权，不从DB批量选人",
+        "失败重试、频控/验证码有效期、是否需送达回执协议"
+      ],
+      "minimal_recommendation": [
+        "先透传env和准备模板映射，保持调度排除。",
+        "已有可配入口直接复用；硬编码路径按实际启用范围列外置待办。",
+        "准备单条probe但不运行。"
+      ],
+      "unknown": [
+        "模板归属/审核状态",
+        "未发现独立送达回执入口",
+        "手机格式和并发行为未运行验证"
+      ]
+    },
+    {
+      "id": "I11",
+      "name": "SMTP邮件",
+      "status": "PREPARATION_ONLY_NOT_CONNECTED",
+      "config_ready": [
+        {
+          "spring_keys": [
+            "spring.mail.host",
+            "spring.mail.port",
+            "spring.mail.username",
+            "spring.mail.password",
+            "spring.mail.test-connection",
+            "spring.mail.properties.mail.smtp.auth",
+            "spring.mail.properties.mail.smtp.starttls.enable",
+            "spring.mail.properties.mail.smtp.ssl.enable",
+            "spring.mail.properties.mail.smtp.connectiontimeout",
+            "spring.mail.properties.mail.smtp.timeout",
+            "spring.mail.properties.mail.smtp.writetimeout"
+          ],
+          "proposed_env": [
+            "LJAPS_SMTP_HOST",
+            "LJAPS_SMTP_PORT",
+            "LJAPS_SMTP_USERNAME",
+            "LJAPS_SMTP_PASSWORD"
+          ],
+          "sources": [
+            "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/MailUtils.java:14-28",
+            "local/business.properties:60-64"
+          ],
+          "note": "LJAPS变量为root显式映射建议；MailUtils读取spring.mail.username并注入JavaMailSender。当前password空，未记录账号或配置值。"
+        }
+      ],
+      "http_routes": [
+        {
+          "method": "GET",
+          "path": "/api/user/resetEmail",
+          "chain": "UserServiceImpl#sendEmailVerifyCode"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/app/resetEmail",
+          "chain": "UserServiceImpl#sendEmailVerifyCode"
+        }
+      ],
+      "sources": [
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java:260-274",
+        "backend/modules/scim-system-core-api/src/main/java/com/hzchum/scim/system/core/api/common/utils/MailUtils.java:22-81"
+      ],
+      "db_fields": [
+        "sys_user.email"
+      ],
+      "cache": [
+        {
+          "key": "reset_password_verify_code_cache",
+          "ttl_seconds": 600,
+          "purpose": "email -> code"
+        }
+      ],
+      "code_blocker": [],
+      "hardcoded_to_externalize": [],
+      "needs_material": [
+        "SMTP域名、端口、TLS方式、认证方式、发件账号及应用密码",
+        "From与认证账号关系、服务商出网限制及发件域配置",
+        "受控测试邮箱/内容、附件大小和字符集",
+        "连接/读/写超时；准备期不探测SMTP"
+      ],
+      "minimal_recommendation": [
+        "复用现有spring.mail配置，root补透传，不引入邮件抽象。",
+        "保持test-connection不触发外部连接，不通过commonMail验证凭据。"
+      ],
+      "unknown": [
+        "凭据、发件权限和网络可达性",
+        "重置邮件入口是否应匿名需结合业务确认，当前AuthFilter要求JWT",
+        "附件/图片路径权限与实际投递结果"
+      ]
+    },
+    {
+      "id": "I12",
+      "name": "极光推送",
+      "status": "PREPARATION_ONLY_CODE_BLOCKED",
+      "config_ready": [
+        {
+          "existing_env": [
+            "LJAPS_JIGUANG_APP_KEY",
+            "LJAPS_JIGUANG_MASTER_SECRET"
+          ],
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java:18-24",
+          "container_pass_through_present": false,
+          "note": "getAuthHeader每次直接读env；缺失requireNonNull，变量存在不等于凭据有效。"
+        }
+      ],
+      "http_routes": [
+        {
+          "method": "POST",
+          "path": "/api/user/notifications/bind",
+          "body": [
+            "registrationId",
+            "platform"
+          ],
+          "chain": "UserApi -> UserServiceImpl#notificationsBindByUser，当前认证用户范围"
+        },
+        {
+          "method": "POST",
+          "path": "/api/user/notifications/unbind",
+          "chain": "UserServiceImpl#notificationsUnBindByUser清空当前用户设备字段"
+        }
+      ],
+      "sources": [
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/system/UserApi.java:406-417",
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java:575-606",
+        "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/notification/SysPushNotificationConfigBizImpl.java:493-498",
+        "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java:27-70"
+      ],
+      "active_call_chain": "SysPushNotificationConfigBizImpl#generateUserLinks -> 遍历通知userList -> 非空sys_user.registration_id拆分 -> JiGuangPushUtils#pushMessage -> HTTPS /v3/push。",
+      "outbound_endpoints": [
+        "https://api.jpush.cn/v3/push"
+      ],
+      "db_fields": [
+        "sys_user.registration_id",
+        "sys_user.platform",
+        "sys_push_notification_config及通知记录/用户link"
+      ],
+      "cache": "无provider token缓存；每次Basic认证。",
+      "hardcoded_to_externalize": [
+        {
+          "names": [
+            "platform=all",
+            "android.title",
+            "xiaomi.channel_id",
+            "third_party_channel",
+            "apns_production=true"
+          ],
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java:32,39,54-62",
+          "note": "无部署入口；按实际APP材料确定最小外置范围。"
+        },
+        {
+          "names": [
+            "main演示消息和固定registrationId"
+          ],
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java:14-16",
+          "note": "不执行演示入口、不复制设备值。"
+        }
+      ],
+      "code_blocker": [
+        {
+          "finding": "请求registrationId/platform已校验非空，随后却只在user旧字段非空时写入新值；首次空字段绑定返回true但不保存。",
+          "source": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java:577-594",
+          "repair_status": "SOURCE_FIXED_NOT_TESTED: existing incoming nonblank validation retained; assignment reads request fields; before-source backup and SHA saved; offline regression probe prepared but not run.",
+          "backup": "integrations/private/source-before-preparation/backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/service/impl/UserServiceImpl.java",
+          "before_sha256": "0491420ab5eefe189ab1af448c540591a0466e076b0f222a638b61fe494b19bb"
+        },
+        {
+          "finding": "pushMessage忽略HttpResponse状态与body，返回void，异常仅打印；不能证明provider接受或设备送达。",
+          "source": "backend/modules/scim-common-core-api/src/main/java/com/hzchum/scim/common/core/api/utils/JiGuangPushUtils.java:64-70"
+        },
+        {
+          "finding": "当前compose未透传env，通知业务可直接触发推送，准备期不触发业务发消息。",
+          "source": "backend/modules/scim-system-core/src/main/java/com/hzchum/scim/system/core/biz/impl/notification/SysPushNotificationConfigBizImpl.java:493-498"
+        }
+      ],
+      "needs_material": [
+        "AppKey/MasterSecret、所属Android包名/iOS BundleId",
+        "App端极光SDK版本、受控设备registrationId及platform",
+        "APNs凭证和production/sandbox模式、Android厂商通道及channel_id",
+        "用户/多设备归属、解绑策略、内容与跳转协议",
+        "受控单设备测试接收人，不用源码main设备值"
+      ],
+      "minimal_recommendation": [
+        "root先透传env和准备APP设备资料，保持消息触发和生命周期不动。",
+        "独占UserServiceImpl修首次绑定判断，准备离线probe但不执行。",
+        "联测前准备provider失败可观察结果和单设备调用，业务true不等于送达。"
+      ],
+      "unknown": [
+        "现有APP集成/极光应用归属",
+        "设备注册、APNs与厂商通道有效性",
+        "HTTP接受、实际送达与App展示"
+      ]
+    }
+  ]
+}

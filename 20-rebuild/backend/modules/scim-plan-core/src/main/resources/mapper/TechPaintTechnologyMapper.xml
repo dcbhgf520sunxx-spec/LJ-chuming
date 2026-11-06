@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechPaintTechnologyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechPaintTechnology">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="range_type_enum" property="rangeTypeEnum"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="last_edit_user_id" property="lastEditUserId"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, range_type_enum, project_id, monomer_id, serial_number, create_user_id, last_edit_user_id, remark
+    </sql>
+
+
+    <resultMap id="resultMap" type="com.hzchum.scim.plan.core.api.pojo.dto.craft.TechPaintTechnologyProjectGroupDTO">
+
+        <result column="cp_project_id" property="projectId"/>
+
+        <association property="project" javaType="com.hzchum.scim.common.core.api.pojo.common.ProjectInfo">
+            <id column="cp_id" property="id"/>
+            <result column="cp_name" property="name"/>
+            <result column="cp_short_name" property="shortName"/>
+            <result column="cp_serial_number" property="serialNumber"/>
+        </association>
+
+        <collection property="paintTechnologyList"
+                    ofType="com.hzchum.scim.plan.core.api.pojo.dto.craft.TechPaintTechnologyDTO">
+            <result column="id" property="id"/>
+            <result column="serial_number" property="serialNumber"/>
+            <result column="range_type_enum" property="rangeTypeEnum"/>
+            <result column="project_id" property="projectId"/>
+            <result column="monomer_id" property="monomerId"/>
+            <result column="max_calculate_number" property="maxCalculateNumber"/>
+            <result column="create_user_id" property="createUserId"/>
+            <result column="create_user_name" property="createUserName"/>
+            <result column="create_time" property="createTime"/>
+            <result column="last_edit_user_id" property="lastEditUserId"/>
+            <result column="remark" property="remark"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="selectListPaintTechnologyGroupByProject" resultMap="resultMap">
+        select
+        cp.id as cp_project_id,
+        cp.id as cp_id,
+        cp.name as cp_name,
+        cp.short_name as cp_short_name,
+        cp.serial_number as cp_serial_number,
+        c.id,
+        c.range_type_enum,
+        c.project_id,
+        c.monomer_id,
+        c.serial_number,
+        c.max_calculate_number,
+        c.create_user_id,
+        u.name as create_user_name,
+        c.create_time,
+        c.last_edit_user_id,
+        c.remark
+        from tech_paint_technology as c
+        inner join contract_project cp on c.project_id = cp.id
+        left join sys_user as u on c.create_user_id = u.id
+        where c.bool_delete_enum = 0
+        and cp.bool_delete_enum = 0
+        <if test="projectId != null">
+            AND c.project_id = #{projectId}
+        </if>
+        <if test="projectName != null and projectName !=''">
+            AND (cp.name like concat('%',#{projectName},'%')
+            or cp.short_name like concat('%',#{projectName},'%')
+            or cp.serial_number like concat('%',#{projectName},'%')
+            )
+        </if>
+        <if test="startTime != null">
+            and DATE (c.create_time) &gt;= DATE (#{startTime})
+        </if>
+        <if test="endTime != null">
+            and DATE (c.create_time) &lt;= DATE (#{endTime})
+        </if>
+        <if test=" createUserId != null">
+            AND c.create_user_id = #{createUserId}
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            AND u.name like concat('%',#{createUserName},'%')
+        </if>
+        order by cp.id desc, c.id
+    </select>
+
+</mapper>

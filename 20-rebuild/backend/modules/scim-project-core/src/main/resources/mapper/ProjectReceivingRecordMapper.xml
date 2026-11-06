@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectReceivingRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectReceivingRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="product_type" property="productType"/>
+        <result column="category" property="category"/>
+        <result column="product_id" property="productId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="name" property="name"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="mete" property="mete"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="total_area" property="totalArea"/>
+        <result column="area_type" property="areaType"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, product_type, category, product_id, serial_number, name, specification, quantity, measure_unit, mete, accounting_unit, area_type, source_id, supplier_id, supplier_name
+    </sql>
+    <select id="getReceivedMete" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivedInstallStoreMeteDTO">
+        select
+        DATE_FORMAT(create_time, '%Y-%m') as 'date',
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            IFNULL(sum(mete),0) as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            IFNULL(sum(mete),0) / 1000 as mete
+        </if>
+        from
+        project_receiving_record
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        group by DATE_FORMAT(create_time, '%Y-%m')
+    </select>
+    <select id="getInstallMete" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivedInstallStoreMeteDTO">
+        select
+        DATE_FORMAT(create_time, '%Y-%m') as 'date',
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            IFNULL(sum(actual_mete),0) as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            IFNULL(sum(actual_mete),0) / 1000000 as mete
+        </if>
+        from
+        project_install_report
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        group by DATE_FORMAT(create_time, '%Y-%m')
+    </select>
+    <select id="getStoreDetails" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        select
+        a.product_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification,
+        a.quantity - IFNULL(b.quantity,0) - IFNULL(c.quantity,0) as quantity,
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            a.mete - IFNULL(b.mete,0) - IFNULL(c.mete,0)as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            (a.mete - IFNULL(b.mete,0) -IFNULL(c.total_length,0)) / 1000 as mete
+        </if>
+        from (
+        SELECT
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification,
+        sum(quantity) as quantity,
+        sum(mete) as mete,
+        sum(total_area) as totalArea
+        FROM
+        project_receiving_record
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@STOCK.getType()">
+            and #{yearMonth} >= DATE_FORMAT(create_time, '%Y-%m')
+        </if>
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@BEGINNING.getType()">
+            and #{yearMonth} > DATE_FORMAT(create_time, '%Y-%m')
+        </if>
+        GROUP BY
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification
+        ) a left join
+        (
+        select
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification,
+        sum(actual_quantity) quantity,
+        sum(actual_mete) mete,
+        sum(actual_total_area) as totalArea
+        from
+        project_install_report
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@STOCK.getType()">
+            and #{yearMonth} >= DATE_FORMAT(create_time, '%Y-%m')
+        </if>
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@BEGINNING.getType()">
+            and #{yearMonth} > DATE_FORMAT(create_time, '%Y-%m')
+        </if>
+        GROUP BY
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification
+        )b on a.product_id = b.product_id
+        left join (
+        SELECT
+        a.product_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification,
+        sum(a.reject_quantity) as quantity,
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            IFNULL(sum(a.reject_quantity * b.net_weight),0) as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            IFNULL(sum(a.reject_quantity * b.length),0) as total_length
+        </if>
+        FROM
+        project_reject_detail a
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            left join tech_artifact as b on a.product_id = b.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            left join tech_enclosure as b on a.product_id = b.id
+        </if>
+        where a.bool_delete_enum = 0
+        and a.review_status = 2
+        and a.project_id = #{projectId}
+        and a.product_type = #{productType}
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@STOCK.getType()">
+            and #{yearMonth} >= DATE_FORMAT(a.create_time, '%Y-%m')
+        </if>
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@BEGINNING.getType()">
+            and #{yearMonth} > DATE_FORMAT(a.create_time, '%Y-%m')
+        </if>
+        GROUP BY
+        a.product_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification
+        )c on a.product_id = c.product_id
+        where a.quantity - IFNULL(b.quantity,0) - IFNULL(c.quantity,0) > 0
+    </select>
+    <select id="getReceivedInstallDetails" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        SELECT
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification,
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@INBOUND.getType()">
+            sum(quantity) as quantity,
+            <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                sum(mete) as mete
+            </if>
+            <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                ifnull(sum(mete),0) / 1000 as mete
+            </if>
+        </if>
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@OUTBOUND.getType()">
+            sum(actual_quantity) quantity,
+            <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+                sum(actual_mete) mete
+            </if>
+            <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+                ifnull(sum(actual_mete),0) / 1000 as mete
+            </if>
+        </if>
+        FROM
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@INBOUND.getType()">
+            project_receiving_record
+        </if>
+        <if test="storeType == @com.hzchum.scim.project.core.api.enums.StoreTypeEnum@OUTBOUND.getType()">
+            project_install_report
+        </if>
+        where bool_delete_enum = 0
+        and project_id = #{projectId}
+        and product_type = #{productType}
+        and #{yearMonth} = DATE_FORMAT(create_time, '%Y-%m')
+        GROUP BY
+        product_id,
+        monomer_id,
+        area_id,
+        name,
+        serial_number,
+        specification
+    </select>
+    <select id="getOutReceivedPage" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        select
+        a.id,
+        a.project_id AS projectId,
+        a.monomer_id AS monomerId,
+        a.area_id AS areaId,
+        a.project_type AS projectType,
+        a.product_type AS productType,
+        a.category,
+        a.measure_mode AS measureMode,
+        CASE
+        WHEN a.product_type = 32 THEN a.purchase_details_id
+        ELSE a.product_id
+        END AS 'product_id',
+        a.serial_number AS serialNumber,
+        a.name,
+        a.specification,
+        a.material,
+        a.length,
+        a.width,
+        a.thickness,
+        a.quantity,
+        a.net_weight AS netWeight,
+        a.weight,
+        a.mete,
+        a.total_area AS totalArea,
+        a.measure_unit AS measureUnit,
+        a.accounting_unit AS accountingUnit,
+        a.area_type AS areaType,
+        a.source_id AS sourceId,
+        a.source_type AS sourceType,
+        a.supplier_id AS supplierId,
+        a.supplier_name AS supplierName,
+        a.bool_problem_receiving AS boolProblemReceiving,
+        a.problem_desc AS problemDesc,
+        a.problem_id AS problemId,
+        a.purchase_details_id AS purchaseDetailsId,
+        a.operate_record_id AS operateRecordId,
+        a.classify_id AS classifyId,
+        a.actual_received_mete AS actualReceivedMete,
+        a.link_id AS linkId,
+        a.reject_quantity AS rejectQuantity,
+        a.reject_mete as rejectMete,
+        a.reject_actual_received_mete as rejectActualReceivedMete,
+        a.create_time as createTime,
+        a.purchase_details_id as purchaseDetailsId,
+        b.user_name as userName,
+        b.serial_number as purchaseSn,
+        ap.id as 'enclosurePlanId',
+        spod.wage_quota_type as wageQuotaType,
+        ss.id as 'supplier.id',
+        ss.name as 'supplier.name',
+        pm.id as 'monomer.id',
+        pm.name as 'monomer.name',
+        pa.id as 'area.id',
+        pa.name as 'area.name',
+        ap.id as 'batch.id',
+        ap.name as 'batch.name'
+        FROM project_receiving_record as a
+        left join project_purchase_order_received_operate_record as b on a.operate_record_id = b.id
+        left join scm_purchase_order_detail as spod on a.purchase_details_id = spod.id
+        left join scm_supplier as ss on b.supplier_id = ss.id
+        left join plan_monomer as pm on a.monomer_id = pm.id
+        left join plan_area as pa on a.area_id = pa.id
+        left join tech_enclosure as te on a.product_id = te.id
+        left join enclosure_plan as ap on te.enclosure_plan_id = ap.id
+        where a.bool_delete_enum = 0
+        and a.source_type = 2
+        and a.project_id = #{projectId}
+        <if test="productType!=null">
+            and a.product_type = #{productType}
+        </if>
+        <if test="monomerId!=null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            and a.area_id = #{areaId}
+        </if>
+        <if test="monomerOrArea!=null and monomerOrArea!=''">
+            and (pm.name like concat('%',#{monomerOrArea},'%') or pa.name like concat('%',#{monomerOrArea},'%') or ap.name like concat('%',#{monomerOrArea},'%'))
+        </if>
+        <if test="supplierId!=null">
+            and b.supplier_id = #{supplierId}
+        </if>
+        <if test="purchaseSn!=null and purchaseSn!=''">
+            and b.serial_number like concat('%',#{purchaseSn},'%')
+        </if>
+        <if test="userName!=null and userName!=''">
+            and b.user_name like concat('%',#{userName},'%')
+        </if>
+        <if test="name!=null and name!=''">
+            and a.name like concat('%',#{name},'%')
+        </if>
+        <if test="specification!=null and specification!=''">
+            and a.specification like concat('%',#{specification},'%')
+        </if>
+        <if test="serialNumber!=null and serialNumber!=''">
+            and a.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="receivedTime != null and receivedTime.size()>0">
+            <if test="receivedTime[0] != null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') >= DATE_FORMAT(#{receivedTime[0]},'%Y-%m-%d')
+            </if>
+            <if test="receivedTime[1] != null">
+                and DATE_FORMAT(a.create_time,'%Y-%m-%d') &lt;= DATE_FORMAT(#{receivedTime[1]},'%Y-%m-%d')
+            </if>
+        </if>
+        order by a.id desc
+    </select>
+    <select id="getRejectMete" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectReceivedInstallStoreMeteDTO">
+        select
+         DATE_FORMAT(a.create_time, '%Y-%m') as 'date',
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            IFNULL(sum(a.reject_quantity * b.net_weight),0) as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            IFNULL(sum(a.reject_quantity * b.length),0) / 1000 as mete
+        </if>
+        from
+        project_reject_detail a
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            left join tech_artifact as b on a.product_id = b.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            left join tech_enclosure as b on a.product_id = b.id
+        </if>
+        and a.review_status = 2
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+          and a.product_type = #{productType}
+        group by DATE_FORMAT(a.create_time, '%Y-%m')
+    </select>
+    <select id="getReceivedReject" resultType="com.hzchum.scim.plan.core.api.pojo.dto.ProjectProductDTO">
+        SELECT
+        a.product_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification,
+       -sum(a.reject_quantity) as quantity,
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            -IFNULL(sum(a.reject_quantity * b.net_weight),0) as mete
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            -IFNULL(sum(a.reject_quantity * b.length),0) / 1000 as mete
+        </if>
+        FROM
+        project_reject_detail a
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ARTIFACT.getType()">
+            left join tech_artifact as b on a.product_id = b.id
+        </if>
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            left join tech_enclosure as b on a.product_id = b.id
+        </if>
+        where a.bool_delete_enum = 0
+        and a.review_status = 2
+        and a.project_id = #{projectId}
+        and a.product_type = #{productType}
+        and #{yearMonth} = DATE_FORMAT(a.create_time, '%Y-%m')
+        GROUP BY
+        a.product_id,
+        a.monomer_id,
+        a.area_id,
+        a.name,
+        a.serial_number,
+        a.specification
+        <if test="productType == @com.hzchum.scim.common.core.api.enums.ProductTypeEnum@ENCLOSURE.getType()">
+            ,a.category
+        </if>
+    </select>
+    <select id="orderReconciliationDetail"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.ReconciliationDetailDTO">
+        select
+            prr.id,
+            prr.purchase_details_id purchaseDetailId,
+            spo.id purchaseId,
+            "3" type,
+            prr.create_time createTime
+        from
+            project_receiving_record prr
+            left join scm_purchase_order_detail spod on spod.id = prr.purchase_details_id and spod.bool_delete_enum = 0
+            left join project_purchase_order_received_operate_record as pporor on pporor.id = prr.operate_record_id
+            INNER JOIN scm_purchase_order spo ON spod.purchase_id = spo.id AND spo.bool_delete_enum = 0 AND spo.data_status = 2
+        where prr.bool_delete_enum = 0
+            and prr.source_type = 2
+        <if test="query.materialType != null">
+            and spod.basic_class &amp; #{query.basicClassBit} &gt; 0
+        </if>
+        <if test="query.basicClass != null">
+            and spod.basic_class = #{query.basicClass}
+        </if>
+        <if test="query.createUser != null">
+            and pporor.user_name like CONCAT('%', #{query.createUser},'%')
+        </if>
+        <if test="query.className != null">
+            and prr.name like CONCAT('%', #{query.className},'%')
+        </if>
+        <if test="query.startTime != null">
+            and prr.create_time &gt;= #{query.startTime}
+        </if>
+        <if test="query.endTime != null">
+            and prr.create_time &lt;= #{query.endTime}
+        </if>
+        <if test="query.projectId != null">
+            and prr.project_id = #{query.projectId}
+        </if>
+        <if test="query.purchaseSerialNumber != null">
+            and spo.serial_number like CONCAT('%', #{query.purchaseSerialNumber},'%')
+        </if>
+        <if test="query.supplierId != null">
+            and spo.supplier_id = #{query.supplierId}
+        </if>
+        <if test="query.specification != null">
+            and prr.specification like CONCAT('%', #{query.specification},'%')
+        </if>
+        <if test="query.branchCompanyId != null">
+            and spo.branch_company_id = #{query.branchCompanyId}
+        </if>
+    </select>
+</mapper>

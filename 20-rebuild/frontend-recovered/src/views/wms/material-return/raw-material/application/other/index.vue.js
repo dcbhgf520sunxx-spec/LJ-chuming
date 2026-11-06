@@ -1,0 +1,5 @@
+import { recoveredInline_229 } from "../../../../../../shared/runtime.js";
+var stdin_default = recoveredInline_229.default;
+export {
+  stdin_default as default
+};

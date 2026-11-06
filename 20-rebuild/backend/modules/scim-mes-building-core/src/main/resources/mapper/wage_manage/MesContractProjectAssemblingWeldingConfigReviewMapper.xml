@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wage_manage.MesContractProjectAssemblingWeldingConfigReviewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wage_manage.MesContractProjectAssemblingWeldingConfigReview">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="contract_project_assembling_welding_config_id"
+                property="contractProjectAssemblingWeldingConfigId"/>
+        <result column="contract_project_assembling_welding_config_detail_id"
+                property="contractProjectAssemblingWeldingConfigDetailId"/>
+        <result column="initiator_id" property="initiatorId"/>
+        <result column="initiation_date" property="initiationDate"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="review_date" property="reviewDate"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="remark" property="remark"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="review_remark" property="reviewRemark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, contract_project_id, contract_project_assembling_welding_config_id, contract_project_assembling_welding_config_detail_id, initiator_id, initiation_date, reviewer_id, review_date, organization_inside_price, organization_outside_price, remark, review_status, review_remark
+    </sql>
+
+    <resultMap id="MesContractProjectAssemblingWeldingConfigReviewDTOMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._dtoParam.wage_manage.MesContractProjectAssemblingWeldingConfigReviewDTO">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="contract_project_id" property="contractProjectId"/>
+        <result column="contract_project_assembling_welding_config_id"
+                property="contractProjectAssemblingWeldingConfigId"/>
+        <result column="contract_project_assembling_welding_config_detail_id"
+                property="contractProjectAssemblingWeldingConfigDetailId"/>
+        <result column="initiator_id" property="initiatorId"/>
+        <result column="initiation_date" property="initiationDate"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="review_date" property="reviewDate"/>
+        <result column="organization_inside_price" property="organizationInsidePrice"/>
+        <result column="organization_outside_price" property="organizationOutsidePrice"/>
+        <result column="remark" property="remark"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="review_remark" property="reviewRemark"/>
+        <result column="project_short_name" property="contractProjectShortName"/>
+        <result column="project_serial_number" property="contractProjectSerialNumber"/>
+        <result column="initiator_name" property="initiatorName"/>
+        <result column="artifact_classification_name" property="artifactClassificationName"/>
+        <result column="old_organization_inside_price" property="oldOrganizationInsidePrice"/>
+        <result column="old_organization_outside_price" property="oldOrganizationOutsidePrice"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="pricing_manner" property="pricingManner"/>
+        <result column="comparison_operator_one" property="comparisonOperatorOne"/>
+        <result column="number_one" property="numberOne"/>
+        <result column="comparison_operator_two" property="comparisonOperatorTwo"/>
+        <result column="number_two" property="numberTwo"/>
+        <result column="measurement_manner" property="measurementManner"/>
+        <collection property="processList" ofType="com.hzchum.scim.common.core.api.pojo.common.NameInfo">
+            <id column="process_id" property="id"/>
+            <result column="process_name" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="listInfo" resultMap="MesContractProjectAssemblingWeldingConfigReviewDTOMap">
+        SELECT
+        mcpawcr.id,
+        mcpawcr.create_time,
+        mcpawcr.update_time,
+        mcpawcr.bool_delete_enum,
+        mcpawcr.version,
+        mcpawcr.contract_project_id,
+        mcpawcr.contract_project_assembling_welding_config_id,
+        mcpawcr.contract_project_assembling_welding_config_detail_id,
+        mcpawcr.initiator_id,
+        mcpawcr.initiation_date,
+        mcpawcr.reviewer_id,
+        mcpawcr.review_date,
+        mcpawcr.organization_inside_price,
+        mcpawcr.organization_outside_price,
+        mcpawcr.remark,
+        mcpawcr.review_status,
+        mcpawcr.review_remark,
+        cp.short_name AS project_short_name,
+        cp.serial_number AS project_serial_number,
+        su.name AS initiator_name,
+        su2.name AS reviewer_name,
+        mbp.id AS process_id,
+        mbp.name AS process_name,
+        mac.classification AS artifact_classification_name,
+        mcpawcl.pricing_manner,
+        mcpawcld.comparison_operator_one,
+        mcpawcld.number_one,
+        mcpawcld.comparison_operator_two,
+        mcpawcld.number_two,
+        mcpawcl.measurement_manner
+        FROM mes_contract_project_assembling_welding_config_review mcpawcr
+        LEFT JOIN contract_project cp ON mcpawcr.contract_project_id = cp.id
+        LEFT JOIN sys_user su ON su.id = mcpawcr.initiator_id
+        LEFT JOIN sys_user su2 ON su2.id = mcpawcr.reviewer_id
+        LEFT JOIN mes_contract_project_assembling_welding_config_link mcpawcl
+        ON mcpawcl.id = mcpawcr.contract_project_assembling_welding_config_id
+        LEFT JOIN mes_contract_project_assembling_welding_config_link_detail mcpawcld
+        ON mcpawcld.id = mcpawcr.contract_project_assembling_welding_config_detail_id AND mcpawcld.bool_delete_enum =
+        FALSE
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        LEFT JOIN mes_artifact_classification mac ON mac.id = mcpawcl.artifact_classification_id
+        WHERE mcpawcr.bool_delete_enum = FALSE
+        AND YEAR(mcpawcr.initiation_date) = #{queryDTOParam.year}
+        <if test="queryDTOParam.contractProjectShortName != null and queryDTOParam.contractProjectShortName != ''">
+            <bind name="shortNameLike" value="'%' + queryDTOParam.contractProjectShortName + '%'"/>
+            AND cp.short_name LIKE #{shortNameLike}
+        </if>
+        <if test="queryDTOParam.initiatorName != null and queryDTOParam.initiatorName != ''">
+            <bind name="initiatorNameLike" value="'%' + queryDTOParam.initiatorName + '%'"/>
+            AND su.name LIKE #{initiatorNameLike}
+        </if>
+        <if test="queryDTOParam.initiatorName != null and queryDTOParam.initiatorName != ''">
+            <bind name="reviewerNameLike" value="'%' + queryDTOParam.reviewerName + '%'"/>
+            AND su.name LIKE #{reviewerNameLike}
+        </if>
+        <if test="queryDTOParam.artifactClassificationName != null and queryDTOParam.artifactClassificationName != ''">
+            <bind name="artifactClassificationNameLike" value="'%' + queryDTOParam.artifactClassificationName + '%'"/>
+            AND mac.classification LIKE #{artifactClassificationNameLike}
+        </if>
+    </select>
+
+    <select id="detailById" resultMap="MesContractProjectAssemblingWeldingConfigReviewDTOMap">
+        SELECT
+            mcpawcr.id,
+            mcpawcr.create_time,
+            mcpawcr.update_time,
+            mcpawcr.bool_delete_enum,
+            mcpawcr.version,
+            mcpawcr.contract_project_id,
+            mcpawcr.contract_project_assembling_welding_config_id,
+            mcpawcr.contract_project_assembling_welding_config_detail_id,
+            mcpawcr.initiator_id,
+            mcpawcr.initiation_date,
+            mcpawcr.reviewer_id,
+            mcpawcr.review_date,
+            mcpawcr.organization_inside_price,
+            mcpawcr.organization_outside_price,
+            mcpawcr.remark,
+            mcpawcr.review_status,
+            mcpawcr.review_remark,
+            cp.short_name      AS project_short_name,
+            cp.serial_number   AS project_serial_number,
+            su.name            AS initiator_name,
+            su2.name           AS reviewer_name,
+            mbp.id             AS process_id,
+            mbp.name           AS process_name,
+            mac.classification AS artifact_classification_name,
+            mcpawcl.pricing_manner,
+            mcpawcld.comparison_operator_one,
+            mcpawcld.number_one,
+            mcpawcld.comparison_operator_two,
+            mcpawcld.number_two,
+            mcpawcl.measurement_manner
+        FROM mes_contract_project_assembling_welding_config_review mcpawcr
+        LEFT JOIN contract_project cp ON mcpawcr.contract_project_id = cp.id
+        LEFT JOIN sys_user su ON su.id = mcpawcr.initiator_id
+        LEFT JOIN sys_user su2 ON su2.id = mcpawcr.reviewer_id
+        LEFT JOIN mes_contract_project_assembling_welding_config_link mcpawcl
+            ON mcpawcl.id = mcpawcr.contract_project_assembling_welding_config_id
+        LEFT JOIN mes_contract_project_assembling_welding_config_link_detail mcpawcld
+            ON mcpawcld.id = mcpawcr.contract_project_assembling_welding_config_detail_id AND
+               mcpawcld.bool_delete_enum = FALSE
+        LEFT JOIN mes_building_process mbp ON FIND_IN_SET(mbp.id, mcpawcl.process) > 0
+        LEFT JOIN mes_artifact_classification mac ON mac.id = mcpawcl.artifact_classification_id
+        WHERE mcpawcr.bool_delete_enum = FALSE AND mcpawcr.id = #{id}
+    </select>
+
+</mapper>

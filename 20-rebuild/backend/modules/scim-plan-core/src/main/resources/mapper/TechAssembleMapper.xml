@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechAssembleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechAssemble">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="quantity" property="quantity"/>
+        <result column="specification" property="specification"/>
+        <result column="length" property="length"/>
+        <result column="material" property="material"/>
+        <result column="net_weight" property="netWeight"/>
+        <result column="total_net_weight" property="totalNetWeight"/>
+        <result column="produced_quantity" property="producedQuantity"/>
+        <result column="used_quantity" property="usedQuantity"/>
+        <result column="remark" property="remark"/>
+        <result column="machine_part_id" property="machinePartId"/>
+        <result column="machine_part_front" property="machinePartFront"/>
+        <result column="area_type" property="areaType"/>
+        <result column="bool_abnormal_enum" property="boolAbnormalEnum"/>
+        <result column="spec_prefix" property="specPrefix"/>
+        <result column="bool_send_directly" property="boolSendDirectly"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, serial_number, quantity, length, specification, material, net_weight, total_net_weight,
+        produced_quantity, used_quantity, remark, drawing_number, machine_part_id, machine_part_front, area_type, bool_send_directly
+    </sql>
+
+
+    <select id="selectListByConditions" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssembleDTO">
+        SELECT
+        ass.*,
+        u.name user_name,
+        cofnig.name As configName
+        FROM tech_assemble as ass
+        left join sys_user u on ass.user_id = u.id and u.bool_delete_enum = 0
+        LEFT JOIN sys_assemble_config cofnig on cofnig.id = ass.assemble_config_id
+        <if test="permissionCheck != null">
+            INNER JOIN sys_monomer_user_link AS link ON ass.monomer_id = link.monomer_id AND link.bool_delete_enum = 0
+            AND link.deepened_person_id = #{userId}
+        </if>
+        where ass.area_id = #{areaId}
+        and ass.bool_delete_enum = 0
+        <if test="serialNumber != null and serialNumber != '' ">
+            and ass.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="specification != null and specification != '' ">
+            and ass.specification like concat('%', #{specification}, '%')
+        </if>
+        <if test="material != null and material !='' ">
+            and ass.material like concat('%', #{material}, '%')
+        </if>
+        <if test="areaBatchId != null">
+            AND ass.area_batch_id = #{areaBatchId}
+        </if>
+    </select>
+
+    <select id="selectAbnormalSerialNumber" resultType="java.lang.String">
+        SELECT DISTINCT ass.*
+        FROM (
+        SELECT a.serial_number
+        FROM `tech_assemble` AS a
+        LEFT JOIN tech_assemble_detail AS ad ON a.id = ad.assemble_id
+        WHERE ad.artifact_id IS NULL
+        AND a.bool_delete_enum = 0
+        AND ad.bool_delete_enum = 0
+        <if test="areaId != null">
+            AND a.area_id = #{areaId}
+        </if>
+        ORDER BY a.id ASC
+        ) AS ass
+    </select>
+
+
+    <select id="selectIdsByAreaId" parameterType="long" resultType="java.lang.Long">
+        select id
+        from tech_assemble
+        where bool_delete_enum = 0
+          and area_id = #{areaId}
+    </select>
+
+    <select id="selectByIdIgnoreDelete" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechAssemble">
+        select *
+        from tech_assemble
+        where id = #{id}
+    </select>
+
+    <select id="selectOneByPrefix" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechAssemble">
+        SELECT *
+        FROM `tech_assemble`
+        WHERE bool_delete_enum = 0
+        AND assemble_config_id = #{assembleConfigId}
+        <if test="specPrefix != null and specPrefix != ''">
+            AND spec_prefix = #{specPrefix}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="selectProjectGroupBySpec"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.mes.building.ComponentCrderInformationDTO">
+        SELECT sc.NAME                           classificationName,
+               sc.id                             classificationId,
+               ta.material                       material,
+               IFNULL(sum(ta.quantity), 0)       quantity,
+               IFNULL(sum(ta.totalNetWeight), 0) totalNetWeight
+        FROM (
+                 SELECT assemble_config_id,
+                        material,
+                        SUM(quantity)         quantity,
+                        SUM(total_net_weight) totalNetWeight
+                 FROM tech_assemble
+                 WHERE project_id = #{projectId}
+                   AND bool_delete_enum = 0
+                 GROUP BY assemble_config_id,
+                          material
+             ) AS ta
+                 LEFT JOIN sys_assemble_config AS sc ON ta.assemble_config_id = sc.id
+            AND sc.bool_delete_enum = 0
+        GROUP BY sc.NAME,
+                 ta.material,
+                 sc.id
+        ORDER BY sc.id ASC
+    </select>
+    <select id="getAssembleList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssemblesDTO">
+        Select
+        serial_number,
+        specification,
+        quantity,
+        length,
+        net_weight
+        from
+        tech_assemble
+        where
+        assemble_config_id in
+        (
+        SELECT id FROM sys_assemble_config
+        WHERE
+        bool_delete_enum = 0
+        <if test="classificationName!= null and classificationName !=''">
+            and name=#{classificationName}
+        </if>
+        )
+        <if test="material!= null and material !=''">
+            and material=#{material}
+        </if>
+        <if test="projectId != null">
+            and project_id=#{projectId}
+        </if>
+        and bool_delete_enum=0
+
+    </select>
+    <select id="listBySpecification" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechAssemble">
+        SELECT
+        ass.*
+        FROM
+        tech_assemble ass,
+        tech_assemble_detail detai
+        WHERE
+        detai.bool_delete_enum = 0
+        AND ass.bool_delete_enum = 0
+        AND ass.id = detai.assemble_id
+        <if test="specification != null">
+            AND ass.specification = #{specification}
+        </if>
+        <if test="artifactId != null">
+            AND detai.artifact_id = #{artifactId}
+        </if>
+        <if test="monomerId != null">
+            AND ass.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ass.area_id = #{areaId}
+        </if>
+        ORDER BY
+        ass.length DESC
+        LIMIT 1
+    </select>
+    <select id="listByArtifactIds" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechAssemble">
+        SELECT
+        ass.*
+        FROM
+        tech_assemble ass,
+        tech_assemble_detail detai
+        WHERE
+        detai.bool_delete_enum = 0
+        AND ass.bool_delete_enum = 0
+        AND ass.id = detai.assemble_id
+
+        <if test="specification != null">
+            AND ass.specification = #{specification}
+        </if>
+        <if test="length != null">
+            AND ass.length=#{length}
+        </if>
+        <if test="ids != null and ids.size()>0">
+            AND detai.artifact_id IN
+            <foreach collection="ids" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="listAssembleNesting" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssembleNestingDTOParam">
+        SELECT
+        assemble.id,
+        assemble.serial_number,
+        assemble.length,
+        assemble.remark,
+        assemble.specification,
+        assemble.material,
+        assemble.net_weight,
+        assemble.total_net_weight,
+        assemble.material,
+        assemble.bool_have_NC1,
+        assemble.assemble_config_id,
+        assemble.production_line_type_enum,
+        assemble.bool_main_assemble,
+        cp.id AS 'project.id',
+        cp.name AS 'project.name',
+        cp.short_name AS 'project.shortName',
+        pm.id AS 'monomer.id',
+        pm.name AS 'monomer.name',
+        pa.id AS 'area.id',
+        pa.name AS 'area.name',
+        tad.id AS assembleDetailId,
+        tad.quantity * ta.quantity AS quantity,
+        tad.quantity AS proportionality,
+        ta.id AS 'artifactTypesettingDTO.id',
+        ta.serial_number AS 'artifactTypesettingDTO.serialNumber',
+        ta.quantity AS 'artifactTypesettingDTO.artifactQuantity',
+        ssc.id AS 'artifactTypesettingDTO.structureClassId',
+        ssc.classification_name AS 'artifactTypesettingDTO.classificationName'
+        FROM
+        tech_assemble assemble
+        INNER JOIN tech_assemble_detail tad on tad.assemble_id = assemble.id and tad.bool_delete_enum = 0
+        INNER JOIN tech_artifact ta on ta.id = tad.artifact_id and ta.bool_delete_enum = 0
+        left join contract_project cp on cp.id = assemble.project_id
+        left join plan_monomer pm on pm.id = assemble.monomer_id
+        left join plan_area pa on pa.id = assemble.area_id
+        LEFT JOIN sys_structure_classification ssc on ssc.id = ta.structure_class_id
+        WHERE
+        assemble.bool_delete_enum = 0
+        and assemble.project_id = #{projectId}
+        <if test="productionLineTypeEnum != null ">
+            and assemble.production_line_type_enum = #{productionLineTypeEnum}
+        </if>
+        <if test="structureClassIds != null and structureClassIds.size() > 0 and productionLineTypeEnum == 2 ">
+            and ta.structure_class_id in
+            <foreach collection="structureClassIds" open="(" separator="," close=")" item="structureClassId">
+                #{structureClassId}
+            </foreach>
+        </if>
+        <if test="productionLineTypeEnum == 2 ">
+            AND assemble.length >= 300
+        </if>
+        <if test="monomerId != null">
+            AND assemble.monomer_id = #{monomerId}
+        </if>
+        <if test="areaIds != null and areaIds.size() > 0">
+            and assemble.area_id in
+            <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="boolMainAssemble != null and productionLineTypeEnum == 2">
+            AND assemble.bool_main_assemble = #{boolMainAssemble}
+        </if>
+        <if test="specPrefix != null and specPrefix != ''">
+            AND assemble.spec_prefix = #{specPrefix}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND assemble.specification = #{specification}
+        </if>
+        <if test="material != null and material != ''">
+            AND assemble.material = #{material}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND assemble.serial_number = #{serialNumber}
+        </if>
+        <if test="length != null">
+            AND assemble.length &gt;= #{length}
+        </if>
+        <if test="boolHaveNC1 != null">
+            AND assemble.bool_have_nc1 = #{boolHaveNC1}
+        </if>
+        order by assemble.bool_have_nc1 ASC
+        <if test="boolLength == true">
+            ,assemble.length desc
+        </if>
+        <if test="boolLength == false">
+            ,assemble.length ASC
+        </if>
+    </select>
+
+
+    <select id="listAssembleNoNesting" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssembleNestingDTOParam">
+        SELECT
+        assemble.id,
+        assemble.serial_number,
+        assemble.length,
+        assemble.remark,
+        assemble.specification,
+        assemble.material,
+        assemble.net_weight,
+        assemble.total_net_weight,
+        assemble.material,
+        assemble.bool_have_NC1,
+        assemble.assemble_config_id,
+        assemble.production_line_type_enum,
+        assemble.bool_main_assemble,
+        cp.id AS 'project.id',
+        cp.name AS 'project.name',
+        cp.short_name AS 'project.shortName',
+        pm.id AS 'monomer.id',
+        pm.name AS 'monomer.name',
+        pa.id AS 'area.id',
+        pa.name AS 'area.name',
+        tad.id AS assembleDetailId,
+        noNesting.quantity AS quantity,
+        ta.id AS 'artifactTypesettingDTO.id',
+        ta.serial_number AS 'artifactTypesettingDTO.serialNumber',
+        ssc.id AS 'artifactTypesettingDTO.structureClassId',
+        ssc.classification_name AS 'artifactTypesettingDTO.classificationName'
+        FROM
+        tech_assemble assemble
+        INNER JOIN tech_assemble_detail tad on tad.assemble_id = assemble.id
+        INNER JOIN mes_building_assemble_no_nesting noNesting on noNesting.assemble_detail_id = tad.id and
+        noNesting.bool_delete_enum = 0
+        INNER JOIN tech_artifact ta on ta.id = tad.artifact_id and ta.bool_delete_enum = 0
+        left join contract_project cp on cp.id = assemble.project_id
+        left join plan_monomer pm on pm.id = assemble.monomer_id
+        left join plan_area pa on pa.id = assemble.area_id
+        LEFT JOIN sys_structure_classification ssc on ssc.id = ta.structure_class_id
+        WHERE
+        assemble.bool_delete_enum = 0
+        and assemble.project_id = #{projectId}
+        and assemble.production_line_type_enum = #{productionLineTypeEnum}
+        and assemble.produced_quantity &lt; assemble.quantity
+        <if test="monomerId != null">
+            AND assemble.monomer_id = #{monomerId}
+        </if>
+        <if test="areaIds != null and areaIds.size() > 0">
+            and assemble.area_id in
+            <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="specPrefix != null and specPrefix != ''">
+            AND assemble.spec_prefix = #{specPrefix}
+        </if>
+        <if test="specification != null and specification != ''">
+            AND assemble.specification = #{specification}
+        </if>
+        <if test="material != null and material != ''">
+            AND assemble.material = #{material}
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            AND assemble.serial_number = #{serialNumber}
+        </if>
+        <if test="length != null">
+            AND assemble.length &gt;= #{length}
+        </if>
+    </select>
+
+
+    <select id="listAssembleAndStructureClassIdConfig"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssembleStructureConfigDTOParam">
+        SELECT
+        DISTINCT
+        ssc.id,
+        ssc.classification_name,
+        ssc.definition_word,
+        assemble.id As assembleId
+        FROM
+        tech_assemble assemble
+        INNER JOIN tech_assemble_detail tad on tad.assemble_id = assemble.id and tad.bool_delete_enum = 0
+        INNER JOIN tech_artifact ta on ta.id = tad.artifact_id and ta.bool_delete_enum = 0
+        LEFT JOIN sys_structure_classification ssc on ssc.id = ta.structure_class_id
+        WHERE
+        assemble.bool_delete_enum = 0
+        and assemble.project_id = #{projectId} and assemble.monomer_id = #{monomerId}
+        and assemble.production_line_type_enum = #{productionLineTypeEnum}
+        <if test="areaIds != null and areaIds.size() > 0">
+            and assemble.area_id in
+            <foreach collection="areaIds" open="(" separator="," close=")" item="areaId">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="structureClassIds != null and structureClassIds.size() > 0">
+            and ta.structure_class_id in
+            <foreach collection="structureClassIds" open="(" separator="," close=")" item="structureClassId">
+                #{structureClassId}
+            </foreach>
+        </if>
+        <if test="productionLineTypeEnum == 2 ">
+            AND assemble.length > 760
+        </if>
+    </select>
+    <select id="assembleSourceProductList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AssembleDTO">
+        SELECT cp.id 'project.id', cp.`name` 'project.name', cp.serial_number 'project.serialNumber', cp.short_name 'project.shortName', pm.id 'monomer.id', pm.`name` 'monomer.name', pa.id 'area.id', pa.`name` 'area.name', a.id,
+               a.serial_number,
+               a.specification,
+               a.material,
+               a.quantity,
+               a.user_id 'user.id', u.username 'user.name'
+        FROM tech_assemble a
+                 LEFT JOIN sys_user u ON a.user_id = u.id
+                 LEFT JOIN contract_project cp ON cp.id = a.project_id
+                 LEFT JOIN plan_monomer pm ON pm.id = a.monomer_id
+                 LEFT JOIN plan_area pa ON pa.id = a.area_id
+        WHERE a.bool_delete_enum = 0
+          AND a.id = #{productId}
+    </select>
+    <select id="listAllByArtifactIds" resultType="com.hzchum.scim.plan.core.api.pojo.dto.SendPurlinDTO">
+        SELECT
+        detai.artifact_id 'id',
+        detai.assemble_id 'assembleOrPartid',
+        detai.quantity 'scale',
+        ass.produced_quantity 'producedQuantity',
+        (ass.produced_quantity-ass.used_quantity) DIV detai.quantity 'complete'
+        FROM
+        tech_assemble ass,
+        tech_assemble_detail detai
+        WHERE
+        detai.bool_delete_enum = 0
+        AND ass.bool_delete_enum = 0
+        AND ass.bool_process=1
+        AND ass.id = detai.assemble_id
+        <if test="ids != null and ids.size()>0">
+            AND detai.artifact_id IN
+            <foreach collection="ids" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="sumTnventoryTon" resultType="java.math.BigDecimal">
+        select round(sum((ifnull(a.quantity, 0) * ifnull(a.net_weight, 0)) / 1000), 2) as ton
+        from tech_assemble a
+        where a.bool_delete_enum = 0
+          and a.project_id = #{projectId}
+    </select>
+
+
+    <select id="selectElementByBim"
+            resultType="com.hzchum.scim.plan.core.api.pojo.vo.BimBoxOrElementsVO">
+        select ta.*,
+        16 As productType,
+        pa.name AS areaName,
+        m.name AS monomerName
+        from tech_assemble ta
+        LEFT JOIN plan_area pa on pa.id = ta.area_id
+        LEFT JOIN plan_monomer m on m.id = ta.monomer_id
+        where ta.bool_delete_enum = 0
+        <if test="areaIds != null and areaIds.size() != 0">
+            AND ta.area_id in
+            <foreach collection="areaIds" item="areaId" separator="," close=")" open="(">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="serialNumber != null">
+            and ta.serial_number = #{serialNumber}
+        </if>
+        limit 1
+    </select>
+
+    <select id="selectByArtifactId"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.BridgeElementPartDTO">
+        SELECT mp.id,
+               mp.bool_status_enum,
+               mp.serial_number,
+               mp.specification,
+               mp.length,
+               mp.material,
+               mp.net_weight,
+               mp.gross_weight,
+               mp.user_id,
+               mp.net_weight * a.quantity * ampl.quantity AS total_net_weight,
+               mp.gross_weight * a.quantity * ampl.quantity AS total_gross_weight,
+               mp.surface_area /1000000 surface_area,
+               (select name from sys_user where bool_delete_enum = 0 and id = mp.user_id ) AS user_name,
+               a.quantity * ampl.quantity  AS quantity,
+               mp.remark,
+               mp.bool_scheduling_enum,
+               mp.bool_process
+        FROM tech_assemble_detail AS ampl
+                 INNER JOIN tech_assemble AS mp ON ampl.assemble_id = mp.id AND mp.bool_delete_enum = 0
+                 INNER JOIN tech_artifact AS a ON ampl.artifact_id = a.id AND mp.bool_delete_enum = 0
+        WHERE ampl.artifact_id = #{artifactId}
+          AND ampl.bool_delete_enum = 0
+        order by mp.id asc
+    </select>
+
+
+    <select id="getAssemble" resultType="com.hzchum.scim.plan.core.api.pojo.vo.ArtifactSimpleVO">
+        select
+        a.*
+        from
+        (
+        select
+        a.id,
+        a.`name`,
+        a.specification,
+        a.serial_number,
+        GROUP_CONCAT( DISTINCT b.number ) number,
+        a.create_time,
+        c.id 'project.id',
+        c.name 'project.name',
+        c.serial_number 'project.serial_number',
+        c.short_name 'project.short_name',
+        d.id 'monomer.id',
+        d.name 'monomer.name',
+        e.id 'area.id',
+        e.name 'area.name'
+        from
+        tech_assemble a
+        left join mes_building_produce_team_report b on a.id = b.product_id
+        left join contract_project c on a.project_id = c.id
+        left join plan_monomer d on a.monomer_id = d.id
+        left join plan_area e on a.area_id = e.id
+        where
+        a.bool_delete_enum = 0
+        and b.bool_delete_enum = 0
+        and b.task_type_enum = 16
+        and a.production_line_type_enum = 1
+        and a.serial_number like concat( '%', #{serialNumber}, '%' )
+        <if test="projectId != null">
+            and a.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and a.area_id = #{areaId}
+        </if>
+        group by
+        a.id,
+        c.id,
+        d.id,
+        e.id,
+        a.serial_number,
+        a.specification
+        ) a
+        order by
+        CHAR_LENGTH( a.serial_number ),
+        a.create_time desc
+    </select>
+
+
+</mapper>

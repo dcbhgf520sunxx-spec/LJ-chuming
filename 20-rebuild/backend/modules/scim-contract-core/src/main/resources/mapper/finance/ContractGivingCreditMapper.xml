@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractGivingCreditMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractGivingCredit">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="create_time" property="createTime" />
+        <result column="user_id" property="userId" />
+        <result column="accrediting_party_id" property="accreditingPartyId" />
+        <result column="id_number" property="idNumber" />
+        <result column="annual_interest" property="annualInterest" />
+        <result column="monthly_interest" property="monthlyInterest" />
+        <result column="day_interest" property="dayInterest" />
+        <result column="used_credit" property="usedCredit" />
+        <result column="remaining_sum" property="remainingSum" />
+        <result column="closing_date" property="closingDate" />
+        <result column="count_down" property="countDown" />
+        <result column="status" property="status" />
+        <result column="accessory_id" property="accessoryId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        update_time,
+        bool_delete_enum,
+        create_time,
+        id, user_id, accrediting_party_id, id_number, annual_interest, monthly_interest, day_interest, used_credit, remaining_sum, closing_date, count_down, status, accessory_id
+    </sql>
+
+    <select id="pageSize" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractGivingCreditDto">
+        SELECT
+        a.*,
+        (select name from sys_user where id = a.user_id and bool_delete_enum = 0) as userName ,
+        (select name from sys_user where id = a.accrediting_party_id and bool_delete_enum = 0) as accreditingPartyName
+        FROM
+        `contract_giving_credit` a
+        where a.bool_delete_enum = 0
+        <if test="id != null">
+            and a.id = #{id}
+        </if>
+        <if test="date != null">
+            and DATE_FORMAT(a.create_time,'%Y') = DATE_FORMAT(#{date},'%Y')
+        </if>
+        <if test="userId != null">
+            and a.user_id = #{userId}
+        </if>
+        <if test="suretyId != null">
+            and a.accrediting_party_id = #{suretyId}
+        </if>
+        <if test="idNumber != null">
+            and a.id_number like concat('%',#{idNumber},'%')
+        </if>
+    </select>
+
+</mapper>

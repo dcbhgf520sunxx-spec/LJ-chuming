@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingMachinePartNoProcessMapper">
+
+  <select id="getNoProcessCount" resultType="java.lang.Integer">
+    SELECT
+      COUNT(0)
+    FROM
+      mes_building_machine_part_no_process
+    GROUP BY order_number
+      WHERE
+    date( create_time )= date(#{now})
+  </select>
+
+  <select id="getMachinePartNoProcessResult" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.app.AppTaskOrderSummaryDO">
+    SELECT
+      mbmpnp.machine_part_scheduling_id AS scheduling_id,
+      ANY_VALUE(mbmpnp.order_number) AS orderNumber,
+      ANY_VALUE(cp.id) 'project.id',
+      ANY_VALUE(cp.serial_number) 'project.serialNumber',
+      ANY_VALUE(cp.short_name) 'project.name',
+      ANY_VALUE(su.NAME) AS userName,
+      ANY_VALUE(mbmpnp.ask_complete_time) AS askCompleteTime,
+      sum( mbmpnp.quantity ),
+      0 AS boolProcess
+    FROM
+      mes_building_machine_part_no_process mbmpnp
+        LEFT JOIN contract_project cp ON cp.id = mbmpnp.project_id
+        LEFT JOIN sys_user su ON cp.user_id = su.id
+    WHERE
+      mbmpnp.bool_delete_enum = 0
+      AND mbmpnp.bool_process = 0
+    GROUP BY
+      mbmpnp.machine_part_scheduling_id
+  </select>
+
+  <select id="taskOrderProcessDetail" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.APPCutTaskProcessPartDetailDTO">
+    SELECT
+      SUM(mbmpnp.quantity) AS quantity,
+      ANY_VALUE(mbmpnp.order_number) AS order_number,
+      ANY_VALUE(steel.name) AS partType,
+      ANY_VALUE(part.serial_number) AS serial_number,
+      mbmpnp.specification AS specification,
+      mbmpnp.material AS material,
+      ROUND((SUM(mbmpnp.quantity * mbmpnp.single_length * mbmpnp.wastage_rate) / 1000), 3) AS totalLength,
+      SUM(mbmpnp.quantity * mbmpnp.single_weight) AS totalNetWeight
+    FROM
+      mes_building_machine_part_no_process mbmpnp
+        LEFT JOIN tech_machine_part part ON part.id = mbmpnp.product_id AND part.bool_delete_enum = 0
+        LEFT JOIN sys_steel_classification steel ON part.steel_id = steel.id AND steel.bool_delete_enum = 0
+    WHERE
+      mbmpnp.bool_delete_enum = 0
+      AND mbmpnp.machine_part_scheduling_id = #{schedulingId}
+    GROUP BY
+      part.steel_id,
+      mbmpnp.material,
+      mbmpnp.specification
+  </select>
+
+  <select id="taskOrderProcessSemiAutoDetail" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.app.APPCutTaskProcessPartDetailDTO">
+    SELECT
+      any_value(part.serial_number) AS serialNumber,
+      part.thick AS thickness,
+      part.material,
+      sum( mbtp.task_quantity) quantity,
+      sum( mbtp.task_quantity * part.net_weight ) AS totalNetWeight
+    FROM
+      mes_building_task_process mbtp
+        LEFT JOIN tech_machine_part part ON part.id = mbtp.product_id
+    WHERE
+      mbtp.bool_delete_enum = 0
+      AND part.bool_delete_enum = 0
+      AND mbtp.sequence = 0
+      AND mbtp.machine_part_scheduling_id = #{schedulingId}
+    GROUP BY
+      part.thick,
+      part.material
+    ORDER BY
+      part.thick
+  </select>
+</mapper>

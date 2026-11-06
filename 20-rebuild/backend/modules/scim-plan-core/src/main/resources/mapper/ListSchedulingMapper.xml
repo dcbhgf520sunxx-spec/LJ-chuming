@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.production_scheduling.ListSchedulingMapper">
+
+    <select id="projectList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.production_scheduling.ListSchedulingProjectDTO">
+        SELECT
+            cp.id AS project_id,
+            cp.serial_number,
+            cp.short_name,
+            cp.start_date,
+            cp.end_date,
+            DATEDIFF(cp.end_date, cp.start_date) AS duration,
+            t1.list_total_quantity,
+            t2.scheduling_quantity,
+            t1.list_total_weight,
+            CASE
+                WHEN t2.scheduling_quantity IS NULL                      THEN 1
+                WHEN t1.list_total_quantity - t2.scheduling_quantity > 0 THEN 2
+                WHEN t1.list_total_quantity - t2.scheduling_quantity = 0 THEN 4
+            END AS scheduling_status
+        FROM contract_project cp
+        LEFT JOIN (
+            SELECT
+                project_id,
+                SUM(quantity) AS list_total_quantity,
+                SUM(total_net_weight) AS list_total_weight
+            FROM tech_artifact
+            WHERE bool_delete_enum = FALSE
+            GROUP BY project_id
+        ) t1 ON t1.project_id = cp.id
+        LEFT JOIN (
+            SELECT
+                project_id,
+                SUM(quantity) AS scheduling_quantity
+            FROM tech_artifact_ext
+            WHERE bool_delete_enum = FALSE AND bool_beforehand_scheduling = TRUE
+            GROUP BY project_id
+        ) t2 ON t2.project_id = cp.id
+        WHERE cp.bool_delete_enum = FALSE
+        <if test="year != null">
+            AND YEAR(cp.create_time) = #{year}
+        </if>
+        <if test="schedulingStatus != null">
+            <choose>
+                <when test="schedulingStatus == 1">
+                    AND t2.scheduling_quantity IS NULL
+                </when>
+                <when test="schedulingStatus == 2">
+                    AND t1.list_total_quantity - t2.scheduling_quantity > 0
+                </when>
+                <when test="schedulingStatus == 4">
+                    AND t1.list_total_quantity - t2.scheduling_quantity = 0
+                </when>
+            </choose>
+        </if>
+        <if test="projectNoOrName != null and projectNoOrName != ''">
+            <bind name="projectNoOrNameLike" value="'%' + projectNoOrName + '%'"/>
+            AND (cp.serial_number LIKE #{projectNoOrNameLike} OR cp.short_name LIKE #{projectNoOrNameLike} )
+        </if>
+    </select>
+
+    <select id="workshopList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.production_scheduling.ListSchedulingWorkshopDTO">
+        SELECT
+            tae.production_way,
+            tae.workshop_id,
+            IF(tae.workshop_id IS NULL, '外协', mbw.name) AS workshop_name,
+            SUM(tae.quantity) AS scheduling_quantity,
+            <if test="listTotalWeight != null and listTotalWeight != 0">
+                ROUND(ROUND(SUM(ls.quantity * ta.net_weight) / 1000, 2) / #{listTotalWeight}, 4) AS ratio,
+            </if>
+            ROUND(SUM(tae.quantity * ta.net_weight) / 1000, 2) AS scheduling_weight
+        FROM tech_artifact_ext tae
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = tae.artifact_id
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = FALSE AND mbw.id = tae.workshop_id
+        WHERE tae.bool_delete_enum = FALSE AND tae.bool_beforehand_scheduling = TRUE
+        <if test="projectId != null">
+            AND ls.project_id = #{projectId}
+        </if>
+        GROUP BY tae.production_way, tae.workshop_id
+    </select>
+
+    <select id="workshopSchedulingDetailList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.production_scheduling.ListSchedulingWorkshopSchedulingDetailDTO">
+        SELECT
+            tae.artifact_id,
+            tae.bool_scheduling,
+            SUM(tae.quantity) AS task_volume,
+            ta.project_id,
+            ta.monomer_id,
+            ta.area_id,
+            cp.short_name AS project_name,
+            pm.name AS monomer_name,
+            pa.name AS area_name,
+            ta.name,
+            ta.serial_number,
+            ta.specification,
+            ta.length,
+            ta.material
+        FROM tech_artifact_ext tae
+        LEFT JOIN tech_artifact ta ON ta.bool_delete_enum = FALSE AND ta.id = tae.artifact_id
+        LEFT JOIN contract_project cp ON cp.bool_delete_enum = FALSE AND cp.id = ta.project_id
+        LEFT JOIN plan_monomer pm ON pm.bool_delete_enum = FALSE AND pm.id = ta.monomer_id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = ta.area_id
+        WHERE tae.bool_delete_enum = FALSE AND tae.bool_beforehand_scheduling = TRUE
+        <if test="projectId != null">
+            AND tae.project_id = #{projectId}
+        </if>
+        <if test="productionWay != null">
+            AND tae.production_way = #{productionWay}
+        </if>
+        <if test="workshopId != null">
+            AND tae.workshop_id = #{workshopId}
+        </if>
+        <if test="boolScheduling != null">
+            AND tae.bool_scheduling = #{boolScheduling}
+        </if>
+        GROUP BY tae.artifact_id, tae.bool_scheduling
+    </select>
+
+    <select id="notSchedulingList" resultType="com.hzchum.scim.plan.core.api.pojo.dto.production_scheduling.NotSchedulingArtifactDTO">
+        SELECT
+            ta.id AS artifact_id,
+            ta.project_id,
+            ta.monomer_id,
+            ta.area_id,
+            ta.name,
+            ta.serial_number,
+            ta.specification,
+            ta.length,
+            ta.material,
+            (ta.quantity - IFNULL(t1.quantity, 0)) AS quantity,
+            ta.net_weight,
+            ((ta.quantity - IFNULL(t1.quantity, 0)) * ta.net_weight) AS total_net_weight,
+            pa.name AS area_name
+        FROM tech_artifact ta
+        LEFT JOIN (
+            SELECT
+                artifact_id,
+                SUM(quantity) AS quantity
+            FROM tech_artifact_ext
+            WHERE bool_delete_enum = FALSE AND bool_beforehand_scheduling = TRUE
+            GROUP BY artifact_id
+        ) t1 ON t1.artifact_id = ta.id
+        LEFT JOIN plan_area pa ON pa.bool_delete_enum = FALSE AND pa.id = ta.area_id
+        WHERE ta.bool_delete_enum = FALSE
+            AND (ta.quantity - IFNULL(t1.quantity, 0)) > 0
+        <if test="projectId != null">
+            AND ta.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND ta.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND ta.area_id = #{areaId}
+        </if>
+        <if test="artifactClassId != null">
+            AND ta.structure_class_id = #{artifactClassId}
+        </if>
+        <if test="artifactNoOrName != null and artifactNoOrName != ''">
+            <bind name="artifactNoOrNameLike" value="'%' + artifactNoOrName + '%'"/>
+            AND (ta.name LIKE #{artifactNoOrNameLike} OR ta.serial_number LIKE #{artifactNoOrNameLike})
+        </if>
+    </select>
+
+
+</mapper>

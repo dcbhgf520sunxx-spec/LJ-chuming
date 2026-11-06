@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechAuxiliaryMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechAuxiliaryMaterial">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="classify_full_name" property="classifyFullName"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="classify_id" property="classifyId"/>
+        <result column="classify_name" property="classifyName"/>
+        <result column="specification" property="specification"/>
+        <result column="quantity" property="quantity"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="measure_precision" property="measurePrecision"/>
+        <result column="accounting_unit" property="accountingUnit"/>
+        <result column="mete" property="mete"/>
+        <result column="accounting_precision" property="accountingPrecision"/>
+        <result column="color" property="color"/>
+        <result column="brand" property="brand"/>
+        <result column="remark" property="remark"/>
+        <result column="user_id" property="userId"/>
+        <result column="use_property" property="useProperty"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, classify_full_name,classify_id, classify_name, specification, quantity, measure_unit,measure_precision, accounting_unit, mete,accounting_precision,
+        color,brand,remark, user_id, use_property
+    </sql>
+    <select id="listAuxiliaryMaterialPrint"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.TechStandardPartPrintDTO">
+        select am.*,
+        p.id 'project.id',
+        p.name 'project.name',
+        p.short_name 'project.short_name',
+        p.serial_number 'project.serial_number',
+        m.`id` 'monomer.id',
+        m.`name` 'monomer.name'
+        from tech_auxiliary_material am
+        inner join contract_project p on p.id = am.project_id
+        inner join plan_monomer m on m.id = am.monomer_id and m.bool_delete_enum = 0
+        <where>
+            and am.bool_delete_enum = 0
+            <if test="projectId != null">
+                and am.project_id = #{projectId}
+            </if>
+            <if test="monomerId != null">
+                and am.monomer_id = #{monomerId}
+            </if>
+            <if test="classifyId != null">
+                and am.classify_id = #{classifyId}
+            </if>
+            <if test="color != null and color != ''">
+                and am.color like CONCAT('%',#{color},'%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and am.specification like CONCAT('%',#{specification},'%')
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectClassByProjectId" resultType="com.hzchum.scim.plan.core.api.pojo.dto.AuxiliaryMaterialClassDTO">
+        SELECT project_id,
+               classify_id,
+               classify_name,
+               bool_no_report
+        FROM `tech_auxiliary_material`
+        WHERE bool_delete_enum = 0
+          AND project_id = #{projectId}
+        GROUP BY classify_id,
+                 classify_name,
+                 bool_no_report
+
+    </select>
+
+</mapper>

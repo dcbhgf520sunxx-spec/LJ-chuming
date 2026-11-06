@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechArtifactChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactChange">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="project_id" property="projectId" />
+        <result column="monomer_id" property="monomerId" />
+        <result column="area_id" property="areaId" />
+        <result column="artifact_id" property="artifactId" />
+        <result column="old_quantity" property="oldQuantity" />
+        <result column="new_quantity" property="newQuantity" />
+        <result column="name" property="name" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="specification" property="specification" />
+        <result column="user_id" property="userId" />
+        <result column="handle_status_enum" property="handleStatusEnum" />
+        <result column="handle_user_id" property="handleUserId" />
+        <result column="handle_time" property="handleTime" />
+        <result column="reason_id" property="reasonId" />
+        <result column="change_remark" property="changeRemark" />
+        <result column="attachment_ids" property="attachmentIds" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, artifact_id, name, serial_number, specification, old_quantity, new_quantity, user_id, handle_status_enum, handle_user_id, handle_time, reason_id, change_remark, attachment_ids
+    </sql>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.change.TechArtifactChangeDTO">
+        SELECT
+            cp.id 'project.id',
+            cp.name  'project.name',
+            cp.short_name 'project.short_name',
+            cp.serial_number 'project.serial_number',
+            m.id 'monomer.id',
+            m.name 'monomer.name',
+            area.id 'area.id',
+            area.name 'area.name',
+            chage.*,
+            r.`name` reason_name,
+            u1.`name` user_name,
+            u2.`name` handle_user_name
+        FROM tech_artifact_change chage
+                 LEFT JOIN  contract_project cp ON chage.project_id = cp.id AND cp.bool_delete_enum = 0
+                 LEFT JOIN  plan_monomer m ON chage.monomer_id = m.id AND m.bool_delete_enum = 0
+                 LEFT JOIN  plan_area area ON chage.area_id = area.id AND area.bool_delete_enum = 0
+                 LEFT JOIN sys_change_reason r ON chage.reason_id = r.id AND r.bool_delete_enum = 0
+                 LEFT JOIN sys_user u1 ON chage.user_id  = u1.id AND u1.bool_delete_enum = 0
+                 LEFT JOIN sys_user u2 ON chage.handle_user_id  = u2.id AND u2.bool_delete_enum = 0
+        WHERE chage.bool_delete_enum = 0
+        <if test="projectId != null">
+            and chage.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and chage.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and chage.area_id = #{areaId}
+        </if>
+        <if test="handleStatusEnum != null">
+            and chage.handle_status_enum = #{handleStatusEnum}
+        </if>
+        <if test="name != null and name != ''">
+            and chage.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and chage.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and chage.serialNumber like concat('%',#{specification},'%')
+        </if>
+        <if test="reasonId != null">
+            and chage.reason_id = #{reasonId}
+        </if>
+        order by chage.handle_status_enum, chage.id desc
+    </select>
+    <select id="warehousingListByCondition"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.change.TechArtifactChangeDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.name  'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        m.id 'monomer.id',
+        m.name 'monomer.name',
+        area.id 'area.id',
+        area.name 'area.name',
+        ta.material,
+        ta.length,
+        chage.old_gross_weight,
+        chage.new_gross_weight,
+        chage.old_net_weight,
+        chage.new_net_weight,
+        chage.`name`,
+        chage.serial_number,
+        chage.specification,
+        chage.user_id,
+        chage.handle_user_id,
+        chage.handle_time,
+        chage.create_time,
+        log.old_quantity oldQuantity,
+        log.quantity newQuantity,
+        log.old_quantity * chage.old_net_weight total_old_net_weight,
+        log.quantity * chage.new_net_weight total_new_net_weight,
+        r.`name` reason_name,
+        u1.`name` user_name,
+        u2.`name` handle_user_name
+        FROM tech_artifact_change chage
+        LEFT JOIN mes_building_change_log log ON log.change_id = chage.id
+        AND log.type = 2
+        AND log.bool_delete_enum = 0
+        left join tech_artifact ta on chage.artifact_id = ta.id
+        LEFT JOIN  contract_project cp ON chage.project_id = cp.id AND cp.bool_delete_enum = 0
+        LEFT JOIN  plan_monomer m ON chage.monomer_id = m.id AND m.bool_delete_enum = 0
+        LEFT JOIN  plan_area area ON chage.area_id = area.id AND area.bool_delete_enum = 0
+        LEFT JOIN sys_change_reason r ON chage.reason_id = r.id AND r.bool_delete_enum = 0
+        LEFT JOIN sys_user u1 ON chage.user_id  = u1.id AND u1.bool_delete_enum = 0
+        LEFT JOIN sys_user u2 ON chage.handle_user_id  = u2.id AND u2.bool_delete_enum = 0
+        WHERE chage.bool_delete_enum = 0
+        AND log.id is not null
+        <if test="projectId != null">
+            and chage.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            and chage.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            and chage.area_id = #{areaId}
+        </if>
+        <if test="handleStatusEnum != null">
+            and chage.handle_status_enum = #{handleStatusEnum}
+        </if>
+        <if test="name != null and name != ''">
+            and chage.name like concat('%',#{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and chage.serial_number like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and chage.serialNumber like concat('%',#{specification},'%')
+        </if>
+        <if test="reasonId != null">
+            and chage.reason_id = #{reasonId}
+        </if>
+        <if test="startDate != null">
+            and chage.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and chage.create_time &lt;= #{endDate}
+        </if>
+        order by chage.handle_status_enum, chage.id desc
+    </select>
+    <select id="listNewChanges" resultType="com.hzchum.scim.plan.core.api.pojo._do.TechArtifactChange">
+        SELECT c.*
+        FROM tech_artifact_change c,
+        (
+        SELECT artifact_id,
+        max(handle_time) handle_time
+        FROM tech_artifact_change
+        WHERE bool_delete_enum = 0
+        AND handle_status_enum = 2
+        AND ( ( old_net_weight != new_net_weight OR old_gross_weight != new_gross_weight or old_quantity != new_quantity)
+               OR id IN ( SELECT change_id FROM mes_building_change_log WHERE bool_delete_enum = 0 ) )
+        GROUP BY artifact_id
+        ) b,
+        tech_artifact art
+        WHERE c.artifact_id = b.artifact_id
+        AND c.handle_time = b.handle_time
+        AND c.artifact_id = art.id
+        <if test="projectId != null">
+            AND art.project_id = #{projectId}
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND art.area_id = #{areaId}
+        </if>
+        <if test="serialNumber !=null and serialNumber !=''">
+            AND art.serial_number Like concat('%',#{serialNumber},'%')
+        </if>
+        <if test="specification !=null and specification !=''">
+            AND art.specification Like concat('%',#{specification},'%')
+        </if>
+        <if test="name !=null and name !=''">
+            AND art.`name` like concat('%',#{name},'%')
+        </if>
+        <if test="startDate != null">
+            and date(c.handle_time) &gt;= date(#{startDate})
+        </if>
+        <if test="endDate != null">
+            and date(c.handle_time) &lt;= date(#{endDate})
+        </if>
+    </select>
+
+</mapper>

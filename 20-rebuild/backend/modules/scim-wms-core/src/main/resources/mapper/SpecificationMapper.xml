@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.SpecificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.Specification">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="bool_weighted_average" property="boolWeightedAverage"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, weighted_average, subject_id, name, sort
+    </sql>
+
+    <resultMap id="subjectSpecificationMap" type="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.SpecificationDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="classificationId" column="classification_id"/>
+        <result column="sort" property="sort"/>
+        <result property="boolWeightedAverage" column="bool_weighted_average"/>
+        <collection property="list" ofType="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.SpecificationDetailDTO">
+            <result property="id" column="detail_id"/>
+            <result property="sort" column="detail_sort"/>
+            <result property="value" column="value"/>
+            <result property="code" column="code"/>
+            <result property="boolUsed" column="bool_used"/>
+        </collection>
+    </resultMap>
+    <select id="selectBySubjectId" resultMap="subjectSpecificationMap">
+        select s.id,
+               s.bool_weighted_average,
+               s.name,
+               s.sort,
+               s.classification_id,
+               sd.id 'detail_id',
+               sd.sort 'detail_sort',
+               sd.value 'value',
+               sd.code 'code',
+               sd.bool_used 'bool_used'
+        from wms_specification s
+                 left join wms_specification_details sd on sd.specification_id = s.id and sd.bool_delete_enum = 0
+        where s.bool_delete_enum = 0
+          and s.classification_id = #{classificationId}
+        order by s.sort, sd.sort
+    </select>
+    <select id="getMaxSort" resultType="integer">
+        select ifnull(max(sort), 0)
+        from wms_specification
+        where classification_id = #{classificationId}
+    </select>
+</mapper>

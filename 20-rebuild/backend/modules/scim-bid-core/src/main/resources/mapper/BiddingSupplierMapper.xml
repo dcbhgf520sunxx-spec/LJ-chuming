@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.bid.core.mapper.BiddingSupplierMapper">
+
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.bid.core.api.pojo._do.BiddingSupplier">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="supplier_id" property="supplierId" />
+        <result column="is_block" property="isBlock" />
+        <result column="UUID" property="UUID" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bs.version, bs.create_time, bs.update_time, bs.id, bs.supplier_id, bs.is_block,bs.UUID
+    </sql>
+
+    <!-- 投标供应商查询结果列 -->
+    <sql id="Supplier_Column_List">
+    s.name,
+    d.short_name,
+    d.social_credit_code,
+    d.address,
+    d.legal_person,
+    d.registered_address,
+    d.registered_fund,
+    d.business_term,
+    d.bank_deposit,
+    d.bank_account,
+    d.register_date,
+    d.website,
+    d.contact_person,
+    d.contact_phone,
+    d.contact_email,
+    d.enterprise_phone,
+    d.enterprise_email,
+    d.region_ids,
+    d.region_name,
+    d.subject_ids,
+    d.subject_name,
+    d.business_license_id,
+    d.business_license,
+    d.power_attorney_id,
+    d.power_attorney,
+    d.settle_in_time
+    </sql>
+
+    <select id="getList" resultType="com.hzchum.scim.bid.core.api.pojo.vo.BiddingSupplierVO">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        <include refid="Supplier_Column_List"/>
+        FROM bidding_supplier bs
+        INNER JOIN supplier s on s.id = bs.supplier_id
+        INNER JOIN supplier_detail d on d.supplier_id = bs.supplier_id
+        <where>
+            and bs.UUID = #{uuid} and bs.is_block = #{black}
+            <if test="name != null and name != '' ">
+                AND bs.name like concat('%',#{name},'%')
+            </if>
+            <if test="code != null and code != '' ">
+                AND bs.social_credit_code like concat('%',#{code},'%')
+            </if>
+            <if test="subjectIds != null and subjectIds.size() != 0">
+                and bs.supplier_id in (
+                select detail_id from supplier_detail_subject_link where bool_delete_enum = 0 and subject_id in
+                <foreach collection="subjectIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="regionIds != null and regionIds.size() != 0">
+                and bs.supplier_id in (
+                select detail_id from supplier_detail_region_link where bool_delete_enum = 0 and region_id in
+                <foreach collection="regionIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
+        </where>
+        ORDER BY bs.create_time desc
+    </select>
+
+
+    <select id="listByCondition" resultType="com.hzchum.scim.bid.core.api.pojo.vo.BiddingSupplierVO">
+        select
+        s.id AS supplierId,
+        <include refid="Supplier_Column_List"/>
+        from supplier s
+        inner join supplier_detail d on d.supplier_id = s.id
+        <where>
+            and s.bool_delete_enum = 0 and s.cert_status = 2 AND s.id NOT IN (select bs.supplier_id from bidding_supplier bs where bs.uuid = #{uuid})
+            <if test="name != null and name != ''">
+                and s.name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="socialCreditCode != null and socialCreditCode != ''">
+                and d.social_credit_code like CONCAT('%',#{socialCreditCode},'%')
+            </if>
+            <if test="regionIds != null and regionIds.size() != 0">
+                and d.id in (
+                select detail_id from supplier_detail_region_link where bool_delete_enum = 0 and region_id in
+                <foreach collection="regionIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="subjectIds != null and subjectIds.size() != 0">
+                and d.id in (
+                select detail_id from supplier_detail_subject_link where bool_delete_enum = 0 and subject_id in
+                <foreach collection="subjectIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test="boolEnableEnum != null">
+                and s.bool_enable_enum = #{boolEnableEnum}
+            </if>
+        </where>
+    </select>
+
+
+
+    <select id="getBiddingSupplierOne" resultType="com.hzchum.scim.bid.core.api.pojo.vo.BiddingSupplierVO">
+        SELECT
+        <include refid="Base_Column_List"/>,
+        <include refid="Supplier_Column_List"/>
+        FROM bidding_supplier bs
+        INNER JOIN supplier s on s.id = bs.supplier_id
+        INNER JOIN supplier_detail d on d.supplier_id = bs.supplier_id
+        where bs.id = #{id} and bs.UUID = #{uuid}
+    </select>
+
+
+
+</mapper>

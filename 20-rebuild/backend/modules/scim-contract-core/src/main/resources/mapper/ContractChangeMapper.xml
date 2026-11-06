@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractChange">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="type" property="type"/>
+        <result column="contract_amount" property="contractAmount"/>
+        <result column="settlement_amount" property="settlementAmount"/>
+        <result column="change_amount" property="changeAmount"/>
+        <result column="change_date" property="changeDate"/>
+        <result column="change_content" property="changeContent"/>
+        <result column="change_desc" property="changeDesc"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="pay_type" property="payType"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="auditor_name" property="auditorName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="source" property="source"/>
+        <result column="remark" property="remark"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="change_leader_ids" property="changeLeaderIds"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, type, contract_amount,settlement_amount,change_amount,change_date,change_content,change_desc,
+        user_id, user_name,pay_type,auditor_id, auditor_name, audit_time, audit_status, source, project_temp_id,
+        attachment_ids,change_leader_ids,remark
+    </sql>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ContractChangeDTO">
+        SELECT
+        c.*,
+        p.id AS 'project.id',
+        p.name AS 'project.name',
+        p.short_name AS 'project.shortName',
+        p.serial_number AS 'project.serialNumber'
+        FROM
+        contract_change AS c
+        INNER JOIN contract_project as p on c.project_id = p.id and p.bool_delete_enum = 0
+
+        <if test="userId != null">
+            inner join
+            (
+            (select id from contract_change where bool_delete_enum = 0 and user_id = #{userId})
+            union
+            (
+            select cc.id from contract_change as cc
+            inner join (
+            (select project_id from sys_project_user_link where bool_delete_enum = 0 and user_id = #{userId})
+            union
+            (select id as project_id from contract_project where bool_delete_enum = 0 and user_id = #{userId})
+            ) as pids
+            on cc.project_id = pids.project_id where cc.bool_delete_enum = 0
+            )
+            ) as id_list on c.id = id_list.id
+        </if>
+
+        <if test="name != null and name != ''">
+            inner join
+            (
+            select id as project_id from contract_project where bool_delete_enum = 0 and (name like
+            concat('%',#{name},'%') or short_name like concat('%',#{name},'%'))
+            ) as pids on p.id = pids.project_id
+
+        </if>
+
+        WHERE c.bool_delete_enum = 0
+        <if test="type == null">
+            and type in (1,2)
+        </if>
+
+        <if test="projectId != null">
+            and c.project_id = #{projectId}
+        </if>
+
+        <if test="year != null">
+            and DATE_FORMAT(c.change_date,'%Y') = #{year}
+        </if>
+
+        <if test="userName != null and userName !='' ">
+            and c.user_name like concat('%',#{userName},'%')
+        </if>
+
+        <if test="auditorName != null and auditorName !='' ">
+            and c.auditor_name like concat('%',#{auditorName},'%')
+        </if>
+
+        <if test="type != null">
+            and c.type = #{type}
+        </if>
+
+        <if test="auditStatus != null">
+            and c.audit_status = #{auditStatus}
+        </if>
+        order by c.audit_status , c.id desc
+    </select>
+
+</mapper>

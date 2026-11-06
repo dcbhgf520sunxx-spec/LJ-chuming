@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.enclosure.core.mapper.task.MesEnclosureTaskOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.enclosure.core.api.pojo._doModel.task.MesEnclosureTaskOrder">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="groups_id" property="teamId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="product_type" property="productType"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="status" property="status"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="quantity" property="quantity"/>
+        <result column="print_quantity" property="printQuantity"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, factory_id, workshop_id, production_line_id, groups_id, project_id, monomer_id, plan_id, product_type, ask_complete_time, complete_time, status, issue_status, user_id, order_number, quantity, print_quantity
+    </sql>
+
+    <select id="getOrders"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.MesEnclosureTaskOrderDTO">
+        SELECT
+        ord.*,
+        dic.label 'dictionaryName',
+        fac.name 'factoryName',
+        shop.name 'workshopName',
+        line.name 'productionLineName',
+        us.name 'userName'
+        FROM
+        mes_enclosure_task_order ord
+        LEFT JOIN mes_building_factory fac ON ord.factory_id = fac.id
+        LEFT JOIN mes_building_workshop shop ON ord.workshop_id=shop.id
+        LEFT JOIN mes_enclosure_production_line line ON ord.production_line_id=line.id
+        LEFT JOIN sys_user us ON ord.user_id=us.id
+        LEFT join sys_dictionary dic ON ord.dictionary_id=dic.id and dic.bool_delete_enum=0
+        WHERE ord.bool_delete_enum=0
+        AND ord.project_id=#{projectId}
+        <if test="orderNumber != null and orderNumber != ''">
+            AND ord.order_number like CONCAT('%',#{orderNumber},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+            AND us.`name` like CONCAT('%',#{userName},'%')
+        </if>
+        ORDER BY
+        ord.create_time desc
+    </select>
+    <select id="getTaskAndCompLength"
+            resultType="com.hzchum.scim.mes.enclosure.core.api.pojo._dto.task.OrderTaskAndCompleteLengthDTO">
+
+        SELECT
+            ord.id,
+            SUM( task.task_quantity * enc.length ) taskLength,
+            SUM( task.complete_quantity * enc.length ) competeLength
+        FROM
+            mes_enclosure_task_order ord
+                LEFT JOIN mes_enclosure_task task ON ord.id = task.task_order_id
+                AND task.bool_delete_enum = 0
+                LEFT JOIN tech_enclosure enc ON task.product_id = enc.id
+                AND enc.bool_delete_enum = 0
+        WHERE
+                ord.id IN
+        <foreach collection="orderIds" item="orderId" separator="," close=")" open="(">
+            #{orderId}
+        </foreach>
+        GROUP BY ord.id
+    </select>
+</mapper>

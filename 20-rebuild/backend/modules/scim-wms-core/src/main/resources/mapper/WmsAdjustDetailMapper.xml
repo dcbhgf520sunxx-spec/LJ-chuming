@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.WmsAdjustDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.WmsAdjustDetail">
+        <id column="id" property="id" />
+    </resultMap>
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsUse.AdjustDetailDTO">
+        SELECT
+        wad.id,
+        wad.different_amount ,
+        wad.different_amount_excluding_vat ,
+        wad.serial_number adjustSerialNumber,
+        wad.create_time,
+        wid.id inboundDetailId,
+        wid.basic_class,
+        wid.material_sn,
+        wid.classify_name,
+        wid.specification,
+        wid.length,
+        wid.width,
+        wid.thickness,
+        wid.heat_no_and_batch_no,
+        wid.brand,
+        wi.serial_number serialNumber,
+        wid.project_id,
+        wid.heat_no_and_batch_no,
+        wi.id inboundId,
+        wi.inbound_way,
+        wid.classify_id classifyId
+        FROM
+        wms_adjust_detail wad
+        LEFT JOIN wms_inbound_detail wid ON wad.inbound_detail_id = wid.id
+        LEFT JOIN wms_inbound wi ON wi.id = wid.inbound_id
+        LEFT JOIN wms_adjust wa ON wa.id = wad.adjust_id
+        WHERE
+        wad.bool_delete_enum = 0
+        <if test="reviewStatus != null">
+            and wa.review_status = #{reviewStatus}
+        </if>
+        <if test=" basicClass != null">
+            and wid.basic_class &amp; #{ basicClass} &gt; 0
+        </if>
+        <if test="purchaseSN != null and purchaseSN != '' ">
+            and wi.purchase_sn like CONCAT('%', #{purchaseSN},'%')
+        </if>
+        <if test="inboundTime != null and inboundTime.size()>0">
+            <if test="inboundTime[0] != null">
+                and wad.create_time &gt; #{inboundTime[0]}
+            </if>
+            <if test="inboundTime[1] != null">
+                and wad.create_time &lt; #{inboundTime[1]}
+            </if>
+        </if>
+        <if test="projectWarehouseType == 1 ">
+            and wid.project_id is null
+        </if>
+        <if test="projectWarehouseType == 2 ">
+            and wid.project_id IS NOT NULL
+        </if>
+        <if test="projectId != null and projectId != '' ">
+            and wid.project_id = #{projectId}
+        </if>
+        <if test="adjustSerialNumber != null and adjustSerialNumber != '' ">
+            and wa.serial_number like CONCAT('%', #{adjustSerialNumber},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != '' ">
+            and wi.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test=" operatorName != null and  operatorName != ''">
+            and wa.applicant_name like CONCAT('%', #{operatorName},'%')
+        </if>
+        <if test=" workshopIds != null and workshopIds.size() > 0">
+            and wid.workshop_id in
+            <foreach collection="workshopIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="inboundWay != null">
+            and wi.inbound_way = #{inboundWay}
+        </if>
+
+    </select>
+</mapper>

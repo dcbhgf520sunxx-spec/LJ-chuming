@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsReport.WasteSaleDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsReport.WasteSaleDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="waste_sale_id" property="wasteSaleId"/>
+        <result column="waste_classification_id" property="wasteClassificationId"/>
+        <!--        <result column="waste_classification_name" property="wasteClassificationName"/>-->
+        <!--        <result column="measure_unit" property="measureUnit"/>-->
+        <result column="sale_mete" property="saleMete"/>
+        <result column="price" property="price"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+        <result column="audit_status_enum" property="auditStatusEnum"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, waste_sale_id, waste_classification_id, sale_mete, price, amount, remark, audit_status_enum
+    </sql>
+
+    <select id="selectByWasteSaleIds"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.WasteSaleDetailDTO">
+        select
+        wsd.*,
+        wc.name as waste_classification_name,
+        wc.measure_unit
+        from wms_waste_sale_detail as wsd
+        left join wms_waste_classification as wc on wsd.waste_classification_id = wc.id
+        where wsd.bool_delete_enum = 0
+        <if test="wasteSaleIds != null and wasteSaleIds.size() > 0">
+            AND wsd.waste_sale_id in
+            <foreach collection="wasteSaleIds" open="(" separator="," close=")" item="wasteSaleId">
+                #{wasteSaleId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listWasteSaleDetailWholeInfo"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsReport.WasteSaleDetailWholeInfoDTO">
+        select
+        wsd.id,
+        wsd.waste_sale_id,
+        wsd.sale_mete,
+        wsd.price,
+        wsd.amount,
+        wsd.remark,
+        wsd.waste_classification_id,
+        wc.name as waste_classification_name,
+        wsd.create_time,
+        wc.measure_unit,
+        ws.contract_waste_id,
+        cw.serial_number,
+        cw.purchaser,
+        ws.sale_date,
+        ws.branch_company_id,
+        bc.name as branch_company_name,
+        ws.plate_number,
+        ws.create_user_id,
+        u1.name as create_user_name,
+        ws.audit_user_id,
+        u2.name as audit_user_name,
+        ws.audit_time
+        from wms_waste_sale as ws
+        inner join wms_waste_sale_detail as wsd on ws.id = wsd.waste_sale_id
+        left join contract_waste as cw on ws.contract_waste_id = cw.id
+        left join sys_branch_company as bc on ws.branch_company_id = bc.id
+        left join wms_waste_classification as wc on wsd.waste_classification_id = wc.id
+        left join sys_user as u1 on ws.create_user_id = u1.id
+        left join sys_user as u2 on ws.audit_user_id = u2.id
+        where ws.bool_delete_enum = 0
+        and wsd.bool_delete_enum = 0
+        <if test="startDate != null">
+            AND DATE(ws.sale_date) &gt;= DATE(#{startDate})
+        </if>
+        <if test="endDate != null">
+            AND DATE(ws.sale_date) &lt;= DATE(#{endDate})
+        </if>
+        <if test="contractWasteId != null">
+            AND ws.contract_waste_id = #{contractWasteId}
+        </if>
+        <if test="branchCompanyId != null">
+            AND ws.branch_company_id = #{branchCompanyId}
+        </if>
+        <if test="wasteClassificationId != null">
+            AND wsd.waste_classification_id = #{wasteClassificationId}
+        </if>
+        <if test="auditStatusEnum != null">
+            and ws.audit_status_enum = #{auditStatusEnum}
+        </if>
+        <if test="purchaser != null and purchaser != ''">
+            and cw.purchaser like concat('%',#{purchaser},'%')
+        </if>
+        <if test="createUserName != null and createUserName != ''">
+            and u1.name like concat('%',#{createUserName},'%')
+        </if>
+        <if test="auditUserName != null and auditUserName != ''">
+            and u2.name like concat('%',#{auditUserName},'%')
+        </if>
+        group by wsd.id
+        order by ws.sale_date desc, wsd.id
+    </select>
+
+</mapper>

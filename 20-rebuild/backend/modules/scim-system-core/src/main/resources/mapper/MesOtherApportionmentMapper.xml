@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesOtherApportionmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesOtherApportionment">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="type" property="type" />
+        <result column="unit" property="unit" />
+        <result column="price" property="price" />
+        <result column="status" property="status" />
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <select id="listInfo" resultType="com.hzchum.scim.system.core.api.pojo.dto.MesOtherApportionmentDTO">
+        SELECT
+            moa.*,
+            mbw.name AS workshop_name
+        FROM mes_other_apportionment moa
+        LEFT JOIN mes_building_workshop mbw ON mbw.bool_delete_enum = FALSE and mbw.id = moa.workshop_id
+        WHERE moa.bool_delete_enum = FALSE
+    </select>
+
+</mapper>

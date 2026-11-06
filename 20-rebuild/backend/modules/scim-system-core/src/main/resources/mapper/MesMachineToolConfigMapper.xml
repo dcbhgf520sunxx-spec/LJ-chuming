@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.MesMachineToolConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.MesMachineToolConfig">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="part_process_id" property="partProcessId" />
+        <result column="name" property="name" />
+        <result column="workshop_id" property="workshopId" />
+        <result column="serial_number" property="serialNumber" />
+        <result column="user_id" property="userId" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, part_process_id, name, workshop_id, serial_number, user_id, status
+    </sql>
+    <select id="findMachineToolConfigList"
+            resultType="com.hzchum.scim.system.core.api.pojo.dto.config.MesMachineToolConfigDTO">
+        select
+            tc.id,
+            tc.name,
+            pro.id partProcessId,
+            pro.name partProcessName,
+            work.id 'workshop.id',
+            work.name 'workshop.name',
+            tc.serial_number,
+            tc.status
+        from mes_machine_tool_config tc
+                 left join mes_building_process pro on tc.part_process_id = pro.id and pro.part_prod_mode = 1
+                 left join mes_building_workshop work on tc.workshop_id = work.id
+    </select>
+
+</mapper>

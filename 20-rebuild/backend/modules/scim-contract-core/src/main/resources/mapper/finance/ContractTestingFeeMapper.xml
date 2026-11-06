@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractTestingFeeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractTestingFee">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="pay_date" property="payDate"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="year_month_value" property="yearMonthValue"/>
+        <result column="testing_fee_type_id" property="testingFeeTypeId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="fee_amount" property="feeAmount"/>
+        <result column="user_id" property="userId"/>
+<!--        <result column="bool_confirm_status" property="boolConfirmStatus"/>-->
+        <result column="audit_status_enum" property="auditStatusEnum"/>
+        <result column="attachment_ids" property="attachmentIds"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, pay_date, year, month, year_month_value, testing_fee_type_id, project_id, fee_amount, user_id, attachment_ids, remark
+    </sql>
+
+    <select id="selectTestingFeeSummary" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractTestingFeeSummaryDTO">
+        SELECT
+        tf.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number'
+        <if test="testingFeeTypeId != null">
+            ,tf.testing_fee_type_id,
+            type.label testing_fee_type_name
+        </if>
+        FROM contract_testing_fee tf
+        LEFT JOIN sys_dictionary type ON tf.testing_fee_type_id = type.id AND type.bool_delete_enum = 0
+        LEFT JOIN contract_project cp ON tf.project_id = cp.id AND cp.bool_delete_enum = 0
+        WHERE tf.bool_delete_enum = 0
+          AND tf.project_id is not null
+        AND tf.`year` = #{year}
+        <if test="projectId != null">
+            AND tf.project_id = #{projectId}
+        </if>
+        <if test="testingFeeTypeId != null">
+            AND tf.testing_fee_type_id = #{testingFeeTypeId}
+        </if>
+        GROUP BY
+        tf.project_id
+        <if test="testingFeeTypeId != null">
+            , tf.testing_fee_type_id
+        </if>
+    </select>
+
+    <select id="selectByCondition"
+            resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractTestingFeeDTO">
+        select
+        tf.id,
+        tf.pay_date,
+        tf.year,
+        tf.month,
+
+        tf.testing_fee_type_id,
+        type.label testing_fee_type_name,
+
+        tf.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+
+        tf.fee_amount,
+
+        tf.user_id,
+        u.name user_name,
+
+        tf.attachment_ids,
+        tf.remark,
+        tf.audit_status_enum,
+        tf.branch_company_id,
+        sbc.name as branch_company_name
+
+        from contract_testing_fee tf
+        left join sys_dictionary type on tf.testing_fee_type_id = type.id and type.bool_delete_enum = 0
+        left join contract_project cp on tf.project_id = cp.id and cp.bool_delete_enum = 0
+        left join sys_user u on tf.user_id = u.id and u.bool_delete_enum = 0
+        left join sys_branch_company sbc on sbc.bool_delete_enum = 0 and sbc.id = tf.branch_company_id
+
+        where tf.bool_delete_enum = 0
+        <if test="year != null">
+            and tf.year = #{year}
+        </if>
+        <if test="month != null">
+            and tf.month = #{month}
+        </if>
+        <if test="projectId != null">
+            and tf.project_id = #{projectId}
+        </if>
+        <if test="projectId == null">
+            and tf.project_id IS NULL
+        </if>
+        <if test="testingFeeTypeId != null">
+            and tf.testing_fee_type_id = #{testingFeeTypeId}
+        </if>
+        order by tf.pay_date
+    </select>
+
+    <select id="listByProjectAndProjectYear" resultType="com.hzchum.scim.contract.core.api.pojo.dto.finance.ContractTestingFeeDTO">
+        select
+        tf.id,
+        tf.pay_date,
+        tf.year,
+        tf.month,
+
+        tf.testing_fee_type_id,
+        type.label testing_fee_type_name,
+
+        tf.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+
+        tf.fee_amount,
+
+        tf.user_id,
+        u.name user_name,
+
+        tf.attachment_ids,
+        tf.remark
+
+        from contract_testing_fee tf
+        left join sys_dictionary type on tf.testing_fee_type_id = type.id and type.bool_delete_enum = 0
+        left join contract_project cp on tf.project_id = cp.id and cp.bool_delete_enum = 0
+        left join sys_user u on tf.user_id = u.id and u.bool_delete_enum = 0
+
+        where tf.bool_delete_enum = 0
+        <if test="year != null">
+            and DATE_FORMAT( cp.create_time, '%Y' ) = #{year}
+        </if>
+        <if test="projectId != null">
+            and tf.project_id = #{projectId}
+        </if>
+        order by tf.pay_date desc
+    </select>
+
+    <select id="getSum" resultType="java.util.HashMap">
+        select sum(fee_amount) as sumAll,testing_fee_type_id as testingFeeTypeId
+        from
+        contract_testing_fee
+        where
+        project_id = #{projectId} and testing_fee_type_id = #{testingFeeTypeId}
+    </select>
+
+    <select id="findCount" resultType="java.lang.String">
+        select project_id from contract_testing_fee where year = #{year} GROUP BY project_id
+    </select>
+
+    <select id="selectMonthFeeList" resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT year_month_value month,
+               sum(fee_amount) amount
+        FROM `contract_testing_fee`
+        WHERE bool_delete_enum = 0
+            and project_id is null
+          and year_month_value &gt; #{startMonth}
+          and year_month_value &lt;= #{endMonth}
+        group by year_month_value
+        order by year_month_value
+    </select>
+
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectSupplierAccountMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectSupplierAccount">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="username" property="username"/>
+        <result column="user_id" property="userId"/>
+        <result column="password" property="password"/>
+        <result column="bool_status" property="boolStatus"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, supplier_id, supplier_name, username, user_id, password, bool_status
+    </sql>
+
+    <!--    <resultMap id="supplierMap" type="com.hzchum.scim.project.core.api.pojo.dto.ProjectSupplierAccountDTO">-->
+    <!--        <result column="supplier_id" property="supplierId"/>-->
+    <!--        <result column="supplier_name" property="supplierName"/>-->
+    <!--        <result column="username" property="username"/>-->
+    <!--        <result column="password" property="password"/>-->
+
+    <!--&lt;!&ndash;        <collection property="projectAreaDTOList" ofType="com.hzchum.scim.project.core.api.pojo.dto.ProjectAreaMeteDTO">&ndash;&gt;-->
+    <!--&lt;!&ndash;            <id property="id" column="id"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <result property="name" column="name"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <result property="productType" column="product_type"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <result property="axis" column="axis"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;            <result property="boolRelationStatus" column="bool_relation_status"/>&ndash;&gt;-->
+    <!--&lt;!&ndash;        </collection>&ndash;&gt;-->
+    <!--    </resultMap>-->
+
+
+    <select id="selectSubSupplier" resultType="com.hzchum.scim.project.core.api.pojo.dao.ProjectSupplierAccountDO">
+        SELECT
+        temp.supplier_id ,
+        (select name from scm_supplier where bool_delete_enum = 0 and id = temp.supplier_id) as supplier_name ,
+        psa.username ,
+        psa.`password`
+        FROM
+        (
+        SELECT
+        supplier_id
+        FROM
+        project_supplier_area_link
+        WHERE
+        bool_delete_enum = 0
+        AND project_id = #{projectId}
+        <if test="monomerId != null">
+            AND monomer_id = #{monomerId}
+        </if>
+        GROUP BY supplier_id
+        ) AS temp
+        INNER JOIN project_supplier_account AS psa ON temp.supplier_id = psa.supplier_id AND psa.bool_delete_enum = 0
+        ORDER BY psa.bool_status DESC , psa.supplier_id ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.ContractReimbursementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.ContractReimbursement">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="project_name" property="projectName"/>
+        <result column="apply_amount" property="applyAmount"/>
+        <result column="actually_pay_amount" property="actuallyPayAmount"/>
+        <result column="apply_depart_id" property="applyDepartId"/>
+        <result column="apply_depart_name" property="applyDepartName"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="apply_user_id" property="applyUserId"/>
+        <result column="apply_user_name" property="applyUserName"/>
+        <result column="collection_deposit_bank" property="collectionDepositBank"/>
+        <result column="collection_bank_account" property="collectionBankAccount"/>
+        <result column="collection_user_id" property="collectionUserId"/>
+        <result column="collection_user_name" property="collectionUserName"/>
+        <result column="written_by_id" property="writtenById"/>
+        <result column="written_by_name" property="writtenByName"/>
+        <result column="confirm_user_id" property="confirmUserId"/>
+        <result column="confirm_user_name" property="confirmUserName"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="confirm_status" property="confirmStatus"/>
+        <result column="last_editor_user_id" property="lastEditorUserId"/>
+        <result column="payment_unit_id" property="paymentUnitId"/>
+        <result column="payment_unit" property="paymentUnit"/>
+        <result column="payment_deposit_bank" property="paymentDepositBank"/>
+        <result column="payment_bank_account" property="paymentBankAccount"/>
+        <result column="source" property="source"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, project_name, expense_type_id,expense_type_name, apply_amount, actually_pay_amount, apply_depart_id, apply_depart_name, apply_date, apply_user_id, apply_user_name, collection_deposit_bank, collection_bank_account, collection_user_id, collection_user_name, written_by_id, written_by_name, confirm_user_id, confirm_user_name, confirm_time, confirm_status, last_editor_user_id, payment_unit_id,payment_unit, payment_deposit_bank, payment_bank_account, source, remark
+    </sql>
+
+
+    <!--报销列表-->
+    <select id="listByConditions" resultType="com.hzchum.scim.contract.core.api.pojo.dto.ReimbursementDTO">
+        SELECT
+        distinct r.*
+        FROM
+        contract_reimbursement AS r
+        LEFT JOIN
+        contract_reimbursement_detail AS rd
+        ON r.id = rd.reimbursement_id
+        WHERE
+        r.bool_delete_enum = 0
+        AND rd.bool_delete_enum = 0
+
+        <if test="type != null">
+            and rd.expense_type_id = #{type}
+        </if>
+
+        <if test="dateType == 1 and startDate != null">
+            and r.create_time &gt;= #{startDate}
+        </if>
+
+        <if test="dateType == 1 and endDate != null">
+            and r.create_time &lt;= #{endDate}
+        </if>
+
+        <if test="dateType == 2 and startDate != null">
+            and r.confirm_time &gt;= #{startDate}
+        </if>
+
+        <if test="dateType == 2 and endDate != null">
+            and r.confirm_time &lt;= #{endDate}
+        </if>
+
+        <if test="dateType == 3 and startDate != null">
+            and r.apply_date &gt;= #{startDate}
+        </if>
+
+        <if test="dateType == 3 and endDate != null">
+            and r.apply_date &lt;= #{endDate}
+        </if>
+
+        <if test="projectId != null">
+            and r.project_id = #{projectId}
+        </if>
+
+        <if test="applyDepartName !=null and applyDepartName != ''">
+            and r.apply_depart_name like concat('%',#{applyDepartName},'%')
+        </if>
+
+        <if test="applyUserName != null and applyUserName != ''">
+            and r.apply_user_name like concat('%',#{applyUserName},'%')
+        </if>
+
+        <if test="writtenByName != null and writtenByName != ''">
+            and r.written_by_name like concat('%',#{writtenByName},'%')
+        </if>
+
+        <if test="confirmStatus != null">
+            and r.confirm_status = #{confirmStatus}
+        </if>
+    </select>
+
+
+    <select id="selectActuallyPayAmountSum" parameterType="long" resultType="decimal">
+        select
+        ifnull(sum(actually_pay_amount),0)
+        from contract_reimbursement
+        where bool_delete_enum = 0
+        <if test="confirmStatus != null">
+            and confirm_status = #{confirmStatus}
+        </if>
+        <if test="projectId != null">
+            and project_id = #{projectId}
+        </if>
+    </select>
+
+
+    <select id="selectTaxInSum" resultType="java.math.BigDecimal">
+        select
+        ifnull(sum(rd.input_tax),0)
+        from contract_reimbursement as r,
+        contract_reimbursement_detail as rd
+
+        where r.bool_delete_enum = 0
+        and rd.bool_delete_enum = 0
+        and rd.reimbursement_id = r.id
+
+        <if test="projectId != null">
+            and r.project_id = #{projectId}
+        </if>
+
+        <if test="confirmStatus != null">
+            and r.confirm_status = #{confirmStatus}
+        </if>
+    </select>
+
+
+</mapper>

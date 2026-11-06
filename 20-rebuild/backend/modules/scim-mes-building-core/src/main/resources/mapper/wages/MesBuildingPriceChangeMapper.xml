@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.wages.MesBuildingPriceChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.wages.MesBuildingPriceChange">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_id" property="productId"/>
+        <result column="process_id" property="processId"/>
+        <result column="wage_quota_type" property="wageQuotaType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_type, product_id, process_id, new_price, old_price, team_id, change_audit_id, bool_used_enum, wage_quota_type
+    </sql>
+    <select id="getProductTypeList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.ProductTypeSummaryDO">
+        <if test="taskTypeEnum==2">
+            SELECT
+            classification.id 'product_class.id',
+            classification.classification_name 'product_class.name',
+            product.quantity,
+            product.net_weight,
+            product.gross_weight
+            FROM
+            (SELECT
+            structure_class_id,
+            SUM( quantity ) quantity,
+            IFNULL(SUM( quantity * net_weight ),0) net_weight,
+            IFNULL(SUM( quantity * gross_weight ),0) gross_weight
+            FROM
+            tech_artifact
+            <where>
+                structure_class_id IS NOT NULL
+                AND bool_delete_enum=0
+                <if test="projectId!=null">
+                   AND project_id=#{projectId}
+                </if>
+                <if test="monomerId!=null">
+                    AND  monomer_id=#{monomerId}
+                </if>
+                <if test="areaId!=null">
+                    AND area_id=#{areaId}
+                </if>
+            </where>
+            GROUP BY structure_class_id)product
+            LEFT JOIN sys_structure_classification classification ON classification .id=product.structure_class_id
+            ORDER BY product.quantity DESC
+        </if>
+        <if test="taskTypeEnum==16">
+            SELECT
+            config.id 'product_class.id',
+            config.`name` 'product_class.name',
+            product.quantity,
+            product.net_weight
+            FROM
+            (SELECT
+            assemble_config_id,
+            SUM( quantity ) quantity,
+            SUM( quantity * net_weight ) net_weight
+            FROM
+            tech_assemble
+            <where>
+                bool_delete_enum=0
+                <if test="projectId!=null">
+                    AND  project_id=#{projectId}
+                </if>
+                <if test="monomerId!=null">
+                    AND  monomer_id=#{monomerId}
+                </if>
+                <if test="areaId!=null">
+                    AND area_id=#{areaId}
+                </if>
+            </where>
+            GROUP BY assemble_config_id)product
+            LEFT JOIN sys_assemble_config config ON config .id=product.assemble_config_id
+            ORDER BY product.quantity DESC
+        </if>
+    </select>
+
+</mapper>

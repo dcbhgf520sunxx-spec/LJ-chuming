@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.system.core.mapper.JobMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.system.core.api.pojo._do.Job">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="enabled" property="enabled"/>
+        <result column="is_admin" property="isAdmin"/>
+        <result column="name" property="name"/>
+        <result column="sort" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        id, dept_id, enabled, is_admin, name, sort
+    </sql>
+
+    <select id="getByDeptIdAndName" resultType="com.hzchum.scim.system.core.api.pojo._do.Job">
+        SELECT *
+        FROM sys_job
+        WHERE dept_id = #{deptId}
+          AND name = #{name}
+          AND bool_delete_enum = 0
+    </select>
+
+    <select id="listByDeptIdAndNameAndEnabled" resultType="com.hzchum.scim.system.core.api.pojo.dto.JobResponseVO">
+        SELECT
+            j.*,
+            d.id as deptId,
+            d.name as deptName
+        FROM sys_job as j
+        INNER JOIN sys_department as d
+        ON j.dept_id = d.id
+        WHERE
+        j.bool_delete_enum = 0
+        and d.bool_delete_enum = 0
+        <if test="deptId != null ">
+            AND j.dept_id = #{deptId}
+        </if>
+        <if test="name != null and name != ''">
+            AND j.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="enabled != null ">
+            AND j.enabled = #{enabled}
+        </if>
+        <if test="jobType != null ">
+            AND j.job_type = #{jobType}
+        </if>
+
+        <if test="code != null and code != ''">
+            AND j.position_code = #{code}
+        </if>
+        ORDER BY j.sort,d.id
+    </select>
+
+    <select id="checkJobIsUsed" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM sys_user
+        where job_id = #{jobId}
+          AND bool_delete_enum = 0
+    </select>
+
+    <select id="getAll" resultType="com.hzchum.scim.system.core.api.pojo.dto.JobResponseVO">
+        SELECT
+        j.*
+        FROM sys_job as j
+        WHERE
+        j.bool_delete_enum = 0
+    </select>
+
+
+</mapper>

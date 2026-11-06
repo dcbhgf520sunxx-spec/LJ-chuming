@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.PlanMonomerDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.PlanMonomerDetail">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="type" property="type"/>
+        <result column="date" property="date"/>
+        <result column="mete" property="mete"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, type, date, mete, remark
+    </sql>
+    <select id="listByYearAndType" resultType="com.hzchum.scim.plan.core.api.pojo._do.PlanSummaryDO">
+        select md.date end_date,
+               md.mete,
+               p.start_date,
+               p.id 'project.id',
+               p.name 'project.name',
+               p.short_name 'project.short_name',
+               p.serial_number 'project.serial_number',
+               m.`id` 'monomer.id',
+               m.`name` 'monomer.name'
+        from plan_monomer_detail md
+                 inner join contract_project p on p.id = md.project_id and p.bool_delete_enum = 0
+                 inner join plan_monomer m on m.id = md.monomer_id and m.bool_delete_enum = 0
+        where md.bool_delete_enum = 0
+          and DATE_FORMAT(p.start_date, '%Y') &lt;= #{year}
+          and DATE_FORMAT(md.date, '%Y') >= #{year}
+          and md.type = #{type}
+        <if test="projectIds != null and projectIds.size() != 0">
+            and md.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        order by p.create_time desc, p.id
+    </select>
+
+
+
+<!--    <select id="selectMeteSum" resultType="java.math.BigDecimal">-->
+<!--        SELECT IFNULL(SUM(mete), 0)-->
+<!--        FROM plan_monomer_detail-->
+<!--        WHERE bool_delete_enum = 0-->
+<!--          -->
+<!--        <if test="monomerId != null">-->
+<!--            AND monomer_id = #{monomerId}-->
+<!--        </if>-->
+<!--        <if test="areaProductType != null">-->
+<!--            AND type = #{areaProductType}-->
+<!--        </if>-->
+<!--    </select>-->
+
+</mapper>

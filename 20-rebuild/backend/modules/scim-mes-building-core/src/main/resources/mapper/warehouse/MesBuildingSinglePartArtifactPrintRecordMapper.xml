@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.warehouse.MesBuildingSinglePartArtifactPrintRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.warehouse.MesBuildingSinglePartArtifactPrintRecord">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="product_id" property="productId" />
+        <result column="sing_id" property="singId" />
+        <result column="print_user_id" property="printUserId" />
+        <result column="print_quantity" property="printQuantity" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_id, sing_id, print_user_id, print_quantity
+    </sql>
+    <select id="listRecord"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.SingPringReportDTO">
+        SELECT
+        pro.NAME 'project.name',
+        pro.serial_number 'project.serial_number',
+        pro.short_name 'project.short_name',
+        art.serial_number 'serialNumber',
+        art.monomer_id,
+        art.area_id,
+        are.`name` areaName,
+        mon.`name` monomerName,
+        art.`name` 'name',
+        art.specification 'specification',
+        art.material 'material',
+        shop.id 'workshopId',
+        shop.NAME 'workshopName',
+        shop.factory_id 'factoryId',
+        fac.`name` 'factoryName',
+        record.print_quantity 'printQuantity',
+        record.product_id 'productId',
+        us.id 'printUserId',
+        record.number 'number',
+        record.print_time 'printTime',
+        us.NAME 'printUserName'
+        FROM
+        mes_building_single_part_artifact_print_record record
+        LEFT JOIN sys_user us ON record.print_user_id = us.id
+        LEFT JOIN tech_artifact art ON record.product_id = art.id
+        LEFT JOIN contract_project pro ON pro.id = art.project_id
+        LEFT JOIN plan_area are ON are.id = art.area_id
+        LEFT JOIN plan_monomer mon ON mon.id = art.monomer_id
+        LEFT JOIN mes_building_workshop shop ON record.workshop_id = shop.id
+        LEFT JOIN mes_building_factory fac ON fac.id = shop.factory_id
+        WHERE
+        record.bool_delete_enum = 0
+        <if test="productId != null ">
+            AND record.product_id = #{productId}
+        </if>
+        <if test="workshopId != null ">
+            AND record.workshop_id =#{workshopId}
+        </if>
+    </select>
+    <select id="listBydata"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.warehouse.MesBuildingSinglePartArtifactPrintRecord">
+
+        SELECT
+        *
+        FROM
+        mes_building_single_part_artifact_print_record
+        WHERE
+        <if test="infoDTOS!=null and infoDTOS.size() != 0">
+            <foreach collection="infoDTOS" item="number" separator="or" open="(" close=")">
+                ( product_id= #{number.productId}
+                and number=#{number.number})
+            </foreach>
+        </if>
+        and  bool_delete_enum = 0
+
+
+    </select>
+
+</mapper>

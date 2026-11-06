@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingProduceQhseTeamReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingProduceQhseTeamReport">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="task_id" property="taskId"/>
+        <result column="task_process_id" property="taskProcessId"/>
+        <result column="process_id" property="processId"/>
+        <result column="scheduling_id" property="schedulingId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_type" property="productType"/>
+        <result column="team_id" property="teamId"/>
+        <result column="inspection_team_id" property="inspectionTeamId"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, task_process_id, process_id, scheduling_id, product_id, product_type, inspection_quantity, team_id, inspection_team_id, user_id, bool_adopt_enum
+    </sql>
+    <select id="inspectionTeamReportSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.InspectionTeamReportSummaryDO">
+        SELECT
+        a.user_id user_id,
+        su.`name` user_name,
+        IFNULL( SUM( a.inspection_quantity ), 0 ) inspection_quantity,
+        IFNULL( SUM( b.qhse_quantity ), 0 ) qhse_quantity
+        FROM
+        mes_building_produce_inspection_team_report a
+        LEFT JOIN mes_building_task task on a.task_id=task.id
+        LEFT JOIN mes_building_produce_qhse_team_report b ON a.id = b.inspection_team_report_id
+        LEFT JOIN sys_user su ON su.id = a.user_id
+        <where>
+            a.bool_delete_enum = FALSE
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="startDate!=null">
+                AND a.in_year_month_day_date  >= date_format(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate!=null">
+                AND a.in_year_month_day_date  &lt;= date_format(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="productType!=null">
+                AND a.task_type_enum&amp;#{productType}
+            </if>
+        </where>
+        GROUP BY
+        a.user_id
+    </select>
+    <select id="inspectionTeamReportSummaryDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.InspectionTeamReportSummaryDetailsDO">
+        SELECT
+        task.project_id 'project.id',
+        task.monomer_id 'monomer.id',
+        task.area_id 'areaDetail.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'areaDetail.name',
+        DATE( a.create_time ) date,
+        a.process_id,
+        process.`name` process_name,
+        CASE
+        a.task_type_enum
+        WHEN 2 THEN
+        artifact.`name` ELSE enclosure.`name`
+        END NAME,
+        CASE
+        a.task_type_enum
+        WHEN 1 THEN
+        machine_part.serial_number
+        WHEN 2 THEN
+        artifact.serial_number
+        WHEN 16 THEN
+        assemble.serial_number ELSE enclosure.serial_number
+        END serial_number,
+        IFNULL( sum( a.inspection_quantity ), 0 ) inspection_quantity,
+        IFNULL( sum( b.qhse_quantity ), 0 ) qhse_quantity
+        FROM
+        mes_building_produce_inspection_team_report a
+        LEFT JOIN mes_building_produce_qhse_team_report b ON a.id = b.inspection_team_report_id
+        LEFT JOIN mes_building_process process ON a.process_id = process.id
+        LEFT JOIN mes_building_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.area_id
+        LEFT JOIN tech_artifact artifact ON a.product_id = artifact.id
+        LEFT JOIN tech_assemble assemble ON a.product_id = assemble.id
+        LEFT JOIN tech_enclosure enclosure ON a.product_id = enclosure.id
+        LEFT JOIN tech_machine_part machine_part ON a.product_id = machine_part.id
+        <where>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="processId!=null">
+                AND a.process_id=#{processId}
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+            <if test="productType!=null">
+                AND a.task_type_enum&amp;#{productType}
+            </if>
+            <if test="projectName!=null">
+                AND cp.`name` like CONCAT('%', #{projectName},'%')
+            </if>
+            <if test="serialNumber!=null">
+                AND
+                (
+                artifact.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR assemble.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR enclosure.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR machine_part.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                )
+            </if>
+            <if test="userId!=null">
+                AND a.user_id = #{userId}
+            </if>
+        </where>
+        GROUP BY
+        task.project_id,
+        task.monomer_id,
+        task.area_id,
+        cp.`name`,
+        cp.short_name,
+        cp.serial_number,
+        pm.`name`,
+        pd.`name`,
+        DATE ( a.create_time ),
+        a.process_id,
+        process.`name`,
+        a.task_type_enum,
+        machine_part.serial_number,
+        artifact.serial_number,
+        assemble.serial_number,
+        enclosure.serial_number,
+        artifact.`name`,
+        enclosure.`name`
+        order by qhse_quantity desc
+    </select>
+
+    <select id="selectlistByTeam"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.InspectionTeamReportSummaryByteamDO">
+        SELECT
+        a.inspection_team_id teamid,
+        IFNULL( SUM( a.inspection_quantity ), 0 ) inspection_quantity,
+        IFNULL( SUM( b.qhse_quantity ), 0 ) qhse_quantity,
+        te.process_id processId
+        FROM
+        mes_building_produce_inspection_team_report a
+        LEFT JOIN mes_building_produce_qhse_team_report b ON a.id = b.inspection_team_report_id
+        LEFT JOIN mes_building_inspection_team te ON te.id = a.inspection_team_id
+        <where>
+           a.bool_delete_enum=0
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+            <if test="ids != null and ids.size() != 0">
+                AND a.task_id in
+                <foreach collection="ids" item="ids" separator="," close=")" open="(">
+                    #{ids}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        a.inspection_team_id
+    </select>
+    <select id="selectQhseTeamReport"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.qhse.ProduceQhseDo">
+        SELECT
+        qhse.id,
+        qhse.type,
+        qhse.quality_type,
+        qhse.id remarkid,
+        qhse.remark remark,
+        qhse.duty_id productUserId,
+        qhse.type 'questionType',
+        qhse.quality_type 'qualityType',
+        qhse.duty_id duty_id,
+        report.user_id,
+        report.product_id,
+        report.inspect_report_number reportNumber,
+        process.process_id process_id,
+        ta.serial_number artifactSerialNumber,
+        productuser.`name` productUserName,
+        inspectuser.`name` inspectionUserName,
+        project.id 'project.id',
+        project.serial_number 'project.serial_number',
+        project.short_name 'project.short_name',
+        project.`name` 'project.name',
+        project.`mode` 'project.type',
+        pro.`name` processName,
+        task.bool_one_code 'boolOneCode',
+        COUNT(*) quantity,
+        qhse.create_time createTime
+        FROM
+        mes_building_qhse qhse
+        LEFT JOIN mes_building_qhse_inspection_link link ON qhse.id = link.qhse_id and link.bool_delete_enum=0
+        LEFT JOIN mes_building_produce_inspection_team_report report ON link.inspection_report_id = report.id
+        and report.bool_delete_enum=0
+        LEFT JOIN mes_building_produce_qhse_team_report qr  ON report.id = qr.inspection_team_report_id
+        and qr.bool_delete_enum=0
+        LEFT JOIN mes_building_task_process process ON report.task_process_id = process.id
+        and process.bool_delete_enum=0
+        LEFT JOIN mes_building_task task ON task.id = process.task_id  and task.bool_delete_enum=0
+        LEFT JOIN contract_project project ON process.project_id = project.id and project.bool_delete_enum=0
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">
+            LEFT JOIN tech_machine_part ta ON report.product_id = ta.id AND ta.bool_delete_enum=0
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON report.product_id = ta.id AND ta.bool_delete_enum=0
+        </if>
+        <if test="productType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType()">
+            LEFT JOIN tech_assemble ta ON report.product_id = ta.id AND ta.bool_delete_enum=0
+        </if>
+        LEFT JOIN mes_building_process pro ON process.process_id = pro.id
+        AND pro.bool_delete_enum = 0
+        LEFT JOIN sys_user productuser ON qhse.duty_id = productuser.id AND productuser.bool_delete_enum=0
+        LEFT JOIN sys_user inspectuser ON qr.user_id = inspectuser.id AND inspectuser.bool_delete_enum=0
+        <where>
+            qhse.bool_delete_enum = 0
+            <if test="groups != null and groups.size() != 0">
+                AND process.id IN
+                ( SELECT
+                id
+                FROM
+                `mes_building_task_process`
+                WHERE
+                groups_id IN
+                <foreach collection="groups" item="groups" separator="," close=")" open="(">
+                    #{groups}
+                </foreach>
+                )
+            </if>
+            <if test="ids != null and ids.size() != 0">
+                AND process.task_id IN
+                <foreach collection="ids" item="ids" separator="," close=")" open="(">
+                    #{ids}
+                </foreach>
+            </if>
+            <if test="startDate!=null">
+                AND DATE(qr.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(qr.create_time)&lt;=DATE(#{endDate})
+            </if>
+        </where>
+        GROUP BY
+        qhse.id,
+        qhse.type,
+        qhse.quality_type,
+        qhse.id,
+        qhse.remark,
+        qhse.duty_id,
+        qhse.type,
+        qhse.quality_type,
+        qhse.duty_id,
+        qhse.create_time,
+        report.user_id,
+        inspectuser.name,
+        report.product_id,
+        report.inspect_report_number,
+        process.process_id,
+        ta.serial_number,
+        project.id,
+        project.serial_number,
+        project.short_name,
+        project.`name`,
+        project.`mode`,
+        pro.`name` ,
+        task.bool_one_code
+    </select>
+    <select id="inspectionReportSummaryDetails"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.InspectionTeamReportSummaryDetailsDO">
+        SELECT
+        task.project_id 'project.id',
+        task.monomer_id 'monomer.id',
+        task.area_id 'areaDetail.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'areaDetail.name',
+        DATE( a.create_time ) date,
+        a.process_id,
+        process.`name` process_name,
+        CASE
+        a.task_type_enum
+        WHEN 2 THEN
+        artifact.`name` ELSE enclosure.`name`
+        END NAME,
+        CASE
+        a.task_type_enum
+        WHEN 1 THEN
+        machine_part.serial_number
+        WHEN 2 THEN
+        artifact.serial_number
+        WHEN 16 THEN
+        assemble.serial_number ELSE enclosure.serial_number
+        END serial_number,
+        <if test="type==1">
+            IFNULL( sum( a.inspection_quantity ), 0 ) inspection_quantity
+        </if>
+        <if test="type==2">
+            IFNULL( sum( b.qhse_quantity ), 0 ) qhse_quantity
+        </if>
+        FROM
+        mes_building_produce_inspection_team_report a
+        LEFT JOIN mes_building_produce_qhse_team_report b ON a.id = b.inspection_team_report_id
+        LEFT JOIN mes_building_process process ON a.process_id = process.id
+        LEFT JOIN mes_building_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.area_id
+        LEFT JOIN tech_artifact artifact ON a.product_id = artifact.id
+        LEFT JOIN tech_assemble assemble ON a.product_id = assemble.id
+        LEFT JOIN tech_enclosure enclosure ON a.product_id = enclosure.id
+        LEFT JOIN tech_machine_part machine_part ON a.product_id = machine_part.id
+        <where>
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="startDate!=null">
+                AND DATE(a.create_time)>=DATE(#{startDate})
+            </if>
+            <if test="endDate!=null">
+                AND DATE(a.create_time)&lt;=DATE(#{endDate})
+            </if>
+            <if test="productType!=null">
+                AND a.task_type_enum&amp;#{productType}
+            </if>
+            <if test="projectName!=null">
+                AND cp.`name` like CONCAT('%', #{projectName},'%')
+            </if>
+            <if test="serialNumber!=null">
+                AND
+                (
+                artifact.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR assemble.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR enclosure.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR machine_part.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                )
+            </if>
+            <if test="userId!=null">
+                AND a.user_id = #{userId}
+            </if>
+            <if test="type==2">
+                 AND qhse_quantity>0
+            </if>
+        </where>
+        GROUP BY
+        task.project_id,
+        task.monomer_id,
+        task.area_id,
+        cp.`name`,
+        cp.short_name,
+        cp.serial_number,
+        pm.`name`,
+        pd.`name`,
+        DATE ( a.create_time ),
+        a.process_id,
+        process.`name`,
+        a.task_type_enum,
+        machine_part.serial_number,
+        artifact.serial_number,
+        assemble.serial_number,
+        enclosure.serial_number,
+        artifact.`name`,
+        enclosure.`name`
+    </select>
+    <select id="newInspectionTeamReportSummary"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.wages.InspectionTeamReportSummaryDetailsDO">
+        SELECT
+        a.*, rep.number
+        FROM(
+        SELECT
+        task.project_id 'project.id',
+        task.monomer_id 'monomer.id',
+        task.area_id 'areaDetail.id',
+        cp.`name` 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        pm.`name` 'monomer.name',
+        pd.`name` 'areaDetail.name',
+        DATE ( a.create_time ) DATE,
+        a.process_id,
+        a.inspect_report_number,
+        process.`name` process_name,
+        CASE
+        a.task_type_enum
+        WHEN 2 THEN
+        artifact.`name`
+        END NAME,
+        CASE
+        a.task_type_enum
+        WHEN 2 THEN
+        artifact.serial_number
+        WHEN 16 THEN
+        assemble.serial_number
+        END serial_number,
+        IFNULL( sum( a.inspection_quantity ), 0 ) inspection_quantity,
+        IFNULL( sum( b.qhse_quantity ), 0 ) qhse_quantity
+        FROM
+        mes_building_produce_inspection_team_report a
+        LEFT JOIN mes_building_produce_qhse_team_report b ON a.id = b.inspection_team_report_id
+        LEFT JOIN mes_building_process process ON a.process_id = process.id
+        LEFT JOIN mes_building_task task ON a.task_id = task.id
+        LEFT JOIN contract_project cp ON cp.id = task.project_id
+        LEFT JOIN plan_monomer pm ON pm.id = task.monomer_id
+        LEFT JOIN plan_area pd ON pd.id = task.area_id
+        LEFT JOIN tech_artifact artifact ON a.product_id = artifact.id
+        LEFT JOIN tech_assemble assemble ON a.product_id = assemble.id
+        <where>
+            a.bool_delete_enum = 0
+            <if test="projectIds != null and projectIds.size() != 0">
+                AND task.project_id in
+                <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="processId!=null">
+                AND a.process_id=#{processId}
+            </if>
+            <if test="projectId!=null">
+                AND task.project_id=#{projectId}
+            </if>
+            <if test="startDate!=null">
+                AND a.in_year_month_day_date  >= date_format(#{startDate}, '%Y-%m-%d')
+            </if>
+            <if test="endDate!=null">
+                AND a.in_year_month_day_date  &lt;= date_format(#{endDate}, '%Y-%m-%d')
+            </if>
+            <if test="productType!=null">
+                AND a.task_type_enum&amp; 18
+            </if>
+            <if test="projectName!=null">
+                AND cp.`name` like CONCAT('%', #{projectName},'%')
+            </if>
+            <if test="serialNumber!=null">
+                AND
+                (
+                artifact.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                OR assemble.serial_number LIKE CONCAT( '%', #{serialNumber}, '%' )
+                )
+            </if>
+            <if test="userId!=null">
+                AND a.user_id = #{userId}
+            </if>
+        </where>
+        GROUP BY
+        task.project_id,
+        task.monomer_id,
+        task.area_id,
+        cp.`name`,
+        cp.short_name,
+        cp.serial_number,
+        pm.`name`,
+        pd.`name`,
+        DATE ( a.create_time ),
+        a.process_id,
+        a.inspect_report_number,
+        process.`name`,
+        a.task_type_enum,
+        artifact.serial_number,
+        assemble.serial_number,
+        artifact.`name`
+        ) a
+        LEFT JOIN mes_building_produce_inspection_team_report rep ON a.inspect_report_number = rep.inspect_report_number
+        AND a.inspection_quantity = 1 and rep.bool_delete_enum = 0
+        ORDER BY a.qhse_quantity DESC
+    </select>
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.laborManagement.MesBehaviorScoreMapper">
+
+    <select id="listInfo" parameterType="com.hzchum.scim.mes.building.core.api.pojo._dtoParam.laborManagement.MesBehaviorScoreQuery"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.laborManagement.MesBehaviorScoreDTO">
+        SELECT
+            mr.*,
+            ss.name AS supplier_name,
+            su.phone,
+            su.username AS number,
+            mr.behavior_total_score,
+            IFNULL(t1.deducted_behavior_score, 0) AS deducted_behavior_score,
+            mr.behavior_total_score - IFNULL(t1.deducted_behavior_score, 0) AS remaining_behavior_score,
+            IFNULL(t1.penalty, 0) as cumulative_penalty
+        FROM mes_roster mr
+        LEFT JOIN scm_supplier ss ON ss.bool_delete_enum = 0 AND ss.id = mr.supplier_id
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mr.user_id
+        LEFT JOIN (
+            SELECT
+                mbq.duty_id,
+                SUM(mbq.behavior_score) AS deducted_behavior_score,
+                SUM(mbq.penalty) AS penalty
+            FROM mes_building_qhse mbq
+            WHERE mbq.bool_delete_enum = 0
+            <if test="year != null">
+                AND YEAR(mbq.create_time) = #{year}
+            </if>
+            <if test="userId != null">
+                AND mbq.duty_id = #{userId}
+            </if>
+            GROUP BY mbq.duty_id
+        ) t1 ON t1.duty_id = mr.user_id
+        WHERE mr.bool_delete_enum = 0
+        <if test="supplierId != null">
+            AND mr.supplier_id = #{supplierId}
+        </if>
+        <if test="employeeCategory != null">
+            AND mr.employee_category = #{employeeCategory}
+        </if>
+        <if test="name != null and name != null">
+            <bind name="nameLike" value="'%' + name + '%'"/>
+            AND mr.name LIKE #{nameLike}
+        </if>
+        <if test="idNumber != null and idNumber != ''">
+            <bind name="idNumberLike" value="'%' + idNumber + '%'"/>
+            AND mr.id_number LIKE #{idNumberLike}
+        </if>
+        <if test="phone != null and phone != ''">
+            <bind name="phoneLike" value="'%' + phone + '%'"/>
+            AND su.phone LIKE #{phoneLike}
+        </if>
+        <if test="userId != null">
+            AND mr.user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="violationRecord"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.laborManagement.ViolationRecordDTO">
+        select
+            mbq.create_time AS record_date,
+            mbq.qhse_number,
+            su.name recorder_name,
+            mbq.behavior_score,
+            mbq.penalty
+        FROM mes_building_qhse mbq
+        LEFT JOIN sys_user su ON su.bool_delete_enum = 0 AND su.id = mbq.user_id
+        WHERE mbq.bool_delete_enum = 0
+        <if test="userId != null">
+            AND mbq.duty_id = #{userId}
+        </if>
+        <if test="year != null">
+            AND YEAR(mbq.create_time) = #{year}
+        </if>
+    </select>
+</mapper>

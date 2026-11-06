@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.scheduling.MesBuildingBoChuNestingResultMapper">
+
+    <select id="getMaxFileName" resultType="java.lang.String">
+        SELECT
+            IFNULL(max(SUBSTRING_INDEX(file_name, '.', 1)), concat(#{prefix}, '000'))
+        FROM mes_building_bo_chu_nesting_result
+        WHERE file_name LIKE concat('%', #{prefix}, '%')
+    </select>
+
+    <select id="listInfo"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.nesting_result.MesNestingResultSteelPlateDTO">
+        SELECT
+            mbbcnr.*,
+            if(isnull(mbbcnr.mixed_job_ids), 0, (LENGTH(mbbcnr.mixed_job_ids) - LENGTH(REPLACE(mbbcnr.mixed_job_ids, ',', '')) + 1) > 1) AS is_mix_nest,
+            mbmptd.device_name AS machine_tool_name,
+            mbmptd.MID
+        FROM mes_building_bo_chu_nesting_result mbbcnr
+        LEFT JOIN mes_building_machine_part_team_detail mbmptd ON mbmptd.bool_delete_enum = 0 AND mbmptd.id = mbbcnr.machine_tool_id
+        WHERE mbbcnr.bool_delete_enum = 0
+        <if test="cutSendStatus != null">
+            AND mbbcnr.cut_send_status = #{cutSendStatus}
+        </if>
+        <if test="jobId != null">
+            AND mbbcnr.job_id = #{jobId}
+        </if>
+        <if test="thickness != null">
+            AND mbbcnr.thickness = #{thickness}
+        </if>
+        <if test="material != null and material != ''">
+            AND mbbcnr.material LIKE concat('%', #{material}, '%')
+        </if>
+        <if test="cuttingStatus != null and cuttingStatus == 1">
+            AND mbbcnr.cut_status = 0
+        </if>
+        <if test="cuttingStatus != null and cuttingStatus == 2">
+            AND mbbcnr.cut_status IN (1,2)
+        </if>
+    </select>
+
+    <select id="listByQueryCondition"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.nesting_result.MesBuildingBoChuNestingResultInfoDTO">
+        SELECT
+            mbbcnr.*,
+            if(isnull(mbbcnr.mixed_job_ids), 0, (LENGTH(mbbcnr.mixed_job_ids) - LENGTH(REPLACE(mbbcnr.mixed_job_ids, ',', '')) + 1) > 1) AS bool_mixed,
+            mbmptd.device_name AS machine_tool_name,
+            mbmptd.MID
+        FROM mes_building_bo_chu_nesting_result mbbcnr
+        LEFT JOIN mes_building_machine_part_team_detail mbmptd ON mbmptd.bool_delete_enum = 0 AND mbmptd.id = mbbcnr.machine_tool_id
+        WHERE mbbcnr.bool_delete_enum = 0
+        <if test="cutSendStatus != null">
+            AND mbbcnr.cut_send_status = #{cutSendStatus}
+        </if>
+        <if test="cutSendTimeStart != null">
+            AND date_format(mbbcnr.cut_send_time, #{cutSendTimeFormat}) >= date_format(#{cutSendTimeStart}, #{cutSendTimeFormat})
+        </if>
+        <if test="cutSendTimeEnd != null">
+            AND date_format(mbbcnr.cut_send_time, #{cutSendTimeFormat}) &lt;= date_format(#{cutSendTimeEnd}, #{cutSendTimeFormat})
+        </if>
+        <if test="mid != null and mid != ''">
+            AND mbmptd.MID = #{mid}
+        </if>
+        <if test="cutStatus != null">
+            AND mbbcnr.cut_status = #{cutStatus}
+        </if>
+    </select>
+
+</mapper>

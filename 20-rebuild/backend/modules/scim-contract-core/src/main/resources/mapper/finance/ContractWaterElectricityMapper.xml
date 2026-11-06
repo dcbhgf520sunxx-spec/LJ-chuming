@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractWaterElectricityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractWaterElectricity">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="type" property="type"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="year_month_value" property="yearMonthValue"/>
+        <result column="child_type" property="childType"/>
+        <result column="used_mete" property="usedMete"/>
+        <result column="total_amount" property="totalAmount"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, type, year, month, year_month_value, child_type, used_mete, total_amount
+    </sql>
+
+    <select id="selectMonthMeteAmount"
+            resultType="com.hzchum.scim.common.core.api.pojo.common.MonthAmountInfo">
+        SELECT
+        `year_month_value` month,
+        SUM(total_amount) amount
+        FROM
+        `contract_water_electricity`
+        WHERE bool_delete_enum = 0
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        AND `year_month_value` &lt;= #{endMonth}
+        AND `year_month_value` &gt; #{startMonth}
+        GROUP BY `year_month_value`
+        ORDER BY `year_month_value`
+
+    </select>
+
+</mapper>

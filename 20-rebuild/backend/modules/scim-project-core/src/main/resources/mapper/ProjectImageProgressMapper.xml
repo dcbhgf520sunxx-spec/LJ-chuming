@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.project.core.mapper.ProjectImageProgressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.project.core.api.pojo._do.ProjectImageProgress">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="attachment_id" property="attachmentId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, attachment_id
+    </sql>
+
+    <select id="selectImages" resultType="com.hzchum.scim.project.core.api.pojo._do.ProjectImageProgress">
+        select *
+        from project_image_progress
+        <where>
+            bool_delete_enum = 0
+            <if test="projectId != null">
+                and project_id = #{projectId}
+            </if>
+
+            <if test="yearMonth != null and yearMonth !=''  ">
+                and date_format(create_time, '%Y-%m') = #{yearMonth}
+            </if>
+            <if test="date !=null and date != ''">
+                and date(create_time) = #{date}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectByCondition" resultType="com.hzchum.scim.project.core.api.pojo.dto.ProjectImageProgressDTO">
+        SELECT
+        project_id,
+        date(create_time ) AS date
+        FROM
+        `project_image_progress`
+        WHERE
+        bool_delete_enum = 0
+        and project_id = #{projectId}
+        <if test="yearMonth != null and yearMonth != ''">
+            and date_format(create_time, '%Y-%m') = #{yearMonth}
+        </if>
+        GROUP BY
+        date(create_time)
+        ORDER BY date desc
+    </select>
+
+</mapper>

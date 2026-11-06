@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.workshopStatistics.WorkshopProductionStatisticsMapper">
+
+    <select id="queryWorkshopStatistics"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.workshopStatistics.WorkshopProductionStatisticsVO">
+        SELECT
+            w.id                                          AS workshopId,
+            w.name                                        AS workshopName,
+            w.ton                                         AS annualTargetTon,
+            IFNULL(plan_stat.plan_ton, 0)                 AS planSchedulingTon,
+            IFNULL(plan_stat.plan_project_count, 0)       AS planSchedulingProjectCount,
+            IFNULL(task_stat.assigned_ton, 0)             AS assignedSchedulingTon,
+            IFNULL(task_stat.assigned_project_count, 0)   AS assignedSchedulingProjectCount,
+            IFNULL(complete_stat.actual_ton, 0)           AS actualCompleteTon
+        FROM mes_building_workshop w
+        LEFT JOIN (
+            SELECT
+                s.workshop_id,
+                SUM(ta_area.area_total_net_weight) / 1000  AS plan_ton,
+                COUNT(DISTINCT s.project_id)               AS plan_project_count
+            FROM mes_building_area_scheduling s
+            LEFT JOIN (
+                SELECT
+                    area_id,
+                    SUM(total_net_weight) AS area_total_net_weight
+                FROM tech_artifact
+                WHERE bool_delete_enum = FALSE
+                GROUP BY area_id
+            ) ta_area ON ta_area.area_id = s.area_id
+            WHERE s.bool_delete_enum = FALSE
+              AND DATE(IFNULL(s.start_time, s.create_time))
+                  BETWEEN #{startDate} AND #{endDate}
+            GROUP BY s.workshop_id
+        ) plan_stat ON plan_stat.workshop_id = w.id
+        LEFT JOIN (
+            SELECT
+                t.workshop_id,
+                SUM(ta.total_net_weight) / 1000  AS assigned_ton,
+                COUNT(DISTINCT t.project_id)     AS assigned_project_count
+            FROM mes_building_task t
+            LEFT JOIN tech_artifact ta
+                ON ta.id = t.product_id
+               AND ta.bool_delete_enum = FALSE
+            WHERE t.bool_delete_enum = FALSE
+              AND t.task_type_enum = 2
+              AND t.in_year_month_day_date BETWEEN #{startDate} AND #{endDate}
+            GROUP BY t.workshop_id
+        ) task_stat ON task_stat.workshop_id = w.id
+        LEFT JOIN (
+            SELECT
+                c.workshop_id,
+                SUM(ta.total_net_weight) / 1000  AS actual_ton
+            FROM mes_building_complete c
+            LEFT JOIN tech_artifact ta
+                ON ta.id = c.product_id
+               AND ta.bool_delete_enum = FALSE
+            WHERE c.bool_delete_enum = FALSE
+              AND c.task_type_enum = 2
+              AND c.in_year_month_day_date BETWEEN #{startDate} AND #{endDate}
+            GROUP BY c.workshop_id
+        ) complete_stat ON complete_stat.workshop_id = w.id
+        WHERE w.bool_delete_enum = FALSE
+        <if test="workshopId != null">
+            AND w.id = #{workshopId}
+        </if>
+        ORDER BY actualCompleteTon DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.WasteClassificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.WasteClassification">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="name" property="name"/>
+        <result column="measure_unit" property="measureUnit"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, name, measure_unit, user_id
+    </sql>
+
+    <select id="selectListWasteClassification"
+            resultType="com.hzchum.scim.wms.core.api.pojo.dto.wmsConfig.WasteClassificationDTO">
+        SELECT
+        wc.*,
+        u.name AS user_name
+        FROM wms_waste_classification AS wc
+        LEFT JOIN sys_user AS u on wc.user_id = u.id
+        WHERE wc.bool_delete_enum = 0
+        <if test="name != null and name != ''">
+            AND wc.name like concat('%', #{name}, '%')
+        </if>
+        ORDER BY wc.id
+    </select>
+
+</mapper>

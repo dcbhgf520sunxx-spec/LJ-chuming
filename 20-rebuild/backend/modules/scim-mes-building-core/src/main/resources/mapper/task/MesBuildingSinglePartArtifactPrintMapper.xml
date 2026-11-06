@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingSinglePartArtifactPrintMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingSinglePartArtifactPrint">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="task_id" property="taskId" />
+        <result column="part_task_id" property="partTaskId" />
+        <result column="quantity" property="quantity" />
+        <result column="groups_id" property="groupsId" />
+        <result column="team_id" property="teamId" />
+        <result column="number" property="number" />
+        <result column="complete_id" property="completeId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, task_id, part_task_id, quantity, groups_id, team_id, number, bool_print_enum, print_user_id, complete_id
+    </sql>
+    <select id="getPrintList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.SinglePartArtifactPrintDTO">
+        SELECT
+        art.project_id 'project.id',
+        pro.name 'project.name',
+        pro.serial_number 'project.serial_number',
+        pro.short_name 'project.short_name',
+        art.monomer_id,
+        mon.`name` monomerName,
+        art.area_id,
+        art.name name,
+        area.`name` areaName,
+        art.id productId,
+        art.serial_number,
+        art.specification,
+        art.material,
+        art.net_weight,
+        art.gross_weight,
+        pri.id printId,
+        pri.workshop_id,
+        shop.NAME workshopName,
+        fac.id factoryId ,
+        fac.name factoryName,
+        pri.task_quantity taskQuantity,
+        pri.report_quantity reportQuantity,
+        pri.quantity canReportQuantity,
+        pri.number,
+        pri.operation_id operationId,
+        pri.bool_all_report boolAllReport,
+        us.`name` operationName,
+        pri.bool_assist,
+        pri.task_id 'taskId'
+        FROM
+        mes_building_single_part_artifact_print pri
+        LEFT JOIN tech_artifact art ON art.id = pri.product_id
+        AND art.bool_delete_enum = 0
+        LEFT JOIN sys_user us ON pri.operation_id = us.id
+        AND us.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop shop ON pri.workshop_id = shop.id
+        AND shop.bool_delete_enum = 0
+        LEFT JOIN contract_project pro ON art.project_id = pro.id
+        LEFT JOIN plan_monomer mon ON art.monomer_id = mon.id
+        LEFT JOIN plan_area area ON area.id = art.area_id
+        LEFT JOIN mes_building_factory fac ON shop.factory_id=fac.id
+        WHERE pri.bool_delete_enum = 0
+          and  (pri.warehousing_type!=1 OR pri.warehousing_type is NULL )
+        <if test="projectId != null ">
+            and art.project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND art.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND art.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null">
+            AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+<!--        <if test="printType != null  and printType == 1 ">-->
+<!--            AND pri.report_quantity>0-->
+<!--        </if>-->
+<!--        <if test="printType != null  and printType == 0 ">-->
+<!--            AND pri.quantity>pri.report_quantity-->
+<!--        </if>-->
+    </select>
+    <select id="record"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.warehouse.SinglePartArtifactPrintDTO">
+        SELECT
+        art.project_id 'project.id',
+        pro.NAME 'project.name',
+        pro.serial_number 'project.serial_number',
+        pro.short_name 'project.short_name',
+        art.monomer_id,
+        mon.`name` monomerName,
+        art.area_id,
+        area.`name` areaName,
+        art.id productId,
+        art.name name,
+        art.serial_number,
+        art.specification,
+        art.material,
+        shop.NAME workshopName,
+        art.net_weight,
+        art.gross_weight,
+        record.print_user_id printUserId,
+        us.`name` printUserName,
+        record.print_quantity printQuantity,
+        ops.`name` operationName,
+        record.create_time printTime
+        FROM
+        mes_building_single_part_artifact_print_record record
+        LEFT JOIN tech_artifact art ON record.product_id = art.id
+        AND art.bool_delete_enum = 0
+        LEFT JOIN sys_user us ON record.print_user_id = us.id
+        AND us.bool_delete_enum = 0
+        LEFT JOIN mes_building_workshop shop ON pri.workshop_id = shop.id
+        AND shop.bool_delete_enum = 0
+        LEFT JOIN contract_project pro ON art.project_id = pro.id
+        LEFT JOIN plan_monomer mon ON art.monomer_id = mon.id
+        LEFT JOIN plan_area area ON area.id = art.area_id
+        WHERE
+        record.bool_delete_enum = 0
+        <if test="singId != null ">
+            AND record.sing_id=#{singId}
+        </if>
+        <if test="projectId != null ">
+            and art.project_id = #{projectId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND art.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="monomerId != null">
+            AND art.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND art.area_id = #{areaId}
+        </if>
+        <if test="serialNumber != null">
+            AND art.serial_number LIKE concat('%', #{serialNumber}, '%')
+        </if>
+        <if test="userName != null">
+            AND us.name LIKE concat('%', #{userName}, '%')
+        </if>
+
+    </select>
+    <select id="listByProductIds"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingSinglePartArtifactPrint">
+        select *
+        from mes_building_single_part_artifact_print
+        where
+        <if test="checks!=null and checks.size() != 0">
+            <foreach collection="checks" item="check" separator="or" open="(" close=")">
+                ( product_id= #{check.id}
+                <if test="checks.numberList()!=null and checks.numberList().size() != 0">
+                    and number in
+                    <foreach collection="checks.numberList()" item="number" separator="," open="(" close=")">
+                        #{number}
+                    </foreach>))
+                </if>
+            </foreach>
+        </if>
+        and bool_delete_enum=0
+
+    </select>
+    <select id="listBydata"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingSinglePartArtifactPrint">
+        SELECT
+        *
+        FROM
+        mes_building_single_part_artifact_print
+        WHERE
+            <if test="numberInfos!=null and numberInfos.size() != 0">
+                <foreach collection="numberInfos" item="number" separator="or" open="(" close=")">
+                    ( product_id= #{number.productId}
+                    and number=#{number.number})
+                </foreach>
+            </if>
+        and  bool_delete_enum = 0
+    </select>
+
+</mapper>

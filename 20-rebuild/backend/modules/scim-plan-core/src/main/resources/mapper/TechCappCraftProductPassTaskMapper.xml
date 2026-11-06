@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.TechCappCraftProductPassTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.TechCappCraftProductPassTask">
+        <id column="id" property="id" />
+        <result column="tech_capp_craft_card_storehouse_craft_parameter_pass_link_id" property="techCappCraftCardStorehouseCraftParameterPassLinkId" />
+        <result column="tech_capp_product_task_work_type" property="techCappProductTaskWorkType" />
+        <result column="equiment_serial_number" property="equimentSerialNumber" />
+        <result column="weld_user_id" property="weldUserId" />
+        <result column="weld_user_name" property="weldUserName" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tech_capp_craft_card_storehouse_craft_parameter_pass_link_id, tech_capp_product_task_work_type, equiment_serial_number, weld_user_id, weld_user_name, start_time, end_time
+    </sql>
+
+</mapper>

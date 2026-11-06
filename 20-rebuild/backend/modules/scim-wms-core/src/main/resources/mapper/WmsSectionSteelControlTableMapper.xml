@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsConfig.WmsSectionSteelControlTableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.wms.core.api.pojo._do.wmsConfig.WmsSectionSteelControlTable">
+        <id column="id" property="id" />
+        <result column="mes_section_specification" property="mesSectionSpecification" />
+        <result column="wms_classify_id" property="wmsClassifyId" />
+        <result column="error_a" property="errorA" />
+        <result column="error_b" property="errorB" />
+        <result column="error_d" property="errorD" />
+        <result column="error_h" property="errorH" />
+        <result column="error_t" property="errorT" />
+        <result column="error_s" property="errorS" />
+        <result column="error_big_b" property="errorBigB" />
+        <result column="error_big_d" property="errorBigD" />
+        <result column="error_big_h" property="errorBigH" />
+        <result column="error_big_t" property="errorBigT" />
+        <result column="error_big_s" property="errorBigS" />
+        <result column="image" property="image" />
+        <result column="error_type" property="errorType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, mes_section_specification, wms_classify_id, error_a, error_b, error_d, error_h, error_t, error_s, error_big_b, error_big_d, error_big_h, error_big_t, error_big_s, image, error_type
+    </sql>
+
+</mapper>

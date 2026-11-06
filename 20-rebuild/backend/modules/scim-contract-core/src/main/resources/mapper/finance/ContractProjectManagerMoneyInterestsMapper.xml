@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.contract.core.mapper.finance.ContractProjectManagerMoneyInterestsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.contract.core.api.pojo._do.finance.ContractProjectManagerMoneyInterests">
+        <id column="id" property="id" />
+        <result column="version" property="version" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="user_id" property="userId" />
+        <result column="income" property="income" />
+        <result column="expenditure" property="expenditure" />
+        <result column="remaining_sum" property="remainingSum" />
+        <result column="liabilities" property="liabilities" />
+        <result column="liabilities_day" property="liabilitiesDay" />
+        <result column="daily_amount" property="dailyAmount" />
+        <result column="project_manager_id" property="projectManagerId" />
+        <result column="project_id" property="projectId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        version,
+        create_time,
+        update_time,
+        bool_delete_enum,
+        id, user_id, income, expenditure, remaining_sum, liabilities, liabilities_day, daily_amount, project_manager_id
+    </sql>
+
+</mapper>

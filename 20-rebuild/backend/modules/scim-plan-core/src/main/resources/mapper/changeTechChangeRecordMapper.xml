@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.plan.core.mapper.change.TechChangeRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.plan.core.api.pojo._do.change.TechChangeRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="project_id" property="projectId"/>
+        <result column="monomer_id" property="monomerId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="change_scope_enum" property="changeScopeEnum"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="change_reason_id" property="changeReasonId"/>
+        <result column="remark" property="remark"/>
+        <result column="user_id" property="userId"/>
+        <result column="year_month_day" property="yearMonthDay"/>
+        <result column="sort_number" property="sortNumber"/>
+        <result column="change_attachment_ids" property="changeAttachmentIds"/>
+        <result column="check_status" property="checkStatus"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_time" property="checkTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, project_id, monomer_id, area_id, change_scope_enum, serial_number, change_reason_id, remark, user_id, year_month_day, sort_number, change_attachment_ids, check_status, check_user_id, check_time
+    </sql>
+
+    <select id="selectChangeRecord"
+            resultType="com.hzchum.scim.plan.core.api.pojo.dto.change.TechChangeRecordDTO">
+        select cr.id,
+        cr.project_id 'project.id',
+        cp.name 'project.name',
+        cp.short_name 'project.short_name',
+        cp.serial_number 'project.serial_number',
+        cr.monomer_id 'monomer.id',
+        pm.name 'monomer.name',
+        cr.area_id,
+        cr.change_scope_enum,
+        cr.serial_number,
+        cr.change_reason_id 'change_reason.id',
+        scr.name 'change_reason.name',
+        cr.remark,
+        cr.user_id 'user.id',
+        u.name 'user.name',
+        cr.change_attachment_ids,
+        cr.check_status,
+        cr.check_user_id,
+        cr.check_time,
+        cr.create_time,
+        cr.type,
+        check_user.name as check_user_name
+        from tech_change_record as cr
+        left join contract_project as cp on cr.project_id = cp.id and cp.bool_delete_enum = 0
+        left join plan_monomer as pm on cr.monomer_id = pm.id and pm.bool_delete_enum = 0
+        left join sys_change_reason as scr on cr.change_reason_id = scr.id
+        left join sys_user as u on cr.user_id = u.id
+        left join sys_user as check_user on cr.check_user_id = check_user.id
+        where cr.bool_delete_enum = 0
+        <if test="year != null">
+            AND DATE_FORMAT(cr.create_time,'%Y')=DATE_FORMAT(#{year},'%Y')
+        </if>
+        <if test="projectName != null and projectName != ''">
+            and (cp.name like concat('%',#{projectName},'%') or cp.short_name like concat('%',#{projectName},'%') or cp.serial_number like concat('%',#{projectName},'%'))
+        </if>
+        <if test="userName != null and userName != ''">
+            and u.name like concat('%',#{userName},'%')
+        </if>
+        <if test="changeReasonId != null">
+            and cr.change_reason_id = #{changeReasonId}
+        </if>
+        <if test="checkStatus != null">
+            and cr.check_status = #{checkStatus}
+        </if>
+        order by cr.check_status asc, cr.id desc
+
+    </select>
+
+</mapper>

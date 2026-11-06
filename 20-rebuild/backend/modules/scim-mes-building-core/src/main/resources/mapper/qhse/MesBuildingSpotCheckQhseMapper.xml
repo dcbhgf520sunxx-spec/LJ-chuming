@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.qhse.MesBuildingSpotCheckQhseMapper">
+
+    <select id="findSpotCheckList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingSpotStatisticsCountDTO">
+        SELECT
+        complete.project_id AS id,
+        project.short_name AS name,
+        complete.project_id As projectId,
+        GROUP_CONCAT(distinct complete.spot_check_user_name) AS spotCheckUserNames,
+        sum(complete.qualified_quantity) AS qualifiedQuantity,
+        sum(complete.un_qualified_quantity) AS unQualifiedQuantity
+        FROM
+        mes_building_spot_check_qhse complete
+        LEFT JOIN contract_project project on project.id = complete.project_id
+        where  complete.bool_delete_enum = 0  and complete.task_type_enum = 2
+        <if test=" projectId != null">
+            and  complete.project_id = #{projectId}
+        </if>
+        <if test="projectName != null and projectName != ''">
+            and project.name like CONCAT('%', #{projectName},'%')
+        </if>
+        <if test="userName != null and userName != ''">
+            and complete.spot_check_user_name like CONCAT('%', #{userName},'%')
+        </if>
+        GROUP BY complete.project_id
+    </select>
+
+    <select id="findMonomerSpotCheckList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingSpotStatisticsCountDTO">
+        SELECT
+        complete.project_id AS projectId,
+        complete.monomer_id AS id,
+        monomer.name AS name,
+        GROUP_CONCAT(complete.spot_check_user_name) AS spotCheckUserName,
+        sum(complete.qualified_quantity) AS qualifiedQuantity,
+        sum(complete.un_qualified_quantity) AS unQualifiedQuantity
+        FROM
+        mes_building_spot_check_qhse complete
+        LEFT JOIN plan_monomer monomer on monomer.id = complete.monomer_id
+        where  complete.bool_delete_enum = 0  and complete.task_type_enum = 2
+        <if test="projectIds != null and projectIds.size() > 0">
+            and complete.project_id in
+            <foreach collection="projectIds" open="(" separator="," close=")" item="projectId">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="userName != null and userName != ''">
+            and complete.spot_check_user_name like CONCAT('%', #{userName},'%')
+        </if>
+        GROUP BY complete.monomer_id,complete.project_id
+    </select>
+
+
+    <select id="findSpotCheckDetailList" resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.qhse.MesBuildingSpotStatisticsCountDetailDTO">
+        SELECT
+        project.short_name AS 'project.shortName',
+        project.name AS 'project.name',
+        project.serial_number AS 'project.serialNumber',
+        monomer.name AS 'monomer.name',
+        complete.serial_number,
+        complete.name,
+        complete.specification,
+        sum(complete.qualified_quantity) AS qualifiedQuantity,
+        sum(complete.un_qualified_quantity) AS unQualifiedQuantity,
+        complete.spot_check_remark,
+        complete.spot_check_user_name,
+        complete.spot_check_day_date AS spotCheckDate,
+        complete.spot_check_day_date AS spotCheckDateTime
+        FROM
+        mes_building_spot_check_qhse complete
+        LEFT JOIN contract_project project on project.id = complete.project_id
+        LEFT JOIN plan_monomer monomer on monomer.id = complete.monomer_id
+        where  complete.bool_delete_enum = 0  and complete.task_type_enum = 2
+        and complete.project_id = #{projectId}
+        <if test="monomerId != null">
+            and monomer.id = #{monomerId}
+        </if>
+        <if test="userName != null and userName != ''">
+            and complete.spot_check_user_name like CONCAT('%', #{userName},'%')
+        </if>
+        <if test="monomerName != null and monomerName != ''">
+            and monomer.name like CONCAT('%', #{monomerName},'%')
+        </if>
+        <if test="name != null and name != ''">
+            and complete.name like CONCAT('%', #{name},'%')
+        </if>
+        <if test="serialNumber != null and serialNumber != ''">
+            and complete.serial_number like CONCAT('%', #{serialNumber},'%')
+        </if>
+        <if test="specification != null and specification != ''">
+            and complete.specification like CONCAT('%', #{specification},'%')
+        </if>
+        GROUP BY complete.serial_number,
+        complete.NAME,
+        complete.specification,complete.product_id,project.id,monomer.id ,complete.spot_check_user_name,complete.spot_check_day_date,complete.spot_check_remark
+    </select>
+
+
+</mapper>

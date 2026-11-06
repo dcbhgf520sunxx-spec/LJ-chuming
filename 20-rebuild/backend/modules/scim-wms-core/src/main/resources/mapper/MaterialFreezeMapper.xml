@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.wms.core.mapper.wmsUse.MaterialFreezeMapper">
+
+    <select id="listInfo" resultType="com.hzchum.scim.wms.core.api.pojo._do.wmsUse.MaterialFreeze">
+        select
+        *
+        from
+        wms_material_freeze
+        where
+        bool_delete_enum = 0
+        <if test=" freezeType != null and freezeType != ''">
+            and find_in_set(#{freezeType},total_freeze_types)
+        </if>
+        <if test=" materialIsWhole != null">
+            and material_is_whole = #{materialIsWhole}
+        </if>
+        <if test=" workshopId != null">
+            and workshop_id = #{workshopId}
+        </if>
+        <if test=" warehouseId != null">
+            and warehouse_id = #{warehouseId}
+        </if>
+        <if test=" projectWarehouseType != null">
+            and warehouse_type = #{projectWarehouseType}
+        </if>
+        <if test=" projectId != null">
+            and project_id = #{projectId}
+        </if>
+        <if test=" theoryThickness != null">
+            and theory_thickness = #{theoryThickness}
+        </if>
+        <if test=" thickness != null">
+            and thickness = #{thickness}
+        </if>
+        <if test=" basicClass != null">
+            and basic_class = #{ basicClass}
+        </if>
+        <if test=" width != null">
+            and width = #{width}
+        </if>
+        <if test=" length != null">
+            and length = #{length}
+        </if>
+
+        <if test=" minLength != null">
+            and steel_coil_length &gt;= #{minLength}
+        </if>
+        <if test=" maxLength != null">
+            and steel_coil_length &lt;= #{maxLength}
+        </if>
+
+        <if test=" color != null">
+            and color like CONCAT('%', #{color},'%')
+        </if>
+        <if test=" specification != null and specification != ''">
+            and specification like CONCAT('%', #{specification},'%')
+        </if>
+        <if test=" heatNoAndBatchNo != null and heatNoAndBatchNo != ''">
+            and heat_no_and_batch_no like CONCAT('%', #{heatNoAndBatchNo},'%')
+        </if>
+        <if test="classifyIds != null and classifyIds.size()>0">
+            and classify_id in
+            <foreach collection="classifyIds" index="id" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="classifyIds == null and  classifyId != null">
+            and classify_id = #{classifyId}
+        </if>
+
+    </select>
+
+    <select id="getTotalMete" resultType="decimal">
+        select ifnull(sum(mete),0) from wms_material_freeze_record where bool_delete_enum = 0 and material_freeze_id = #{id}
+    </select>
+    <select id="getTotalQuantity" resultType="decimal">
+        select ifnull(sum(quantity),0) from wms_material_freeze_record where bool_delete_enum = 0 and material_freeze_id
+        = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingMachinePartSeparateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingMachinePartSeparate">
+        <id column="id" property="id" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="bool_delete_enum" property="boolDeleteEnum" />
+        <result column="version" property="version" />
+        <result column="product_id" property="productId" />
+        <result column="quantity" property="quantity" />
+        <result column="scheduling_id" property="schedulingId" />
+        <result column="user_id" property="userId" />
+        <result column="task_order_id" property="taskOrderId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, product_id, quantity, scheduling_id, user_id, task_order_id
+    </sql>
+    <select id="getListByCutId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachinePartSeparateDO">
+        SELECT
+        b.id,
+        b.serial_number,
+        b.monomer_id monomerId,
+        b.area_id areaId,
+        w.id 'workShopId',
+        gro.id 'groupId' ,
+        gro.`name` 'groupName',
+        w.`name` 'workShopName',
+        l.id 'productionLineId',
+        l.`name` 'productionLineName',
+        a.quantity 'quantity',
+        0 boolDrillEnum
+        FROM
+        `mes_building_nest_cut_machine_part_separate` a
+        LEFT JOIN tech_machine_part b ON b.id = a.product_id
+        LEFT JOIN mes_building_groups gro ON a.groups_id=gro.id AND gro.bool_delete_enum=0
+        LEFT JOIN mes_building_production_line l ON l.id = gro.production_line_id
+        LEFT JOIN mes_building_workshop w ON w.id = gro.workshop_id
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="cutId != null">
+            AND a.nest_cut_id = #{cutId}
+        </if>
+          <if test="processType != null">
+            AND a.process_type = #{processType}
+        </if>
+        ORDER BY b.id
+    </select>
+    <select id="getIds" resultType="java.lang.Long">
+        SELECT DISTINCT b.product_id
+        FROM mes_building_nest_cut_machine_part_separate b
+        LEFT JOIN mes_building_nest_cut_plate p ON p.id=#{cutId} AND p.bool_delete_enum = 0
+        WHERE
+            b.bool_delete_enum = 0
+          AND b.nest_cut_id =#{cutId}
+        <if test="processType !=null">
+        </if>
+        ORDER BY
+	      b.product_id DESC
+    </select>
+    <select id="getDrillListByCutId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachinePartSeparateDO">
+        SELECT
+            b.id,
+            b.serial_number,
+            b.monomer_id monomerId,
+            w.id 'workShopId',
+            gro.id 'groupId',
+            gro.`name` 'groupName',
+            w.`name` 'workShopName',
+            l.id 'productionLineId',
+            l.`name` 'productionLineName',
+            a.task_quantity 'quantity',
+            1 boolDrillEnum
+        FROM
+            mes_building_task_process a
+                LEFT JOIN tech_machine_part b ON b.id = a.product_id
+                LEFT JOIN mes_building_groups gro ON a.groups_id = gro.id
+                AND gro.bool_delete_enum = 0
+                LEFT JOIN mes_building_production_line l ON l.id = gro.production_line_id
+                LEFT JOIN mes_building_workshop w ON w.id = gro.workshop_id
+                LEFT JOIN mes_building_process process ON a.process_id=process.id
+        WHERE
+            a.bool_delete_enum = 0
+        <if test="cutId != null">
+            AND a.nest_cut_plate_id =  #{cutId}
+        </if>
+          AND process.type=8
+        ORDER BY
+            b.id
+    </select>
+
+</mapper>

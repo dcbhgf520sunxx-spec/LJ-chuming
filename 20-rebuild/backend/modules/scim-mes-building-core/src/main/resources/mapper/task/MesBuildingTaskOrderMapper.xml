@@ -1,0 +1,1442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzchum.scim.mes.building.core.mapper.task.MesBuildingTaskOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskOrder">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="bool_delete_enum" property="boolDeleteEnum"/>
+        <result column="version" property="version"/>
+        <result column="groups_id" property="groupsId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="product_type" property="productType"/>
+        <result column="ask_complete_time" property="askCompleteTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="status" property="status"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="quantity" property="quantity"/>
+        <result column="print_quantity" property="printQuantity"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_time
+        ,
+        update_time,
+        bool_delete_enum,
+        version,
+        id, factory_id, workshop_id, production_line_id, groups_id, project_id, monomer_id, area_id, product_type, ask_complete_time, complete_time, status, issue_status, user_id, order_number, quantity, print_quantity
+    </sql>
+    <select id="getTaskOrderList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.scheduling.MesBuildingTaskOrderDO">
+        SELECT *, task_type_enum AS product_type FROM mes_building_task_order WHERE task_type_enum &amp;
+        <choose>
+            <when test="productType!=16">
+                #{productType}
+            </when>
+            <otherwise>
+                (16|32)
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getArtifactsTaskList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingArtifactTaskOrderDO">
+        SELECT
+        mto.id orderId,
+        monomer.id 'monomer.id',
+        monomer.`name` 'monomer.name',
+        area.id 'area.id',
+        area.`name` 'area.name',
+        a.production_line_id 'productionLine.id',
+        cp.short_name 'project.shortName',
+        cp.NAME 'project.name',
+        cp.serial_number 'project.contractNo',
+        cp.id 'project.id',
+        mto.create_time scheduleTime,
+        mto.order_number scheduleOrder,
+        mto.ask_complete_time askCompleteTime,
+        s.`name` userName,
+        mto.task_type_enum productType,
+        a.workshop_id 'workshop.id',
+        a.workshop_name 'workshop.name',
+        a.productionLine_name 'productionLine.name',
+        mto.production_line_type_enum 'productionLine.productionLineTypeEnum',
+        a.quantity taskQuantity,
+        a.net_weight taskNetWeight,
+        a.gross_weight taskGrossWeight,
+        mto.print_quantity printQuantity
+        FROM
+        mes_building_task_order mto
+        INNER JOIN (
+        SELECT
+        a.task_order_id,
+        a.workshop_id,
+        a.workshop_name,
+        a.production_line_id,
+        a.productionLine_name,
+        SUM(a.quantity) quantity,
+        SUM(a.net_weight) net_weight,
+        SUM(a.gross_weight) gross_weight
+        FROM
+        (
+        SELECT
+        a.task_order_id,
+        a.workshop_id,
+        mw.`name` workshop_name,
+        a.production_line_id,
+        ml.`name` productionLine_name,
+        SUM(a.task_quantity) quantity,
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            IFNULL( sum( a.task_quantity * ta.net_weight ), 0 ) net_weight,
+            IFNULL( sum( a.task_quantity * ta.gross_weight ), 0 ) gross_weight
+        </if>
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskType == 48">
+            CASE
+            a.task_type_enum
+            WHEN 16 THEN
+            IFNULL( sum( a.task_quantity * tb.net_weight ), 0 )
+            END net_weight,
+            CASE
+            a.task_type_enum
+            WHEN 16 THEN
+            IFNULL( sum( a.task_quantity * tb.net_weight ), 0 )
+            END gross_weight
+        </if>
+        FROM
+        mes_building_task a
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+        </if>
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskType == 48">
+            LEFT JOIN tech_assemble tb ON tb.id = a.product_id
+        </if>
+        LEFT JOIN mes_building_workshop mw ON mw.id = a.workshop_id
+        LEFT JOIN mes_building_production_line ml ON ml.id = a.production_line_id
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="startDate != null">
+            and a.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and a.create_time &lt;= #{endDate}
+        </if>
+        <if test="monomerIds != null and monomerIds.size() != 0">
+            AND a.monomer_id in
+            <foreach collection="monomerIds" index="index" item="monomerId" open="(" separator="," close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            AND a.task_type_enum = 2
+            <if test="areaIds != null and areaIds.size() != 0">
+                AND a.area_id in
+                <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                    #{areaId}
+                </foreach>
+            </if>
+            <if test="areaBatchIds != null and areaBatchIds.size() != 0">
+                AND a.area_batch_id in
+                <foreach collection="areaBatchIds" index="index" item="areaBatchId" open="(" separator="," close=")">
+                    #{areaBatchId}
+                </foreach>
+            </if>
+        </if>
+        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() and assembleIds != null and assembleIds.size() != 0">
+            and (
+            <if test="assembleIds != null and assembleIds.size() != 0 ">
+                (a.product_id in
+                <foreach collection="assembleIds" index="index" item="assembleId" open="(" separator="," close=")">
+                    #{assembleId}
+                </foreach>
+                AND task_type_enum = 16 )
+            </if>
+            )
+        </if>
+        GROUP BY
+        a.task_order_id,
+        a.workshop_id,
+        a.production_line_id,
+        a.task_type_enum
+        ) a
+        GROUP BY
+        a.task_order_id,
+        a.workshop_id,
+        a.workshop_name,
+        a.production_line_id,
+        a.productionLine_name
+        ) a  ON mto.id = a.task_order_id
+        LEFT JOIN sys_user s ON mto.user_id = s.id
+        LEFT JOIN contract_project cp ON cp.id = mto.project_id
+        LEFT JOIN plan_monomer monomer ON mto.monomer_id = monomer.id
+        LEFT JOIN plan_area area ON mto.area_id = area.id
+        WHERE
+        mto.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() != 0">
+            and mto.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="printType!=null and printType==true">
+            AND mto.print_quantity > 0
+        </if>
+        <if test="printType!=null and printType==false">
+            AND mto.print_quantity = 0
+        </if>
+        <if test="workshopId!=null">
+            AND a.workshop_id = #{workshopId}
+        </if>
+        <if test="localDateTime != null">
+            and date_format(mto.create_time, '%Y-%m') = date_format(#{localDateTime}, '%Y-%m')
+        </if>
+        <if test="orderNumber != null and orderNumber != '' ">
+            AND mto.order_number like concat('%', #{orderNumber}, '%')
+        </if>
+        <if test="taskType!=null">
+            AND mto.task_type_enum=#{taskType}
+        </if>
+        <if test="serialNumber!=null">
+            AND mto.id in (
+            SELECT
+            a.task_order_id
+            FROM
+            mes_building_task a
+
+            <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+            LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+            </if>
+
+            <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskType == 48">
+            LEFT JOIN tech_assemble ta ON ta.id = a.product_id
+            </if>
+            WHERE
+            a.bool_delete_enum = 0
+            <if test="monomerIds != null and monomerIds.size() != 0">
+                AND a.monomer_id in
+                <foreach collection="monomerIds" index="index" item="monomerId" open="(" separator="," close=")">
+                    #{monomerId}
+                </foreach>
+            </if>
+
+            <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()">
+                AND a.task_type_enum = 2
+                <if test="areaIds != null and areaIds.size() != 0">
+                    AND a.area_id in
+                    <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                        #{areaId}
+                    </foreach>
+                </if>
+                <if test="areaBatchIds != null and areaBatchIds.size() != 0">
+                    AND a.area_batch_id in
+                    <foreach collection="areaBatchIds" index="index" item="areaBatchId" open="(" separator="," close=")">
+                        #{areaBatchId}
+                    </foreach>
+                </if>
+            </if>
+
+            <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ASSEMBLE.getType() or taskType == 48">
+                AND a.task_type_enum &amp; 16
+                and (
+                <if test="assembleIds != null and assembleIds.size() != 0 ">
+                    a.product_id in
+                    <foreach collection="assembleIds" index="index" item="assembleId" open="(" separator="," close=")">
+                        #{assembleId}
+                    </foreach>
+                </if>
+                )
+            </if>
+            AND ta.serial_number like CONCAT('%',#{serialNumber},'%')
+            )
+        </if>
+        order by mto.create_time desc
+    </select>
+
+    <select id="getAllArtifactsTaskList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.MesBuildingArtifactTaskOrderDO">
+        SELECT
+        mto.id orderId,
+        a.production_line_id 'productionLine.id',
+        cp.short_name 'project.shortName',
+        cp.NAME 'project.name',
+        cp.serial_number 'project.contractNo',
+        cp.id 'project.id',
+        monomer.id 'monomer.id',
+        monomer.`name` 'monomer.name',
+        area.id 'area.id',
+        area.`name` 'area.name',
+        mto.create_time scheduleTime,
+        mto.order_number scheduleOrder,
+        mto.ask_complete_time askCompleteTime,
+        s.`name` userName,
+        mto.task_type_enum productType,
+        a.workshop_id 'workshop.id',
+        a.workshop_name 'workshop.name',
+        a.productionLine_name 'productionLine.name',
+        mto.production_line_type_enum 'productionLine.productionLineTypeEnum',
+        a.quantity taskQuantity,
+        a.net_weight taskNetWeight,
+        a.gross_weight taskGrossWeight,
+        mto.print_quantity printQuantity
+        FROM
+        mes_building_task_order mto
+        INNER JOIN (
+        SELECT
+        a.task_order_id,
+        a.workshop_id,
+        a.workshop_name,
+        a.production_line_id,
+        a.productionLine_name,
+        SUM(a.quantity) quantity,
+        SUM(a.net_weight) net_weight,
+        SUM(a.gross_weight) gross_weight
+        FROM
+        (
+        SELECT
+        a.task_order_id,
+        a.workshop_id,
+        mw.`name` workshop_name,
+        a.production_line_id,
+        ml.`name` productionLine_name,
+        SUM(a.task_quantity) quantity,
+        IFNULL( sum( a.task_quantity * ta.net_weight ), 0 ) net_weight,
+        IFNULL( sum( a.task_quantity * ta.gross_weight ), 0 ) gross_weight
+        FROM
+        mes_building_task a
+        LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+        LEFT JOIN mes_building_workshop mw ON mw.id = a.workshop_id
+        LEFT JOIN mes_building_production_line ml ON ml.id = a.production_line_id
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="startDate != null">
+            and a.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and a.create_time &lt;= #{endDate}
+        </if>
+        <if test="serialNumber!=null">
+            AND ta.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="monomerIds != null and monomerIds.size() != 0">
+            AND a.monomer_id in
+            <foreach collection="monomerIds" index="index" item="monomerId" open="(" separator="," close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        AND a.task_type_enum = 2
+        <if test="areaIds != null and areaIds.size() != 0">
+            AND a.area_id in
+            <foreach collection="areaIds" index="index" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        <if test="areaBatchIds != null and areaBatchIds.size() != 0">
+            AND a.area_batch_id in
+            <foreach collection="areaBatchIds" index="index" item="areaBatchId" open="(" separator="," close=")">
+                #{areaBatchId}
+            </foreach>
+        </if>
+        GROUP BY
+        a.task_order_id,
+        a.workshop_id,
+        a.production_line_id,
+        a.task_type_enum
+        <if test="assembleIds != null and assembleIds.size() != 0">
+        union all
+        SELECT
+        a.task_order_id,
+        a.workshop_id,
+        mw.`name` workshop_name,
+        a.production_line_id,
+        ml.`name` productionLine_name,
+        SUM(a.task_quantity) quantity,
+        CASE
+        a.task_type_enum
+        WHEN 16 THEN
+        IFNULL( sum( a.task_quantity * tb.net_weight ), 0 )
+        END net_weight,
+        CASE
+        a.task_type_enum
+        WHEN 16 THEN
+        IFNULL( sum( a.task_quantity * tb.net_weight ), 0 )
+        END gross_weight
+        FROM
+        mes_building_task a
+        LEFT JOIN tech_assemble tb ON tb.id = a.product_id
+        LEFT JOIN mes_building_workshop mw ON mw.id = a.workshop_id
+        LEFT JOIN mes_building_production_line ml ON ml.id = a.production_line_id
+        WHERE
+        a.bool_delete_enum = 0
+        <if test="startDate != null">
+            and a.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and a.create_time &lt;= #{endDate}
+        </if>
+        <if test="serialNumber!=null">
+            AND tb.serial_number like CONCAT('%',#{serialNumber},'%')
+        </if>
+        <if test="monomerIds != null and monomerIds.size() != 0">
+            AND a.monomer_id in
+            <foreach collection="monomerIds" index="index" item="monomerId" open="(" separator="," close=")">
+                #{monomerId}
+            </foreach>
+        </if>
+        and (
+        <if test="assembleIds != null and assembleIds.size() != 0 ">
+            (a.product_id in
+            <foreach collection="assembleIds" index="index" item="assembleId" open="(" separator="," close=")">
+                #{assembleId}
+            </foreach>
+            AND task_type_enum = 16 )
+        </if>
+        )
+        GROUP BY
+        a.task_order_id,
+        a.workshop_id,
+        a.production_line_id,
+        a.task_type_enum
+        </if>
+        ) a
+        GROUP BY
+        a.task_order_id,
+        a.workshop_id,
+        a.workshop_name,
+        a.production_line_id,
+        a.productionLine_name
+        ) a  ON mto.id = a.task_order_id
+        LEFT JOIN sys_user s ON mto.user_id = s.id
+        LEFT JOIN contract_project cp ON cp.id = mto.project_id
+        LEFT JOIN plan_monomer monomer ON mto.monomer_id = monomer.id
+        LEFT JOIN plan_area area ON mto.area_id = area.id
+        WHERE
+        mto.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() != 0">
+            and mto.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="printType!=null and printType==true">
+            AND mto.print_quantity != 0
+        </if>
+        <if test="printType!=null and printType==false">
+            AND mto.print_quantity = 0
+        </if>
+        <if test="workshopId!=null">
+            AND a.workshop_id = #{workshopId}
+        </if>
+        <if test="localDateTime != null">
+            and date_format(mto.create_time, '%Y-%m') = date_format(#{localDateTime}, '%Y-%m')
+        </if>
+        <if test="orderNumber != null and orderNumber != '' ">
+            AND mto.order_number like concat('%', #{orderNumber}, '%')
+        </if>
+        order by mto.create_time desc
+    </select>
+
+
+    <select id="getMachinePartTaskList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskOrderDTO">
+        SELECT
+        tr.id orderId,
+        tr.create_time scheduleTime,
+        tr.order_number orderNumber,
+        s.`name` userName,
+        cut.`name` materialTypeName,
+        mp.`name` workshopName,
+        ml.`name`productionLineName,
+        tr.quantity taskQuantity,
+        tr.print_quantity printQuantity,
+        IFNULL( SUM( task.task_quantity * ta.net_weight ), 0 ) taskMete,
+        tr.ask_complete_time completeTime
+        FROM
+        `mes_building_task_order` tr
+        LEFT JOIN sys_user s ON s.id = tr.user_id
+        AND s.bool_delete_enum = false
+        LEFT JOIN mes_building_task task ON task.task_order_id = tr.id
+        AND task.bool_delete_enum = false
+        LEFT JOIN tech_machine_part ta ON ta.id = task.product_id
+        AND ta.bool_delete_enum = false
+        LEFT JOIN mes_building_workshop mp ON mp.id = task.workshop_id
+        AND mp.bool_delete_enum = false
+        LEFT JOIN mes_building_production_line ml ON ml.id = task.production_line_id
+        AND ml.bool_delete_enum = false
+        AND ml.bool_enabled_enum = true
+        LEFT JOIN mes_building_cut_config cut ON cut.id=tr.cut_config_id AND cut.bool_delete_enum=FALSE
+        WHERE
+        tr.bool_delete_enum = false
+        AND tr.task_type_enum = 1
+        <!--        <if test="processType!=null">-->
+        <!--            AND tr.process_type_enum = #{processType}-->
+        <!--        </if>-->
+        <if test="projectId!=null">
+            AND tr.project_id = #{projectId}
+        </if>
+        <if test="printType!=null and printType==true">
+            AND tr.print_quantity>0
+        </if>
+        <if test="printType!=null and printType==false">
+            AND tr.print_quantity=0
+        </if>
+        <if test="workshopId!=null">
+            AND mp.id= #{workshopId}
+        </if>
+        <if test="localDateTime != null">
+            AND date_format(tr.create_time, '%Y-%m') = date_format(#{localDateTime}, '%Y-%m')
+        </if>
+        <if test="orderNumber != null and orderNumber != '' ">
+            AND tr.order_number like concat('%', #{orderNumber}, '%')
+        </if>
+        <if test="processType==@com.hzchum.scim.mes.building.core.api.enums.process.ProcessTypeEnum@DRILL_HOLE.getType()">
+            AND tr.id IN(
+            SELECT
+            a.task_order_id
+            FROM
+            mes_building_task_process a
+            LEFT JOIN mes_building_process b ON b.id = a.process_id
+            WHERE
+            a.bool_delete_enum = 0
+            AND a.task_type_enum = 1
+            <if test="localDateTime != null">
+                AND date_format(a.create_time, '%Y-%m') = date_format(#{localDateTime}, '%Y-%m')
+            </if>
+            AND b.type = 8
+            )
+        </if>
+        GROUP BY
+        tr.id,
+        ml.`name`,
+        mp.`name`
+    </select>
+    <select id="getMachinePartDetail"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskDTO">
+        SELECT
+        ta.serial_number serialNumber,
+        ta.specification specification,
+        ta.length length,
+        ta.material material,
+        task.task_quantity quantity,
+        ta.net_weight weight
+        FROM
+        `mes_building_task` task
+        LEFT JOIN tech_machine_part ta ON ta.id = task.product_id
+        AND ta.bool_delete_enum = false
+        WHERE
+        task.bool_delete_enum = false
+        <if test="orderId!=null">
+            AND task.task_order_id = #{orderId}
+        </if>
+        AND task.task_type_enum =1
+    </select>
+    <select id="getMachinePartDrilling"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskDTO">
+        SELECT
+        cp.id 'project.id',
+        cp.NAME 'project.name',
+        cp.short_name 'project.shortName',
+        cp.serial_number 'project.contractNo',
+        ea.id 'areaId',
+        ea.`name` 'areaName',
+        mon.`name` monomer_name,
+        par.monomer_id monomerId,
+        par.serial_number 'serialNumber',
+        par.specification 'specification',
+        par.material 'material',
+        par.id 'productId',
+        ANY_VALUE(a.task_order_id) 'taskOrderId',
+        IFNULL(SUM(a.task_quantity), 0) 'quantity',
+        IFNULL(SUM(a.task_quantity*par.net_weight), 0) total_net_weight,
+        IFNULL(SUM(a.task_quantity*par.gross_weight), 0) total_gross_weight,
+        IFNULL(par.net_weight, 0) 'netWeight',
+        IFNULL(par.gross_weight, 0) 'grossWeight'
+        FROM
+        mes_building_task_process a
+        LEFT JOIN tech_machine_part par ON a.product_id = par.id
+        LEFT JOIN contract_project cp ON par.project_id = cp.id
+        LEFT JOIN plan_monomer mon ON mon.id = par.monomer_id
+        LEFT JOIN plan_area ea on par.area_id = ea.id
+        LEFT JOIN mes_building_process process ON a.process_id=process.id
+        where
+        a.bool_delete_enum=0
+        <if test="cutId!=null">
+            AND a.nest_cut_plate_id = #{cutId}
+        </if>
+        <if test="processType!=null">
+            AND process.type = #{processType}
+        </if>
+        GROUP BY a.product_id
+        ORDER BY
+        par.id
+    </select>
+    <select id="getMachinePartNesting" resultType="java.lang.String">
+        SELECT b.id
+        FROM mes_building_task_order a
+                 LEFT JOIN mes_building_machine_part_scheduling b ON b.id = a.scheduling_id
+        WHERE a.bool_delete_enum = 0
+          AND a.task_type_enum = 1
+          AND a.id = #{orderId}
+    </select>
+    <select id="taskTrackMachinePart"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TaskOrderTrackingDO">
+        SELECT
+        t.id task_order_id,
+        t.order_number,
+        a.project_id 'project.id',
+        cp.short_name 'project.shortName',
+        cp.serial_number 'project.contractNo',
+        cp.name 'project.name',
+        a.workshop_id 'workshop.id',
+        wp.name 'workshop.name',
+        a.production_line_id 'productionLine.id',
+        pl.name 'productionLine.name',
+        a.groups_id 'groups.id',
+        gr.name 'groups.name',
+        t.create_time scheduleTime,
+        t.task_type_enum productType,
+        s.`name` userName ,
+        a.total_quantity,
+        a. totalMete,
+        a. total_net_weight,
+        a.total_gross_weight,
+        a. complete_quantity,
+        a. completeMete,
+        a.complete_net_weight,
+        a. complete_gross_weight
+        FROM(
+        SELECT
+        a.task_order_id task_order_id,
+        a.project_id,
+        a.workshop_id,
+        a.production_line_id,
+        a.groups_id,
+        IFNULL( sum( a.task_quantity ), 0 ) total_quantity,
+        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) totalMete,
+        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) total_net_weight,
+        IFNULL( SUM( a.task_quantity * ta.gross_weight ), 0 ) total_gross_weight,
+        IFNULL( sum( a.complete_quantity ), 0 ) complete_quantity,
+        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) completeMete,
+        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) complete_net_weight,
+        IFNULL( SUM( a.complete_quantity * ta.gross_weight ), 0 ) complete_gross_weight
+        FROM
+        `mes_building_task` a
+        LEFT JOIN tech_machine_part ta ON a.product_id = ta.id
+        <where>
+            a.bool_delete_enum = FALSE
+            AND a.task_type_enum =
+            ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()}
+            <if test="workshopId!=null">
+                AND a.workshop_id = #{workshopId}
+            </if>
+            <if test="productionLineId!=null">
+                AND a.production_line_id = #{productionLineId}
+            </if>
+            <if test="partIds.size()>0">
+                AND a.product_id IN
+                <foreach collection="partIds" open="(" close=")" item="partId" separator=",">
+                    #{partId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        a.task_order_id,
+        a.project_id,
+        a.workshop_id,
+        a.production_line_id,
+        a.groups_id)a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN mes_building_workshop wp ON wp.id = a.workshop_id
+        LEFT JOIN mes_building_production_line pl ON pl.id = a.production_line_id
+        LEFT JOIN mes_building_groups gr ON gr.id = a.groups_id
+        LEFT JOIN mes_building_task_order t ON a.task_order_id = t.id
+        LEFT JOIN sys_user s ON s.id = t.user_id
+        <where>
+            <if test="dateTime!=null">
+                AND date_format( cp.create_time, '%Y' ) = date_format( #{dateTime}, '%Y' )
+            </if>
+            <if test="status!=null and status==1">
+                AND t.complete_time is NULL
+            </if>
+            <if test="status!=null and status==2">
+                AND t.complete_time is not NULL
+            </if>
+            <if test="orderNumber!=null and orderNumber!=''">
+                AND t.order_number like concat('%',#{orderNumber},'%')
+            </if>
+        </where>
+
+        <!--        SELECT-->
+        <!--        t.id taskOrderId,-->
+        <!--        t.order_number orderNumber,-->
+        <!--        t.ask_complete_time completeTime,-->
+        <!--        t.task_type_enum productType,-->
+        <!--        s.`name` userName ,-->
+        <!--        a.totalQuantity,-->
+        <!--        a. totalMete,-->
+        <!--        a. total_net_weight,-->
+        <!--        a.total_gross_weight,-->
+        <!--        a. completeQuantity,-->
+        <!--        a. completeMete,-->
+        <!--        a.complete_net_weight,-->
+        <!--        a. complete_gross_weight-->
+        <!--        FROM(-->
+        <!--        SELECT-->
+        <!--        a.task_order_id task_order_id,-->
+        <!--        IFNULL( sum( a.task_quantity ), 0 ) totalQuantity,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) totalMete,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) total_net_weight,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.gross_weight ), 0 ) total_gross_weight,-->
+        <!--        IFNULL( sum( a.complete_quantity ), 0 ) completeQuantity,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) completeMete,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) complete_net_weight,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.gross_weight ), 0 ) complete_gross_weight-->
+        <!--        FROM-->
+        <!--        `mes_building_task` a-->
+        <!--        LEFT JOIN tech_machine_part ta ON a.product_id = ta.id-->
+        <!--        <where>-->
+        <!--            a.bool_delete_enum = FALSE-->
+        <!--            AND a.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()}-->
+        <!--            <if test="dateTime!=null">-->
+        <!--                AND date_format( a.create_time, '%Y/%m' ) = date_format( #{dateTime}, '%Y/%m' )-->
+        <!--            </if>-->
+        <!--            <if test="workshopId!=null">-->
+        <!--                AND a.workshop_id = #{workshopId}-->
+        <!--            </if>-->
+        <!--            <if test="productionLineId!=null">-->
+        <!--                AND a.production_line_id = #{productionLineId}-->
+        <!--            </if>-->
+        <!--            <if test="partIds.size()>0">-->
+        <!--                AND a.product_id IN-->
+        <!--                <foreach collection="partIds" open="(" close=")" item="partId" separator=",">-->
+        <!--                    #{partId}-->
+        <!--                </foreach>-->
+        <!--            </if>-->
+        <!--        </where>-->
+        <!--        GROUP BY-->
+        <!--        a.task_order_id)a-->
+        <!--        LEFT JOIN mes_building_task_order t ON a.task_order_id = t.id-->
+        <!--        LEFT JOIN sys_user s ON s.id = t.user_id-->
+        <!--        <where>-->
+        <!--            <if test="status!=null and status==1">-->
+        <!--                AND t.complete_time is NULL-->
+        <!--            </if>-->
+        <!--            <if test="status!=null and status==2">-->
+        <!--                AND t.complete_time is not NULL-->
+        <!--            </if>-->
+        <!--            <if test="orderNumber!=null and orderNumber!=''">-->
+        <!--                AND t.order_number like  concat('%',#{orderNumber},'%')-->
+        <!--            </if>-->
+        <!--        </where>-->
+
+        <!--        SELECT-->
+        <!--        t.id taskOrderId,-->
+        <!--        t.order_number orderNumber,-->
+        <!--        t.ask_complete_time completeTime,-->
+        <!--        t.task_type_enum productType,-->
+        <!--        cp.id 'project.id',-->
+        <!--        cp.short_name 'project.shortName',-->
+        <!--        cp.serial_number 'project.contractNo',-->
+        <!--        cp.NAME 'project.name',-->
+        <!--        IFNULL(sum(a.task_quantity),0) totalQuantity ,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) totalMete,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) total_net_weight,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.gross_weight ), 0 ) total_gross_weight,-->
+        <!--        IFNULL(sum(a.complete_quantity),0) completeQuantity,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) completeMete,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) complete_net_weight,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.gross_weight ), 0 ) complete_gross_weight,-->
+        <!--        s.`name`userName-->
+        <!--        FROM-->
+        <!--        `mes_building_task` a-->
+        <!--        LEFT JOIN mes_building_task_order t ON a.task_order_id = t.id-->
+        <!--        AND t.bool_delete_enum =FALSE-->
+        <!--        <if test="taskType==@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@MACHINE_PART.getType()">-->
+        <!--            LEFT JOIN tech_machine_part ta ON a.product_id = ta.id-->
+        <!--            AND ta.bool_delete_enum =FALSE-->
+        <!--        </if>-->
+        <!--        LEFT JOIN sys_user s ON s.id = t.user_id-->
+        <!--        AND s.bool_delete_enum = FALSE-->
+        <!--        LEFT JOIN contract_project cp ON cp.id = a.project_id-->
+        <!--        <where>-->
+        <!--            AND a.bool_delete_enum = FALSE-->
+        <!--            <if test="taskType!=null">-->
+        <!--                AND a.task_type_enum = #{taskType}-->
+        <!--            </if>-->
+        <!--            <if test="dateTime!=null">-->
+        <!--                AND date_format( a.create_time, '%Y/%m' ) = date_format( #{dateTime}, '%Y/%m' )-->
+        <!--            </if>-->
+        <!--            <if test="workshopId!=null">-->
+        <!--                AND a.workshop_id = #{workshopId}-->
+        <!--            </if>-->
+        <!--            <if test="productionLineId!=null">-->
+        <!--                AND a.production_line_id = #{productionLineId}-->
+        <!--            </if>-->
+        <!--            <if test="projectId!=null">-->
+        <!--                AND a.project_id = #{projectId}-->
+        <!--            </if>-->
+        <!--            <if test="status!=null and status==1">-->
+        <!--                AND t.complete_time is NULL-->
+        <!--            </if>-->
+        <!--            <if test="status!=null and status==2">-->
+        <!--                AND t.complete_time is not NULL-->
+        <!--            </if>-->
+        <!--            <if test="orderNumber!=null and orderNumber!=''">-->
+        <!--                AND t.order_number like  concat('%',#{orderNumber},'%')-->
+        <!--            </if>-->
+        <!--        </where>-->
+        <!--        GROUP BY-->
+        <!--        t.id,-->
+        <!--        cp.id-->
+    </select>
+    <select id="taskTrackArtifact"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.TaskOrderTrackingDO">
+
+        SELECT
+        top_order.id task_order_id,
+        top_order.order_number order_number,
+        a.project_id 'project.id',
+        a.short_name 'project.shortName',
+        a.serial_number 'project.contractNo',
+        a.project_name 'project.name',
+        a.workshop_id 'workshop.id',
+        a.workshop_name 'workshop.name',
+        a.line_id 'productionLine.id',
+        a.line_name 'productionLine.name',
+        top_order.production_line_type_enum,
+        top_order.create_time schedule_time,
+        SUM(a.task_quantity) total_quantity,
+        SUM(a.task_gross_weight) total_gross_weight,
+        SUM(a.task_net_weight) total_net_weight,
+        SUM(a.task_net_weight) total_mete,
+        SUM(a.complete_quantity) complete_quantity,
+        SUM(a.complete_net_weight) complete_net_weight,
+        SUM(a.complete_net_weight) complete_mete,
+        SUM(a.complete_gross_weight) complete_gross_weight
+        FROM
+        mes_building_top_task_order  top_order
+        INNER JOIN (
+        SELECT
+        cp.id project_id,
+        cp.`name`project_name,
+        cp.short_name,
+        cp.serial_number,
+        wp.id workshop_id,
+        wp.`name` workshop_name,
+        pl.id line_id,
+        pl.`name` line_name,
+        a.top_task_order_id,
+        a.complete_quantity,
+        a.complete_net_weight,
+        a.complete_gross_weight,
+        a.task_quantity,
+        a.task_net_weight,
+        a.task_gross_weight
+        FROM
+        (
+        SELECT
+        o.top_task_order_id,
+        a.project_id,
+        a.workshop_id,
+        a.production_line_id,
+        IFNULL( SUM( a.complete_quantity ), 0 ) complete_quantity,
+        IFNULL( SUM( a.task_quantity ), 0 ) task_quantity,
+        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) complete_net_weight,
+        IFNULL( SUM( a.complete_quantity * ta.gross_weight ), 0 ) complete_gross_weight,
+        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) task_net_weight,
+        IFNULL( SUM( a.task_quantity * ta.gross_weight ), 0 ) task_gross_weight
+        FROM
+        mes_building_task a
+        LEFT JOIN mes_building_task_order o ON o.id = a.task_order_id
+        LEFT JOIN tech_artifact ta ON ta.id = a.product_id
+        WHERE
+        a.bool_delete_enum = 0
+        AND a.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}
+        <if test="workshopId!=null">
+            AND a.workshop_id = #{workshopId}
+        </if>
+        <if test="productionLineId!=null">
+            AND a.production_line_id = #{productionLineId}
+        </if>
+        <if test="monomerId!=null">
+            AND a.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId!=null">
+            AND a.area_id = #{areaId}
+        </if>
+        <if test="areaBatchId !=null">
+            AND a.area_batch_id = #{areaBatchId}
+        </if>
+        <if test="projectIds != null and projectIds.size() != 0">
+            AND a.project_id in
+            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">
+                #{projectId}
+            </foreach>
+        </if>
+        GROUP BY
+        o.top_task_order_id,
+        a.workshop_id,
+        a.project_id,
+        a.production_line_id
+        ) a
+        LEFT JOIN contract_project cp ON cp.id = a.project_id
+        LEFT JOIN mes_building_workshop wp ON wp.id = a.workshop_id
+        LEFT JOIN mes_building_production_line pl ON pl.id = a.production_line_id
+        <where>
+            <if test="dateTime!=null">
+                AND date_format( cp.create_time, '%Y' ) = date_format( #{dateTime}, '%Y' )
+            </if>
+        </where>
+        ) a ON a.top_task_order_id = top_order.id
+        <where>
+            <if test="status!=null and status==1">
+                AND top_order.complete_time is null
+            </if>
+            <if test="status!=null and status==2">
+                AND top_order.complete_time is not null
+            </if>
+            <if test="orderNumber!=null and orderNumber!=''">
+                AND top_order.order_number like concat('%',#{orderNumber},'%')
+            </if>
+        </where>
+        GROUP BY top_order.id,a.workshop_id,a.line_id,top_order.create_time,a.project_id
+
+        <!--        SELECT-->
+        <!--        a.id taskOrderId,-->
+        <!--        a.order_number orderNumber,-->
+        <!--        cp.id 'project.id',-->
+        <!--        cp.short_name 'project.shortName',-->
+        <!--        cp.serial_number 'project.contractNo',-->
+        <!--        cp.name 'project.name',-->
+        <!--        a.ask_complete_time completeTime,-->
+        <!--        a.production_line_type_enum productionLineTypeEnum,-->
+        <!--        SUM( b.task_quantity ) totalQuantity,-->
+        <!--        SUM( b.net_weight ) totalMete,-->
+        <!--        SUM( b.gross_weight ) totalGrossWeight,-->
+        <!--        SUM( b.net_weight ) totalNetWeight,-->
+        <!--        SUM( b.complete_quantity ) completeQuantity,-->
+        <!--        SUM( b.complete_net_weight ) completeMete,-->
+        <!--        SUM( b.complete_net_weight ) completeNetWeight,-->
+        <!--        SUM( b.complete_gross_weight ) completeGrossWeight-->
+        <!--        FROM-->
+        <!--        mes_building_top_task_order a-->
+        <!--        INNER JOIN (-->
+        <!--        SELECT-->
+        <!--        o.id,-->
+        <!--        o.top_task_order_id,-->
+        <!--        IFNULL( SUM( a.complete_quantity ), 0 ) complete_quantity,-->
+        <!--        IFNULL( SUM( a.task_quantity ), 0 ) task_quantity,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.net_weight ), 0 ) complete_net_weight,-->
+        <!--        IFNULL( SUM( a.complete_quantity * ta.gross_weight ), 0 ) complete_gross_weight,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.net_weight ), 0 ) net_weight,-->
+        <!--        IFNULL( SUM( a.task_quantity * ta.gross_weight ), 0 ) gross_weight,-->
+        <!--        o.project_id,-->
+        <!--        a.product_id-->
+        <!--        FROM-->
+        <!--        mes_building_task a-->
+        <!--        LEFT JOIN mes_building_task_order o ON o.id = a.task_order_id-->
+        <!--        LEFT JOIN tech_artifact ta ON ta.id = a.product_id-->
+        <!--        WHERE-->
+        <!--        a.bool_delete_enum = 0-->
+        <!--        AND a.task_type_enum = ${@com.hzchum.scim.mes.building.core.api.enums.task.TaskTypeEnum@ARTIFACT.getType()}-->
+        <!--        <if test="workshopId!=null">-->
+        <!--            AND a.workshop_id = #{workshopId}-->
+        <!--        </if>-->
+        <!--        <if test="productionLineId!=null">-->
+        <!--            AND a.production_line_id = #{productionLineId}-->
+        <!--        </if>-->
+        <!--        <if test="monomerId!=null">-->
+        <!--            AND a.monomer_id = #{monomerId}-->
+        <!--        </if>-->
+        <!--        <if test="areaId!=null">-->
+        <!--            AND a.area_id = #{areaId}-->
+        <!--        </if>-->
+        <!--        <if test="projectIds != null and projectIds.size() != 0">-->
+        <!--            AND a.project_id in-->
+        <!--            <foreach collection="projectIds" item="projectId" separator="," close=")" open="(">-->
+        <!--                #{projectId}-->
+        <!--            </foreach>-->
+        <!--        </if>-->
+        <!--        GROUP BY-->
+        <!--        o.id,-->
+        <!--        a.product_id-->
+        <!--        ) b ON a.id = b.top_task_order_id-->
+        <!--        LEFT JOIN contract_project cp ON cp.id = b.project_id-->
+        <!--        WHERE-->
+        <!--        a.bool_delete_enum = 0-->
+        <!--        <if test="dateTime!=null">-->
+        <!--            AND date_format( cp.create_time, '%Y' ) = date_format( #{dateTime}, '%Y' )-->
+        <!--        </if>-->
+        <!--        <if test="status!=null and status==1">-->
+        <!--            AND a.complete_time is null-->
+        <!--        </if>-->
+        <!--        <if test="status!=null and status==2">-->
+        <!--            AND  a.complete_time is not null-->
+        <!--        </if>-->
+        <!--        <if test="orderNumber!=null and orderNumber!=''">-->
+        <!--            AND a.order_number like  concat('%',#{orderNumber},'%')-->
+        <!--        </if>-->
+        <!--        GROUP BY-->
+        <!--        a.id,-->
+        <!--        cp.id-->
+    </select>
+    <select id="getAllids" resultType="java.lang.Long">
+        SELECT DISTINCT
+        par.id
+        FROM
+        mes_building_nest_cut_machine_part_separate a
+        LEFT JOIN tech_machine_part par ON a.product_id = par.id
+        LEFT JOIN contract_project cp ON par.project_id = cp.id
+        LEFT JOIN plan_monomer mon ON mon.id = par.monomer_id
+        where 1=1
+        <if test="cutId!=null">
+            AND a.nest_cut_id = #{cutId}
+        </if>
+        <if test="processType!=null and processType==8 ">
+            AND a.process_type = #{processType}
+        </if>
+        GROUP BY a.product_id
+        order BY par.id DESC
+    </select>
+    <select id="cunRows" resultType="java.lang.Integer">
+        select count(*)
+        from mes_building_task_order
+        <where>
+            <if test="taskTypeEnum!=null">
+                AND task_type_enum = #{taskTypeEnum}
+            </if>
+            <if test="topTaskOrderId!=null">
+                AND top_task_order_id = #{topTaskOrderId}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCutId"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.QuantityAndMeteDTO">
+        SELECT
+        sep.nest_cut_id cutId,
+        IFNULL( sum( sep.quantity ), 0 ) quantity,
+        IFNULL( sum( sep.quantity * par.net_weight ), 0 ) mete
+        FROM
+        mes_building_nest_cut_machine_part_separate sep
+        LEFT JOIN tech_machine_part par ON sep.product_id = par.id
+        WHERE
+        sep.bool_delete_enum = 0
+        <if test="cutId!=null  ">
+            AND sep.nest_cut_id IN
+            <foreach collection="cutId" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        AND sep.process_type = 8
+        GROUP BY
+        sep.nest_cut_id
+
+    </select>
+    <select id="getTaskOrderAssistList"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.topTaskOrder.MesBuildingAssistTaskOrderDO">
+        SELECT task_order.id,
+               task_order.production_line_id AS groups_id,
+               task_order.project_id,
+               task_order.monomer_id,
+               task_order.task_type_enum,
+               task_order.complete_time,
+               task_order.ask_complete_time,
+               task_order.STATUS,
+               task_order.user_id,
+               task_order.order_number,
+               task_order.quantity,
+               task_order.print_quantity,
+               task_order.cut_config_id,
+               task_order.scheduling_id,
+               task_order.top_task_order_id,
+               task_order.production_line_type_enum,
+               task_order.artifact_date_time,
+               task_order.bool_nest_cut_enum,
+               task_order.create_time,
+               task_order.update_time,
+               task_order.bool_delete_enum,
+               task_order.version,
+                workshop.id 'workshop.id',
+                workshop.`name` 'workshop.name',
+                workshop.`type` 'workshop.type',
+                production_line.id 'production_line.id',
+                production_line.`name` 'production_line.name'
+        FROM mes_building_task_order task_order
+                 LEFT JOIN mes_building_production_line production_line
+                           ON production_line.id = task_order.production_line_id
+                 LEFT JOIN mes_building_workshop workshop ON workshop.id = production_line.workshop_id
+        WHERE task_order.bool_delete_enum = FALSE
+          AND (task_order.top_task_order_id = #{topTaskOrderId} AND task_order.complete_time IS NULL)
+        ORDER BY task_order.task_type_enum DESC;
+    </select>
+    <select id="getMachinePartOffLine"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskDTO">
+        SELECT
+        ANY_VALUE(a.id) id,
+        ANY_VALUE(a.part_id) part_id,
+        ANY_VALUE(a.bool_complete_enum) bool_complete_enum,
+        ANY_VALUE(a.label_status) label_status,
+        ANY_VALUE(par.thick) thick,
+        ANY_VALUE(cp.id) 'project.id',
+        ANY_VALUE(cp.NAME) 'project.name',
+        ANY_VALUE(cp.short_name) 'project.shortName',
+        ANY_VALUE(cp.serial_number) 'project.contractNo',
+        ANY_VALUE(ea.id) 'areaId',
+        ANY_VALUE(ea.`name`) 'areaName',
+        ANY_VALUE(par.monomer_id) monomerId,
+        ANY_VALUE(par.serial_number) 'serialNumber',
+        ANY_VALUE(par.specification) 'specification',
+        ANY_VALUE(par.material) 'material',
+        ANY_VALUE(par.id) 'productId',
+        IFNULL(SUM(a.quantity ), 0 ) 'quantity',
+        IFNULL(SUM(taskProcess.complete_quantity), 0) 'complete_quantity',
+        IFNULL(SUM(taskProcess.complete_quantity * par.net_weight), 0) 'complete_net_weight',
+        IFNULL(SUM(a.quantity*par.net_weight), 0) total_net_weight,
+        IFNULL(SUM(a.quantity*par.gross_weight), 0) total_gross_weight,
+        ANY_VALUE(IFNULL( par.net_weight, 0 )) 'netWeight',
+        ANY_VALUE(IFNULL( par.gross_weight, 0 )) 'grossWeight'
+        FROM
+        mes_building_nest_cut_plate_part a
+        LEFT JOIN tech_machine_part par ON a.part_id = par.id
+        LEFT JOIN contract_project cp ON par.project_id = cp.id
+        LEFT JOIN plan_monomer mon ON mon.id = par.monomer_id
+        LEFT JOIN plan_area ea on par.area_id = ea.id
+        LEFT JOIN mes_building_task_process taskProcess ON par.id = taskProcess.product_id AND taskProcess.task_type_enum = 1
+        AND taskProcess.sequence = 1 AND taskProcess.bool_delete_enum = 0
+        AND a.mes_building_nest_cut_plate_id = taskProcess.nest_cut_plate_id
+        WHERE
+        a.bool_delete_enum = 0
+          AND taskProcess.id is not null
+        <if test="cutId!=null">
+            AND a.mes_building_nest_cut_plate_id = #{cutId}
+        </if>
+        GROUP BY
+        a.part_id
+        ORDER BY
+        par.id
+    </select>
+
+    <select id="getMachinePartOffLineDrill"
+      resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskDTO">
+        SELECT
+        ANY_VALUE(a.id) id,
+        ANY_VALUE(a.part_id) part_id,
+        ANY_VALUE(a.bool_complete_enum) bool_complete_enum,
+        ANY_VALUE(a.label_status) label_status,
+        ANY_VALUE(par.thick) thick,
+        ANY_VALUE(cp.id) 'project.id',
+        ANY_VALUE(cp.NAME) 'project.name',
+        ANY_VALUE(cp.short_name) 'project.shortName',
+        ANY_VALUE(cp.serial_number) 'project.contractNo',
+        ANY_VALUE(ea.id) 'areaId',
+        ANY_VALUE(ea.`name`) 'areaName',
+        ANY_VALUE(par.monomer_id) monomerId,
+        ANY_VALUE(par.serial_number) 'serialNumber',
+        ANY_VALUE(par.specification) 'specification',
+        ANY_VALUE(par.material) 'material',
+        ANY_VALUE(par.id) 'productId',
+        IFNULL(SUM(taskProcess.task_quantity ), 0 ) 'quantity',
+        IFNULL(SUM(taskProcess.complete_quantity), 0) 'complete_quantity',
+        IFNULL(SUM(taskProcess.complete_quantity * par.net_weight), 0) 'complete_net_weight',
+        IFNULL(SUM(taskProcess.task_quantity*par.net_weight), 0) total_net_weight,
+        IFNULL(SUM(taskProcess.task_quantity*par.gross_weight), 0) total_gross_weight,
+        ANY_VALUE(IFNULL( par.net_weight, 0 )) 'netWeight',
+        ANY_VALUE(IFNULL( par.gross_weight, 0 )) 'grossWeight',
+        par.length
+        FROM
+        mes_building_nest_cut_plate_part a
+        LEFT JOIN tech_machine_part par ON a.part_id = par.id
+        LEFT JOIN contract_project cp ON par.project_id = cp.id
+        LEFT JOIN plan_monomer mon ON mon.id = par.monomer_id
+        LEFT JOIN plan_area ea on par.area_id = ea.id
+        LEFT JOIN mes_building_task_process taskProcess ON par.id = taskProcess.product_id AND taskProcess.task_type_enum = 1
+        AND taskProcess.sequence = 1 AND taskProcess.bool_delete_enum = 0
+        AND a.mes_building_nest_cut_plate_id = taskProcess.nest_cut_plate_id
+        WHERE
+        a.bool_delete_enum = 0
+        AND taskProcess.id is not null
+        <if test="cutId!=null">
+            AND a.mes_building_nest_cut_plate_id = #{cutId}
+            AND taskProcess.nest_cut_plate_id = #{cutId}
+        </if>
+        <if test="monomerId != null">
+            AND par.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND par.area_id = #{areaId}
+        </if>
+        GROUP BY
+        a.part_id
+        ORDER BY
+        par.id
+    </select>
+
+    <select id="getMachinePartOffLineAuto"
+      resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.task.MesBuildingMachineTaskDTO">
+        SELECT
+        ANY_VALUE(a.id) id,
+        ANY_VALUE(a.part_id) part_id,
+        ANY_VALUE(a.bool_complete_enum) bool_complete_enum,
+        ANY_VALUE(a.label_status) label_status,
+        ANY_VALUE(par.thick) thick,
+        ANY_VALUE(cp.id) 'project.id',
+        ANY_VALUE(cp.NAME) 'project.name',
+        ANY_VALUE(cp.short_name) 'project.shortName',
+        ANY_VALUE(cp.serial_number) 'project.contractNo',
+        ANY_VALUE(ea.id) 'areaId',
+        ANY_VALUE(ea.`name`) 'areaName',
+        ANY_VALUE(par.monomer_id) monomerId,
+        ANY_VALUE(par.serial_number) 'serialNumber',
+        ANY_VALUE(par.specification) 'specification',
+        ANY_VALUE(par.material) 'material',
+        ANY_VALUE(par.id) 'productId',
+        IFNULL( SUM( a.quantity ), 0 ) 'quantity',
+        IFNULL(SUM(a.complete_quantity), 0) 'complete_quantity',
+        IFNULL(SUM(a.quantity*par.net_weight), 0) total_net_weight,
+        IFNULL(SUM(a.quantity*par.gross_weight), 0) total_gross_weight,
+        ANY_VALUE(IFNULL( par.net_weight, 0 )) 'netWeight',
+        ANY_VALUE(IFNULL( par.gross_weight, 0 )) 'grossWeight',
+        par.length
+        FROM
+        mes_building_nest_cut_plate_part a
+        LEFT JOIN tech_machine_part par ON a.part_id = par.id
+        LEFT JOIN contract_project cp ON par.project_id = cp.id
+        LEFT JOIN plan_monomer mon ON mon.id = par.monomer_id
+        LEFT JOIN plan_area ea on par.area_id = ea.id
+        LEFT JOIN mes_building_task_process taskProcess ON par.id = taskProcess.product_id AND taskProcess.task_type_enum = 1
+                                                               AND taskProcess.sequence = 0 AND taskProcess.bool_delete_enum = 0
+                                                               AND a.mes_building_nest_cut_plate_id = taskProcess.nest_cut_plate_id
+        WHERE
+        a.bool_delete_enum = 0
+        AND taskProcess.id is not null
+        <if test="cutId!=null">
+            AND a.mes_building_nest_cut_plate_id = #{cutId}
+        </if>
+        <if test="monomerId != null">
+            AND par.monomer_id = #{monomerId}
+        </if>
+        <if test="areaId != null">
+            AND par.area_id = #{areaId}
+        </if>
+        GROUP BY
+        a.part_id
+        ORDER BY
+        par.id
+    </select>
+
+    <select id="listBoolenProcess"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.util.ProductIdAndProcessDO">
+        SELECT
+        a.id 'productId',
+        SUM( IFNULL( a.pprocess, 0 ) + IFNULL( b.aprocess, 0 ) )>= 1 'boolenProcess'
+        FROM
+        (
+        SELECT
+        plink.artifact_id id,
+        SUM( par.bool_process ) pprocess
+        FROM
+        tech_artifact_machine_part_link plink
+        LEFT JOIN tech_machine_part par ON plink.machine_part_id = par.id
+        AND par.bool_delete_enum = 0
+        WHERE
+        plink.bool_delete_enum = 0
+        <if test="productIds!=null  ">
+            AND plink.artifact_id IN
+            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                #{productId}
+            </foreach>
+        </if>
+        GROUP BY
+        plink.artifact_id
+        ) a
+        LEFT JOIN (
+        SELECT
+        detail.artifact_id id,
+        SUM( ass.bool_process ) aprocess
+        FROM
+        tech_assemble_detail detail
+        LEFT JOIN tech_assemble ass ON detail.assemble_id = ass.id
+        AND ass.bool_delete_enum = 0
+        WHERE
+        detail.bool_delete_enum = 0
+        <if test="productIds!=null  ">
+            AND detail.artifact_id IN
+            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                #{productId}
+            </foreach>
+        </if>
+        GROUP BY
+        detail.artifact_id
+        ) b ON a.id = b.id
+        GROUP BY
+        a.id
+    </select>
+    <select id="getArtListByAssTask"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTask">
+        SELECT *
+        FROM mes_building_task
+        WHERE task_order_id IN (
+            SELECT id
+            FROM mes_building_task_order
+            WHERE bool_delete_enum = 0
+              AND top_task_order_id IN (SELECT top_task_order_id
+                                        FROM mes_building_task_order
+                                        WHERE id =
+                                              (SELECT task_order_id
+                                               FROM mes_building_task task
+                                               WHERE task.id = #{taskId}))
+              AND task_type_enum = 2
+        )
+          AND product_id IN (SELECT artifact_id
+                             FROM tech_assemble_detail
+                             WHERE assemble_id =
+                                   (SELECT product_id FROM mes_building_task task WHERE task.id = #{taskId}))
+          AND complete_quantity!=task_quantity
+    </select>
+    <select id="getArtListByPartTask"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTask">
+        SELECT
+            *
+        FROM
+            mes_building_task
+        WHERE
+                id IN (
+                SELECT
+                    task_id
+                FROM
+                    mes_building_machine_part_scheduling_artifact_task_link
+                WHERE
+                        scheduling_link_id =(
+                        SELECT
+                            id
+                        FROM
+                            mes_building_machine_part_scheduling_link
+                        WHERE
+                                scheduling_id =(
+                                SELECT
+                                    machine_part_scheduling_id
+                                FROM
+                                    mes_building_task
+                                WHERE
+                                    id = #{taskId}
+                            )
+                          AND product_id =(
+                            SELECT
+                                product_id
+                            FROM
+                                mes_building_task
+                            WHERE
+                                id = #{taskId}
+                        )
+                    ))
+          AND task_type_enum=2
+    </select>
+    <select id="getNumber" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            mes_building_task_order
+        WHERE
+            DATE( create_time )= (DATE(#{now}))
+      and task_type_enum=#{type}
+    </select>
+    <select id="findOrderByUser"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._doModel.task.MesBuildingTaskOrder">
+        select
+            distinct orde.*
+        from
+            mes_building_task_order orde
+        left join mes_building_groups_team_link link on orde.groups_id = link.groups_id
+        left join mes_building_team_user_link tulink on link.team_id = tulink.team_id
+        left join mes_building_team team on tulink.team_id = team.id
+            where
+                orde.bool_delete_enum = 0
+                and link.bool_delete_enum = 0
+                and tulink.bool_delete_enum = 0
+                and team.bool_delete_enum = 0
+                and tulink.user_id = #{userId}
+                and team.process_id = #{processId}
+    </select>
+    <select id="listBoolenProcessBase"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._do.util.ProductIdAndProcessDO">
+        SELECT
+        detail.artifact_id productId,
+        SUM( ass.bool_process ) boolenProcess
+        FROM
+        tech_assemble_detail detail
+        LEFT JOIN tech_assemble ass ON detail.assemble_id = ass.id
+        AND ass.bool_delete_enum = 0
+        WHERE
+        detail.bool_delete_enum = 0
+        <if test="productIds!=null  ">
+            AND detail.artifact_id IN
+            <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                #{productId}
+            </foreach>
+        </if>
+        GROUP BY
+        detail.artifact_id
+    </select>
+    <select id="listAareaIds" resultType="java.lang.Long">
+        SELECT DISTINCT
+        area_id
+        FROM
+        mes_building_task
+        WHERE
+        bool_delete_enum = 0
+        AND task_type_enum = 2
+        AND project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+    </select>
+    <select id="boolOrderComplete"
+            resultType="com.hzchum.scim.mes.building.core.api.pojo._dto.onecodeChange.MesBuildingOrderIdAndQuantityDTO">
+        SELECT
+        task_order_id id,
+        SUM( task_quantity ) taskQuantity,
+        SUM( complete_quantity ) completeQuantity
+
+        FROM
+        mes_building_task
+        WHERE
+        bool_delete_enum = 0
+        <if test="oderIds!=null  ">
+            AND task_order_id IN
+            <foreach collection="oderIds" item="oderId" open="(" separator="," close=")">
+                #{oderId}
+            </foreach>
+        </if>
+        GROUP BY
+        task_order_id
+    </select>
+    <select id="getTaskProjectList" resultType="com.hzchum.scim.mes.building.core.api.pojo._do.task.ProjectResponseDTO">
+        SELECT
+        cp.short_name as shortName,
+        cp.NAME as name,
+        cp.serial_number as serialNumber,
+        cp.project_type as projectType,
+        cp.id as id
+        FROM
+        mes_building_task_order mto
+        LEFT JOIN contract_project cp ON cp.id = mto.project_id
+        LEFT JOIN mes_building_production_line ml ON ml.id = mto.production_line_id
+        WHERE
+        mto.bool_delete_enum = 0
+        <if test="projectIds != null and projectIds.size() != 0">
+            and mto.project_id in
+            <foreach collection="projectIds" index="index" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="workshopId!=null">
+            AND ml.workshop_id = #{workshopId}
+        </if>
+        <if test="monthDate != null">
+            and date_format(mto.create_time, '%Y-%m') = date_format(#{monthDate}, '%Y-%m')
+        </if>
+        AND (mto.task_type_enum = 2 or mto.task_type_enum = 16)
+        group by mto.project_id
+    </select>
+
+</mapper>
