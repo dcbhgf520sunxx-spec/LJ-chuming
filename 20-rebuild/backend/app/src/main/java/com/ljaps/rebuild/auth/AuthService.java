@@ -3,8 +3,11 @@ package com.ljaps.rebuild.auth;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.*;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.*;
@@ -29,6 +32,7 @@ public class AuthService {
     private final byte[] secret;
     private final long expirationSeconds;
     private final String modules, productMenu, mesEnum, menuEnum;
+    private Path previewRevocations;
 
     public AuthService(JdbcTemplate jdbc,
             @Value("${LJAPS_RSA_PRIVATE_KEY_PATH}") String privateKeyPath,
@@ -50,6 +54,11 @@ public class AuthService {
     }
 
     public String publicKey() { return publicPem; }
+
+    @Value("${ljaps.auth.preview-revocation-directory:}")
+    void configurePreviewRevocations(String directory) throws IOException {
+        if(!directory.isEmpty()) previewRevocations=Files.createDirectories(Paths.get(directory));
+    }
 
     public Map<String,Object> login(String username, String encryptedPassword) {
         String field=loginField(username);
@@ -86,7 +95,7 @@ public class AuthService {
         catch(ExpiredJwtException e) { throw fail(40002,"token过期，请重新登录"); }
         catch(JwtException|IllegalArgumentException e) { throw fail(40003,"token解析失败"); }
         if(claims.getId()==null || claims.getExpiration()==null || !(claims.get("uid") instanceof Number)) throw fail(40005,"token已失效，请重新登录");
-        if(!jdbc.queryForList("SELECT jti FROM rebuild_auth_revoked_token WHERE jti=? AND expires_at_epoch_ms>?",claims.getId(),System.currentTimeMillis()).isEmpty()) throw fail(40005,"token已失效，请重新登录");
+        if(isRevoked(claims)) throw fail(40005,"token已失效，请重新登录");
         List<Map<String,Object>> rows=jdbc.queryForList("SELECT "+USER_COLUMNS+" FROM sys_user WHERE id=? AND bool_delete_enum=0",((Number)claims.get("uid")).longValue());
         if(rows.size()!=1) throw fail(40005,"token已失效，请重新登录");
         Map<String,Object> user=rows.get(0);
@@ -98,7 +107,49 @@ public class AuthService {
     public void logout(String token) {
         authenticate(token);
         Claims claims=Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        if(previewRevocations!=null) {
+            recordPreviewLogout(claims);
+            return;
+        }
         jdbc.update("INSERT INTO rebuild_auth_revoked_token(jti,expires_at_epoch_ms) VALUES (?,?) ON DUPLICATE KEY UPDATE expires_at_epoch_ms=VALUES(expires_at_epoch_ms)",claims.getId(),claims.getExpiration().getTime());
+    }
+
+    private boolean isRevoked(Claims claims) {
+        if(!jdbc.queryForList("SELECT jti FROM rebuild_auth_revoked_token WHERE jti=? AND expires_at_epoch_ms>?",claims.getId(),System.currentTimeMillis()).isEmpty())
+            return true;
+        if(previewRevocations==null) return false;
+        try {
+            Files.readAttributes(previewRevocation(claims),BasicFileAttributes.class);
+            return true;
+        } catch(NoSuchFileException missingMarker) {
+            if(Files.isDirectory(previewRevocations)) return false;
+            throw new UncheckedIOException("Preview session store is unavailable",missingMarker);
+        } catch(IOException error) {
+            throw new UncheckedIOException("Cannot read preview session revocation",error);
+        }
+    }
+
+    private Path previewRevocation(Claims claims) {
+        String id=UUID.fromString(claims.getId()).toString();
+        return previewRevocations.resolve(claims.getExpiration().getTime()+"-"+id+".revoked");
+    }
+
+    private void recordPreviewLogout(Claims claims) {
+        Path marker=previewRevocation(claims);
+        try {
+            long now=System.currentTimeMillis();
+            try(DirectoryStream<Path> entries=Files.newDirectoryStream(previewRevocations,"*.revoked")) {
+                for(Path entry:entries) {
+                    String name=entry.getFileName().toString();
+                    if(name.matches("[0-9]{13}-[0-9a-f-]{36}\\.revoked") && Long.parseLong(name.substring(0,13))<=now)
+                        Files.deleteIfExists(entry);
+                }
+            }
+            try { Files.createFile(marker); }
+            catch(FileAlreadyExistsException alreadyRevoked) { return; }
+        } catch(IOException error) {
+            throw new UncheckedIOException("Cannot record preview logout",error);
+        }
     }
 
     private static String resetVersion(Map<String,Object> user) { return Objects.toString(user.get("last_password_reset_date"),""); }
@@ -140,6 +191,13 @@ public class AuthService {
         for(Map<String,Object> row:menus) if(number(row.get("pid"))==id) {
             Map<String,Object> child=node(); child.putAll(map("id",row.get("id"),"name",row.get("component_name"),"path",row.get("path"),"hidden",truth(row.get("hidden")),"component",row.get("component"),"alwaysShow",truth(row.get("always_show")),"redirect",row.get("redirect"),"meta",map("title",row.get("name"),"icon",row.get("icon"),"noCache",!truth(row.get("cache")))));
             children(child,menus,new HashSet<>(ancestors)); children.add(child);
+            if(number(row.get("id"))==1009L && "/bim/model-show/index".equals(row.get("component"))) {
+                Map<String,Object> ifc=node();
+                ifc.putAll(map("id",-1009L,"name","IfcModelShow","path","/bim/ifc-model-show",
+                    "component","/bim/ifc-model-show/index","hidden",truth(row.get("hidden")),
+                    "meta",map("title","IFC 模型展示","icon",row.get("icon"),"noCache",true)));
+                children.add(ifc);
+            }
         }
         if(!children.isEmpty()) parent.put("children",children);
     }

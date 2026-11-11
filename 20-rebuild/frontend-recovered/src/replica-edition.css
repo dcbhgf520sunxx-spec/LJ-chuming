@@ -1,0 +1,40 @@
+.replica-edition {
+  display: inline-block;
+  flex: none;
+  margin-inline: 6px;
+  padding: 2px 8px;
+  border: 1px solid #f3a6a1;
+  border-radius: 4px;
+  background: #fff0ee;
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.login-title-text {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.login-title-text > .replica-edition {
+  position: absolute;
+  inset-inline-start: calc(100% + 16px);
+  top: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.home-head .left-logo > .replica-edition {
+  margin-inline-start: clamp(20px, 4vw, 42px);
+}
+
+.navbar > .right-menu > .replica-edition {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  vertical-align: top;
+}

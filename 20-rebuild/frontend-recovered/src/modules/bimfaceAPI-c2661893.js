@@ -1,76 +1,68 @@
-window.hostConfig = { APIHost: "https://znzhlj.znjs.com:7077/bimface", resourceHost: "https://znzhlj.znjs.com:7077/bimface/resource", staticHost: "https://znzhlj.znjs.com:7077/bimface/static", dataEnvType: "BIMFACE", securityApi: true };
-function g(e, n) {
-  if (!(e instanceof n)) throw new TypeError("Cannot call a class as a function");
-}
-function f(e, n) {
-  for (var t = 0; t < n.length; t++) {
-    var o = n[t];
-    o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, o.key, o);
-  }
-}
-function d(e, n, t) {
-  return n && f(e.prototype, n), t && f(e, t), e;
-}
-var l = new Object();
-l.url = window.location.href;
-l.cleanUrl = function() {
-  var e = (function(n) {
-    var t = n.indexOf("?");
-    return -1 < t ? t : n.indexOf("#");
-  })(this.url);
-  return e == -1 ? this.url : this.url.substr(0, e);
-};
-l._get = function() {
-  var e = this.url.indexOf("?");
-  if (e == -1) return null;
-  var n = this.url.substr(e + 1);
-  return 1 > n.length ? null : (function(t) {
-    var o = t.split("&");
-    if (1 > o.length) return null;
-    for (var i = new Object(), r = 0; r < o.length; r++) {
-      var a = o[r].split("=");
-      a.length == 2 && (i[a[0]] = a[1]);
-    }
-    return i;
-  })(n);
-};
-var m = (function() {
-  function e() {
-    g(this, e);
-  }
-  return d(e, [{ key: "set", value: function(t, o) {
-    var i = /* @__PURE__ */ new Date();
-    i.setTime(i.getTime() + 12 * 60 * 60 * 1e3), document.cookie = t + "=" + escape(o) + ";expires=" + i.toGMTString();
-  } }, { key: "get", value: function(t) {
-    var o, i = new RegExp("(^| )" + t + "=([^;]*)(;|$)");
-    return (o = document.cookie.match(i)) ? unescape(o[2]) : null;
-  } }]), e;
-})();
-new m();
-var p = { local: { SDKLoaderPath: "./static/BimfaceSDKLoader/BimfaceSDKLoader@latest-debug.js", staticHost: "./static" }, dev: { SDKLoaderPath: "http://10.5.3.5/Packages/jssdk-dev/web/BimfaceSDKLoader/BimfaceSDKLoader@latest-debug.js", staticHost: "http://10.5.3.5/Packages/jssdk-dev/web" }, portal: { SDKLoaderPath: "https://znzhlj.znjs.com:7077/bimface/static/api/BimfaceSDKLoader/BimfaceSDKLoader@latest-release.js", staticHost: "https://znzhlj.znjs.com:7077/bimface/static/api" } }, c = c || p;
-function u({ viewToken: e }) {
-  var n = l._get(), t;
-  return n ? t = n.mode || "portal" : t = "portal", new Promise(function(o, i) {
-    w(c[t].SDKLoaderPath).then(function(r) {
-      console.log(r, "ff");
-      var a = new BimfaceSDKLoaderConfig();
-      console.log(a, n, "params"), a = Object.assign({}, a, n, { build: "Debug", APIHost: "https://znzhlj.znjs.com:7077/bimface", staticHost: c[t].staticHost }), console.log(a, "BimfaceLoaderConfig"), t === "portal" && (a.build = "Release"), a.path && (a.dataEnvType = BimfaceEnvOption.Local), a.viewToken || (a.viewToken = e), a.version = "3.6.295", (a.viewToken || a.resourcePath || a.path || a.dataPath) && BimfaceSDKLoader.load(a, function(s) {
-        o(s);
-      }, i);
+let sdkScript;
+const sdkTimeout = 90000;
+
+function loadSdkScript(url) {
+  if (!sdkScript) {
+    sdkScript = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      const timeout = setTimeout(() => fail("BIM SDK 加载超时"), sdkTimeout);
+      function fail(message) {
+        clearTimeout(timeout);
+        script.remove();
+        reject(new Error(message));
+      }
+      script.src = url;
+      script.addEventListener("load", () => {
+        clearTimeout(timeout);
+        if (typeof BimfaceSDKLoaderConfig === "function" && typeof BimfaceSDKLoader !== "undefined" && typeof BimfaceSDKLoader.load === "function") resolve();
+        else fail("BIM SDK 加载失败，请核对 SDK 版本与地址");
+      }, { once: true });
+      script.addEventListener("error", () => fail("BIM SDK 加载失败，请核对地址与浏览器策略"), { once: true });
+      document.head.appendChild(script);
+    }).catch(error => {
+      sdkScript = undefined;
+      throw error;
     });
+  }
+  return sdkScript;
+}
+
+async function u({ viewToken, signal } = {}) {
+  const config = document.getElementById("ljaps-bim-viewer-config");
+  if (!config) throw new Error("BIM 浏览器环境未配置，请联系管理员");
+  if (typeof viewToken !== "string" || !viewToken.trim()) throw new Error("模型查看凭据缺失，请刷新重试");
+  const { sdk_loader_url, api_url, static_url, resource_url, sdk_version } = JSON.parse(config.textContent);
+  const hosts = { APIHost: api_url, staticHost: static_url, resourceHost: resource_url, dataEnvType: "BIMFACE", securityApi: true };
+  window.hostConfig = hosts;
+  await loadSdkScript(sdk_loader_url);
+  signal?.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => finish(reject, new Error("BIM 模型加载超时，请刷新重试")), sdkTimeout);
+    function abort() {
+      finish(reject, signal.reason);
+    }
+    function finish(callback, value) {
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", abort);
+      callback(value);
+    }
+    function fail() {
+      finish(reject, new Error("BIM 模型加载失败，请刷新重试"));
+    }
+    signal?.addEventListener("abort", abort, { once: true });
+    try {
+      const loaderConfig = Object.assign(new BimfaceSDKLoaderConfig(), hosts, {
+        build: "Release",
+        viewToken,
+        version: sdk_version
+      });
+      const pending = BimfaceSDKLoader.load(loaderConfig, data => data ? finish(resolve, data) : fail(), fail);
+      pending?.catch?.(fail);
+    } catch {
+      fail();
+    }
   });
 }
-function w(e) {
-  return new Promise(function(n, t) {
-    var o = document.createElement("script");
-    o.src = e, document.head.appendChild(o), o.addEventListener("load", function() {
-      n("success");
-    }, { passive: false }), o.addEventListener("error", function(i) {
-      t(i);
-    }, { passive: false });
-  });
-}
-window.initBimfaceApp = u;
 function h() {
   return Glodon.Bimface.Viewer.AxisOption.Z;
 }

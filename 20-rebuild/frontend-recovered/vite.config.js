@@ -3,6 +3,35 @@ import {defineConfig} from 'vite';
 import {inputNumberAriaCompatibility} from './tools/input-number-aria-compat.mjs';
 import {recoveredSharedRuntime} from './tools/assemble.mjs';
 
+function bimViewerConfig(policy, additions) {
+  const viewer = policy.bim_viewer;
+  if (viewer === undefined) return;
+  const originsByField = {
+    sdk_loader_url: ['script-src'],
+    api_url: ['connect-src'],
+    static_url: ['script-src', 'connect-src'],
+    resource_url: ['connect-src']
+  };
+  if (!policy.integration_ids.includes('I03') || !viewer || typeof viewer !== 'object'
+      || Array.isArray(viewer) || Object.keys(viewer).length !== 5
+      || typeof viewer.sdk_version !== 'string' || !/^\d+\.\d+\.\d+$/.test(viewer.sdk_version)) {
+    throw new Error('BIM 浏览器配置须随 I03 审核并明确 SDK 版本与四个地址');
+  }
+  const config = {sdk_version: viewer.sdk_version};
+  for (const [field, directives] of Object.entries(originsByField)) {
+    const value = viewer[field];
+    if (typeof value !== 'string' || /[\s*'"<>\\?#]/.test(value) || !value.startsWith('https://')) {
+      throw new Error('BIM 浏览器地址须使用明确的 HTTPS 地址');
+    }
+    const url = new URL(value);
+    if (url.username || url.password || directives.some(directive => !additions.get(directive)?.includes(url.origin))) {
+      throw new Error('BIM 浏览器地址须列入对应的资源策略，地址不能含凭据');
+    }
+    config[field] = url.href;
+  }
+  return config;
+}
+
 /** Ordinary builds retain the original policy; an integration build adds only reviewed origins. */
 export function applyIntegrationBrowserPolicy(html, policy) {
   if (policy == null) return html;
@@ -30,6 +59,7 @@ export function applyIntegrationBrowserPolicy(html, policy) {
       return url.origin;
     }));
   }
+  const viewer = bimViewerConfig(policy, additions);
   let matches=0;
   const result=html.replace(/(<meta\s+http-equiv="Content-Security-Policy"\s+content=")([^"]*)(")/gi,(_,start,value,end)=>{
     matches++;
@@ -42,7 +72,7 @@ export function applyIntegrationBrowserPolicy(html, policy) {
     return start+parts.map(part=>part.join(' ')).join('; ')+end;
   });
   if(matches!==1) throw new Error('需要唯一的原始浏览器资源策略，停止构建');
-  return result;
+  return viewer ? result.replace('</head>', `<script type="application/json" id="ljaps-bim-viewer-config">${JSON.stringify(viewer)}</script></head>`) : result;
 }
 
 function integrationBrowserPolicy() {

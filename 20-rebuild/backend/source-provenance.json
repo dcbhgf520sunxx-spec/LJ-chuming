@@ -11079,8 +11079,11 @@
     "path": "com/hzchum/scim/bim/core/api/service/BimModelCommonService.java",
     "original_module": "BOOT-INF/lib/scim-bim-core-api-0.0.1-SNAPSHOT.jar",
     "original_source_sha256": "d08ff95a8e2c7c789231d07f2768cb155f071735f3637ad89d4ce5e25bae0fb0",
-    "adjustments": [],
-    "rebuilt_source_sha256": "d08ff95a8e2c7c789231d07f2768cb155f071735f3637ad89d4ce5e25bae0fb0"
+    "adjustments": [
+      "Build the existing BIM single-model workflow: signed conversion callbacks, committed uploads, file-version element matching and progress."
+    ],
+    "rebuilt_source_sha256": "3d22292db4b7019404b78a826420866816f8751880fecad79971bfde2e223648",
+    "deleted": false
   },
   {
     "module": "scim-bim-core-api",
@@ -55233,9 +55236,12 @@
       "Line 170: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence first following entity accessor",
       "Line 152: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelConfigurationDO>(); evidence adjacent typed Wrapper cast",
       "Line 146: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast",
-      "Removed redundant raw wrapper casts (type erasure only): {'(LambdaQueryWrapper)': 96}"
+      "Removed redundant raw wrapper casts (type erasure only): {'(LambdaQueryWrapper)': 96}",
+      "Build the existing BIM single-model workflow: signed conversion callbacks, committed uploads, file-version element matching and progress.",
+      "Review BIM model replacement, retry deadlines, safe attachment staging and exact current-model detail lookup."
     ],
-    "rebuilt_source_sha256": "e14eeb00975e4d65169ca9ed30cf10ae783be4da70502b3e4eace3d46caac264"
+    "rebuilt_source_sha256": "9db5e2184648718d5bb209d99ad936731b6abcc10c3592c96aa1e37b44c4895e",
+    "deleted": false
   },
   {
     "module": "scim-bim-core",
@@ -55290,9 +55296,13 @@
       "Line 194: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelConfigurationDO>(); evidence adjacent typed Wrapper cast",
       "Line 186: new LambdaQueryWrapper() -> new LambdaQueryWrapper<PlanArea>(); evidence first following entity accessor",
       "Line 144: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelConfigurationDO>(); evidence adjacent typed Wrapper cast",
-      "Removed redundant raw wrapper casts (type erasure only): {'(LambdaQueryWrapper)': 25}"
+      "Removed redundant raw wrapper casts (type erasure only): {'(LambdaQueryWrapper)': 25}",
+      "Build the existing BIM single-model workflow: signed conversion callbacks, committed uploads, file-version element matching and progress.",
+      "Review BIM model replacement, retry deadlines, safe attachment staging and exact current-model detail lookup.",
+      "Configure BIM monomer callback base independently from application file URLs"
     ],
-    "rebuilt_source_sha256": "e57259a2e6a603b310a7c45476be1a7a916d7eb1cde4de1f65e3b0bb186a044a"
+    "rebuilt_source_sha256": "4a9f665d45bf07acd6d1c87c7bca2e842223b15eb214656572e8ddf01a92aa9e",
+    "deleted": false
   },
   {
     "module": "scim-bim-core",
@@ -72788,9 +72798,11 @@
       "Line 224: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast",
       "Line 174: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast",
       "Line 148: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast",
-      "Line 128: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast"
+      "Line 128: new LambdaQueryWrapper() -> new LambdaQueryWrapper<BimModelCommonDO>(); evidence adjacent typed Wrapper cast",
+      "Build the existing BIM single-model workflow: signed conversion callbacks, committed uploads, file-version element matching and progress."
     ],
-    "rebuilt_source_sha256": "74f06bbd6de9cf0f1227576fe6d1efbb64f5307ee812bada04e954ef8d026370"
+    "rebuilt_source_sha256": "fe4cc5cedc8600cbfb99e35e09450dbcd128e55b47374dae1f3d550cde26040e",
+    "deleted": false
   },
   {
     "module": "scim-rest",
@@ -82162,6 +82174,17 @@
     ],
     "original_source_sha256": null,
     "rebuilt_source_sha256": "11fa312ad073f993b19dbeac743593108165f26d2c376d1a80f4e15786165036",
+    "deleted": false
+  },
+  {
+    "module": "scim-bim-core",
+    "path": "com/hzchum/scim/bim/core/biz/impl/BimMonomerElementService.java",
+    "origin": "new-development",
+    "adjustments": [
+      "Build the existing BIM single-model workflow: signed conversion callbacks, committed uploads, file-version element matching and progress."
+    ],
+    "original_source_sha256": null,
+    "rebuilt_source_sha256": "78f7c9efe7ac5617f0069b4387fc3d3779d2c6db6186deee0e7637a0a86d40d4",
     "deleted": false
   }
 ]

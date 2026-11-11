@@ -15,7 +15,7 @@ spec.loader.exec_module(p)
 class PreparationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.area = Path(self.temp.name)
+        self.area = Path(self.temp.name).resolve()
         self.item = {'id': 'I01', 'name': 'fixture', 'material_file': 'I01/contract.json',
                      'environment': [{'name': 'LJAPS_TEST_SECRET', 'type': 'secret', 'spring_property': 'test.secret'}],
                      'required_materials': ['Exact test contract'], 'code_blockers': [],

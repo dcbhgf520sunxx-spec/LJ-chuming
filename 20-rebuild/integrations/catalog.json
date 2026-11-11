@@ -99,7 +99,13 @@
       "name": "BIM / 模型转换引擎",
       "group": "核心业务",
       "source_files": [
-        "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java"
+        "backend/app/src/main/java/com/ljaps/rebuild/auth/AuthFilter.java",
+        "backend/modules/scim-rest/src/main/java/com/hzchum/scim/rest/controller/bim/BimModelController.java",
+        "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/service/BimModelCommonServiceImpl.java",
+        "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/biz/impl/BimMonomerElementService.java",
+        "backend/modules/scim-bim-core/src/main/java/com/hzchum/scim/bim/core/biz/impl/BimModelBizImpl.java",
+        "frontend-recovered/src/modules/bimfaceAPI-c2661893.js",
+        "frontend-recovered/src/modules/bim-model-view-dbf77a11.js"
       ],
       "environment": [
         {
@@ -122,8 +128,14 @@
           "required": true
         },
         {
+          "name": "LJAPS_BIM_PROJECT_ID",
+          "spring_property": "engine.projectId",
+          "type": "text",
+          "required": true
+        },
+        {
           "name": "LJAPS_CALLBACK_BASE_URL",
-          "spring_property": "chum.config.url",
+          "spring_property": "engine.translateCallbackBaseUrl",
           "type": "https-url",
           "required": true
         },
@@ -152,16 +164,15 @@
         "SDK/引擎版本、配额及回调域名白名单",
         "浏览器SDK/模型资源域名清单"
       ],
-      "code_blockers": [
-        "BIM转换/集成回调也经过现平台token过滤器；需验证回调token与Redis状态后建立精确适配，不能匿名开放整段模型API。"
-      ],
+      "code_blockers": [],
       "discovery_review_complete": true,
-      "local_preparation": "prepared-with-specific-code-blockers",
+      "local_preparation": "single-monomer-implemented-awaiting-real-bimface-verification",
       "real_test_status": "not-started",
       "discovery": {
         "file": "integrations/discovery/bim-bochu.json",
         "sha256": "feee93e59f9136ee0a705c9b1badb4b21268a6a86429d9a5caba3009a006a9dc"
-      }
+      },
+      "verification_scope": "建筑单体直传、转换轮询及回调、构件定位/详情和三类业务进度着色。区域集成和桥梁沿用既有路径，需按各自范围单列验收。"
     },
     {
       "id": "I04",

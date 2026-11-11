@@ -47,3 +47,7 @@ await import('./verify-transaction-business-type.mjs');
 await import('./verify-print-header-column-allocation.mjs');
 
 await import('./verify-print-text-identifiers.mjs');
+
+await import('./verify-bim-viewer.mjs');
+await import('./verify-ifc-progress.mjs');
+await import('./verify-ifc-navigation.mjs');

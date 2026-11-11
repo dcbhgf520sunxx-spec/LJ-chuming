@@ -1,3 +1,5 @@
+import "./replica-edition.css";
+
 async function start() {
   const response = await fetch("/api/user/public-key", { cache: "no-store" });
   const envelope = await response.json();

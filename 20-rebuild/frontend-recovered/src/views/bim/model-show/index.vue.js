@@ -1,7 +1,7 @@
 import { m as N, o as V, q as g, r as j } from "../../../shared/runtime.js";
 import { b } from "../../../modules/bim-model-view-dbf77a11.js";
 import { ref as r } from "vue";
-import { computed as y } from "vue";
+import { computed as y, watch } from "vue";
 import { resolveComponent as k } from "vue";
 import { openBlock as i } from "vue";
 import { createElementBlock as M } from "vue";
@@ -21,16 +21,24 @@ const H = { class: "app-container" }, P = { class: "head-container", style: { "m
     var e, t;
     return (t = (e = n.value) == null ? void 0 : e.getOption(o.value.monomerId)) == null ? void 0 : t.name;
   }), s = r([]), d = r();
+  watch(() => p.value, () => {
+    o.value = {};
+    s.value = [];
+    d.value = undefined;
+  });
+  function changeMonomer(id) {
+    if (o.value.monomerId !== id) o.value = { monomerId: id };
+  }
   function _(e) {
     s.value = e || [];
   }
-  function h({ bimConfig: e }) {
+  function h({ bimConfig: e } = {}) {
     d.value = e == null ? void 0 : e.importMode;
   }
   return (e, t) => {
     var c;
     const x = k("common-select");
-    return i(), M("div", H, [m("div", P, [m("div", w, [m("div", A, [u(a(g), { ref_key: "monomerRef", ref: n, modelValue: o.value.monomerId, "onUpdate:modelValue": t[0] || (t[0] = (l) => o.value.monomerId = l), "project-id": a(p), default: "", placeholder: "可选择单体", class: "filter-item", style: { width: "200px" }, onGetAreaInfo: _, onGetCurrentInfo: h }, null, 8, ["modelValue", "project-id"]), d.value === a(j).INTEGRATION.V ? (i(), B(x, { key: 0, modelValue: o.value.areaId, "onUpdate:modelValue": t[1] || (t[1] = (l) => o.value.areaId = l), options: s.value, dataStructure: { key: "id", label: "name", value: "id" }, clearable: "", class: "filter-item", placeholder: "请选择区域", style: { width: "200px" } }, null, 8, ["modelValue", "options"])) : G("", true)])])]), u(a(b), { monomerId: o.value.monomerId, areaId: o.value.areaId, maxHeight: a(I), monomerName: v.value, projectName: (c = a(f)) == null ? void 0 : c.shortName }, null, 8, ["monomerId", "areaId", "maxHeight", "monomerName", "projectName"])]);
+    return i(), M("div", H, [m("div", P, [m("div", w, [m("div", A, [u(a(g), { key: a(p), ref_key: "monomerRef", ref: n, modelValue: o.value.monomerId, "onUpdate:modelValue": changeMonomer, "project-id": a(p), default: "", placeholder: "可选择单体", class: "filter-item", style: { width: "200px" }, onGetAreaInfo: _, onGetCurrentInfo: h }, null, 8, ["modelValue", "project-id"]), d.value === a(j).INTEGRATION.V ? (i(), B(x, { key: 0, modelValue: o.value.areaId, "onUpdate:modelValue": t[1] || (t[1] = (l) => o.value.areaId = l), options: s.value, dataStructure: { key: "id", label: "name", value: "id" }, clearable: "", class: "filter-item", placeholder: "请选择区域", style: { width: "200px" } }, null, 8, ["modelValue", "options"])) : G("", true)])])]), u(a(b), { monomerId: o.value.monomerId, areaId: o.value.areaId, maxHeight: a(I), monomerName: v.value, projectName: (c = a(f)) == null ? void 0 : c.shortName }, null, 8, ["monomerId", "areaId", "maxHeight", "monomerName", "projectName"])]);
   };
 } };
 export {

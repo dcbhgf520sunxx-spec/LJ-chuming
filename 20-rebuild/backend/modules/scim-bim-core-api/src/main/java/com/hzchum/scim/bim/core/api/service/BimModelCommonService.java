@@ -20,7 +20,7 @@ public interface BimModelCommonService extends IService<BimModelCommonDO> {
 
    ResultVO newUploadModel(MultipartFile file, Long monomerId, Long areaId, PlanApproveCacheObjectDTOParam cacheObjectDTOParam);
 
-   void setTranslateStatusCallback(Long modelId, String token);
+   boolean setTranslateStatusCallback(Long modelId, String token, Long fileId, String status, String nonce, String signature);
 
    BimEngineStatusResponseVO getTranslate(Long monomerId, Long areaId);
 

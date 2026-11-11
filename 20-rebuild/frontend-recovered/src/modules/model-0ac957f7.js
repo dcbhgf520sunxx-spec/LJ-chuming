@@ -20,11 +20,11 @@ function d({ monomerId: t }) {
 function s(t) {
   return a({ url: "api/model/configure", method: "put", data: t });
 }
-function g(t) {
-  return a({ url: "api/model/3DModel/integrate", method: "get", params: { projectId: t } });
+function g(t, signal) {
+  return a({ url: "api/model/3DModel/integrate", method: "get", params: { projectId: t }, signal });
 }
-function p(t, e) {
-  return a({ url: "api/model/3DModel/translate", method: "get", params: { monomerId: t, areaId: e } });
+function p(t, e, signal) {
+  return a({ url: "api/model/3DModel/translate", method: "get", params: { monomerId: t, areaId: e }, signal });
 }
 function c({ fileId: t, menuBar: e }) {
   return a({ url: "api/model/3DModel/artifact/status", method: "get", timeout: 6e5, params: { fileId: t, menuBar: e } });

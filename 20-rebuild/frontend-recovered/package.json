@@ -32,7 +32,9 @@
     "vxe-table": "4.13.50",
     "vxe-pc-ui": "4.6.41",
     "@vxe-ui/core": "4.1.5",
-    "xe-utils": "3.7.4"
+    "xe-utils": "3.7.4",
+    "three": "0.187.0",
+    "meshoptimizer": "1.3.0"
   },
   "devDependencies": {
     "vite": "7.3.1",

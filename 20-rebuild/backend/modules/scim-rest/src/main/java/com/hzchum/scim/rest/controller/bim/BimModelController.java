@@ -24,8 +24,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,13 +89,30 @@ public class BimModelController {
    }
 
    @ApiOperation("回调bim模型转化状态")
-   @ApiImplicitParams(
-      {@ApiImplicitParam(name = "modelId", value = "模型id", paramType = "query"), @ApiImplicitParam(name = "token", value = "回到token", paramType = "query")}
-   )
    @GetMapping("/translate/status/callback")
-   public void setTranslateStatusCallback(@RequestParam Long modelId, @RequestParam String token) {
-      log.info("API 调用 ： 回调bim模型模型转化状态");
-      this.bimModelCommonService.setTranslateStatusCallback(modelId, token);
+   public ResponseEntity<Void> setTranslateStatusCallback(
+      @RequestParam(name = "modelId", required = false) String modelId,
+      @RequestParam(name = "token", required = false) String token,
+      @RequestParam(name = "fileId", required = false) String fileId,
+      @RequestParam(name = "status", required = false) String status,
+      @RequestParam(name = "nonce", required = false) String nonce,
+      @RequestParam(name = "signature", required = false) String signature
+   ) {
+      if (StringUtils.isAnyBlank(modelId, token, fileId, status, nonce, signature)) {
+         return ResponseEntity.badRequest().build();
+      }
+
+      try {
+         Long parsedModelId = Long.valueOf(modelId);
+         Long parsedFileId = Long.valueOf(fileId);
+         boolean accepted = this.bimModelCommonService.setTranslateStatusCallback(parsedModelId, token, parsedFileId, status, nonce, signature);
+         return ResponseEntity.status(accepted ? HttpStatus.OK : HttpStatus.FORBIDDEN).build();
+      } catch (NumberFormatException e) {
+         return ResponseEntity.badRequest().build();
+      } catch (RuntimeException e) {
+         log.warn("BIMFACE转换回调处理暂不可用，异常类型 {}", e.getClass().getSimpleName());
+         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+      }
    }
 
    @ApiOperation("获取模型转换状态")

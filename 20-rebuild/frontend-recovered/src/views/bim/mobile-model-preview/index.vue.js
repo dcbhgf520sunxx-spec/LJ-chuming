@@ -29,7 +29,7 @@ const F = { __name: "index", setup(k) {
     var a, o, u;
     if (n.value) (a = l.value) == null || a.clearIsolation();
     else {
-      const t = (o = l.value) == null ? void 0 : o.previewSNElementIds.value;
+      const t = (o = l.value) == null ? void 0 : o.previewSNElementIds;
       if (!t || !(t != null && t.length)) return;
       (u = l.value) == null || u.isolateComponentsById(t);
     }

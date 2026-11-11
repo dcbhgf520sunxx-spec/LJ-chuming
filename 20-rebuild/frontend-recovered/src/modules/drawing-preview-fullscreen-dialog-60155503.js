@@ -29,6 +29,7 @@ import { normalizeClass as ce } from "vue";
 import { ElDialog as ue } from "element-plus";
 import { Loading as de } from "@element-plus/icons-vue";
 import { ElIcon as pe } from "element-plus";
+import { X as getToken } from "../shared/runtime.js";
 import { _ as ve, n as fe, a4 as me, a5 as ge, a6 as we, i as ye, a7 as _e, u as Se, b as Te, a as O } from "../shared/runtime.js";
 import { i as ke, h as be, j as De, k as Ee, l as Ve } from "./bimfaceAPI-c2661893.js";
 import { g as Ne } from "./model-0ac957f7.js";
@@ -83,7 +84,7 @@ const Ce = { class: "drawing-container" }, Ie = ["id"], he = { __name: "bim-draw
     return u(), D("div", Ce, [i.value !== s.SUCCESS.V && f(m) ? (u(), j(c, { key: 0, type: (y = s.V[i.value]) == null ? void 0 : y.T, style: ee(f(m) ? "margin-left: 10px;margin-top: 10px;" : "") }, { default: F(() => [W($(s.VL[i.value]) + " " + $(t.value.reason), 1)]), _: 1 }, 8, ["type", "style"])) : i.value === s.SUCCESS.V ? (u(), D("div", { key: 1, id: `drawingView${f(p)}`, class: "drawingView" }, null, 8, Ie)) : z("", true)]);
   };
 } }, Le = ve(he, [["__scopeId", "data-v-8a0adedb"]]), Re = { id: "pdfBox", ref: "pdfBox", class: "pdf-box" }, xe = { __name: "pdf-view", emits: ["changeFileLoading"], setup(E, { expose: U, emit: s }) {
-  const t = s, _ = v("productId"), e = v("productType"), o = v("projectType"), i = v("serialNumber"), V = v("monomerId"), L = v("multipleDrawing"), m = v("drawingSN"), p = "/assets", N = d(), g = d(1), C = d(0);
+  const t = s, _ = v("productId"), e = v("productType"), o = v("projectType"), i = v("serialNumber"), V = v("monomerId"), L = v("multipleDrawing"), m = v("drawingSN"), p = "/assets", N = d(), g = d(1), C = d(0), errorMessage = d("");
   function R(l) {
     t("changeFileLoading", l);
   }
@@ -91,19 +92,30 @@ const Ce = { class: "drawing-container" }, Ie = ["id"], he = { __name: "bim-draw
     K({ title: "加载图纸失败，请确认是否已上传该编号图纸", type: "error", duration: 3e3 }), console.error(l);
   }
   async function P() {
+    errorMessage.value = "";
     const l = document.getElementById("pdfBox");
     l && (l.scrollTop = 0);
     try {
       R(true);
       const k = { productId: _.value, productType: e.value, projectType: o.value, serialNumber: i == null ? void 0 : i.value, monomerId: V == null ? void 0 : V.value };
-      L.value && ye(m.value) && (k.number = m.value);
-      const a = await _e(k);
+      L.value && m.value != null && m.value !== "" && (k.number = m.value);
+      const params = new URLSearchParams(Object.entries(k).filter(([, value]) => value != null));
+      const response = await fetch("/api/plan/drawing/product?" + params, {
+        headers: { Authorization: getToken() || "" }
+      });
+      if (!response.ok) throw new Error("图纸请求失败");
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        const result = await response.json();
+        throw new Error(result.message || "图纸不存在");
+      }
+      const a = { headers: { "content-disposition": response.headers.get("content-disposition") }, data: await response.blob() };
       if (a.headers["content-disposition"]) {
         const B = a.headers["content-disposition"].split("=")[1].split(".");
         if (B[B.length - 1] !== "pdf") throw new Error("非.pdf格式");
       } else throw new Error("获取文件格式失败");
       N.value = await w(a);
     } catch (k) {
+      errorMessage.value = "图纸文件无法读取：" + (k.message || "请求失败") + "。请确认图纸文件已恢复后重试。";
       console.log("获取图纸", k), K({ title: "获取图纸失败", type: "error", duration: 2e3 }), N.value = null;
     } finally {
       R(false);
@@ -139,7 +151,7 @@ const Ce = { class: "drawing-container" }, Ie = ["id"], he = { __name: "bim-draw
   function n(l) {
     g.value = l;
   }
-  return U({ fetchDrawing: P, reset: T, setScale: n, scaleZoom: r, scaleZoomOut: c, clockwiseRotate: y, counterclockwiseRotate: A }), (l, k) => (u(), D("div", Re, [N.value ? (u(), j(f(we), { key: 0, url: N.value, scale: g.value, rotation: C.value, onPdfError: x, type: "canvas", watermarkImage: f(ge), watermarkOptions: { x: 0.88, y: 0.33, widthPercent: 0.09, opacity: 1 }, pdfjsDistPath: p }, null, 8, ["url", "scale", "rotation", "watermarkImage"])) : z("", true)], 512));
+  return U({ fetchDrawing: P, reset: T, setScale: n, scaleZoom: r, scaleZoomOut: c, clockwiseRotate: y, counterclockwiseRotate: A }), (l, k) => (u(), D("div", Re, [N.value ? (u(), j(f(we), { key: 0, url: N.value, scale: g.value, rotation: C.value, onPdfError: x, type: "canvas", watermarkImage: f(ge), watermarkOptions: { x: 0.88, y: 0.33, widthPercent: 0.09, opacity: 1 }, pdfjsDistPath: p }, null, 8, ["url", "scale", "rotation", "watermarkImage"])) : errorMessage.value ? (u(), D("p", { key: 1, role: "alert", style: "padding:24px;text-align:center;color:#fff" }, errorMessage.value, 1)) : z("", true)], 512));
 } };
 const Be = { class: "root-content" }, Oe = { class: "operate-content" }, Ue = { key: 0, class: "operate-left" }, Pe = { key: 1, class: "operate-left" }, Ae = { class: "quick-operation" }, Fe = { key: 0, class: "load-box" }, Ze = { __name: "drawing-preview-fullscreen-dialog", props: { modelValue: { type: Boolean, default: false }, boolBim: { type: Boolean, default: false }, drawingSN: { type: [String, Array] }, curDrawingSN: { type: [String, Number] }, serialNumber: { type: String, default: void 0 }, monomerId: { type: [Number, String], default: void 0 }, productId: { type: Number, default: void 0 }, productType: { type: Number, default: void 0 }, projectType: { type: Number, default: void 0 } }, emits: ["update:modelValue"], setup(E, { emit: U }) {
   const s = U, t = E;
@@ -149,7 +161,7 @@ const Be = { class: "root-content" }, Oe = { class: "operate-content" }, Ue = { 
     return Array.isArray(t.drawingSN) && ((T = t.drawingSN) == null ? void 0 : T.length);
   });
   I("multipleDrawing", g), I("drawingSN", p), ae(() => p.value, () => {
-    Te(p.value) || (V.value = 1, L.value = 1, q(() => {
+    (p.value == null || p.value === "") || (V.value = 1, L.value = 1, q(() => {
       o.value.fetchDrawing(), o.value.reset();
     }));
   });

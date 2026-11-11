@@ -2,9 +2,9 @@
 
 用户顺序：全部准备完备后再统一测试。本目录覆盖现有清单 I01—I17。当前只做源码、配置、部署与资料准备；没有发出真实审批、消息、上传/删除、组织同步、回调注册或硬件打印。
 
-`catalog.json` 逐项列出环境变量、实际消费属性、资料和明确代码阻塞。`discovery/` 保存静态调用链依据；静态代码、协议模拟与真实接通分开记录。原 app90/web93 本地服务保持运行，新源码尚未替换运行制品。
+`catalog.json` 逐项列出环境变量、实际消费属性、资料和代码边界。`discovery/` 保存静态调用链依据。配置准备、协议模拟与真实接通分别记录。
 
-运维一次性交付材料见`运维资料清单.md`；待执行的成功、异常和清理场景见`统一测试清单.md`。当前17项均缺已审核测试资料，10项仍有代码/协议边界，真实测试就绪为0项。
+运维一次性交付材料见`运维资料清单.md`。待执行的成功、异常和清理场景见`统一测试清单.md`。当前准备状态使用 `prepare.py status` 读取。
 
 ## 资料如何交付
 
@@ -46,6 +46,40 @@ python3 integrations/prepare.py render --integrations I03 --output integrations/
 
 后续真实测试另需单独准备受控出口、回调域名/TLS/代理及白名单。现有Docker后端仍在内部网络，生成配置不能代替网络开通。不要直接重放旧外部Runner；其中包含删除/注册回调、创建模板、同步和旧迁移。
 
+## BIM 单体模型的验收配置
+
+单体直传使用现有「模型文件管理」配置与上传，从「模型展示」加载并按构件号定位。构件匹配沿用单体配置中的 Tekla 版本。生产、发运和安装沿用现有业务记录和状态口径。
+
+模型文件管理会刷新上传与转换状态。上传挂起超过两小时，或转换超过二十四小时且对端仍无明确结果时，查询会结束挂起状态以便重新提交。进度页面标明模型着色和业务汇总各自采用的生产口径。
+
+后端以私有配置传入 `LJAPS_BIM_ENABLED=true`、`LJAPS_BIM_APP_KEY`、`LJAPS_BIM_APP_SECRET`、`LJAPS_BIM_PROJECT_ID` 和 `LJAPS_CALLBACK_BASE_URL`。项目标识来自 BIMFACE 应用的上传目标。单体转换回调基址映射到 `engine.translateCallbackBaseUrl`，系统附件等链接继续使用 `chum.config.url`。私有化部署按实际地址填写 `LJAPS_BIM_API_HOST`、`LJAPS_BIM_FILE_HOST`、`LJAPS_BIM_BDFS_HOST`，使用目录中的 Spring 属性映射。测试容器需能访问这些服务，BIMFACE 需能访问回调基址下的 `GET /api/model/3DModel/translate/status/callback`。反向代理保留查询参数并避免把该请求的查询串写入访问日志。
+
+浏览器使用同一个已审核策略文件。下例中的域名是配置占位，需填对端实际地址和浏览器来源。`sdk_version` 使用该部署提供的版本。浏览器只读取这些公开访问地址和模型临时凭证，应用密钥由后端使用。
+
+```json
+{
+  "schema": 1,
+  "approved": true,
+  "integration_ids": ["I03"],
+  "directives": {
+    "script-src": ["https://sdk.example.invalid"],
+    "connect-src": ["https://sdk.example.invalid", "https://api.example.invalid", "https://model.example.invalid"],
+    "style-src": ["https://sdk.example.invalid"],
+    "img-src": ["https://sdk.example.invalid", "https://model.example.invalid"],
+    "worker-src": ["https://sdk.example.invalid"]
+  },
+  "bim_viewer": {
+    "sdk_loader_url": "https://sdk.example.invalid/BimfaceSDKLoader.js",
+    "api_url": "https://api.example.invalid/bimface",
+    "static_url": "https://sdk.example.invalid/static/api",
+    "resource_url": "https://model.example.invalid/resource",
+    "sdk_version": "3.6.295"
+  }
+}
+```
+
+在 `frontend-recovered` 中设置 `LJAPS_INTEGRATION_BROWSER_POLICY` 为策略文件的绝对路径后执行 `npm run build`。把该前端与候选后端一起部署到验收环境。模型文件与业务数据在验收时从正常业务入口提供，构建不需要预先导入工程案例。
+
 ## 浏览器与客户端
 
 当前网页只允许同源资源，普通构建保持此行为。BIM SDK/模型服务、实际嵌入外链或本机打印需要准确的资源来源：复制 `browser-policy.example.json` 到 private，按真实部署列出HTTPS/WSS来源，审核后显式设置 approved=true。只有 I17 可声明本机HTTP/WS打印来源；不接受通配符、带账号/查询参数的来源或全网放行。
@@ -56,7 +90,7 @@ python3 integrations/prepare.py render --integrations I03 --output integrations/
 
 ## 仍需先解决的代码/协议边界
 
-- OA、BIM、钉钉回调和微信匿名入口会经过当前平台JWT过滤器。必须按真实令牌/签名协议做精确适配，不能开放整段API。
+- OA、钉钉回调和微信匿名入口仍需按各自协议适配。BIM 单体转换仅对指定 GET 回调委托 BIMFACE 签名和任务凭证校验，其他接口沿用平台认证。
 - 微信历史令牌缺当前的jti/uid/pwdv，不能用“登录接口返回成功”替代可用会话；验证码和绑定关系需实际契约。
 - 柏楚遗留分支的固定Orgcode及WS/Pulsar部署方式要确认；26处集中签名不代表所有主动/被动事件都已接通。
 - WMS Webhook保留原`@all`和固定agentid，真实测试前须确认机器人/应用协议及隔离接收范围。

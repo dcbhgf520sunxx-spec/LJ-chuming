@@ -1,6 +1,7 @@
 package com.ljaps.rebuild.auth;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
@@ -61,7 +62,26 @@ public final class AuthContractProbe {
             service.logout(token); reject(() -> service.authenticate(token), "logout revokes token");
             AuthService restarted = new AuthService(db, pem.toString(), String.join("", Collections.nCopies(64, "x")), 3600, "mes", "artifact,auxiliary_material", "building,enclosure,bridge,grid", "1");
             reject(() -> restarted.authenticate(token), "logout remains revoked after service restart");
-            System.out.println("AuthContractProbe: 21 synthetic checks passed");
+            Path previewDirectory = Files.createTempDirectory("ljaps-preview-logout");
+            try {
+                restarted.configurePreviewRevocations(previewDirectory.toString());
+                reject(() -> restarted.authenticate(token), "preview honors existing SQL revocations");
+                String previewToken = (String) restarted.login("testuser", encrypted).get("token");
+                int before = db.revoked.size();
+                restarted.logout(previewToken);
+                check(db.revoked.size() == before, "preview logout performs no SQL mutation");
+                reject(() -> restarted.authenticate(previewToken), "preview logout revokes token");
+                AuthService previewRestarted = new AuthService(db, pem.toString(), String.join("", Collections.nCopies(64, "x")), 3600,
+                    "mes", "artifact,auxiliary_material", "building,enclosure,bridge,grid", "1");
+                previewRestarted.configurePreviewRevocations(previewDirectory.toString());
+                reject(() -> previewRestarted.authenticate(previewToken), "preview revocation survives service restart");
+            } finally {
+                try (DirectoryStream<Path> entries = Files.newDirectoryStream(previewDirectory)) {
+                    for (Path entry : entries) Files.delete(entry);
+                }
+                Files.delete(previewDirectory);
+            }
+            System.out.println("AuthContractProbe: SQL and preview session checks passed");
         } finally { Files.deleteIfExists(pem); }
     }
     static void check(boolean value, String message) { if(!value) throw new AssertionError(message); }

@@ -35,6 +35,7 @@ import com.hzchum.scim.bim.core.api.pojo.vo.BimBridgeProductMeteGroupVO;
 import com.hzchum.scim.bim.core.api.pojo.vo.BimProductMeteGroupVO;
 import com.hzchum.scim.bim.core.api.service.BimModelCommonService;
 import com.hzchum.scim.bim.core.api.service.BimModelConfigurationService;
+import com.hzchum.scim.common.core.api.pojo.common.NameInfo;
 import com.hzchum.scim.common.core.api.pojo.vo.BimArtifactStatusDetailVO;
 import com.hzchum.scim.common.core.api.pojo.vo.BimLogisticsLinkVO;
 import com.hzchum.scim.common.core.api.pojo.vo.BimLogisticsVO;
@@ -82,6 +83,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +109,8 @@ public class BimModelBizImpl implements BimModelBiz {
    private ContractProjectService contractProjectService;
    @Resource
    private BimModelCommonService bimModelCommonService;
+   @Resource
+   private BimMonomerElementService bimMonomerElementService;
    @Resource
    private BimfaceClient bimfaceClient;
    @Resource
@@ -320,14 +324,12 @@ public class BimModelBizImpl implements BimModelBiz {
       ContractProject project = this.contractProjectService.getById(bimModelCommonDO.getProjectId());
       Preconditions.checkArgument(project != null, "项目不存在");
       Preconditions.checkArgument(BimMenuBarEnum.isExist(menuBar), "子菜单类型不存在");
+      if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())) {
+         return this.getMonomerArtifactStatus(bimModelCommonDO, menuBar);
+      }
       BimModelConfigurationDO configurationDO = this.bimModelConfigurationService
          .getOne((Wrapper<BimModelConfigurationDO>)new LambdaQueryWrapper<BimModelConfigurationDO>().eq(BimModelConfigurationDO::getMonomerId, bimModelCommonDO.getMonomerId()));
       Map<String, BimArtifactRecordResponseVO> artifactMap = null;
-      if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())) {
-         Preconditions.checkArgument(BimModelTypeEnum.FILETYPE.getName().equals(bimModelCommonDO.getModelType()), "模型类型错误!!!");
-         Preconditions.checkArgument(bimModelCommonDO.getAreaId() == null, "模型类型错误!!!");
-         artifactMap = this.buildArtifactMap(bimModelCommonDO.getMonomerId(), null);
-      }
 
       if (BimImportModeEnum.INTEGRATION_MODE.getType().equals(bimModelCommonDO.getImportMode())) {
          if (BimModelTypeEnum.FILETYPE.getName().equals(bimModelCommonDO.getModelType())) {
@@ -501,6 +503,45 @@ public class BimModelBizImpl implements BimModelBiz {
 
       this.setNoListByMenuBar(menuBar, elementIdsV2, responseVOMap);
       return responseVOMap;
+   }
+
+   private Map<String, List<String>> getMonomerArtifactStatus(BimModelCommonDO model, Integer menuBar) {
+      Integer edition = this.getMonomerEdition(model);
+      Set<String> viewerIds = this.bimMonomerElementService.getViewerElementIds(model);
+      Map<String, List<String>> groups = new HashMap<>();
+      groups.put(BimStatusEnum.ALL.getType().toString(), new ArrayList<>(viewerIds));
+      Map<String, String> statusByElement = new HashMap<>();
+      Set<String> ambiguous = new HashSet<>();
+      if (!viewerIds.isEmpty()) {
+         this.buildArtifactMap(model.getMonomerId(), null, true).forEach((serialNumber, record) -> {
+            String status = this.getType(record, menuBar).getType().toString();
+            for (String id : this.bimMonomerElementService.getElementIds(model, edition, serialNumber, viewerIds)) {
+               if (statusByElement.putIfAbsent(id, status) != null) {
+                  ambiguous.add(id);
+               }
+            }
+         });
+      }
+
+      if (!ambiguous.isEmpty()) {
+         log.warn("BIM 单体模型 {} 中有 {} 个元件关联到多个构件编号", model.getFileId(), ambiguous.size());
+      }
+      ambiguous.forEach(statusByElement::remove);
+      statusByElement.forEach((id, status) -> groups.computeIfAbsent(status, key -> new ArrayList<>()).add(id));
+      if (BimMenuBarEnum.COMPONENT_TREE.getType().equals(menuBar)) {
+         Set<String> unmatched = new LinkedHashSet<>(viewerIds);
+         unmatched.removeAll(statusByElement.keySet());
+         groups.put(BimStatusEnum.NO_LIST.getType().toString(), new ArrayList<>(unmatched));
+      }
+      return groups;
+   }
+
+   private Integer getMonomerEdition(BimModelCommonDO model) {
+      BimModelConfigurationDO configuration = this.bimModelConfigurationService.getOne(
+         new LambdaQueryWrapper<BimModelConfigurationDO>().eq(BimModelConfigurationDO::getMonomerId, model.getMonomerId()));
+      Preconditions.checkArgument(configuration != null && configuration.getEdition() != null
+         && BimTeklaEditionEnum.isExist(configuration.getEdition()), "单体模型缺少有效的 Tekla 版本配置");
+      return configuration.getEdition();
    }
 
    @Override
@@ -721,6 +762,10 @@ public class BimModelBizImpl implements BimModelBiz {
    }
 
    private Map<String, BimArtifactRecordResponseVO> buildArtifactMap(Long monomerId, List<Long> areaIds) {
+      return this.buildArtifactMap(monomerId, areaIds, false);
+   }
+
+   private Map<String, BimArtifactRecordResponseVO> buildArtifactMap(Long monomerId, List<Long> areaIds, boolean monomerProgress) {
       Map<String, BimArtifactRecordResponseVO> resultMap = new HashMap<>();
       List<TechArtifact> techArtifacts = this.techArtifactService
          .list(
@@ -812,6 +857,9 @@ public class BimModelBizImpl implements BimModelBiz {
          techArtifacts.forEach(
             techArtifact -> {
                Integer quantity = techArtifact.getQuantity();
+               if (monomerProgress && (quantity == null || quantity <= 0 || StrUtil.isBlank(techArtifact.getSerialNumber()))) {
+                  return;
+               }
                Integer inProductionQuantity = producedQuantityMap.get(techArtifact.getId()) == null
                   ? 0
                   : producedQuantityMap.get(techArtifact.getId())
@@ -849,7 +897,7 @@ public class BimModelBizImpl implements BimModelBiz {
                   record.setInboundQuantity(record.getInboundQuantity() + inboundQuantity);
                   record.setOutboundQuantity(record.getOutboundQuantity() + outboundQuantity);
                   record.setInstallationQuantity(record.getInstallationQuantity() + installationQuantity);
-                  record.setReceiptQuantity(record.getReceiptQuantity() + installationQuantity);
+                  record.setReceiptQuantity(record.getReceiptQuantity() + (monomerProgress ? receivingQuantity : installationQuantity));
                }
 
                resultMap.put(techArtifact.getSerialNumber(), record);
@@ -1140,6 +1188,8 @@ public class BimModelBizImpl implements BimModelBiz {
       }
 
       if (CollectionUtils.isNotEmpty(techArtifactList)) {
+         Integer edition = BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
+            ? this.getMonomerEdition(bimModelCommonDO) : null;
          Map<Long, List<TechArtifact>> artifactMap = techArtifactList.stream()
             .collect(Collectors.toMap(TechArtifact::getAreaId, y -> new ArrayList<>(Collections.singleton((TechArtifact)y)), (oldList, newList) -> {
                oldList.addAll(newList);
@@ -1159,8 +1209,9 @@ public class BimModelBizImpl implements BimModelBiz {
                   techArtifacts.forEach(
                      artifact -> {
                         List<String> elementIds = null;
-                        if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
-                           || BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
+                        if (edition != null) {
+                           elementIds = this.bimMonomerElementService.getCachedElementIds(bimModelCommonDO, edition, artifact.getSerialNumber());
+                        } else if (BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
                            elementIds = Convert.toList(
                               String.class, this.redisUtils.hget("MONOMER_MODEL:" + bimModelCommonDO.getMonomerId(), artifact.getSerialNumber())
                            );
@@ -1323,6 +1374,9 @@ public class BimModelBizImpl implements BimModelBiz {
          .getOne((Wrapper<BimModelCommonDO>)new LambdaQueryWrapper<BimModelCommonDO>().eq(BimModelCommonDO::getFileId, fileId));
       Preconditions.checkArgument(bimModelCommonDO != null, "bim文件不存在");
       Preconditions.checkArgument(BimMenuBarEnum.isExist(menuBar), "子菜单类型不存在");
+      if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())) {
+         return this.getMonomerArtifactInfo(bimModelCommonDO, elementId, menuBar);
+      }
       BimArtifactVO result = null;
 
       try {
@@ -1381,6 +1435,72 @@ public class BimModelBizImpl implements BimModelBiz {
 
       this.setResult(result, menuBar, bimModelCommonDO.getImportMode());
       return result;
+   }
+
+   private BimArtifactVO getMonomerArtifactInfo(BimModelCommonDO model, String elementId, Integer menuBar) {
+      Set<String> viewerIds = this.bimMonomerElementService.getViewerElementIds(model);
+      if (!viewerIds.contains(elementId)) {
+         return null;
+      }
+      String serialNumber = this.getMonomerAssemblyMark(model.getFileId(), elementId);
+      if (serialNumber == null || !this.bimMonomerElementService
+         .getElementIds(model, this.getMonomerEdition(model), serialNumber, viewerIds).contains(elementId)) {
+         return null;
+      }
+
+      Long monomerId = model.getMonomerId();
+      List<TechArtifact> matches = this.techArtifactService.list(new LambdaQueryWrapper<TechArtifact>()
+         .eq(TechArtifact::getMonomerId, monomerId).eq(TechArtifact::getSerialNumber, serialNumber)).stream()
+         .filter(artifact -> monomerId.equals(artifact.getMonomerId()) && serialNumber.equals(artifact.getSerialNumber()))
+         .collect(Collectors.toList());
+      if (matches.isEmpty()) {
+         return null;
+      }
+      // The model mark supports aggregate progress, while detail actions require one actual product ID.
+      Preconditions.checkState(matches.size() == 1, "构件编号对应多条清单记录，无法确定点选构件");
+      TechArtifact artifact = matches.get(0);
+      BimArtifactVO result = BeanUtil.copy(artifact, BimArtifactVO.class);
+      NameInfo monomer = this.planMonomerService.getSimpleById(monomerId);
+      NameInfo area = artifact.getAreaId() == null ? null : this.planAreaService.getSimpleById(artifact.getAreaId());
+      result.setMonomerName(monomer == null ? null : monomer.getName());
+      result.setAreaName(area == null ? null : area.getName());
+      result.setProductType(ProductTypeEnum.ARTIFACT.getType());
+      this.setResult(result, menuBar, model.getImportMode());
+      return result;
+   }
+
+   private String getMonomerAssemblyMark(Long fileId, String elementId) {
+      Property property;
+      try {
+         property = this.bimfaceClient.getElementService().getSingleModelElementV2(fileId, elementId, true);
+      } catch (BimfaceException e) {
+         throw new IllegalStateException("BIM 元件详情暂不可用，请重试", e);
+      }
+      if (property == null) {
+         return null;
+      }
+      Preconditions.checkState(elementId.equals(property.getElementId()), "BIM 元件详情与当前点选不一致");
+      String mark = null;
+      for (PropertyGroup group : CollectionUtils.emptyIfNull(property.getProperties())) {
+         if (group == null || !matchesTeklaName(group.getGroup(), "TeklaCommon")) {
+            continue;
+         }
+         for (PropertyItem item : CollectionUtils.emptyIfNull(group.getItems())) {
+            if (item == null || !matchesTeklaName(item.getKey(), "Assemblymark") || !(item.getValue() instanceof String)) {
+               continue;
+            }
+            String value = (String)item.getValue();
+            if (StrUtil.isNotBlank(value)) {
+               Preconditions.checkState(mark == null || mark.equals(value), "BIM 元件对应多个构件编号");
+               mark = value;
+            }
+         }
+      }
+      return mark;
+   }
+
+   private static boolean matchesTeklaName(String name, String expected) {
+      return name != null && expected.equals(name.replace("_", "").replace(" ", ""));
    }
 
    @Override
@@ -1766,6 +1886,8 @@ public class BimModelBizImpl implements BimModelBiz {
          List<BimArtifactStatusDetailVO> collect = bimArtifactAsStatus.stream().filter(e -> e.getQuantity() != 0).collect(Collectors.toList());
          meteGroupVO.setBasicsVOS(collect);
          Set<String> treeSet = new TreeSet<>();
+         Integer edition = BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
+            ? this.getMonomerEdition(bimModelCommonDO) : null;
          collect.forEach(
             artifact -> {
                List<String> elementIds = null;
@@ -1774,8 +1896,9 @@ public class BimModelBizImpl implements BimModelBiz {
                   elementIds = Convert.toList(String.class, this.redisUtils.hget("AREA_MODEL:" + bimModelCommonDO.getAreaId(), artifact.getSerialNumber()));
                }
 
-               if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
-                  || BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
+               if (edition != null) {
+                  elementIds = this.bimMonomerElementService.getCachedElementIds(bimModelCommonDO, edition, artifact.getSerialNumber());
+               } else if (BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
                   elementIds = Convert.toList(
                      String.class, this.redisUtils.hget("MONOMER_MODEL:" + bimModelCommonDO.getMonomerId(), artifact.getSerialNumber())
                   );
@@ -1956,6 +2079,8 @@ public class BimModelBizImpl implements BimModelBiz {
       List<BimLogisticsVO> collect = artifactLogisticsByBim.stream()
          .filter(e -> CollectionUtils.isNotEmpty(e.getBimLogisticsLinkVOList()))
          .collect(Collectors.toList());
+      Integer edition = BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
+         ? this.getMonomerEdition(bimModelCommonDO) : null;
 
       for (BimLogisticsVO bimLogisticsVO : collect) {
          Set<String> treeSet = new TreeSet<>();
@@ -1967,8 +2092,9 @@ public class BimModelBizImpl implements BimModelBiz {
                elementIds = Convert.toList(String.class, this.redisUtils.hget("AREA_MODEL:" + bimModelCommonDO.getAreaId(), linkVO.getSerialNumber()));
             }
 
-            if (BimImportModeEnum.MONOMER_MODE.getType().equals(bimModelCommonDO.getImportMode())
-               || BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
+            if (edition != null) {
+               elementIds = this.bimMonomerElementService.getCachedElementIds(bimModelCommonDO, edition, linkVO.getSerialNumber());
+            } else if (BimModelTypeEnum.INTEGRATIONTYPE.getName().equals(bimModelCommonDO.getModelType())) {
                elementIds = Convert.toList(String.class, this.redisUtils.hget("MONOMER_MODEL:" + bimModelCommonDO.getMonomerId(), linkVO.getSerialNumber()));
             }
 

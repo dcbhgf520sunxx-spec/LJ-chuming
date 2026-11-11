@@ -19,17 +19,17 @@ import { createBlock } from "vue";
 import { unref } from "vue";
 import { createApp } from "vue";
 import { computed } from "vue";
-import { ElLoading } from "element-plus";
+import { ElMessage } from "element-plus";
 import { commonjsRequire } from "../runtime/build-helpers.mjs";
 import { browserExternal as require$$4 } from "../runtime/build-helpers.mjs";
 import { useStore } from "vuex";
 import { withCtx } from "vue";
 import { createElementVNode as createBaseVNode } from "vue";
+import { createElementBlock } from "vue";
 import { createVNode } from "vue";
 import { createTextVNode } from "vue";
 import { toDisplayString } from "vue";
 import { withDirectives } from "vue";
-import { createElementBlock } from "vue";
 import { normalizeStyle } from "vue";
 import { createCommentVNode } from "vue";
 import { Fragment } from "vue";
@@ -44,102 +44,117 @@ import { ElImage } from "element-plus";
 import { ElDialog } from "element-plus";
 import { vLoading } from "element-plus";
 import { nextTick } from "vue";
-import { reactive } from "vue";
+import { onBeforeUnmount, shallowRef } from "vue";
 import { m as bimModel, i as initBimfaceApp, g as getConfig, a as getApp, b as getViewer3DEvent, n as getPanelPositions } from "./bimfaceAPI-c2661893.js";
 import { a as getStatusDetail, b as getIntegrateStatusDetail, c as getIntegrateMonomer, d as getProjectTree, e as getArtifactStatus, f as getIntegrationArtifactStatus, h as getArtifactSearch, i as getIntegrateArtifactSearch, j as getArtifactInfo, k as getIntegrateArtifactInfo, l as getArtifactProduction, m as getIntegrateArtifactProduction, n as getLogistics, o as getIntegrateLogistics, p as getTranslate, q as getIMTranslate } from "./model-0ac957f7.js";
-import { a8 as modelMenuBarEnum, i as isNotBlank, a9 as arr2obj, p as parseTime, l as service, _ as _export_sfc, o as useMaxHeight, aa as deepenTypeEnum, ab as _sfc_main$5, ac as _sfc_main$6, ad as getDrawingNumber, a7 as previewPDF, j as store, m as mapGetters, n as constantize, ae as modelIntegrationStatusEnum, K as projectTypeEnum, a4 as modelTranslateStatusEnum, b as isBlank } from "../shared/runtime.js";
+import { a8 as modelMenuBarEnum, a9 as arr2obj, p as parseTime, l as service, _ as _export_sfc, o as useMaxHeight, aa as deepenTypeEnum, ab as _sfc_main$5, ac as _sfc_main$6, ad as getDrawingNumber, a7 as previewPDF, j as store, m as mapGetters, n as constantize, ae as modelIntegrationStatusEnum, K as projectTypeEnum, a4 as modelTranslateStatusEnum, b as isBlank } from "../shared/runtime.js";
 import { C as ColorCard } from "./index-d6a37d29.js";
 import { a as _sfc_main$4 } from "./drawing-preview-fullscreen-dialog-60155503.js";
 import { u as useChart } from "./use-chart-59e4b63c.js";
-function useMyToolbar({ menuBar: z2, bimModel: f2, viewerPanel: $2, colors: c2, publicPath: S2, isMobile: q2, createLogisticsBtn: B2, hideLogisticsBtn: Q2, clearProTreePanel: I2, fetchProTree: y2, clearArtifactInfoPanel: w, fetchArtifactInfo: k2, clearStatusInfoPanel: T2, fetchStatusInfo: C2, clearSelectedComponents: l }) {
-  const t = [{ ...modelMenuBarEnum.PROJECT_TREE, hidden: q2, clickEvent: function(a) {
-    z2.value = a, y2();
-  }, unActiveEvent: function() {
-    I2();
-  } }, { ...modelMenuBarEnum.COMPONENT_TREE, hidden: q2, clickEvent: function(a) {
-    z2.value = a;
-  }, unActiveEvent: function() {
-    w();
-  } }, { ...modelMenuBarEnum.PRODUCTION_STATE, hidden: false, clickEvent: function(a) {
-    z2.value = a, C2();
-  }, unActiveEvent: function() {
-    T2();
-  } }, { ...modelMenuBarEnum.SHIPMENT_STATUS, hidden: false, clickEvent: function(a) {
-    z2.value = a, q2 || B2(), C2();
-  }, unActiveEvent: function() {
-    q2 || Q2(), T2();
-  } }, { ...modelMenuBarEnum.INSTALL_STATE, hidden: q2, clickEvent: function(a) {
-    z2.value = a, C2();
-  }, unActiveEvent: function() {
-    T2();
-  } }];
-  watch(() => z2.value, (a, h) => {
-    isNotBlank(a) && (l(), document.querySelectorAll(`${q2 ? ".bf-toolbar-my-mobile" : ".bf-toolbar-my"}>.bf-button`).forEach((r) => {
-      r.innerText === modelMenuBarEnum.VL[a] ? r.className = "bf-button bf-button-active" : r.className = "bf-button";
-    }), c2.value = t[a - 1].COLORS), isNotBlank(h) && h !== a && t[h - 1].unActiveEvent();
-  }, { immediate: true });
-  function s() {
-    const a = f2.getToolbarConfig();
-    a.id = "MyToolbar", a.className = `bf-toolbar ${q2 ? "bf-toolbar-my-mobile" : "bf-toolbar-my"}`, a.element = document.getElementsByClassName("bf-container")[0];
-    const h = f2.createToolbar(a);
-    for (let b = 0; b < t.length; b++) {
-      const r = t[b];
-      if (r.hidden) continue;
-      const n = f2.getButtonConfig();
-      n.title = r.L;
-      const e = f2.createButton(n);
-      e.setHtml(`<div style="display:flex;flex-direction: column;justify-content: center;align-items: center;width: 70px;">
-        <img src="${S2}/bimface/${r.ICON}" height="25" width="25"/>
-        <span style="font-size:10px;">${r.L}</span>
-      </div>`), e.addEventListener("Click", () => r.clickEvent(r.V)), h.insertControl(b, e);
+function useMyToolbar({ menuBar, bimModel, colors, publicPath, isMobile, root, createLogisticsBtn, hideLogisticsBtn, clearProTreePanel, fetchProTree, clearArtifactInfoPanel, clearStatusInfoPanel, fetchStatusInfo, clearSelectedComponents, refreshColorCard }) {
+  const { PROJECT_TREE, COMPONENT_TREE, PRODUCTION_STATE, SHIPMENT_STATUS, INSTALL_STATE } = modelMenuBarEnum;
+  function activate(tab) {
+    const previous = menuBar.value;
+    menuBar.value = tab.V;
+    clearSelectedComponents();
+    clearArtifactInfoPanel();
+    if (previous === PROJECT_TREE.V && previous !== tab.V) clearProTreePanel();
+    if (previous === SHIPMENT_STATUS.V && previous !== tab.V && !isMobile) hideLogisticsBtn();
+    clearStatusInfoPanel();
+    root.value.querySelectorAll(`${isMobile ? ".bf-toolbar-my-mobile" : ".bf-toolbar-my"}>.bf-button`).forEach(button => {
+      button.classList.toggle("bf-button-active", button.innerText.trim() === tab.L);
+    });
+    colors.value = tab.COLORS;
+    refreshColorCard();
+    if (tab.V === PROJECT_TREE.V) fetchProTree();
+    if (tab.V === SHIPMENT_STATUS.V && !isMobile) createLogisticsBtn();
+    if ([PRODUCTION_STATE.V, SHIPMENT_STATUS.V, INSTALL_STATE.V].includes(tab.V)) fetchStatusInfo();
+  }
+  function createMyToolbar() {
+    const config = bimModel.getToolbarConfig();
+    config.id = "MyToolbar";
+    config.className = `bf-toolbar ${isMobile ? "bf-toolbar-my-mobile" : "bf-toolbar-my"}`;
+    config.element = root.value.querySelector(".bf-container");
+    const toolbar = bimModel.createToolbar(config);
+    const tabs = isMobile ? [PRODUCTION_STATE, SHIPMENT_STATUS] : [PROJECT_TREE, COMPONENT_TREE, PRODUCTION_STATE, SHIPMENT_STATUS, INSTALL_STATE];
+    for (const [index, tab] of tabs.entries()) {
+      const buttonConfig = bimModel.getButtonConfig();
+      buttonConfig.title = tab.L;
+      const button = bimModel.createButton(buttonConfig);
+      button.setHtml(`<div style="display:flex;flex-direction: column;justify-content: center;align-items: center;width: 70px;">
+        <img src="${publicPath}/bimface/${tab.ICON}" height="25" width="25"/>
+        <span style="font-size:10px;">${tab.L}</span>
+      </div>`);
+      button.addEventListener("Click", () => activate(tab));
+      toolbar.insertControl(index, button);
     }
   }
-  return { createMyToolbar: s, menuBar: z2 };
+  return { createMyToolbar };
 }
 const _sfc_main$3 = { __name: "bf-color-card", props: { statusChange: { type: Function }, selectAble: { type: Boolean, default: true }, colors: { type: Array, default: () => [] } }, setup(z2) {
   const f2 = ref();
+  watch(() => z2.colors, () => { f2.value = undefined; });
   return ($2, c2) => (openBlock(), createBlock(unref(ColorCard), { colors: z2.colors, value: f2.value, "onUpdate:value": c2[0] || (c2[0] = (S2) => f2.value = S2), "color-border": "", "select-able": z2.selectAble, onChange: z2.statusChange }, null, 8, ["colors", "value", "select-able", "onChange"]));
 } };
-function useColorCard({ props: z2, isMobile: f2, menuBar: $2, colors: c2, objectIdGroup: S2, bimModel: q2, viewerPanel: B2, modelStatus: Q2, searchBySN: I2, fetchArtifactStatus: y2, isolateComponentsById: w, clearIsolation: k2, hideComponentsById: T2, showComponentsById: C2, overrideComponentsColorById: l, isBridgeProject: t }) {
-  const s = ref([]), a = ref();
+function useColorCard({ props: z2, isMobile: f2, menuBar: $2, colors: c2, objectIdGroup: S2, bimModel: q2, viewerPanel: B2, modelStatus: Q2, searchBySN: I2, fetchArtifactStatus: y2, isolateComponentsById: w, clearIsolation: k2, hideComponentsById: T2, showComponentsById: C2, isBridgeProject, root }) {
+  let legendApp, legendVersion = 0, detailVersion = 0;
   async function h(d) {
-    if (!d) s.value = [], k2(), C2(S2.value[0]), m();
-    else {
-      const E = d.value;
-      let U = S2.value[E] || [];
-      console.log(U, S2.value, E, "elementIds"), U.length ? (C2(S2.value[0]), [2, 3, 4, 5, 6, 7, 10, 11, 12].indexOf(d.value) !== -1 && (await e(d), U = s.value), w(U)) : (T2(S2.value[0]), m());
+    const model = Q2.value, version = ++detailVersion;
+    const isCurrent = () => model === Q2.value && version === detailVersion;
+    k2();
+    if (S2.value[0]?.length) C2(S2.value[0]);
+    m();
+    if (!d) return;
+    let ids = S2.value[d.value] || [];
+    if (!ids.length) {
+      if (S2.value[0]?.length) T2(S2.value[0]);
+      return;
     }
+    if ([2, 3, 4, 5, 6, 7, 10, 11, 12].includes(d.value)) {
+      const detailIds = await e(d, isCurrent);
+      // Single-building groups classify each mark once. The detail panel counts individual records.
+      if (!z2.showMonomerModel || z2.areaId || isBridgeProject.value || model.modelType !== "file") ids = detailIds;
+    }
+    if (isCurrent() && ids?.length) w(ids);
   }
-  watch(() => $2.value, (d) => {
-    d && r();
-  });
   function b() {
-    a.value = createApp(_sfc_main$3, { statusChange: h, colors: [] });
-    const d = f2 ? "bfColorCardMobile" : "bfColorCard";
-    if (!document.getElementById(d)) {
-      const U = document.getElementsByClassName("bf-container")[0], tt = document.createElement("div");
-      tt.id = d, U.appendChild(tt);
-    }
-    a.value.mount(`#${d}`), n();
+    legendApp = createApp(_sfc_main$3, { statusChange: h, colors: [] });
+    const target = document.createElement("div");
+    target.id = f2 ? "bfColorCardMobile" : "bfColorCard";
+    root.value.querySelector(".bf-container").appendChild(target);
+    legendApp.mount(target);
+    n();
   }
-  function r() {
-    a.value._container._vnode.component.props.selectAble = true, a.value._container._vnode.component.props.colors = c2.value, y2($2.value);
+  async function refreshColorCard() {
+    const version = ++legendVersion;
+    ++detailVersion;
+    m();
+    const props = legendApp._container._vnode.component.props;
+    props.colors = [];
+    if (await y2($2.value) && version === legendVersion) props.colors = c2.value;
+  }
+  function destroyColorCard() {
+    ++legendVersion;
+    ++detailVersion;
+    legendApp?.unmount();
+    legendApp = undefined;
   }
   function n() {
     const d = q2.getPanelConfig();
-    d.className = "bf-panel bf-panel-color-card", d.css.width = "300px", d.css.height = "300px", d.element = document.getElementsByClassName("bf-container")[0];
+    d.className = "bf-panel bf-panel-color-card", d.css.width = "300px", d.css.height = "300px", d.element = root.value.querySelector(".bf-container");
     const E = q2.createPanel(d);
     E.isShow = false, B2.colorCard = { config: d, panel: E };
   }
-  async function e(d) {
+  async function e(d, isCurrent) {
     const E = B2.colorCard.panel;
+    const X = root.value.querySelector(".bf-panel-color-card .bf-panel-container");
+    X.textContent = "查询中…";
     E.setTitleContent(d.title + "详情"), B2.panelPositions[E._opt.className] = { left: 1200, top: 80 }, E.initPosition(), E && E.show();
     try {
       let U;
       z2.showMonomerModel ? U = await getStatusDetail({ fileId: Q2.value.fileId, status: d.value, menuBar: $2.value }) : U = await getIntegrateStatusDetail({ projectId: z2.projectId, status: d.value, menuBar: $2.value });
+      if (!isCurrent()) return;
       const { proportion: tt, quantity: H, totalGrossWeight: Z, basicsVOS: j, elementIds: V } = U;
-      s.value = V;
-      const X = document.getElementsByClassName("bf-panel-color-card")[0].getElementsByClassName("bf-panel-container")[0];
       X.innerHTML = "", X.innerHTML = `
         <div class="el-progress el-progress--line el-progress--text-inside"">
           <div class="el-progress-bar">
@@ -180,16 +195,17 @@ function useColorCard({ props: z2, isMobile: f2, menuBar: $2, colors: c2, object
           </div>
         </div>
       `, o();
-      const at = document.querySelector(".bf-panel-color-card-container .search-input"), dt = document.querySelector(".bf-panel-color-card-container .search-btn"), bt = document.querySelector(".bf-panel-color-card-container .search-content");
+      const at = root.value.querySelector(".bf-panel-color-card-container .search-input"), dt = root.value.querySelector(".bf-panel-color-card-container .search-btn"), bt = root.value.querySelector(".bf-panel-color-card-container .search-content");
       dt.onclick = () => {
         bt.innerHTML = "", bt.innerHTML = v(j, at.value), o();
-      }, console.log(at, dt);
-    } catch (U) {
-      console.log(U, "获取状态下的信息");
+      };
+      return V;
+    } catch {
+      if (isCurrent()) X.textContent = "未能加载状态详情，请重试";
     }
   }
   function o() {
-    const d = document.getElementsByClassName("bf-panel-color-li");
+    const d = root.value.querySelectorAll(".bf-panel-color-li");
     for (let E = 0; E < d.length; E++) d[E].onclick = () => {
       const U = d[E].dataset.serialNumber;
       I2(U);
@@ -200,7 +216,7 @@ function useColorCard({ props: z2, isMobile: f2, menuBar: $2, colors: c2, object
       let U = "";
       for (let tt = 0; tt < d.length; tt++) {
         const H = d[tt];
-        if (E && H.serialNumber.indexOf(E) === -1) break;
+        if (E && !H.serialNumber.includes(E)) continue;
         U += `
           <div class="bf-panel-color-li" style="cursor:pointer;" data-serial-number="${H.serialNumber}">
             <span>${H.name}</span>
@@ -217,45 +233,48 @@ function useColorCard({ props: z2, isMobile: f2, menuBar: $2, colors: c2, object
     const d = B2.colorCard.panel;
     d.isShow && d.hide();
   }
-  return { createColorCardHtml: b };
+  return { createColorCardHtml: b, refreshColorCard, destroyColorCard };
 }
-function useProjectTreePanel({ props: z2, bimModel: f2, modelStatus: $2, viewerPanel: c2, viewProAreaTree: S2, fetchWeldingProcess: q2, setSelectedComponentsByObjectData: B2, clearSelectedComponents: Q2, addBlinkByIds: I2, removeBlink: y2, getModelViewSize: w, isBridgeProject: k2 }) {
+function useProjectTreePanel({ root, props: z2, bimModel: f2, modelStatus: $2, viewerPanel: c2, viewProAreaTree: S2, fetchWeldingProcess: q2, setSelectedComponentsByObjectData: B2, clearSelectedComponents: Q2, addBlinkByIds: I2, removeBlink: y2, getModelViewSize: w, isBridgeProject: k2, searchBySN }) {
   const T2 = ref([]), C2 = ref({});
-  watch(() => z2.monomerId, () => {
-    T2.value = [];
-  }, { immediate: true });
+  let treeRequest = 0, areaSelection = 0;
   function l() {
     const e = f2.getPanelConfig();
-    e.className = "bf-panel bf-panel-pro-tree", e.title = z2.showMonomerModel ? "区域单元" : "单体单元", e.css.width = "230px", e.element = document.getElementsByClassName("bf-container")[0];
+    e.className = "bf-panel bf-panel-pro-tree", e.title = z2.showMonomerModel ? "区域单元" : "单体单元", e.css.width = "230px", e.element = root.value.querySelector(".bf-container");
     const o = f2.createPanel(e);
-    o.isShow = false, console.log(o, "_panel"), document.querySelector(".bf-panel-pro-tree .bf-close").addEventListener("click", () => {
+    o.isShow = false, console.log(o, "_panel"), root.value.querySelector(".bf-panel-pro-tree .bf-close").addEventListener("click", () => {
       const m = c2.artifactListByArea.panel;
+      ++areaSelection;
       if (m != null && m.isShow) {
         m.hide(), y2();
         const { tree: d, treeApi: E } = S2.value;
-        E.clear(d);
+        E?.clear(d);
       }
     }), t(), c2.proTree = { config: e, panel: o };
   }
   function t() {
     const e = f2.getPanelConfig();
-    e.className = "bf-panel bf-panel-artifact-list-by-area", e.title = z2.showMonomerModel ? "区域构件明细" : "单体构件明细", e.element = document.getElementsByClassName("bf-container")[0], e.css.width = "300px", e.css.height = "300px";
+    e.className = "bf-panel bf-panel-artifact-list-by-area", e.title = z2.showMonomerModel ? "区域构件明细" : "单体构件明细", e.element = root.value.querySelector(".bf-container"), e.css.width = "300px", e.css.height = "300px";
     const o = f2.createPanel(e);
     o.isShow = false, c2.artifactListByArea = { config: e, panel: o };
   }
   async function s() {
     const e = c2.proTree.panel;
-    c2.panelPositions[e._opt.className] = { left: 10, top: 90 }, e.initPosition(), e && e.show(), z2.showMonomerModel ? await h() : await a();
+    const model = $2.value, request = ++treeRequest;
+    const isCurrent = () => model === $2.value && request === treeRequest;
+    c2.panelPositions[e._opt.className] = { left: 10, top: 90 }, e.initPosition(), e.show();
+    z2.showMonomerModel ? await h(isCurrent) : await a(isCurrent);
   }
-  async function a() {
+  async function a(isCurrent) {
     const e = f2.getTreeConfig();
     e.className = "bf-tree bf-tree-monomer", e.hasCheckbox = false, e.selection = false, e.title = "单体列表";
-    const o = document.getElementsByClassName("bf-panel-pro-tree")[0].getElementsByClassName("bf-panel-container")[0];
+    const o = root.value.querySelector(".bf-panel-pro-tree .bf-panel-container");
     e.element = o, o.innerHTML = "";
     const v = f2.createTree(e);
     v.setData(-1, `${z2.projectName}`);
     try {
       const { content: m } = await getIntegrateMonomer(z2.projectId);
+      if (!isCurrent()) return;
       for (let E = 0; E < m.length; E++) {
         const U = m[E], tt = f2.getTreeConfig();
         tt.hasCheckbox = false, tt.hasExpand = false, tt.id = U.monomerId, console.log(tt, "_treeNodeConfig");
@@ -281,19 +300,20 @@ function useProjectTreePanel({ props: z2, bimModel: f2, modelStatus: $2, viewerP
         }
       }), S2.value = { config: e, tree: v, treeApi: d };
     } catch (m) {
-      console.log("集成模型获取单体信息失败", m);
+      if (isCurrent()) o.textContent = "未能加载单体列表，请重试";
     }
   }
-  async function h() {
+  async function h(isCurrent) {
     const e = f2.getTreeConfig();
     e.className = "bf-tree bf-tree-area", e.hasCheckbox = false, e.selection = false, e.title = "区域列表";
-    const o = document.getElementsByClassName("bf-panel-pro-tree")[0].getElementsByClassName("bf-panel-container")[0];
+    const o = root.value.querySelector(".bf-panel-pro-tree .bf-panel-container");
     e.element = o, o.innerHTML = "";
     const v = f2.createTree(e);
     v.setData(-1, `${z2.projectName}>${z2.monomerName}`);
     let m;
     try {
       const { content: d } = await getProjectTree($2.value.fileId);
+      if (!isCurrent()) return;
       T2.value = d;
       for (let E = 0; E < d.length; E++) {
         const U = d[E], tt = f2.getTreeConfig();
@@ -305,20 +325,28 @@ function useProjectTreePanel({ props: z2, bimModel: f2, modelStatus: $2, viewerP
         if (U) {
           b(E);
           const { elementIds: tt, fileId: H } = E.id;
-          $2.value.modelType === "file" ? I2(tt) : B2([{ fileId: String(H) }]);
+          if ($2.value.modelType === "file") {
+            y2();
+            if (tt?.length) I2(tt);
+          } else {
+            B2([{ fileId: String(H) }]);
+          }
         } else {
           const tt = c2.artifactListByArea.panel;
+          ++areaSelection;
           tt.isShow && tt.hide(), $2.value.modelType === "file" ? y2() : Q2();
         }
       }), S2.value = { config: e, tree: v, treeApi: m };
-    } catch (d) {
-      console.log(d, "获取区域");
+    } catch {
+      if (isCurrent()) o.textContent = "未能加载区域列表，请重试";
     }
   }
   function b(e) {
     const o = c2.artifactListByArea.panel, { css: v } = o._opt, m = w();
     console.log(m.width, m, v, o, "modelViewSize"), c2.panelPositions[o._opt.className] = { left: m.width - Number(v.width.slice(0, -2)), top: 0 }, o.initPosition(), o.setHeight(m.height), o && o.show();
-    const { basicsVOS: d, totalGrossWeight: E, quantity: U } = e.id, tt = e.name, H = document.querySelector(".bf-panel-artifact-list-by-area .bf-panel-container");
+    const { basicsVOS: d, totalGrossWeight: E, quantity: U } = e.id, tt = e.name, H = root.value.querySelector(".bf-panel-artifact-list-by-area .bf-panel-container");
+    const model = $2.value, selection = ++areaSelection;
+    const searchable = z2.showMonomerModel && !z2.areaId && !k2.value && model.modelType === "file";
     H.innerHTML = "";
     const Z = `
       <div class="bf-area-artifact-container">
@@ -340,21 +368,24 @@ function useProjectTreePanel({ props: z2, bimModel: f2, modelStatus: $2, viewerP
           <span>重量</span>
           <span>焊缝</span>
         </div>
-        ${r(d)}
+        ${r(d, searchable)}
       </div>
     `;
-    H.innerHTML = Z, H.addEventListener("click", (j) => {
-      const V = j.target.closest(".bfWPBtn");
-      V && q2({ productId: V.dataset.productId, monomerId: z2.monomerId, areaId: z2.areaId });
-    });
+    H.innerHTML = Z;
+    H.onclick = event => {
+      const artifact = event.target.closest(".bf-area-artifact-sn");
+      if (artifact) searchBySN(d[Number(artifact.dataset.index)].serialNumber, () => selection === areaSelection && model === $2.value);
+      const welding = event.target.closest(".bfWPBtn");
+      if (welding) q2({ productId: welding.dataset.productId, monomerId: z2.monomerId, areaId: z2.areaId });
+    };
   }
-  function r(e) {
+  function r(e, searchable) {
     let o = "";
     for (let v = 0; v < e.length; v++) {
       const m = e[v];
       o += `
         <div>
-          <span>${m.serialNumber}</span>
+          <span>${searchable ? `<button type="button" class="el-button is-link bf-area-artifact-sn" data-index="${v}">${m.serialNumber}</button>` : m.serialNumber}</span>
           <span>${m.quantity}</span>
           <span>${m.totalGrossWeight}</span>
           <span data-productId='${m.id}' class="pointer bfWPBtn">${m.productWeldCount || 0}</span>
@@ -364,47 +395,64 @@ function useProjectTreePanel({ props: z2, bimModel: f2, modelStatus: $2, viewerP
     return o;
   }
   function n() {
+    ++treeRequest;
+    ++areaSelection;
     y2(), Q2();
     const { tree: e, treeApi: o } = S2.value;
-    o.clear(e);
+    o?.clear(e);
     const v = c2.proTree.panel;
-    v.isShow && v.hide();
+    if (v?.isShow) v.hide();
     const m = c2.artifactListByArea.panel;
-    m.isShow && m.hide();
+    if (m?.isShow) m.hide();
   }
   return { createProTreePanel: l, fetchProTree: s, viewProAreaTree: S2, clearProTreePanel: n };
 }
-function useArtifactColoring({ props: z2, bimModel: f2, modelStatus: $2, viewer: c2, colors: S2, objectIdGroup: q2, isBridgeProject: B2 }) {
+function useArtifactColoring({ props: z2, bimModel: f2, modelStatus: $2, viewer: c2, colors: S2, objectIdGroup: q2, statusMessage }) {
   const Q2 = computed(() => arr2obj(S2.value, "value"));
+  let request = 0;
+  let coloredIds = [];
   function I2() {
-    const n = ElLoading.service({ target: "#modelView", lock: true, text: "请稍后，正在染色", fullscreen: false });
-    try {
-      const e = f2.getColor("#999999", 1);
-      c2.value.getModel().overrideAllComponentsColor(e), c2.value.render();
-    } catch (e) {
-      console.log("error", e);
-    } finally {
-      n.close();
-    }
+    const viewer = c2.value;
+    if (coloredIds.length) viewer.restoreComponentsColorById(coloredIds);
+    if (q2.value[0]?.length) viewer.showComponentsById(q2.value[0]);
+    coloredIds = [];
+    q2.value = {};
+    viewer.clearIsolation();
+    viewer.clearAllBlinkComponents();
+    viewer.getModel().overrideAllComponentsColor(f2.getColor("#999999", 1));
+    viewer.render();
   }
   async function y2(n) {
-    if (n === modelMenuBarEnum.PROJECT_TREE.V) {
-      I2();
-      return;
-    }
-    const e = ElLoading.service({ target: "#modelView", lock: true, text: "请稍后，正在染色", fullscreen: false });
+    const current = ++request, model = $2.value, viewer = c2.value, palette = Q2.value;
+    const isCurrent = () => current === request && model === $2.value && viewer === c2.value;
+    statusMessage.value = "";
+    if (!viewer) return false;
     try {
-      let o = {};
-      z2.showMonomerModel ? o = await getArtifactStatus({ fileId: $2.value.fileId, menuBar: n }) : o = await getIntegrationArtifactStatus({ projectId: z2.projectId, menuBar: n });
-      for (const v in o) if (o[v] && o[v].length > 0 && Q2.value[v]) {
-        const m = f2.getColor(Q2.value[v].color, Q2.value[v].opacity);
-        c2.value.overrideComponentsColorById(o[v], m);
+      I2();
+      if (n === modelMenuBarEnum.PROJECT_TREE.V) return true;
+      statusMessage.value = "正在查询构件状态…";
+      const groups = z2.showMonomerModel
+        ? await getArtifactStatus({ fileId: model.fileId, menuBar: n })
+        : await getIntegrationArtifactStatus({ projectId: z2.projectId, menuBar: n });
+      if (!isCurrent()) return false;
+      if (!groups || typeof groups !== "object" || Array.isArray(groups)
+          || Object.values(groups).some(ids => !Array.isArray(ids))) throw new Error("构件状态响应格式无效");
+      for (const [status, ids] of Object.entries(groups)) {
+        const color = palette[status];
+        if (!ids.length || !color) continue;
+        coloredIds = coloredIds.concat(ids);
+        viewer.overrideComponentsColorById(ids, f2.getColor(color.color, color.opacity));
       }
-      q2.value = o, c2.value.render();
-    } catch (o) {
-      console.log("error", o);
-    } finally {
-      e.close();
+      q2.value = groups;
+      viewer.render();
+      statusMessage.value = "";
+      return true;
+    } catch {
+      if (isCurrent()) {
+        statusMessage.value = "未能加载构件状态，请点击当前页签重试";
+        if (coloredIds.length) I2();
+      }
+      return false;
     }
   }
   function w(n, { color: e, opacity: o = 0.8 }) {
@@ -442,12 +490,19 @@ function useArtifactColoring({ props: z2, bimModel: f2, modelStatus: $2, viewer:
   function r(n) {
     c2.value.clearSelectedComponents(), c2.value.setSelectedComponentsById(n), c2.value.zoomToSelectedComponents(), c2.value.clearSelectedComponents();
   }
-  return { initModelColor: I2, fetchArtifactStatus: y2, overrideComponentsColorById: w, resetComponentsColorById: k2, addBlinkByIds: T2, removeBlink: C2, isolateComponentsById: l, clearIsolation: t, hideComponentsById: s, showComponentsById: a, clearSelectedComponents: b, setSelectedComponentsByObjectData: h, zoomToComponentsById: r };
+  function resetArtifactColoring() {
+    ++request;
+    coloredIds = [];
+    q2.value = {};
+    statusMessage.value = "";
+  }
+  return { initModelColor: I2, fetchArtifactStatus: y2, resetArtifactColoring, overrideComponentsColorById: w, resetComponentsColorById: k2, addBlinkByIds: T2, removeBlink: C2, isolateComponentsById: l, clearIsolation: t, hideComponentsById: s, showComponentsById: a, clearSelectedComponents: b, setSelectedComponentsByObjectData: h, zoomToComponentsById: r };
 }
-function useArtifactSearch({ props: z2, modelStatus: f2, addBlinkByIds: $2, removeBlink: c2, isBridgeProject: S2 }) {
-  const q2 = ref(), B2 = ref([]);
+function useArtifactSearch({ root, props: z2, modelStatus: f2, addBlinkByIds: $2, removeBlink: c2, isBridgeProject: S2 }) {
+  const q2 = ref();
+  let searchRequest = 0;
   function Q2() {
-    const y2 = document.getElementsByClassName("bf-container")[0], w = document.createElement("div");
+    const y2 = root.value.querySelector(".bf-container"), w = document.createElement("div");
     w.innerHTML = `
       <div class="bf-artifact-search">
         <div class="el-input el-input--default" style="margin-right: 10px;">
@@ -460,33 +515,44 @@ function useArtifactSearch({ props: z2, modelStatus: f2, addBlinkByIds: $2, remo
           <span>重置</span>
         </button>
       </div>
-    `, y2.appendChild(w), q2.value = document.getElementsByClassName("bf-artifact-search-input")[0], document.getElementsByClassName("bf-artifact-search-btn-s")[0].addEventListener("click", () => {
+    `, y2.appendChild(w), q2.value = root.value.querySelector(".bf-artifact-search-input"), root.value.querySelector(".bf-artifact-search-btn-s").addEventListener("click", () => {
       I2(q2.value.value);
-    }), document.getElementsByClassName("bf-artifact-search-btn-r")[0].addEventListener("click", () => {
+    }), root.value.querySelector(".bf-artifact-search-btn-r").addEventListener("click", () => {
+      ++searchRequest;
       c2(), q2.value.value = "";
     });
   }
-  async function I2(y2) {
-    if (y2) try {
-      let w;
-      z2.showMonomerModel ? w = await getArtifactSearch({ serialNumber: y2, fileId: f2.value.fileId, productType: z2.productType }) : w = await getIntegrateArtifactSearch({ serialNumber: y2, projectId: z2.projectId }), $2(w), B2.value = w;
-    } catch (w) {
-      console.log("构件编号搜索报错", w);
+  async function I2(y2, canApply = () => true) {
+    const serialNumber = y2?.trim();
+    if (!serialNumber) return;
+    const model = f2.value, request = ++searchRequest;
+    const isCurrent = () => model === f2.value && request === searchRequest && canApply();
+    c2();
+    try {
+      const ids = z2.showMonomerModel
+        ? await getArtifactSearch({ serialNumber, fileId: model.fileId, productType: z2.productType })
+        : await getIntegrateArtifactSearch({ serialNumber, projectId: z2.projectId });
+      if (!isCurrent()) return;
+      if (ids?.length) $2(ids);
+      else ElMessage.info("未找到该构件");
+    } catch {
+      if (isCurrent()) ElMessage.error("构件查询失败，请重试");
     }
   }
   return { createSearchHtml: Q2, searchBySN: I2 };
 }
-function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2, modelStatus: S2, viewer: q2, fetchDrawing: B2, fetchWeldingProcess: Q2, addBlinkByIds: I2, isBridgeProject: y2 }) {
+function useArtifactInfo({ root, props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2, modelStatus: S2, viewer: q2, fetchDrawing: B2, fetchWeldingProcess: Q2, addBlinkByIds: I2, isBridgeProject: y2 }) {
   const w = ref({});
+  let detailRequest = 0;
   function k2() {
     const e = $2.getPanelConfig();
-    e.className = "bf-panel bf-panel-artifact-info", e.title = "构件详情", e.css.width = "265px", e.css.height = "355px", e.element = document.getElementsByClassName("bf-container")[0];
+    e.className = "bf-panel bf-panel-artifact-info", e.title = "构件详情", e.css.width = "265px", e.css.height = "355px", e.element = root.value.querySelector(".bf-container");
     const o = $2.createPanel(e);
     o.isShow = false, T2(), c2.artifactInfo = { config: e, panel: o };
   }
   function T2() {
     const e = $2.getPanelConfig();
-    e.className = "bf-panel bf-panel-machine-part-list", e.title = "零件列表", e.css.width = "400px", e.element = document.getElementsByClassName("bf-container")[0];
+    e.className = "bf-panel bf-panel-machine-part-list", e.title = "零件列表", e.css.width = "400px", e.element = root.value.querySelector(".bf-container");
     const o = $2.createPanel(e);
     o.isShow = false, c2.machinePartList = { config: e, panel: o };
   }
@@ -506,7 +572,7 @@ function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2
     c2.panelPositions[e._opt.className] = { left: c2.panelPositions[m].left + Number(v.width.slice(0, -2)) + 10, top: c2.panelPositions[m].top }, e.initPosition(), e && e.show(), t();
   }
   function t() {
-    const e = document.getElementsByClassName("bf-panel-machine-part-list")[0].getElementsByClassName("bf-panel-container")[0];
+    const e = root.value.querySelector(".bf-panel-machine-part-list .bf-panel-container");
     e.innerHTML = "";
     const o = `
         <div class="bf-machine-part-list-container">
@@ -544,7 +610,7 @@ function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2
     return o;
   }
   function a() {
-    const e = document.getElementsByClassName("bf-panel-machine-sn");
+    const e = root.value.querySelectorAll(".bf-panel-machine-sn");
     for (let o = 0; o < e.length; o++) e[o].onclick = () => {
       const { boolBim: v, serialNumber: m, productId: d, productType: E, numbers: U, monomerId: tt } = e[o].dataset;
       B2({ boolBim: Number(v), serialNumber: m, productId: d, productType: E, drawingSN: U, monomerId: tt });
@@ -552,11 +618,22 @@ function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2
   }
   async function h(e) {
     var v;
-    if (c2.artifactInfo.panel.isShow && e) try {
-      let m;
-      z2.showMonomerModel ? m = await getArtifactInfo({ fileId: S2.value.fileId, elementId: e, menuBar: f2.value }) : m = await getIntegrateArtifactInfo({ projectId: z2.projectId, elementId: e, menuBar: f2.value }), w.value = m;
-      const d = document.getElementsByClassName("bf-panel-artifact-info")[0].getElementsByClassName("bf-panel-container")[0];
-      d.innerHTML = "";
+    if (!c2.artifactInfo.panel.isShow || !e) return;
+    const model = S2.value, request = ++detailRequest, menuBar = f2.value;
+    const isCurrent = () => model === S2.value && request === detailRequest && menuBar === f2.value;
+    const d = root.value.querySelector(".bf-panel-artifact-info .bf-panel-container");
+    d.textContent = "查询中…";
+    if (c2.machinePartList.panel.isShow) c2.machinePartList.panel.hide();
+    try {
+      const m = z2.showMonomerModel
+        ? await getArtifactInfo({ fileId: model.fileId, elementId: e, menuBar })
+        : await getIntegrateArtifactInfo({ projectId: z2.projectId, elementId: e, menuBar });
+      if (!isCurrent()) return;
+      if (!m) {
+        d.textContent = "未找到对应的构件详情";
+        return;
+      }
+      w.value = m;
       const E = `
         <div class="bf-artifact-info-container">
           <div>
@@ -595,20 +672,20 @@ function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2
         </div>
       `;
       d.innerHTML = E, (v = c2.machinePartList.panel) != null && v.isShow && t();
-      const U = document.getElementById("bfMPBtn");
+      const U = root.value.querySelector("#bfMPBtn");
       console.log(U, "bfMPBtnDom"), U && U.addEventListener("click", () => {
         l();
       });
-      const tt = document.getElementById("bfDrawBtn");
+      const tt = root.value.querySelector("#bfDrawBtn");
       console.log(tt, "bfDrawBtn"), tt && tt.addEventListener("click", () => {
         B2({ boolBim: w.value.boolBim, serialNumber: w.value.serialNumber, productId: w.value.id, productType: w.value.productType, drawingSN: w.value.numbers, monomerId: w.value.monomerId });
       });
-      const H = document.getElementById("bfWPBtn");
+      const H = root.value.querySelector("#bfWPBtn");
       H && H.addEventListener("click", () => {
         Q2({ productId: w.value.id, productType: w.value.productType, serialNumber: w.value.serialNumber, monomerId: w.value.monomerId, areaId: w.value.areaId });
       });
-    } catch (m) {
-      console.log("获取构件信息", m);
+    } catch {
+      if (isCurrent()) d.textContent = "未能加载构件详情，请重试";
     }
   }
   function b(e) {
@@ -680,34 +757,48 @@ function useArtifactInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2
     return v;
   }
   function n() {
+    ++detailRequest;
     const e = c2.artifactInfo.panel;
-    e.isShow && e.hide();
+    if (e?.isShow) e.hide();
     const o = c2.machinePartList.panel;
-    o.isShow && o.hide();
+    if (o?.isShow) o.hide();
   }
   return { createArtifactInfoPanel: k2, fetchArtifactInfo: C2, clearArtifactInfoPanel: n, refreshArtifactInfoPanel: h };
 }
-function useStatusInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2, modelStatus: S2, isBridgeProject: q2 }) {
+function useStatusInfo({ root, props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2, modelStatus: S2, isBridgeProject }) {
+  let summaryRequest = 0;
   function B2() {
     const k2 = $2.getPanelConfig();
-    k2.className = "bf-panel bf-panel-status-info", k2.css.width = "480px", k2.element = document.getElementsByClassName("bf-container")[0];
+    k2.className = "bf-panel bf-panel-status-info", k2.css.width = "480px", k2.element = root.value.querySelector(".bf-container");
     const T2 = $2.createPanel(k2);
     T2.isShow = false, c2.statusInfo = { config: k2, panel: T2 };
   }
   async function Q2() {
-    const k2 = c2.statusInfo.panel;
-    k2.setTitleContent(modelMenuBarEnum.VL[f2.value]), c2.panelPositions[k2._opt.className] = { left: 10, top: 90 }, k2.initPosition(), console.log(k2, "fetchStatusInfo"), k2 && k2.show();
+    const panel = c2.statusInfo.panel, model = S2.value, menuBar = f2.value, request = ++summaryRequest;
+    const isCurrent = () => model === S2.value && request === summaryRequest && menuBar === f2.value;
+    const body = root.value.querySelector(".bf-panel-status-info .bf-panel-container");
+    body.textContent = "查询中…";
+    panel.setTitleContent(modelMenuBarEnum.VL[menuBar]);
+    c2.panelPositions[panel._opt.className] = { left: 10, top: 90 };
+    panel.initPosition();
+    panel.show();
     try {
-      let T2;
-      z2.showMonomerModel ? T2 = await getArtifactProduction({ fileId: S2.value.fileId, menuBar: f2.value }) : T2 = await getIntegrateArtifactProduction({ projectId: z2.projectId, menuBar: f2.value });
-      const { content: C2 } = T2, l = document.getElementsByClassName("bf-panel-status-info")[0].getElementsByClassName("bf-panel-container")[0];
-      l.innerHTML = "", l.innerHTML = `
-        <table class="bf-table">
-          ${I2(C2)}
-        </table>
-      `;
-    } catch (T2) {
-      console.log(T2, "获取生产状态信息");
+      const result = z2.showMonomerModel
+        ? await getArtifactProduction({ fileId: model.fileId, menuBar })
+        : await getIntegrateArtifactProduction({ projectId: z2.projectId, menuBar });
+      if (!isCurrent()) return;
+      const content = result == null ? [] : result.content;
+      if (!Array.isArray(content)) throw new Error("进度汇总响应格式无效");
+      if (!content.length) {
+        body.textContent = "暂无进度汇总";
+        return;
+      }
+      const note = z2.showMonomerModel && !z2.areaId && !isBridgeProject.value && model.modelType === "file"
+        && menuBar === modelMenuBarEnum.PRODUCTION_STATE.V
+        ? "<p>模型按入库状态着色，表格按生产任务完工统计。</p>" : "";
+      body.innerHTML = `${note}<table class="bf-table">${I2(content)}</table>`;
+    } catch {
+      if (isCurrent()) body.textContent = "未能加载进度汇总，请点击当前页签重试";
     }
   }
   function I2(k2) {
@@ -750,20 +841,20 @@ function useStatusInfo({ props: z2, menuBar: f2, bimModel: $2, viewerPanel: c2, 
     return l;
   }
   function w() {
-    const k2 = c2.artifactInfo.panel;
-    if (k2.isShow && k2.hide(), [modelMenuBarEnum.PRODUCTION_STATE.V, modelMenuBarEnum.INSTALL_STATE.V, modelMenuBarEnum.SHIPMENT_STATUS.V].indexOf(f2.value) !== -1) return;
-    const T2 = c2.statusInfo.panel;
-    T2.isShow && T2.hide();
+    ++summaryRequest;
+    const panel = c2.statusInfo.panel;
+    if (panel?.isShow) panel.hide();
   }
   return { createStatusInfoPanel: B2, fetchStatusInfo: Q2, clearStatusInfoPanel: w };
 }
-function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPanel: c2, monomerId: S2, addBlinkByIds: q2, removeBlink: B2, isBridgeProject: Q2 }) {
+function useLogisticsInfo({ root, props: z2, bimModel: f2, modelStatus: $2, viewerPanel: c2, monomerId: S2, addBlinkByIds: q2, removeBlink: B2, isBridgeProject: Q2 }) {
   const I2 = ref([]);
+  let logisticsRequest = 0;
   function y2() {
-    let h = document.getElementById("bfLogisticsBtn");
+    let h = root.value.querySelector("#bfLogisticsBtn");
     if (h) h.style = "display:block;";
     else {
-      const b = document.getElementsByClassName("bf-container")[0];
+      const b = root.value.querySelector(".bf-container");
       h = document.createElement("div"), h.id = "bfLogisticsBtn", h.innerHTML = `
         <button class="el-button el-button--info el-button--default bf-artifact-search-btn-r" type="button">
         <span>物流信息</span>
@@ -775,25 +866,27 @@ function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPane
   }
   function w() {
     const h = f2.getPanelConfig();
-    h.className = "bf-panel bf-panel-logistics-info", h.title = "物流详情", h.css.width = "350px", h.css.height = "300px", h.element = document.getElementsByClassName("bf-container")[0];
+    h.className = "bf-panel bf-panel-logistics-info", h.title = "物流详情", h.css.width = "350px", h.css.height = "300px", h.element = root.value.querySelector(".bf-container");
     const b = f2.createPanel(h);
     b.isShow = false, c2.logistics = { config: h, panel: b }, k2();
   }
   function k2() {
     const h = f2.getPanelConfig();
-    h.className = "bf-panel bf-panel-shipment", h.title = "发运清单", h.css.width = "300px", h.css.height = "280px", h.element = document.getElementsByClassName("bf-container")[0];
+    h.className = "bf-panel bf-panel-shipment", h.title = "发运清单", h.css.width = "300px", h.css.height = "280px", h.element = root.value.querySelector(".bf-container");
     const b = f2.createPanel(h);
     b.isShow = false, c2.shipment = { config: h, panel: b };
   }
   async function T2() {
-    const h = c2.logistics.panel;
-    c2.panelPositions[h._opt.className] = { left: 900, top: 20 }, h.initPosition(), h && h.show();
+    const h = c2.logistics.panel, model = $2.value, request = ++logisticsRequest;
+    const isCurrent = () => model === $2.value && request === logisticsRequest;
+    const n = root.value.querySelector(".bf-panel-logistics-info .bf-panel-container");
+    n.textContent = "查询中…";
+    c2.panelPositions[h._opt.className] = { left: 900, top: 20 }, h.initPosition(), h.show();
     try {
-      let b;
-      z2.showMonomerModel ? b = await getLogistics({ fileId: $2.value.fileId }) : b = await getIntegrateLogistics({ projectId: z2.projectId });
-      const { content: r } = b;
+      const result = z2.showMonomerModel ? await getLogistics({ fileId: model.fileId }) : await getIntegrateLogistics({ projectId: z2.projectId });
+      if (!isCurrent()) return;
+      const { content: r } = result;
       I2.value = r;
-      const n = document.querySelector(".bf-panel-logistics-info .bf-panel-container");
       n.innerHTML = "", n.innerHTML = `
         <div class="bf-panel-logistics-info-container">
           <div>
@@ -805,8 +898,8 @@ function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPane
           ${C2(r)}
         </div>
       `, l();
-    } catch (b) {
-      console.log(b);
+    } catch {
+      if (isCurrent()) n.textContent = "未能加载物流信息，请重试";
     }
   }
   function C2(h) {
@@ -825,7 +918,7 @@ function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPane
     return b;
   }
   function l() {
-    const h = document.getElementsByClassName("bf-panel-logistics-li");
+    const h = root.value.querySelectorAll(".bf-panel-logistics-li");
     for (let b = 0; b < h.length; b++) h[b].onclick = () => {
       const r = h[b].dataset.index;
       q2(I2.value[r].elementIds), t(I2.value[r].bimLogisticsLinkVOList);
@@ -834,7 +927,7 @@ function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPane
   function t(h) {
     const b = c2.shipment.panel, r = c2.logistics.panel, { css: n, className: e } = r._opt;
     c2.panelPositions[b._opt.className] = { left: c2.panelPositions[e].left + Number(n.width.slice(0, -2)) + 10, top: c2.panelPositions[e].top }, b.initPosition(), b && b.show();
-    const o = document.querySelector(".bf-panel-shipment .bf-panel-container");
+    const o = root.value.querySelector(".bf-panel-shipment .bf-panel-container");
     o.innerHTML = "", o.innerHTML = `
       <div class="bf-panel-shipment-container">
         <div>
@@ -863,12 +956,14 @@ function useLogisticsInfo({ props: z2, bimModel: f2, modelStatus: $2, viewerPane
     return b;
   }
   function a() {
-    const h = document.getElementById("bfLogisticsBtn");
-    h.style = "display:none;", B2();
+    ++logisticsRequest;
+    const h = root.value.querySelector("#bfLogisticsBtn");
+    if (h) h.style.display = "none";
+    B2();
     const b = c2.logistics.panel;
-    b.isShow && b.hide();
+    if (b?.isShow) b.hide();
     const r = c2.shipment.panel;
-    r.isShow && r.hide();
+    if (r?.isShow) r.hide();
   }
   return { createLogisticsBtn: y2, hideLogisticsBtn: a };
 }
@@ -880,12 +975,12 @@ const _sfc_main$2 = { __name: "bf-draw", props: { handleClose: { type: Function 
     c2 || typeof $2.handleClose == "function" && $2.handleClose();
   }), (c2, S2) => (openBlock(), createBlock(unref(_sfc_main$4), { modelValue: f2.value, "onUpdate:modelValue": S2[0] || (S2[0] = (q2) => f2.value = q2), "bool-bim": z2.boolBim, "serial-number": z2.serialNumber, productId: z2.productId, productType: z2.productType, drawingSN: z2.drawingSN, monomerId: z2.monomerId }, null, 8, ["modelValue", "bool-bim", "serial-number", "productId", "productType", "drawingSN", "monomerId"]));
 } };
-function useDrawing() {
+function useDrawing(root) {
   const z2 = ref();
   function f2() {
     z2.value = createApp(_sfc_main$2);
-    const S2 = document.querySelector(".bf-container"), q2 = document.createElement("div");
-    q2.id = "bfDrawingView", S2.appendChild(q2), z2.value.mount("#bfDrawingView", { serialNumber: void 0, productId: void 0, productType: void 0, monomerId: void 0 }), console.log(z2, "drawingApp");
+    const S2 = root.value.querySelector(".bf-container"), q2 = document.createElement("div");
+    q2.id = "bfDrawingView", S2.appendChild(q2), z2.value.mount(q2);
   }
   function $2() {
     z2.value._container._vnode.component.props.showDraw = false;
@@ -893,7 +988,11 @@ function useDrawing() {
   function c2({ boolBim: S2, serialNumber: q2, productId: B2, productType: Q2, drawingSN: I2, monomerId: y2 }) {
     z2.value._container._vnode.component.props.handleClose = $2, z2.value._container._vnode.component.props.showDraw = true, z2.value._container._vnode.component.props.boolBim = S2, z2.value._container._vnode.component.props.serialNumber = q2, z2.value._container._vnode.component.props.productId = B2, z2.value._container._vnode.component.props.productType = Q2, z2.value._container._vnode.component.props.drawingSN = I2, z2.value._container._vnode.component.props.monomerId = y2;
   }
-  return { createDrawing: f2, fetchDrawing: c2 };
+  function destroyDrawing() {
+    z2.value?.unmount();
+    z2.value = undefined;
+  }
+  return { createDrawing: f2, fetchDrawing: c2, destroyDrawing };
 }
 function getProductList(z2) {
   return service({ module: "plan", url: "CappCraftProductPassTaskRecord/product/list", method: "get", params: z2 });
@@ -8556,22 +8655,26 @@ const transitionImgs = async (z2) => {
     await q2.render(y2).promise, c2.push({ imgName: S2 + ".png", storePrivateFullPath: Q2.toDataURL("image/png") });
   }
   return c2;
-}, bfWeldingProcessDialog_vue_vue_type_style_index_0_lang = "", bfWeldingProcessDialog_vue_vue_type_style_index_1_scoped_9ecb8c13_lang = "", _hoisted_1$1 = { class: "flex-rbc" }, _hoisted_2 = { class: "dialog-title" }, _hoisted_3 = { class: "wrap" }, _hoisted_4 = { class: "wrap-left" }, _hoisted_5 = { key: 0, class: "product-item" }, _hoisted_6 = ["title", "onClick"], _hoisted_7 = { class: "code-list" }, _hoisted_8 = { class: "card-title" }, _hoisted_9 = { key: 1 }, _sfc_main$1 = { __name: "bf-welding-process-dialog", props: { handleClose: { type: Function }, showDialog: { type: Boolean, default: false }, monomerId: { type: [Number, String], default: void 0 }, areaId: { type: [Number, String], default: void 0 }, productId: { type: [Number, String], default: void 0 } }, setup(z2) {
+}, bfWeldingProcessDialog_vue_vue_type_style_index_0_lang = "", bfWeldingProcessDialog_vue_vue_type_style_index_1_scoped_9ecb8c13_lang = "", _hoisted_1$1 = { class: "flex-rbc" }, _hoisted_2 = { class: "dialog-title" }, _hoisted_3 = { class: "wrap" }, _hoisted_4 = { class: "wrap-left" }, _hoisted_5 = { key: 0, class: "product-item" }, _hoisted_6 = ["title", "onClick"], _hoisted_7 = { class: "code-list" }, _hoisted_8 = { class: "card-title" }, _hoisted_9 = { key: 1 }, _sfc_main$1 = { __name: "bf-welding-process-dialog", props: { handleClose: { type: Function }, showDialog: { type: Boolean, default: false }, projectId: { type: [Number, String], default: void 0 }, monomerId: { type: [Number, String], default: void 0 }, areaId: { type: [Number, String], default: void 0 }, productId: { type: [Number, String], default: void 0 } }, setup(z2) {
   const f2 = useStore(), $2 = z2, c2 = ref(false), S2 = ref(false), q2 = ref(false), B2 = ref(false), Q2 = ref(false), I2 = ref([]), y2 = ref(false), w = ref(false), k2 = ref([]), T2 = ref(), C2 = ref(), l = ref(), t = ref([]), s = ref([]), a = ref([]), h = ref({}), b = ref([["startTime", "parse-time"], ["endTime", "parse-time"]]), r = ref(), { getMyChart: n } = useChart({ elementId: "electricityChart", fetchHook: u, initOption: { grid: { top: 40, left: 10, right: 10 }, legend: { show: true }, xAxis: { data: [] }, custom: { title: [{ text: "电流实时曲线图", left: 0, textStyle: { fontSize: 13 } }] }, series: [{ name: "电流(A)", data: [], type: "line", label: { show: false, distance: 0, position: "left" }, itemStyle: { color: "#148a09" } }] } }), { getMyChart: e } = useChart({ elementId: "voltageChart", fetchHook: P, initOption: { grid: { top: 40, left: 10, right: 10 }, legend: { show: true }, xAxis: { data: [] }, custom: { title: [{ text: "电压实时曲线图", left: 0, textStyle: { fontSize: 13 } }] }, series: [{ name: "电压(V)", data: [], type: "line", label: { show: false, distance: 0, position: "right" }, itemStyle: { color: "#22e4ff" } }] } }), { maxHeight: o, fixMaxHeight: v } = useMaxHeight({ mainBox: ".bf-welding-process-dialog", extraBox: [".el-dialog__header"], wrapperBox: [".el-dialog__body"], clientHRepMainH: true, minHeight: 600 }, l), m = computed(() => Math.floor((o.value - 40) / 2)), d = computed(() => Math.floor((m.value - 44) / 2)), E = computed(() => f2.getters.globalProject), U = computed(() => {
     var st, it, J, rt;
-    const { projectMap: g, monomerMap: A, areaMap: x } = f2.state.project, L = [(it = g == null ? void 0 : g[(st = E.value) == null ? void 0 : st.id]) == null ? void 0 : it.name, (J = A == null ? void 0 : A[$2.monomerId]) == null ? void 0 : J.name];
+    const { projectMap: g, monomerMap: A, areaMap: x } = f2.state.project, L = [(it = g == null ? void 0 : g[$2.projectId || ((st = E.value) == null ? void 0 : st.id)]) == null ? void 0 : it.name, (J = A == null ? void 0 : A[$2.monomerId]) == null ? void 0 : J.name];
     return $2.areaId && L.push((rt = x == null ? void 0 : x[$2.areaId]) == null ? void 0 : rt.name), L.join(" > ");
   }), tt = computed(() => t.value.find((g) => g.productId === h.value.productId)), H = computed(() => s.value.find((g) => g.id === h.value.id)), Z = computed(() => {
     var A, x, L;
     let g = `${(A = deepenTypeEnum.VL) == null ? void 0 : A[h.value.productType]}编号：`;
-    return t.value.length && (g += `${(x = tt.value) == null ? void 0 : x.productSerialNumber}（${(L = H.value) == null ? void 0 : L.productCodeNumber}）`), g;
+    if (t.value.length) {
+      g += tt.value?.productSerialNumber || "";
+      if (H.value?.productCodeNumber != null) g += `（${H.value.productCodeNumber}）`;
+    }
+    return g;
   });
   watch(() => $2.showDialog, (g) => {
     c2.value = g, g && (j(), v(), dt());
-  });
+  }, { immediate: true });
   function j() {
     var g;
-    h.value = { id: void 0, passId: void 0, productId: $2.productId, projectId: (g = E.value) == null ? void 0 : g.id, monomerId: $2.monomerId, areaId: $2.areaId, productType: deepenTypeEnum.ARTIFACT.V }, t.value = [], s.value = [], a.value = [];
+    h.value = { id: void 0, passId: void 0, productId: $2.productId, projectId: $2.projectId || ((g = E.value) == null ? void 0 : g.id), monomerId: $2.monomerId, areaId: $2.areaId, productType: deepenTypeEnum.ARTIFACT.V }, t.value = [], s.value = [], a.value = [];
   }
   function V(g = {}) {
     h.value.productId !== g.productId && (h.value.productId = g.productId, bt(), O());
@@ -8704,12 +8807,12 @@ const transitionImgs = async (z2) => {
     }), _: 1 }, 8, ["modelValue", "before-close"]);
   };
 } }, weldingProcess = _export_sfc(_sfc_main$1, [["__scopeId", "data-v-9ecb8c13"]]);
-function useWeldingProcess() {
-  const z2 = ref();
+function useWeldingProcess(root) {
+  const z2 = shallowRef();
   async function f2() {
     const S2 = createApp(weldingProcess);
     S2.use(store);
-    const q2 = document.querySelector(".bf-container"), B2 = document.createElement("div");
+    const q2 = root.value.querySelector(".bf-container"), B2 = document.createElement("div");
     B2.id = "bfWeldingProcessView", q2.appendChild(B2), S2.mount(B2), z2.value = S2, await nextTick();
   }
   function $2() {
@@ -8717,100 +8820,209 @@ function useWeldingProcess() {
   }
   async function c2({ productId: S2, monomerId: q2, areaId: B2 }) {
     z2.value || await f2();
+    if (!z2.value) return;
     const Q2 = z2.value._container._vnode.component.props;
     Q2.showDialog = true, Q2.handleClose = $2, Q2.productId = S2, Q2.monomerId = q2, Q2.areaId = B2;
   }
-  return { createWeldingProcess: f2, fetchWeldingProcess: c2 };
-}
-function usePreview({ props: z2, modelStatus: f2, initModelColor: $2, overrideComponentsColorById: c2, isolateComponentsById: S2, isBridgeProject: q2 }) {
-  const B2 = ref();
-  watch(() => z2.serialNumber, (I2) => {
-    z2.isPreview && I2 && !z2.previewShowAll && Q2();
-  }, { immediate: true });
-  async function Q2() {
-    const I2 = ElLoading.service({ target: "#modelView", lock: true, text: "请稍后，正在染色", fullscreen: false });
-    if (z2.serialNumber) try {
-      const y2 = await getArtifactSearch({ serialNumber: z2.serialNumber, fileId: f2.value.fileId, productType: z2.productType });
-      $2(), c2(y2, { color: "#1682e6", opacity: 1 }), S2(y2), B2.value = y2;
-    } catch (y2) {
-      console.log("构件编号预览染色错误", y2);
-    } finally {
-      I2.close();
-    }
+  function destroyWeldingProcess() {
+    z2.value?.unmount();
+    z2.value = undefined;
   }
-  return { serialNumberElementIds: B2 };
+  return { createWeldingProcess: f2, fetchWeldingProcess: c2, destroyWeldingProcess };
+}
+function usePreview({ props, modelStatus, modelLoaded, initModelColor, overrideComponentsColorById, isolateComponentsById }) {
+  const serialNumberElementIds = ref([]);
+  let previewRequest = 0;
+  watch(() => [modelLoaded.value, props.serialNumber, props.productType, props.previewShowAll], async () => {
+    const model = modelStatus.value, request = ++previewRequest;
+    serialNumberElementIds.value = [];
+    if (!modelLoaded.value || !props.isPreview || props.tracePage || props.previewShowAll || !props.serialNumber) return;
+    initModelColor();
+    try {
+      const ids = await getArtifactSearch({ serialNumber: props.serialNumber, fileId: model.fileId, productType: props.productType });
+      if (request !== previewRequest || model !== modelStatus.value) return;
+      if (ids?.length) {
+        overrideComponentsColorById(ids, { color: "#1682e6", opacity: 1 });
+        isolateComponentsById(ids);
+      }
+      serialNumberElementIds.value = ids || [];
+    } catch {
+      if (request === previewRequest && model === modelStatus.value) ElMessage.error("构件预览查询失败，请重试");
+    }
+  }, { immediate: true });
+  return { serialNumberElementIds };
 }
 const bimModelView_vue_vue_type_style_index_0_scoped_e583eb98_lang = "", bimModelView_vue_vue_type_style_index_1_lang = "", _hoisted_1 = { key: 1, id: "modelView" }, _sfc_main = { __name: "bim-model-view", props: { monomerId: { type: Number }, areaId: { type: [Number, String] }, projectId: { type: Number }, showMonomerModel: { type: Boolean, default: true }, maxHeight: { type: Number }, tracePage: { type: Boolean, default: false }, isPreview: { type: Boolean, default: false }, visible: { type: Boolean, default: false }, isMobile: { type: Boolean, default: false }, isBridge: { type: Boolean, default: false }, previewShowAll: { type: Boolean, default: false }, serialNumber: { type: String }, productId: { type: Number, default: void 0 }, productType: { type: Number, default: void 0 }, monomerName: { type: String }, modelElementIds: { type: Array, default: void 0 }, projectName: { type: String } }, setup(z2, { expose: f2 }) {
   const { globalProject: $2 } = mapGetters(["globalProject"]), c2 = z2, S2 = "/assets", q2 = { PROCESSING_NO: { L: "3D模型未集成", K: "PROCESSING_NO", V: "processing_no", T: "warning" }, PROCESSING: { L: "3D模型正在转换，请稍后刷新重试", K: "PROCESSING", V: "processing", T: "warning" }, SUCCESS: { L: "成功", K: "SUCCESS", V: "success", T: "success" }, FAILED: { L: "3D模型转换失败，请联系管理员或重新上传", K: "FAILED", V: "failed", T: "danger" }, QUERY: { L: "查询中...", K: "QUERY", V: "query", T: "primary" }, UNEXIST: { L: "未上传3D模型", K: "UNEXIST", V: "unexist", T: "info" }, UPLOAD_PROCESSING: { L: "模型正在上传", K: "UPLOAD_PROCESSING", V: "uploadProcessing", T: "warning" }, UPLOAD_SUCCESS: { L: "模型未转换", K: "UPLOAD_SUCCESS", V: "uploadSuccess", T: "info" }, UPLOAD_FAILED: { L: "模型上传失败", K: "UPLOAD_FAILED", V: "uploadFailed", T: "danger" } };
   constantize(q2);
-  const B2 = ref(false), Q2 = ref(q2.QUERY.V), I2 = ref({ reason: "", status: "success", viewToken: "" }), y2 = ref(), w = ref(), k2 = ref(), T2 = computed(() => I2.value.modelType === "integration" ? modelIntegrationStatusEnum : q2), C2 = computed(() => {
+  const viewerRoot = ref(null), loadMessage = ref(""), statusMessage = ref("");
+  let loadController, releaseViewer;
+  const B2 = ref(false), Q2 = ref(), I2 = ref({}), w = shallowRef(), T2 = computed(() => I2.value.modelType === "integration" ? modelIntegrationStatusEnum : q2), C2 = computed(() => {
     var it;
     return ((it = $2.value) == null ? void 0 : it.projectType) === projectTypeEnum.BRIDGE.V || c2.isBridge;
-  }), l = reactive({ panelPositions: {}, proTree: { config: null, panel: null }, artifactListByArea: { config: null, panel: null }, artifactInfo: { config: null, panel: null }, drawing: { config: null, panel: null }, machinePartList: { config: null, panel: null }, statusInfo: { config: null, panel: null }, logistics: { config: null, panel: null }, shipment: { config: null, panel: null }, colorCard: { config: null, panel: null } }), t = ref({}), s = ref([]), a = ref(), h = ref({});
+  }), l = { panelPositions: {}, proTree: { config: null, panel: null }, artifactListByArea: { config: null, panel: null }, artifactInfo: { config: null, panel: null }, drawing: { config: null, panel: null }, machinePartList: { config: null, panel: null }, statusInfo: { config: null, panel: null }, logistics: { config: null, panel: null }, shipment: { config: null, panel: null }, colorCard: { config: null, panel: null } }, t = ref({}), s = ref([]), a = ref(), h = ref({});
   function b() {
-    const it = document.getElementById("modelView");
-    return console.log(it.clientHeight, it.clientWidth, "getModelViewSize"), { width: it.clientWidth, height: it.clientHeight };
+    const it = viewerRoot.value;
+    return { width: it.clientWidth, height: it.clientHeight };
   }
-  const { initModelColor: r, fetchArtifactStatus: n, addBlinkByIds: e, removeBlink: o, isolateComponentsById: v, clearIsolation: m, hideComponentsById: d, showComponentsById: E, overrideComponentsColorById: U, setSelectedComponentsByObjectData: tt, clearSelectedComponents: H, zoomToComponentsById: Z } = useArtifactColoring({ props: c2, bimModel, modelStatus: I2, viewer: w, colors: s, objectIdGroup: h, isBridgeProject: C2 }), { createDrawing: j, fetchDrawing: V } = useDrawing(), { fetchWeldingProcess: X } = useWeldingProcess(), { createArtifactInfoPanel: at, fetchArtifactInfo: dt, clearArtifactInfoPanel: bt } = useArtifactInfo({ props: c2, menuBar: a, bimModel, viewer: w, viewerPanel: l, modelStatus: I2, fetchDrawing: V, fetchWeldingProcess: X, addBlinkByIds: e, isBridgeProject: C2 }), { createStatusInfoPanel: N, fetchStatusInfo: p, clearStatusInfoPanel: u } = useStatusInfo({ props: c2, menuBar: a, bimModel, viewerPanel: l, modelStatus: I2, isBridgeProject: C2 }), { createProTreePanel: P, clearProTreePanel: F, fetchProTree: D } = useProjectTreePanel({ props: c2, bimModel, modelStatus: I2, viewerPanel: l, viewProAreaTree: t, fetchWeldingProcess: X, setSelectedComponentsByObjectData: tt, clearSelectedComponents: H, addBlinkByIds: e, removeBlink: o, getModelViewSize: b, isBridgeProject: C2 }), { createLogisticsBtn: O, hideLogisticsBtn: Y } = useLogisticsInfo({ props: c2, modelStatus: I2, bimModel, viewerPanel: l, monomerId: computed(() => c2.monomerId), addBlinkByIds: e, removeBlink: o, isBridgeProject: C2 }), { createMyToolbar: K } = useMyToolbar({ menuBar: a, publicPath: S2, bimModel, viewerPanel: l, viewProAreaTree: t, colors: s, isMobile: c2.isMobile, createLogisticsBtn: O, hideLogisticsBtn: Y, clearProTreePanel: F, fetchProTree: D, clearArtifactInfoPanel: bt, fetchArtifactInfo: dt, clearStatusInfoPanel: u, fetchStatusInfo: p, clearSelectedComponents: H }), { createSearchHtml: i, searchBySN: _ } = useArtifactSearch({ props: c2, modelStatus: I2, addBlinkByIds: e, removeBlink: o, isBridgeProject: C2 }), { createColorCardHtml: g } = useColorCard({ props: c2, isMobile: c2.isMobile, menuBar: a, colors: s, objectIdGroup: h, bimModel, viewerPanel: l, modelStatus: I2, searchBySN: _, fetchArtifactStatus: n, isolateComponentsById: v, clearIsolation: m, hideComponentsById: d, showComponentsById: E, overrideComponentsColorById: U, isBridgeProject: C2 }), A = ref([]);
-  watch(() => [c2.monomerId, c2.showMonomerModel, c2.projectId, c2.areaId], () => {
-    L(c2.monomerId);
-  }, { immediate: true }), watch(() => c2.visible, (it) => {
-    it && L(c2.monomerId);
-  }, { immediate: true });
-  function x() {
-    I2.value = { reason: "", status: "success", viewToken: "" }, a.value = null, s.value = [];
-  }
-  async function L(it) {
-    if (!(c2.showMonomerModel && !it) && !(!c2.showMonomerModel && !c2.projectId) && !(c2.isPreview && !c2.visible)) {
-      B2.value = false, Q2.value = q2.QUERY.V, x();
-      try {
-        if (c2.showMonomerModel) {
-          const { viewToken: J, reason: rt, status: et, fileId: ot, modelType: ut, integrationStatus: M } = await getTranslate(it, c2.areaId);
-          I2.value = { fileId: ot, viewToken: J, reason: rt, status: et, modelType: ut, integrationStatus: M }, Q2.value = ut === "file" ? et : M;
-        } else {
-          const { viewToken: J, reason: rt, status: et, fileId: ot } = await getIMTranslate(c2.projectId);
-          I2.value = { fileId: ot, viewToken: J, reason: rt, status: et }, Q2.value = et;
-        }
-        Q2.value === modelTranslateStatusEnum.SUCCESS.V && st(I2.value.viewToken);
-      } catch (J) {
-        console.log("获取模型viewToken", J);
-      }
-    }
-  }
-  async function st(it) {
+  const { initModelColor: r, fetchArtifactStatus: n, resetArtifactColoring, addBlinkByIds: e, removeBlink: o, isolateComponentsById: v, clearIsolation: m, hideComponentsById: d, showComponentsById: E, overrideComponentsColorById: U, setSelectedComponentsByObjectData: tt, clearSelectedComponents: H, zoomToComponentsById: Z } = useArtifactColoring({ props: c2, bimModel, modelStatus: I2, viewer: w, colors: s, objectIdGroup: h, statusMessage }), { createDrawing: j, fetchDrawing: V, destroyDrawing } = useDrawing(viewerRoot), { fetchWeldingProcess: X, destroyWeldingProcess } = useWeldingProcess(viewerRoot), { createArtifactInfoPanel: at, fetchArtifactInfo: dt, clearArtifactInfoPanel: bt } = useArtifactInfo({ root: viewerRoot, props: c2, menuBar: a, bimModel, viewer: w, viewerPanel: l, modelStatus: I2, fetchDrawing: V, fetchWeldingProcess: X, addBlinkByIds: e, isBridgeProject: C2 }), { createStatusInfoPanel: N, fetchStatusInfo: p, clearStatusInfoPanel: u } = useStatusInfo({ root: viewerRoot, props: c2, menuBar: a, bimModel, viewerPanel: l, modelStatus: I2, isBridgeProject: C2 }), { createProTreePanel: P, clearProTreePanel: F, fetchProTree: D } = useProjectTreePanel({ root: viewerRoot, props: c2, bimModel, modelStatus: I2, viewerPanel: l, viewProAreaTree: t, fetchWeldingProcess: X, setSelectedComponentsByObjectData: tt, clearSelectedComponents: H, addBlinkByIds: e, removeBlink: o, getModelViewSize: b, isBridgeProject: C2, searchBySN: (...args) => _(...args) }), { createLogisticsBtn: O, hideLogisticsBtn: Y } = useLogisticsInfo({ root: viewerRoot, props: c2, modelStatus: I2, bimModel, viewerPanel: l, monomerId: computed(() => c2.monomerId), addBlinkByIds: e, removeBlink: o, isBridgeProject: C2 }), { createMyToolbar: K } = useMyToolbar({ root: viewerRoot, refreshColorCard: () => refreshColorCard(), menuBar: a, publicPath: S2, bimModel, viewerPanel: l, viewProAreaTree: t, colors: s, isMobile: c2.isMobile, createLogisticsBtn: O, hideLogisticsBtn: Y, clearProTreePanel: F, fetchProTree: D, clearArtifactInfoPanel: bt, fetchArtifactInfo: dt, clearStatusInfoPanel: u, fetchStatusInfo: p, clearSelectedComponents: H }), { createSearchHtml: i, searchBySN: _ } = useArtifactSearch({ root: viewerRoot, props: c2, modelStatus: I2, addBlinkByIds: e, removeBlink: o, isBridgeProject: C2 }), { createColorCardHtml: g, refreshColorCard, destroyColorCard } = useColorCard({ root: viewerRoot, props: c2, isMobile: c2.isMobile, menuBar: a, colors: s, objectIdGroup: h, bimModel, viewerPanel: l, modelStatus: I2, searchBySN: _, fetchArtifactStatus: n, isolateComponentsById: v, clearIsolation: m, hideComponentsById: d, showComponentsById: E, isBridgeProject: C2 });
+  const { serialNumberElementIds: A } = usePreview({ props: c2, modelStatus: I2, modelLoaded: B2, initModelColor: r, overrideComponentsColorById: U, isolateComponentsById: v });
+  watch(() => [c2.monomerId, c2.showMonomerModel, c2.projectId, c2.areaId, !c2.isPreview || c2.visible], L, { immediate: true });
+  onBeforeUnmount(resetViewer);
+
+  function resetViewer() {
+    loadController?.abort();
     try {
-      const J = await initBimfaceApp({ viewToken: it });
-      k2.value = getConfig(), k2.value.Toolbars = ["MainToolbar"], c2.tracePage && (k2.value.enableViewHouse = false), (c2.isPreview || c2.tracePage) && (k2.value.Buttons = ["Home", "FullScreen"]);
-      const rt = document.getElementById("modelView");
-      rt.innerHTML = "", k2.value.domElement = rt;
-      const et = getApp(k2.value);
-      J.viewToken ? et.addView(J.viewToken) : et.addModel(J), console.log(et, "app"), w.value = et.getViewer(), console.log(w, "_viewer"), y2.value = getViewer3DEvent(), w.value.addEventListener(y2.value.ViewAdded, async () => {
-        if (!c2.isPreview) l.panelPositions = getPanelPositions(), K(), at(), P(), N(), i(), g();
-        else if (c2.tracePage) c2.modelElementIds && c2.modelElementIds.length > 0 && (v(c2.modelElementIds), Z(c2.modelElementIds));
-        else {
-          c2.isMobile && (l.panelPositions = getPanelPositions(), at(), K(), N(), g());
-          const { serialNumberElementIds: ot } = usePreview({ props: c2, modelStatus: I2, initModelColor: r, overrideComponentsColorById: U, isolateComponentsById: v, isBridgeProject: C2 });
-          A.value = ot;
+      releaseViewer?.();
+    } catch {
+      // The detached SDK instance cannot be reused after a failed teardown.
+    }
+    releaseViewer = undefined;
+    B2.value = false;
+    w.value = undefined;
+    I2.value = {};
+    a.value = null;
+    s.value = [];
+    t.value = {};
+    resetArtifactColoring();
+  }
+
+  async function L() {
+    resetViewer();
+    loadMessage.value = "";
+    Q2.value = undefined;
+    if ((c2.showMonomerModel ? !c2.monomerId : !c2.projectId) || (c2.isPreview && !c2.visible)) return;
+
+    loadController = new AbortController();
+    const { signal } = loadController;
+    Q2.value = q2.QUERY.V;
+    try {
+      const model = c2.showMonomerModel
+        ? await getTranslate(c2.monomerId, c2.areaId, signal)
+        : await getIMTranslate(c2.projectId, signal);
+      if (signal.aborted) return;
+      I2.value = model;
+      Q2.value = model.modelType === "integration" ? model.integrationStatus : model.status;
+      if (!T2.value.V[Q2.value]) {
+        throw new Error("未知模型状态");
+      }
+    } catch {
+      if (!signal.aborted) loadMessage.value = "未能查询模型状态，请重试";
+      return;
+    }
+    if (Q2.value !== modelTranslateStatusEnum.SUCCESS.V) return;
+
+    let metadata;
+    try {
+      metadata = await initBimfaceApp({ viewToken: I2.value.viewToken, signal });
+    } catch (error) {
+      if (!signal.aborted) loadMessage.value = error.message || "BIM SDK 加载失败，请重试";
+      return;
+    }
+    await nextTick();
+    if (signal.aborted) return;
+    st(metadata, signal);
+  }
+
+  function st(metadata, signal) {
+    const root = viewerRoot.value;
+    function fail(message = "模型无法显示，请重试") {
+      if (signal.aborted) return;
+      resetViewer();
+      loadMessage.value = message;
+    }
+    try {
+      const config = getConfig();
+      config.Toolbars = ["MainToolbar"];
+      if (c2.tracePage) config.enableViewHouse = false;
+      if (c2.isPreview || c2.tracePage) config.Buttons = ["Home", "FullScreen"];
+      config.domElement = root;
+
+      const app = getApp(config);
+      releaseViewer = () => {
+        try {
+          app.destroy?.();
+        } finally {
+          root.replaceChildren();
         }
-        j(), window.onresize = function() {
-          w.value.resize(document.documentElement.clientWidth, document.documentElement.clientHeight - 40), w.value.clearSelectedComponents();
-        }, r(), B2.value = true;
-      }, { passive: false }), console.log(y2, "_viewer3DEvent"), w.value.addEventListener(y2.value.ComponentsSelectionChanged, (ot) => {
-        if (console.log(ot, "ComponentsSelectionChanged"), a.value && a.value !== modelMenuBarEnum.PROJECT_TREE.V) {
-          const ut = w.value.getSelectedComponents();
-          isBlank(ut) ? bt() : dt(ut[0]);
+      };
+      const viewer = app.getViewer(), events = getViewer3DEvent();
+      const selectionEvent = events.ComponentsSelectionChanged || events.SelectionChanged;
+      const readyEvents = [events.ViewAdded];
+      if (!metadata.viewToken && events.ModelAdded) readyEvents.push(events.ModelAdded);
+      const onViewerError = () => fail();
+      const timeout = setTimeout(() => fail("模型显示超时，请重试"), 90000);
+      w.value = viewer;
+      const resize = () => {
+        viewer.resize(root.clientWidth, root.clientHeight);
+        viewer.clearSelectedComponents();
+      };
+      function onSelectionChanged() {
+        if (signal.aborted || !B2.value || !a.value || a.value === modelMenuBarEnum.PROJECT_TREE.V) return;
+        const selected = viewer.getSelectedComponents();
+        isBlank(selected) ? bt() : dt(selected[0]);
+      }
+      function onViewAdded() {
+        if (signal.aborted || B2.value || w.value !== viewer) return;
+        clearTimeout(timeout);
+        try {
+          r();
+          if (!c2.isPreview) {
+            l.panelPositions = getPanelPositions();
+            K(), at(), P(), N(), i(), g();
+          } else if (c2.tracePage) {
+            if (c2.modelElementIds?.length) v(c2.modelElementIds), Z(c2.modelElementIds);
+          } else if (c2.isMobile) {
+            l.panelPositions = getPanelPositions();
+            at(), K(), N(), g();
+          }
+          j();
+          window.addEventListener("resize", resize);
+          B2.value = true;
+        } catch {
+          fail("模型查看器初始化失败，请重试");
         }
-      }, { passive: false });
-    } catch (J) {
-      console.log(J);
+      }
+      releaseViewer = () => {
+        clearTimeout(timeout);
+        window.removeEventListener("resize", resize);
+        destroyColorCard();
+        destroyDrawing();
+        destroyWeldingProcess();
+        try {
+          for (const event of readyEvents) viewer.removeEventListener?.(event, onViewAdded);
+          if (selectionEvent) viewer.removeEventListener?.(selectionEvent, onSelectionChanged);
+          if (events.Error) viewer.removeEventListener?.(events.Error, onViewerError);
+          if (typeof app.destroy === "function") app.destroy();
+          else viewer.destroy();
+        } finally {
+          root.replaceChildren();
+        }
+      };
+      for (const event of readyEvents) viewer.addEventListener(event, onViewAdded);
+      if (selectionEvent) viewer.addEventListener(selectionEvent, onSelectionChanged);
+      if (events.Error) viewer.addEventListener(events.Error, onViewerError);
+      const pending = metadata.viewToken ? app.addView(metadata.viewToken) : app.addModel(metadata);
+      pending?.catch?.(() => fail());
+    } catch {
+      fail();
     }
   }
-  return f2({ modelLoaded: B2, clearIsolation: m, isolateComponentsById: v, previewSNElementIds: A }), (it, J) => {
-    var et;
-    const rt = ElTag;
-    return openBlock(), createElementBlock("div", { class: "model-container", style: normalizeStyle({ height: `${z2.maxHeight}px` }) }, [Q2.value !== T2.value.SUCCESS.V ? (openBlock(), createBlock(rt, { key: 0, type: (et = T2.value.V[Q2.value]) == null ? void 0 : et.T, style: normalizeStyle(z2.isPreview || !z2.showMonomerModel ? "margin-left: 10px;margin-top: 10px;" : "") }, { default: withCtx(() => [createTextVNode(toDisplayString(T2.value.VL[Q2.value]) + " " + toDisplayString(I2.value.reason), 1)]), _: 1 }, 8, ["type", "style"])) : createCommentVNode("", true), Q2.value === T2.value.SUCCESS.V ? (openBlock(), createElementBlock("div", _hoisted_1)) : createCommentVNode("", true)], 4);
+
+  return f2({ modelLoaded: B2, clearIsolation: m, isolateComponentsById: v, previewSNElementIds: A }), () => {
+    const modelReady = Q2.value === T2.value.SUCCESS.V && !loadMessage.value;
+    const hint = loadMessage.value || (modelReady
+      ? B2.value ? "" : "正在加载模型…"
+      : Q2.value ? [T2.value.VL[Q2.value], I2.value.reason].filter(Boolean).join(" ") : c2.showMonomerModel ? "请选择单体" : "请选择项目");
+    return createVNode("div", { class: "model-container", style: normalizeStyle({ height: `${z2.maxHeight}px` }) }, [
+      modelReady ? createVNode("div", { ..._hoisted_1, ref: viewerRoot }) : null,
+      hint ? createVNode(ElTag, { type: loadMessage.value ? "danger" : T2.value.V[Q2.value]?.T, style: normalizeStyle({ position: "absolute", top: "10px", left: "10px" }) }, { default: () => hint }) : null,
+      loadMessage.value ? createVNode(ElButton, { link: true, type: "primary", onClick: L, style: normalizeStyle({ position: "absolute", top: "10px", right: "10px" }) }, { default: () => "重试" }) : null,
+      statusMessage.value ? createVNode(ElTag, { type: "warning", style: normalizeStyle({ position: "absolute", top: "80px", right: "10px", zIndex: 2 }) }, { default: () => statusMessage.value }) : null
+    ]);
   };
 } }, bimModelView = _export_sfc(_sfc_main, [["__scopeId", "data-v-e583eb98"]]);
 export {
-  bimModelView as b
+  bimModelView as b,
+  weldingProcess as w
 };

@@ -23,6 +23,8 @@ __pycache__/
 /20-rebuild/acceptance/.verification/
 /20-rebuild/integrations/private/
 /20-rebuild/integrations/runtime/
+/20-rebuild/design/
+/design-qa.md
 /20-rebuild/frontend-recovered/node_modules/
 /20-rebuild/frontend-recovered/dist/
 /20-rebuild/recovery-tools/generated/*
