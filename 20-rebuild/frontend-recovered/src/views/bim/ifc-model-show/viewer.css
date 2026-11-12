@@ -97,6 +97,9 @@
 .ifc-workspace .ifc-panel .el-input__inner::placeholder { color: #8a98a9; }
 .ifc-workspace .ifc-panel .el-input__wrapper.is-focus { box-shadow: 0 0 0 1px #78b9ef inset; }
 .ifc-workspace .ifc-panel .el-tree { --el-tree-node-hover-bg-color: #ffffff08; --el-fill-color-blank: transparent; --el-fill-color-light: #ffffff0c; --el-text-color-regular: #dce4ee; --el-color-primary: #8bc8ff; --el-color-primary-light-9: #344557; margin-top: 8px; background: transparent; color: #dce4ee; }
+.ifc-workspace .ifc-panel-component .ifc-panel-content { overflow: hidden; }
+.ifc-workspace .ifc-tree-viewport { height: min(440px, max(96px, calc(100dvh - 400px))); margin-top: 8px; }
+.ifc-workspace .ifc-tree-viewport .el-tree { margin-top: 0; }
 .ifc-workspace .ifc-panel .el-tree-node__content { height: 32px; border-radius: 5px; }
 .ifc-workspace .ifc-panel .el-tree-node__label { font-size: 12px; }
 .ifc-workspace .ifc-panel .el-tree-node__expand-icon { color: #91a0b1; }

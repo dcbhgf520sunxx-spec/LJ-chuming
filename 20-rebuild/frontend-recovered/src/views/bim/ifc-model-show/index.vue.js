@@ -1,10 +1,11 @@
 import { computed, defineAsyncComponent, defineComponent, h, nextTick, onUnmounted, ref, shallowRef, watch } from 'vue';
-import { ElButton, ElEmpty, ElIcon, ElInput, ElOption, ElPopover, ElSelect, ElSlider, ElTree, ElCheckbox } from 'element-plus';
+import { ElButton, ElEmpty, ElIcon, ElInput, ElOption, ElPopover, ElSelect, ElSlider, ElTree, ElTreeV2, ElCheckbox } from 'element-plus';
 import { ArrowDown, Close, House, Loading, Minus, Plus, Refresh, Search } from '@element-plus/icons-vue';
 import { m as projectContext, q as MonomerSelect, X as getToken } from '../../../shared/runtime.js';
 import { buildProgress, stages, selectionColor, statusAppearance } from './progress.js';
 import { a as DrawingPreview } from '../../../modules/drawing-preview-fullscreen-dialog-60155503.js';
 import { createIfcViewer } from './viewer.js';
+import { modelBundleCache } from './model-cache.js';
 import { componentTree, viewDirections, zoomFromSlider, zoomLimits, zoomToSlider } from './navigation.js';
 import { createOrientationCube } from './orientation-cube.js';
 import './viewer.css';
@@ -59,6 +60,23 @@ export default defineComponent({
     const activeTab = ref('production');
     const panelVisible = ref(false);
     const treeQuery = ref('');
+    const appliedTreeQuery = ref('');
+    const treeViewport = ref();
+    const treeHeight = ref(320);
+    let treeObserver;
+    watch(treeQuery, (value, previous, cleanup) => {
+      const timer = setTimeout(() => { appliedTreeQuery.value = value.trim().toLowerCase(); }, value ? 120 : 0);
+      cleanup(() => clearTimeout(timer));
+    });
+    watch(treeViewport, element => {
+      treeObserver?.disconnect();
+      if (!element) return;
+      treeObserver = new ResizeObserver(entries => {
+        const height = Math.floor(entries[0].contentRect.height);
+        if (height > 0) treeHeight.value = height;
+      });
+      treeObserver.observe(element);
+    }, {flush: 'post'});
     const hiddenParts = shallowRef(new Set());
     const projectMonomers = shallowRef([]);
     const projectTreeError = ref('');
@@ -76,8 +94,11 @@ export default defineComponent({
     const progress = computed(() => stages[stage.value] && modelIndex.value && businessRows.value
       ? buildProgress(modelIndex.value.assemblies, businessRows.value, stage.value) : null);
     const partsTree = computed(() => modelIndex.value ? componentTree(modelIndex.value) : []);
-    const filteredTree = computed(() => partsTree.value.filter(item =>
-      item.label.toLowerCase().includes(treeQuery.value.trim().toLowerCase())));
+    const filteredTree = computed(() => {
+      if (!appliedTreeQuery.value) return partsTree.value;
+      const result = partsTree.value.filter(item => item.label.toLowerCase().includes(appliedTreeQuery.value));
+      return result.length === partsTree.value.length ? partsTree.value : result;
+    });
     const monomerName = computed(() => monomerRef.value?.getOption(monomer.value)?.name || '当前单体');
     const projectName = computed(() => {
       const project = projectMap.value?.[globalProjectId.value] || globalProject.value;
@@ -178,16 +199,13 @@ export default defineComponent({
       if (!path || !chosen?.revision) return;
       loading.value = true;
       const url = path + '/' + chosen.id + '/' + chosen.revision;
-      const business = read(url + '/progress', abort.signal).then(rows => {
+      read(url + '/progress', abort.signal).then(rows => {
         if (!abort.signal.aborted) businessRows.value = rows;
       }).catch(() => {
         if (!abort.signal.aborted) progressError.value = '进度读取失败，可刷新重试';
       });
       try {
-        const [index, geometry] = await Promise.all([
-          read(url + '/index', abort.signal, 'index'),
-          read(url + '/geometry', abort.signal, 'binary'),
-        ]);
+        const {index, geometry} = await modelBundleCache.load(url, getToken() || '', abort.signal);
         if (abort.signal.aborted) return;
         await nextTick();
         if (abort.signal.aborted || !canvasHost.value) return;
@@ -206,7 +224,7 @@ export default defineComponent({
         }
         viewer = result;
         modelIndex.value = { ...index, looseElements: result.elementIds.filter(id => !index.parts[id]) };
-        await business;
+
       } catch (failure) {
         if (!abort.signal.aborted) error.value = failure.message || '模型无法打开，请检查模型文件';
       } finally {
@@ -216,7 +234,7 @@ export default defineComponent({
     watch([stage, progress, focused, selected, stateFilter, modelIndex, hiddenParts], () => {
       viewer?.update(stage.value, progress.value, focused.value, selected.value, stateFilter.value, hiddenParts.value);
     });
-    watch([selected, base, area, detailRetry, stage], async ([part, path, chosen], previous, cleanup) => {
+    watch([() => selected.value?.mark, base, area, detailRetry, stage], async ([mark, path, chosen], previous, cleanup) => {
       const abort = new AbortController();
       cleanup(() => abort.abort());
       detailRows.value = [];
@@ -227,11 +245,11 @@ export default defineComponent({
       drawingVisible.value = false;
       weldingVisible.value = false;
       statusGuideVisible.value = false;
-      if (!part?.mark || !chosen?.revision) return;
+      if (!mark || !chosen?.revision) return;
       detailLoading.value = true;
       try {
         const rows = await read(path + '/' + chosen.id + '/' + chosen.revision + '/components?mark='
-          + encodeURIComponent(part.mark) + '&mode=' + (stages[stage.value] ? stage.value : 'component'), abort.signal);
+          + encodeURIComponent(mark) + '&mode=' + (stages[stage.value] ? stage.value : 'component'), abort.signal);
         if (!abort.signal.aborted) detailRows.value = rows;
       } catch (failure) {
         if (!abort.signal.aborted) detailError.value = failure.message || '构件详情读取失败';
@@ -239,7 +257,7 @@ export default defineComponent({
         if (!abort.signal.aborted) detailLoading.value = false;
       }
     });
-    onUnmounted(() => { viewer?.dispose(); orientationCube?.dispose(); });
+    onUnmounted(() => { viewer?.dispose(); orientationCube?.dispose(); treeObserver?.disconnect(); });
 
     function locate(mark) {
       if (!mark || !viewer?.focus(mark)) {
@@ -510,7 +528,7 @@ export default defineComponent({
             ]),
             globalProjectId.value && panelVisible.value ? h('section', { key: 'context-panel',
               style: selected.value ? { display: 'none' } : undefined,
-              class: ['ifc-panel', stages[activeTab.value] ? 'ifc-panel-stat' : 'ifc-panel-tree'],
+              class: ['ifc-panel', stages[activeTab.value] ? 'ifc-panel-stat' : 'ifc-panel-tree', activeTab.value === 'component' && 'ifc-panel-component'],
               'aria-label': tabs.find(item => item.id === activeTab.value)?.label }, [
               h('div', { class: 'ifc-panel-heading' }, [
                 h('span', tabs.find(item => item.id === activeTab.value)?.label),
@@ -529,15 +547,13 @@ export default defineComponent({
                 activeTab.value === 'component' ? [
                   h(ElInput, { modelValue: treeQuery.value, 'onUpdate:modelValue': value => { treeQuery.value = value; },
                     placeholder: '筛选构件编号', 'aria-label': '筛选构件编号', size: 'small', clearable: true }),
-                  h(ElTree, {
-                    key: area.value?.revision + treeQuery.value, lazy: true, nodeKey: 'key',
-                    expandOnClickNode: false,
-                    load: (node, resolve) => resolve(node.level === 0 ? filteredTree.value : node.data.children || []),
-                    props: { isLeaf: item => !item.children?.length },
-                    renderContent: (_, node) => renderPart(node),
-                    onNodeClick: selectPart,
-                    emptyText: '无匹配构件',
-                  }),
+                  h('div', {class: 'ifc-tree-viewport', ref: treeViewport}, [
+                    h(ElTreeV2, {
+                      key: area.value?.revision, data: filteredTree.value, height: treeHeight.value, itemSize: 32,
+                      props: {value: 'key', label: 'label', children: 'children'},
+                      expandOnClickNode: false, onNodeClick: selectPart, emptyText: '无匹配构件',
+                    }, {default: renderPart}),
+                  ]),
                 ] : null,
                 stages[activeTab.value] ? statPanel(stages[activeTab.value]) : null,
               ]),

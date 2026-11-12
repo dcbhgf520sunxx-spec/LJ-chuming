@@ -1,5 +1,6 @@
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,6 +11,30 @@ spec.loader.exec_module(activation)
 
 
 class FrontendPublicationTests(unittest.TestCase):
+    def test_preserves_existing_bim_environment_and_policy_when_publishing(self):
+        config = {'sdk_version': '3.6.350', 'sdk_loader_url': 'https://static.bimface.com/loader.js',
+                  'api_url': 'https://api.bimface.com/', 'static_url': 'https://static.bimface.com/api',
+                  'resource_url': 'https://m.bimface.com/'}
+        old = '<head><meta http-equiv="Content-Security-Policy" content="existing-policy">' \
+              '<script type="application/json" id="ljaps-bim-viewer-config">' + json.dumps(config) + '</script></head>'
+        new = '<head><meta http-equiv="Content-Security-Policy" content="build-policy"></head><script src="new.js"></script>'
+        result = activation.preserve_bim_environment(new, old)
+        self.assertIn('existing-policy', result)
+        self.assertIn('ljaps-bim-viewer-config', result)
+        self.assertIn('new.js', result)
+        self.assertEqual(activation.preserve_bim_environment(new, ''), new)
+        self.assertEqual(activation.preserve_bim_environment(result, old), result)
+        with tempfile.TemporaryDirectory() as temporary:
+            dist, web = Path(temporary) / 'dist', Path(temporary) / 'web'
+            dist.mkdir(); web.mkdir()
+            (dist / 'index.html').write_text(new)
+            (web / 'index.html').write_text(old)
+            entry = {'path': 'index.html', 'bytes': (dist / 'index.html').stat().st_size,
+                     'sha256': activation.digest(dist / 'index.html')}
+            activation.publish(dist, web, [entry], entry['sha256'])
+            self.assertEqual((web / 'index.html').read_text(), result)
+            self.assertEqual((dist / 'index.html').read_text(), new)
+
     def artifacts(self, root):
         (root / 'assets').mkdir()
         (root / 'index.html').write_text('<script src="/assets/new.js"></script>')

@@ -51,3 +51,6 @@ await import('./verify-print-text-identifiers.mjs');
 await import('./verify-bim-viewer.mjs');
 await import('./verify-ifc-progress.mjs');
 await import('./verify-ifc-navigation.mjs');
+
+await import('./verify-ifc-cache.mjs');
+await import('./verify-ifc-renderer.mjs');

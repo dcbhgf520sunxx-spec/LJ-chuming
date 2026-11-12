@@ -2,41 +2,17 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MeshoptDecoder } from 'meshoptimizer/decoder';
-import { stages, selectionColor, isSelectedPart, statusAppearance } from './progress.js';
 import { focusDistance, zoomLimits } from './navigation.js';
-
-const modelColor = 0x9ba9b9;
+import { decodeIfcModel, createIfcRenderData, createIfcRenderState } from './render-data.js';
 
 export async function createIfcViewer(container, buffer, index, signal, onSelect, onCameraChange) {
-  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-  const { scene: model } = await loader.parseAsync(buffer, '');
-  const resources = new Set();
-  function releaseModel() {
-    for (const resource of resources) resource.dispose();
-  }
-  const fallbackMaterial = new THREE.MeshLambertMaterial({ color: modelColor, side: THREE.DoubleSide });
-  resources.add(fallbackMaterial);
-  for (const item of index.extraMeshes || []) {
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(item.positions, 3));
-    geometry.setIndex(item.indices);
-    geometry.computeVertexNormals();
-    const mesh = new THREE.Mesh(geometry, fallbackMaterial);
-    mesh.name = item.id;
-    model.add(mesh);
-  }
-  model.traverse(node => {
-    if (!node.isMesh) return;
-    resources.add(node.geometry);
-    for (const material of [node.material].flat()) {
-      resources.add(material);
-      for (const value of Object.values(material)) if (value?.isTexture) resources.add(value);
-    }
-  });
-  if (signal.aborted) {
-    releaseModel();
-    return;
-  }
+  if (signal.aborted) return;
+  const decoded = await decodeIfcModel(buffer, data =>
+    new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(data, ''));
+  if (signal.aborted) return;
+  const data = createIfcRenderData(decoded, index);
+  const renderState = createIfcRenderState(data);
+  const releaseModel = () => renderState.dispose();
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -56,50 +32,17 @@ export async function createIfcViewer(container, buffer, index, signal, onSelect
   sun.position.set(20, 40, 30);
   scene.add(sun);
 
-  const box = new THREE.Box3().setFromObject(model);
-  model.position.sub(box.getCenter(new THREE.Vector3()));
-  model.updateMatrixWorld(true);
-  box.setFromObject(model);
-  const groups = new Map();
+  const box = data.box;
   const assemblies = new Map(index.assemblies.map(item => [item.id, item]));
-  model.traverse(mesh => {
-    if (!mesh.isMesh) return;
-    let node = mesh;
-    while (node && !/^[0-9a-zA-Z_$]{22}$/.test(node.name)) node = node.parent;
-    const id = node?.name;
-    const [assemblyId, mark] = index.parts[id] || [];
-    const key = mesh.geometry.uuid + ':' + mesh.material.uuid;
-    if (!groups.has(key)) groups.set(key, { geometry: mesh.geometry, items: [] });
-    groups.get(key).items.push({ id, assemblyId, mark, matrix: mesh.matrixWorld.clone(), visible: true });
-  });
-
-  const batches = [];
-  const displayMaterial = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide,
-    polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
-  resources.add(displayMaterial);
-  const selectionEdges = new Map();
-  const selectionLines = new THREE.Group();
-  const lineMaterial = new THREE.LineBasicMaterial({color: selectionColor, depthWrite: false});
-  resources.add(lineMaterial);
+  const { batches, selectionLines } = renderState;
   scene.add(selectionLines);
-  for (const group of groups.values()) {
-    const draw = new THREE.InstancedMesh(group.geometry, displayMaterial, group.items.length);
-    group.items.forEach((item, slot) => {
-      draw.setMatrixAt(slot, item.matrix);
-      draw.setColorAt(slot, new THREE.Color(modelColor));
-    });
-    draw.computeBoundingSphere();
-    draw.userData.items = group.items;
-    group.draw = draw;
-    resources.add(draw);
-    scene.add(draw);
-    batches.push(draw);
-  }
+  for (const draw of batches) scene.add(draw);
 
   let frame = 0;
   let fitDistance = 1;
+  let disposed = false;
   function paint() {
-    if (frame) return;
+    if (frame || disposed) return;
     frame = requestAnimationFrame(() => {
       frame = 0;
       renderer.render(scene, camera);
@@ -148,36 +91,8 @@ export async function createIfcViewer(container, buffer, index, signal, onSelect
     orbit.update();
     paint();
   }
-  const offscreen = new THREE.Matrix4().makeTranslation(0, -1000000, 0);
-  const color = new THREE.Color();
   function update(stage, progress, focused, selected, filter, hiddenIds = new Set()) {
-    const palette = stages[stage]?.colors;
-    selectionLines.clear();
-    for (const group of groups.values()) {
-      group.items.forEach((item, slot) => {
-        const state = progress?.byMark.get(item.mark)?.state ?? 'unknown';
-        item.visible = !hiddenIds.has(item.id) && (!focused || item.mark === focused) && (filter == null || state === filter);
-        group.draw.setMatrixAt(slot, item.visible ? item.matrix : offscreen);
-        const highlighted = isSelectedPart(item, selected);
-        const shade = palette ? statusAppearance(stage, progress?.byMark.get(item.mark)).color
-          : highlighted ? selectionColor : modelColor;
-        group.draw.setColorAt(slot, color.setHex(shade));
-        if (palette && highlighted && item.visible) {
-          if (!selectionEdges.has(group.geometry)) {
-            const edges = new THREE.EdgesGeometry(group.geometry, 30);
-            selectionEdges.set(group.geometry, edges);
-            resources.add(edges);
-          }
-          const lines = new THREE.LineSegments(selectionEdges.get(group.geometry), lineMaterial);
-          lines.matrixAutoUpdate = false;
-          lines.matrix.copy(item.matrix);
-          lines.renderOrder = 1;
-          selectionLines.add(lines);
-        }
-      });
-      group.draw.instanceMatrix.needsUpdate = true;
-      if (group.draw.instanceColor) group.draw.instanceColor.needsUpdate = true;
-    }
+    renderState.update(stage, progress, focused, selected, filter, hiddenIds);
     paint();
   }
 
@@ -197,15 +112,9 @@ export async function createIfcViewer(container, buffer, index, signal, onSelect
   });
 
   function focus(mark) {
-    const target = new THREE.Box3();
-    for (const group of groups.values()) {
-      group.geometry.computeBoundingBox();
-      for (const item of group.items) {
-        if (item.mark === mark) target.union(group.geometry.boundingBox.clone().applyMatrix4(item.matrix));
-      }
-    }
-    if (!target.isEmpty()) fit(target);
-    return !target.isEmpty();
+    const bounds = data.markBounds.get(mark);
+    if (bounds && !bounds.isEmpty()) fit(bounds);
+    return !!bounds && !bounds.isEmpty();
   }
   function setView(direction) {
     const radius = camera.position.distanceTo(orbit.target);
@@ -217,40 +126,29 @@ export async function createIfcViewer(container, buffer, index, signal, onSelect
     paint();
   }
   function focusElement(id) {
-    for (const group of groups.values()) {
-      const item = group.items.find(value => value.id === id);
-      if (!item) continue;
-      group.geometry.computeBoundingBox();
-      fit(group.geometry.boundingBox.clone().applyMatrix4(item.matrix));
-      onSelect({ id, assemblyId: item.assemblyId, mark: item.mark,
-        position: assemblies.get(item.assemblyId)?.position, elementOnly: true });
-      return true;
-    }
-    return false;
+    const item = data.byElement.get(id)?.[0];
+    if (!item) return false;
+    fit(data.elementBounds.get(id));
+    onSelect({ id, assemblyId: item.assemblyId, mark: item.mark,
+      position: assemblies.get(item.assemblyId)?.position, elementOnly: true });
+    return true;
   }
   function focusAssembly(assemblyId) {
-    const bounds = new THREE.Box3();
-    let first;
-    for (const group of groups.values()) {
-      group.geometry.computeBoundingBox();
-      for (const item of group.items) {
-        if (item.assemblyId !== assemblyId) continue;
-        first ||= item;
-        bounds.union(group.geometry.boundingBox.clone().applyMatrix4(item.matrix));
-      }
-    }
+    const first = data.byAssembly.get(assemblyId)?.[0];
     if (!first) return false;
-    fit(bounds);
+    fit(data.assemblyBounds.get(assemblyId));
     onSelect({ id: first.id, assemblyId, mark: first.mark, position: assemblies.get(assemblyId)?.position });
     return true;
   }
-  const elementIds = [...new Set([...groups.values()].flatMap(group => group.items.map(item => item.id)))];
+  const elementIds = data.elementIds;
   renderer.setSize(container.clientWidth || 1, container.clientHeight || 1);
   camera.aspect = Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight);
   fit();
   return {
     update, focus, focusElement, focusAssembly, setView, setZoom, elementIds, fit: () => fit(),
     dispose() {
+      if (disposed) return;
+      disposed = true;
       cancelAnimationFrame(frame);
       size.disconnect();
       orbit.dispose();

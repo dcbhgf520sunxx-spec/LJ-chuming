@@ -70,6 +70,9 @@ function JV(token) {
 }
 function bA() {
   sessionStorage.removeItem("ljaps-recovered-token");
+  if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+    window.dispatchEvent(new window.Event("ljaps-session-ended"));
+  }
 }
 function yn() {
   return location.origin;

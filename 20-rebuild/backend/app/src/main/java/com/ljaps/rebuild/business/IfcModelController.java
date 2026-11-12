@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -99,21 +100,35 @@ public class IfcModelController {
                                                         @PathVariable Long areaId, @PathVariable String revision) throws IOException {
         requireBundle(projectId, monomerId, areaId, revision);
         return ResultBuilder.success(jdbc.queryForList(
-            "SELECT a.serial_number AS mark, MAX(a.name) AS name, SUM(a.quantity) AS quantity,"
+            "WITH target AS (SELECT id,serial_number,name,quantity,gross_weight FROM tech_artifact"
+            + " WHERE bool_delete_enum=0 AND monomer_id=? AND area_id=?),"
+            + " task AS (SELECT t.product_id,SUM(t.complete_quantity) AS complete,"
+            + " SUM(t.in_production_quantity) AS inProduction FROM mes_building_task t"
+            + " JOIN target a ON a.id=t.product_id WHERE t.bool_delete_enum=0 AND t.task_type_enum=2 GROUP BY t.product_id),"
+            + " warehouse AS (SELECT t.product_id,SUM(CASE WHEN t.type=1 THEN t.quantity ELSE 0 END) AS inbound,"
+            + " SUM(CASE WHEN t.type=2 THEN t.quantity ELSE 0 END) AS outbound FROM mes_building_warehouse_summary t"
+            + " JOIN target a ON a.id=t.product_id WHERE t.bool_delete_enum=0 AND t.product_type=2 GROUP BY t.product_id),"
+            + " received AS (SELECT t.product_id,SUM(t.quantity) AS received FROM project_receiving_summary t"
+            + " JOIN target a ON a.id=t.product_id WHERE t.bool_delete_enum=0 AND t.product_type=2 GROUP BY t.product_id),"
+            + " installed AS (SELECT t.product_id,SUM(t.actual_quantity) AS installed FROM project_install_summary t"
+            + " JOIN target a ON a.id=t.product_id WHERE t.bool_delete_enum=0 AND t.product_type=2 GROUP BY t.product_id)"
+            + " SELECT a.serial_number AS mark, MAX(a.name) AS name, SUM(a.quantity) AS quantity,"
             + " SUM(a.quantity * COALESCE(a.gross_weight,0)) AS totalGrossWeight,"
-            + " SUM(" + amount("mes_building_task", "complete_quantity", "task_type_enum=2") + ") AS complete,"
-            + " SUM(" + amount("mes_building_task", "in_production_quantity", "task_type_enum=2") + ") AS inProduction,"
-            + " SUM(" + amount("mes_building_warehouse_summary", "quantity", "product_type=2 AND type=1") + ") AS inbound,"
-            + " SUM(" + amount("mes_building_warehouse_summary", "quantity", "product_type=2 AND type=2") + ") AS outbound,"
-            + " SUM(" + amount("project_receiving_summary", "quantity", "product_type=2") + ") AS received,"
-            + " SUM(" + amount("project_install_summary", "actual_quantity", "product_type=2") + ") AS installed,"
-            + " SUM(" + amount("mes_building_task", "complete_quantity", "task_type_enum=2") + " * COALESCE(a.gross_weight,0)) AS completeWeight,"
-            + " SUM(" + amount("mes_building_task", "in_production_quantity", "task_type_enum=2") + " * COALESCE(a.gross_weight,0)) AS inProductionWeight,"
-            + " SUM(" + amount("mes_building_warehouse_summary", "quantity", "product_type=2 AND type=1") + " * COALESCE(a.gross_weight,0)) AS inboundWeight,"
-            + " SUM(" + amount("mes_building_warehouse_summary", "quantity", "product_type=2 AND type=2") + " * COALESCE(a.gross_weight,0)) AS outboundWeight,"
-            + " SUM(" + amount("project_receiving_summary", "quantity", "product_type=2") + " * COALESCE(a.gross_weight,0)) AS receivedWeight,"
-            + " SUM(" + amount("project_install_summary", "actual_quantity", "product_type=2") + " * COALESCE(a.gross_weight,0)) AS installedWeight"
-            + " FROM tech_artifact a WHERE a.bool_delete_enum=0 AND a.monomer_id=? AND a.area_id=?"
+            + " SUM(COALESCE(task.complete,0)) AS complete,"
+            + " SUM(COALESCE(task.inProduction,0)) AS inProduction,"
+            + " SUM(COALESCE(warehouse.inbound,0)) AS inbound,"
+            + " SUM(COALESCE(warehouse.outbound,0)) AS outbound,"
+            + " SUM(COALESCE(received.received,0)) AS received,"
+            + " SUM(COALESCE(installed.installed,0)) AS installed,"
+            + " SUM(COALESCE(task.complete,0) * COALESCE(a.gross_weight,0)) AS completeWeight,"
+            + " SUM(COALESCE(task.inProduction,0) * COALESCE(a.gross_weight,0)) AS inProductionWeight,"
+            + " SUM(COALESCE(warehouse.inbound,0) * COALESCE(a.gross_weight,0)) AS inboundWeight,"
+            + " SUM(COALESCE(warehouse.outbound,0) * COALESCE(a.gross_weight,0)) AS outboundWeight,"
+            + " SUM(COALESCE(received.received,0) * COALESCE(a.gross_weight,0)) AS receivedWeight,"
+            + " SUM(COALESCE(installed.installed,0) * COALESCE(a.gross_weight,0)) AS installedWeight"
+            + " FROM target a LEFT JOIN task ON task.product_id=a.id"
+            + " LEFT JOIN warehouse ON warehouse.product_id=a.id LEFT JOIN received ON received.product_id=a.id"
+            + " LEFT JOIN installed ON installed.product_id=a.id"
             + " GROUP BY a.serial_number", monomerId, areaId));
     }
 
@@ -145,15 +160,12 @@ public class IfcModelController {
         return ResultBuilder.success(result);
     }
 
-    private static String amount(String table, String column, String condition) {
-        return "(SELECT COALESCE(SUM(t." + column + "),0) FROM " + table
-            + " t WHERE t.product_id=a.id AND t.bool_delete_enum=0 AND " + condition + ")";
-    }
-
     private ResponseEntity<Resource> file(Long projectId, Long monomerId, Long areaId, String revision,
                                           String name, MediaType type) throws IOException {
         Path file = requireBundle(projectId, monomerId, areaId, revision).resolve(name);
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).contentType(type)
+        // Spring evaluates conditional requests only after the complete bundle authorization above.
+        return ResponseEntity.ok().cacheControl(CacheControl.noCache().cachePrivate().mustRevalidate())
+            .eTag("\"" + revision + "/" + name + "\"").varyBy(HttpHeaders.AUTHORIZATION, HttpHeaders.ACCEPT_ENCODING).contentType(type)
             .contentLength(Files.size(file)).body(new FileSystemResource(file));
     }
 

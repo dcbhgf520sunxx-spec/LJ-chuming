@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import tempfile
 
@@ -12,6 +13,22 @@ ROOT = Path(__file__).resolve().parent
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def preserve_bim_environment(html, previous):
+    """Keep the deployed viewer environment separate from the generic verified build."""
+    marker = 'ljaps-bim-viewer-config'
+    if marker in html or marker not in previous:
+        return html
+    config = re.search(r'<script\b[^>]*\bid=[\"\']' + marker + r'[\"\'][^>]*>(.*?)</script>', previous, re.S)
+    if not config or not {'sdk_version', 'sdk_loader_url', 'api_url', 'static_url', 'resource_url'} <= json.loads(config[1]).keys():
+        raise ValueError('Existing BIM viewer environment is invalid')
+    policy = r'<meta\b[^>]*http-equiv=[\"\']Content-Security-Policy[\"\'][^>]*>'
+    previous_policy = re.search(policy, previous, re.I)
+    if not previous_policy or not re.search(policy, html, re.I) or '</head>' not in html:
+        raise ValueError('BIM viewer publication requires an explicit browser policy')
+    html = re.sub(policy, lambda _: previous_policy[0], html, count=1, flags=re.I)
+    return html.replace('</head>', config[0] + '</head>', 1)
 
 
 def checked_path(root, relative):
@@ -56,6 +73,9 @@ def publish(dist, destination, entries, expected_index):
     if digest(dist / 'index.html') != expected_index:
         raise ValueError('Frontend entry differs from the verified build')
     destination.mkdir(parents=True, exist_ok=True)
+    prior_index = destination / 'index.html'
+    published_index = preserve_bim_environment((dist / 'index.html').read_text(),
+                                              prior_index.read_text() if prior_index.exists() else '').encode()
     # Keep the directory inode stable for Docker's bind mount. Existing hashed assets
     # remain available to tabs opened before publication; switch index only at the end.
     with tempfile.TemporaryDirectory(prefix='.frontend-stage-', dir=destination.parent) as temporary:
@@ -66,6 +86,7 @@ def publish(dist, destination, entries, expected_index):
             staged.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(checked_path(dist, relative), staged)
         verify_files(stage, entries)
+        (stage / 'index.html').write_bytes(published_index)
         for entry in entries:
             relative = entry['path']
             if relative == 'index.html':
@@ -75,7 +96,8 @@ def publish(dist, destination, entries, expected_index):
             os.replace(stage / relative, target)
         os.replace(stage / 'index.html', destination / 'index.html')
     for entry in entries:
-        if digest(checked_path(destination, entry['path'])) != entry['sha256']:
+        expected = hashlib.sha256(published_index).hexdigest() if entry['path'] == 'index.html' else entry['sha256']
+        if digest(checked_path(destination, entry['path'])) != expected:
             raise ValueError('Published frontend verification failed: ' + entry['path'])
 
 
@@ -91,6 +113,7 @@ def main():
     destination = ROOT / 'runtime/web'
     publish(frontend / 'dist', destination, entries, report['index_sha256'])
     record = {'index_sha256': report['index_sha256'], 'published_files': len(entries),
+              'published_index_sha256': digest(destination / 'index.html'),
               'dist_files': entries, 'source_build_verified_at': report['verified_at'],
               'published_directory': '20-rebuild/local/runtime/web',
               'old_hashed_assets_retained_for_open_tabs': True}
